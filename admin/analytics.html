@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - FJL Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo"><span>FJL</span></div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link">📊 Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link">📦 Products</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link">🛒 Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link">👥 Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link active">📈 Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link">⚙️ Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h2 class="header-title">Analytics & Reports</h2>
+                <button class="header-icon-btn" onclick="toggleSidebar()">≡</button>
+            </header>
+
+            <div class="admin-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon success">💰</div>
+                        <div class="stat-content">
+                            <h3>Total Revenue</h3>
+                            <div class="value" id="totalRevenue">₦0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon info">📊</div>
+                        <div class="stat-content">
+                            <h3>Average Order Value</h3>
+                            <div class="value" id="avgOrderValue">₦0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">📈</div>
+                        <div class="stat-content">
+                            <h3>Conversion Rate</h3>
+                            <div class="value" id="conversionRate">0%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon primary">📦</div>
+                        <div class="stat-content">
+                            <h3>Total Units Sold</h3>
+                            <div class="value" id="totalUnits">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Revenue by Month</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Orders by Status</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Top 10 Products</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Units Sold</th>
+                                    <th>Revenue</th>
+                                    <th>Avg. Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topProductsTable">
+                                <tr><td colspan="4" style="text-align: center;">No data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+    <script>
+        // Declare variables first
+        let revenueChart, statusChart;
+
+        if (!checkAdminAuth()) {
+            window.location.href = '/admin/index.html';
+        } else {
+            initializeAnalytics();
+        }
+
+        function initializeAnalytics() {
+            const adminInfo = adminDataService.getAdminInfo();
+            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            loadAnalytics();
+        }
+
+        function loadAnalytics() {
+            const analytics = adminDataService.getAnalytics();
+            const orders = adminDataService.getOrders();
+
+            // Update stats
+            document.getElementById('totalRevenue').textContent = formatCurrency(analytics.totalRevenue);
+            document.getElementById('avgOrderValue').textContent = formatCurrency(
+                analytics.totalOrders > 0 ? analytics.totalRevenue / analytics.totalOrders : 0
+            );
+
+            let totalUnits = 0;
+            orders.forEach(order => {
+                totalUnits += order.items.reduce((sum, item) => sum + item.quantity, 0);
+            });
+            document.getElementById('totalUnits').textContent = totalUnits;
+            document.getElementById('conversionRate').textContent = '0%'; // Placeholder
+
+            // Top products
+            const topProductsTable = document.getElementById('topProductsTable');
+            if (analytics.topProducts.length === 0) {
+                topProductsTable.innerHTML = '<tr><td colspan="4" style="text-align: center;">No data</td></tr>';
+            } else {
+                topProductsTable.innerHTML = analytics.topProducts.slice(0, 10).map(product => {
+                    const revenue = product.sold * product.price;
+                    return `
+                        <tr>
+                            <td><strong>${product.name}</strong></td>
+                            <td>${product.sold}</td>
+                            <td>${formatCurrency(revenue)}</td>
+                            <td>${formatCurrency(product.price)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Revenue by month chart
+            const revenueByMonth = analytics.revenueByMonth;
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChart) revenueChart.destroy();
+            revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(revenueByMonth),
+                    datasets: [{
+                        label: 'Revenue (₦)',
+                        data: Object.values(revenueByMonth),
+                        borderColor: '#E09F3E',
+                        backgroundColor: 'rgba(224, 159, 62, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#E09F3E',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: v => '₦' + v.toLocaleString() }
+                        }
+                    }
+                }
+            });
+
+            // Orders by status chart
+            const ordersByStatus = analytics.ordersByStatus;
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            if (statusChart) statusChart.destroy();
+            statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(ordersByStatus),
+                    datasets: [{
+                        data: Object.values(ordersByStatus),
+                        backgroundColor: [
+                            '#FF851B',
+                            '#0074D9',
+                            '#2ECC40',
+                            '#FF4136',
+                            '#B10DC9'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                adminDataService.logoutAdmin();
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

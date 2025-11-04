@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - FJL Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo"><span>FJL</span></div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link">📊 Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link">📦 Products</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link">🛒 Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link active">👥 Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link">📈 Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link">⚙️ Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h2 class="header-title">Customers</h2>
+                <button class="header-icon-btn" onclick="toggleSidebar()">≡</button>
+            </header>
+
+            <div class="admin-content">
+                <div class="card mb-xl">
+                    <div class="card-body">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search by name or email...">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Customers (<span id="customerCount">0</span>)</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="exportCustomers()">📥 Export CSV</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Orders</th>
+                                    <th>Total Spent</th>
+                                    <th>Last Order</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTable">
+                                <tr><td colspan="6" style="text-align: center; color: var(--color-gray);">No customers found</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+    <script>
+        if (!checkAdminAuth()) {
+            window.location.href = '/admin/index.html';
+        } else {
+            initializeCustomers();
+        }
+
+        function initializeCustomers() {
+            const adminInfo = adminDataService.getAdminInfo();
+            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            loadCustomers();
+        }
+
+        function loadCustomers() {
+            const customers = adminDataService.getCustomers();
+            const tbody = document.getElementById('customersTable');
+            document.getElementById('customerCount').textContent = customers.length;
+
+            if (customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-gray);">No customers found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = customers.map(customer => `
+                <tr>
+                    <td><strong>${customer.name}</strong></td>
+                    <td>${customer.email}</td>
+                    <td>${customer.orders || 0}</td>
+                    <td>${formatCurrency(customer.totalSpent || 0)}</td>
+                    <td>${customer.lastOrder ? formatDate(customer.lastOrder) : 'N/A'}</td>
+                    <td>${formatDate(customer.joinedAt)}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const search = e.target.value;
+            const filtered = adminDataService.getCustomers({ search });
+            const tbody = document.getElementById('customersTable');
+            document.getElementById('customerCount').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-gray);">No customers found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(customer => `
+                <tr>
+                    <td><strong>${customer.name}</strong></td>
+                    <td>${customer.email}</td>
+                    <td>${customer.orders || 0}</td>
+                    <td>${formatCurrency(customer.totalSpent || 0)}</td>
+                    <td>${customer.lastOrder ? formatDate(customer.lastOrder) : 'N/A'}</td>
+                    <td>${formatDate(customer.joinedAt)}</td>
+                </tr>
+            `).join('');
+        });
+
+        function exportCustomers() {
+            const customers = adminDataService.getCustomers();
+            const exportData = customers.map(c => ({
+                'Name': c.name,
+                'Email': c.email,
+                'Orders': c.orders || 0,
+                'Total Spent (₦)': c.totalSpent || 0,
+                'Last Order': c.lastOrder ? formatDate(c.lastOrder) : 'N/A',
+                'Joined': formatDate(c.joinedAt)
+            }));
+            adminDataService.exportToCSV(exportData, 'customers.csv');
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                adminDataService.logoutAdmin();
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - FJL Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo"><span>FJL</span></div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link">📊 Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link">📦 Products</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link active">🛒 Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link">👥 Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link">📈 Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link">⚙️ Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="header-title">Orders</h2>
+                </div>
+                <div class="header-right">
+                    <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="admin-content">
+                <!-- Filters -->
+                <div class="card mb-xl">
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); align-items: end;">
+                            <div class="form-group">
+                                <label class="form-label">Search</label>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search by order ID or customer...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select id="statusFilter" class="form-select">
+                                    <option value="">All Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Processing">Processing</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date From</label>
+                                <input type="date" id="dateFromFilter" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date To</label>
+                                <input type="date" id="dateToFilter" class="form-control">
+                            </div>
+                            <button class="btn btn-secondary" onclick="applyFilters()">Filter</button>
+                            <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Orders (<span id="orderCount">0</span>)</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="exportOrders()">📥 Export CSV</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Email</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTable">
+                                <tr><td colspan="7" style="text-align: center; color: var(--color-gray);">No orders found</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Order Details</h2>
+                <button class="modal-close" onclick="closeOrderModal()">×</button>
+            </div>
+            <div id="orderDetails" style="max-height: 600px; overflow-y: auto;"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOrderModal()">Close</button>
+                <button class="btn btn-primary" onclick="printOrder()">🖨️ Print</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+    <script>
+        if (!checkAdminAuth()) {
+            window.location.href = '/admin/index.html';
+        } else {
+            initializeOrders();
+        }
+
+        let currentOrder = null;
+
+        function initializeOrders() {
+            const adminInfo = adminDataService.getAdminInfo();
+            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            loadOrders();
+        }
+
+        function loadOrders() {
+            const orders = adminDataService.getOrders();
+            renderOrders(orders);
+        }
+
+        function renderOrders(orders) {
+            const tbody = document.getElementById('ordersTable');
+            document.getElementById('orderCount').textContent = orders.length;
+
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-gray);">No orders found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td><strong>${order.orderId}</strong></td>
+                    <td>${order.customerName}</td>
+                    <td>${order.customerEmail}</td>
+                    <td>${formatCurrency(order.total)}</td>
+                    <td><span class="table-status status-${order.status.toLowerCase()}">${order.status}</span></td>
+                    <td>${formatDate(order.createdAt)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="viewOrderDetails('${order.id}')">View</button>
+                        <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${order.id}')">Update</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            const dateFrom = document.getElementById('dateFromFilter').value;
+            const dateTo = document.getElementById('dateToFilter').value;
+
+            const filters = {
+                search: search,
+                status: status,
+                dateFrom: dateFrom,
+                dateTo: dateTo
+            };
+
+            const filtered = adminDataService.getOrders(filters);
+            renderOrders(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('dateFromFilter').value = '';
+            document.getElementById('dateToFilter').value = '';
+            loadOrders();
+        }
+
+        function viewOrderDetails(orderId) {
+            currentOrder = adminDataService.getOrderById(orderId);
+            if (!currentOrder) return;
+
+            const itemsHtml = currentOrder.items.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.size || '-'}</td>
+                    <td>${formatCurrency(item.price)}</td>
+                    <td>${formatCurrency(item.price * item.quantity)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('orderDetails').innerHTML = `
+                <div style="padding: var(--spacing-lg);">
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="margin-bottom: var(--spacing-md);">Order Information</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Order ID</div>
+                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.orderId}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Date</div>
+                                <div style="font-weight: 600; font-size: 14px;">${formatDate(currentOrder.createdAt)}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Status</div>
+                                <span class="table-status status-${currentOrder.status.toLowerCase()}">${currentOrder.status}</span>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Payment Status</div>
+                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.paymentStatus || 'Pending'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="margin-bottom: var(--spacing-md);">Customer Information</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Name</div>
+                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.customerName}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Email</div>
+                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.customerEmail}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="margin-bottom: var(--spacing-md);">Items Ordered</h3>
+                        <table class="table" style="margin: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Size</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>${itemsHtml}</tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-xl); padding: var(--spacing-lg); background: var(--color-light-gray); border-radius: var(--radius-md);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-md);">
+                            <span>Subtotal</span>
+                            <span>${formatCurrency(currentOrder.subtotal)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-md);">
+                            <span>Tax (7.5%)</span>
+                            <span>${formatCurrency(currentOrder.tax)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; border-top: 2px solid var(--color-border); padding-top: var(--spacing-md);">
+                            <span>Total</span>
+                            <span>${formatCurrency(currentOrder.total)}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="margin-bottom: var(--spacing-md);">Shipping Address</h3>
+                        <div style="padding: var(--spacing-lg); background: var(--color-light-gray); border-radius: var(--radius-md); font-size: 14px;">
+                            ${currentOrder.shippingAddress || 'Not provided'}
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-lg);">
+                        <label class="form-label">Update Order Status</label>
+                        <div style="display: flex; gap: var(--spacing-md);">
+                            <select id="statusSelect" class="form-select">
+                                <option value="Pending" ${currentOrder.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Processing" ${currentOrder.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                                <option value="Shipped" ${currentOrder.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="Delivered" ${currentOrder.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="Cancelled" ${currentOrder.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="saveOrderStatus()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('orderModal').classList.add('active');
+        }
+
+        function saveOrderStatus() {
+            const newStatus = document.getElementById('statusSelect').value;
+            adminDataService.updateOrderStatus(currentOrder.id, newStatus);
+            alert('Order status updated successfully!');
+            closeOrderModal();
+            loadOrders();
+        }
+
+        function updateOrderStatus(orderId) {
+            viewOrderDetails(orderId);
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('active');
+        }
+
+        function printOrder() {
+            if (!currentOrder) return;
+            window.print();
+        }
+
+        function exportOrders() {
+            const orders = adminDataService.getOrders();
+            const exportData = orders.map(o => ({
+                'Order ID': o.orderId,
+                'Customer': o.customerName,
+                'Email': o.customerEmail,
+                'Subtotal (₦)': o.subtotal,
+                'Tax (₦)': o.tax,
+                'Total (₦)': o.total,
+                'Status': o.status,
+                'Payment Status': o.paymentStatus || 'Pending',
+                'Date': formatDate(o.createdAt)
+            }));
+            adminDataService.exportToCSV(exportData, 'orders.csv');
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                adminDataService.logoutAdmin();
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

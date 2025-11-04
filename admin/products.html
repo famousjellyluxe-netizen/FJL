@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - FJL Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo"><span>FJL</span></div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link">📊 Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link active">📦 Products</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link">🛒 Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link">👥 Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link">📈 Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link">⚙️ Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="header-title">Products</h2>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-accent" onclick="openCreateProductModal()">+ Add Product</button>
+                    <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="admin-content">
+                <!-- Filters -->
+                <div class="card mb-xl">
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); align-items: end;">
+                            <div class="form-group">
+                                <label class="form-label">Search</label>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search by name or SKU...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select id="categoryFilter" class="form-select">
+                                    <option value="">All Categories</option>
+                                    <option value="Tops">Tops</option>
+                                    <option value="Bottoms">Bottoms</option>
+                                    <option value="Outerwear">Outerwear</option>
+                                    <option value="Sets">Sets</option>
+                                    <option value="Accessories">Accessories</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Stock Status</label>
+                                <select id="stockFilter" class="form-select">
+                                    <option value="">All</option>
+                                    <option value="true">In Stock</option>
+                                    <option value="false">Out of Stock</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-secondary" onclick="applyFilters()">Filter</button>
+                            <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Products (<span id="productCount">0</span>)</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="exportProducts()">📥 Export CSV</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>SKU</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTable">
+                                <tr><td colspan="8" style="text-align: center; color: var(--color-gray);">Loading products...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div id="bulkActionsContainer" class="card mt-xl d-none">
+                    <div class="card-body">
+                        <div style="display: flex; gap: var(--spacing-lg); align-items: center;">
+                            <span id="selectedCount">0 products selected</span>
+                            <button class="btn btn-danger btn-sm" onclick="bulkDelete()">🗑️ Delete Selected</button>
+                            <button class="btn btn-secondary btn-sm" onclick="clearSelection()">Clear Selection</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create/Edit Product Modal -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Product</h2>
+                <button class="modal-close" onclick="closeProductModal()">×</button>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <div class="form-group">
+                    <label class="form-label">Product Name *</label>
+                    <input type="text" id="productName" class="form-control" required>
+                </div>
+
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select id="productCategory" class="form-select" required>
+                            <option value="">Select Category</option>
+                            <option value="Tops">Tops</option>
+                            <option value="Bottoms">Bottoms</option>
+                            <option value="Outerwear">Outerwear</option>
+                            <option value="Sets">Sets</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SKU *</label>
+                        <input type="text" id="productSku" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label class="form-label">Price (₦) *</label>
+                        <input type="number" id="productPrice" class="form-control" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Original Price (₦)</label>
+                        <input type="number" id="productOriginalPrice" class="form-control" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="productDescription" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label class="form-label">Stock Quantity *</label>
+                        <input type="number" id="productQuantity" class="form-control" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Available Sizes</label>
+                        <input type="text" id="productSizes" class="form-control" placeholder="XS, S, M, L, XL, XXL">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Available Colors</label>
+                    <input type="text" id="productColors" class="form-control" placeholder="Black, White, Navy">
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: var(--spacing-md); cursor: pointer;">
+                        <input type="checkbox" id="productInStock" checked>
+                        <span class="form-label" style="margin: 0;">In Stock</span>
+                    </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+    <script>
+        // Declare variables first
+        let currentEditingProduct = null;
+        let allProducts = [];
+        let selectedProducts = new Set();
+
+        // Authentication check
+        if (!checkAdminAuth()) {
+            window.location.href = '/admin/index.html';
+        } else {
+            // Initialize the page
+            initializePage();
+        }
+
+        function initializePage() {
+            const adminInfo = adminDataService.getAdminInfo();
+            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            loadProducts();
+        }
+
+        function loadProducts() {
+            allProducts = adminDataService.getProducts();
+            renderProducts(allProducts);
+        }
+
+        function renderProducts(products) {
+            const tbody = document.getElementById('productsTable');
+            document.getElementById('productCount').textContent = products.length;
+
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-gray);">No products found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td><input type="checkbox" class="product-checkbox" value="${product.id}" onchange="updateSelection()"></td>
+                    <td><strong>${product.name}</strong></td>
+                    <td>${product.category}</td>
+                    <td>${product.sku}</td>
+                    <td>${formatCurrency(product.price)}</td>
+                    <td>${product.quantity} units</td>
+                    <td>
+                        <span class="table-status ${product.inStock ? 'status-delivered' : 'status-cancelled'}">
+                            ${product.inStock ? 'In Stock' : 'Out of Stock'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="editProduct('${product.id}')">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            const inStock = document.getElementById('stockFilter').value;
+
+            const filters = {
+                search: search,
+                category: category,
+                inStock: inStock === '' ? undefined : inStock === 'true'
+            };
+
+            const filtered = adminDataService.getProducts(filters);
+            renderProducts(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('stockFilter').value = '';
+            loadProducts();
+        }
+
+        function openCreateProductModal() {
+            currentEditingProduct = null;
+            document.getElementById('modalTitle').textContent = 'Add New Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function editProduct(id) {
+            currentEditingProduct = adminDataService.getProductById(id);
+            if (!currentEditingProduct) return;
+
+            document.getElementById('modalTitle').textContent = 'Edit Product';
+            document.getElementById('productName').value = currentEditingProduct.name;
+            document.getElementById('productCategory').value = currentEditingProduct.category;
+            document.getElementById('productSku').value = currentEditingProduct.sku;
+            document.getElementById('productPrice').value = currentEditingProduct.price;
+            document.getElementById('productOriginalPrice').value = currentEditingProduct.originalPrice || '';
+            document.getElementById('productDescription').value = currentEditingProduct.description || '';
+            document.getElementById('productQuantity').value = currentEditingProduct.quantity;
+            document.getElementById('productSizes').value = currentEditingProduct.sizes ? currentEditingProduct.sizes.join(', ') : '';
+            document.getElementById('productColors').value = currentEditingProduct.colors ? currentEditingProduct.colors.join(', ') : '';
+            document.getElementById('productInStock').checked = currentEditingProduct.inStock;
+
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+
+            const productData = {
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                sku: document.getElementById('productSku').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                originalPrice: parseInt(document.getElementById('productOriginalPrice').value) || 0,
+                description: document.getElementById('productDescription').value,
+                quantity: parseInt(document.getElementById('productQuantity').value),
+                sizes: document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s),
+                colors: document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c),
+                inStock: document.getElementById('productInStock').checked
+            };
+
+            if (currentEditingProduct) {
+                adminDataService.updateProduct(currentEditingProduct.id, productData);
+                alert('Product updated successfully!');
+            } else {
+                adminDataService.createProduct(productData);
+                alert('Product created successfully!');
+            }
+
+            closeProductModal();
+            loadProducts();
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                adminDataService.deleteProduct(id);
+                loadProducts();
+                alert('Product deleted successfully!');
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+            currentEditingProduct = null;
+        }
+
+        function updateSelection() {
+            selectedProducts.clear();
+            document.querySelectorAll('.product-checkbox:checked').forEach(checkbox => {
+                selectedProducts.add(checkbox.value);
+            });
+
+            const container = document.getElementById('bulkActionsContainer');
+            if (selectedProducts.size > 0) {
+                container.classList.remove('d-none');
+                document.getElementById('selectedCount').textContent = `${selectedProducts.size} product(s) selected`;
+            } else {
+                container.classList.add('d-none');
+            }
+        }
+
+        function toggleSelectAll(checkbox) {
+            document.querySelectorAll('.product-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            updateSelection();
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.product-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            updateSelection();
+        }
+
+        function bulkDelete() {
+            if (selectedProducts.size === 0) return;
+            if (confirm(`Delete ${selectedProducts.size} products? This cannot be undone.`)) {
+                selectedProducts.forEach(id => {
+                    adminDataService.deleteProduct(id);
+                });
+                loadProducts();
+                clearSelection();
+                alert('Products deleted successfully!');
+            }
+        }
+
+        function exportProducts() {
+            const products = adminDataService.getProducts();
+            const exportData = products.map(p => ({
+                'Name': p.name,
+                'Category': p.category,
+                'SKU': p.sku,
+                'Price (₦)': p.price,
+                'Original Price (₦)': p.originalPrice,
+                'Quantity': p.quantity,
+                'Status': p.inStock ? 'In Stock' : 'Out of Stock',
+                'Created': formatDate(p.createdAt)
+            }));
+            adminDataService.exportToCSV(exportData, 'products.csv');
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                adminDataService.logoutAdmin();
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

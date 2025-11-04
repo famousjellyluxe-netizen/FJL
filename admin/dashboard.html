@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FJL Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">
+                <span>FJL</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item">
+                    <a href="dashboard.html" class="sidebar-menu-link active">
+                        <span>📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="products.html" class="sidebar-menu-link">
+                        <span>📦</span>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="orders.html" class="sidebar-menu-link">
+                        <span>🛒</span>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="customers.html" class="sidebar-menu-link">
+                        <span>👥</span>
+                        <span>Customers</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="analytics.html" class="sidebar-menu-link">
+                        <span>📈</span>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="settings.html" class="sidebar-menu-link">
+                        <span>⚙️</span>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div>
+                        <div style="font-size: 12px; opacity: 0.7;">Logged in as</div>
+                        <div style="font-weight: 600;" id="adminName">Admin</div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h2 class="header-title">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <div class="header-icons">
+                        <button class="header-icon-btn" onclick="refreshDashboard()" title="Refresh">🔄</button>
+                        <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="admin-content">
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon success">💰</div>
+                        <div class="stat-content">
+                            <h3>Total Revenue</h3>
+                            <div class="value" id="totalRevenue">₦0</div>
+                            <div class="change">From all orders</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon info">🛒</div>
+                        <div class="stat-content">
+                            <h3>Total Orders</h3>
+                            <div class="value" id="totalOrders">0</div>
+                            <div class="change">All time orders</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon primary">👥</div>
+                        <div class="stat-content">
+                            <h3>Total Customers</h3>
+                            <div class="value" id="totalCustomers">0</div>
+                            <div class="change">Registered customers</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon warning">📦</div>
+                        <div class="stat-content">
+                            <h3>Total Products</h3>
+                            <div class="value" id="totalProducts">0</div>
+                            <div class="change">Active products</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card mb-xl">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg);">
+                            <a href="products.html?action=create" class="btn btn-accent">+ Add Product</a>
+                            <a href="orders.html" class="btn btn-primary">View Orders</a>
+                            <a href="customers.html" class="btn btn-primary">View Customers</a>
+                            <a href="analytics.html" class="btn btn-primary">View Analytics</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: var(--spacing-lg);">
+                    <!-- Recent Orders -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Orders</h3>
+                            <a href="orders.html" style="color: var(--color-accent); text-decoration: none;">View All →</a>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentOrdersList" style="max-height: 400px; overflow-y: auto;">
+                                <p style="text-align: center; color: var(--color-gray);">No orders yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Products -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Top Products</h3>
+                            <a href="products.html" style="color: var(--color-accent); text-decoration: none;">View All →</a>
+                        </div>
+                        <div class="card-body">
+                            <div id="topProductsList" style="max-height: 400px; overflow-y: auto;">
+                                <p style="text-align: center; color: var(--color-gray);">No data available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Alert -->
+                <div class="card mt-xl">
+                    <div class="card-header">
+                        <h3 class="card-title">⚠️ Low Stock Products</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>SKU</th>
+                                    <th>Current Stock</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lowStockList">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--color-gray);">No low stock items</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+    <script>
+        // Check authentication
+        if (!checkAdminAuth()) {
+            window.location.href = '/admin/index.html';
+        } else {
+            initializeDashboard();
+        }
+
+        function initializeDashboard() {
+            const adminInfo = adminDataService.getAdminInfo();
+            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            refreshDashboard();
+            setInterval(refreshDashboard, 30000);
+        }
+
+        function refreshDashboard() {
+            const analytics = adminDataService.getAnalytics();
+
+            // Update stats
+            document.getElementById('totalRevenue').textContent = formatCurrency(analytics.totalRevenue);
+            document.getElementById('totalOrders').textContent = analytics.totalOrders;
+            document.getElementById('totalCustomers').textContent = analytics.totalCustomers;
+            document.getElementById('totalProducts').textContent = analytics.totalProducts;
+
+            // Recent orders
+            const recentOrdersList = document.getElementById('recentOrdersList');
+            if (analytics.recentOrders.length === 0) {
+                recentOrdersList.innerHTML = '<p style="text-align: center; color: var(--color-gray);">No orders yet</p>';
+            } else {
+                recentOrdersList.innerHTML = analytics.recentOrders.map(order => `
+                    <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600;">${order.orderId}</div>
+                            <div style="font-size: 12px; color: var(--color-gray);">${order.customerName}</div>
+                            <div style="font-size: 12px; color: var(--color-gray);">${formatDate(order.createdAt)}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600;">${formatCurrency(order.total)}</div>
+                            <span class="table-status status-${order.status.toLowerCase()}">${order.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Top products
+            const topProductsList = document.getElementById('topProductsList');
+            if (analytics.topProducts.length === 0) {
+                topProductsList.innerHTML = '<p style="text-align: center; color: var(--color-gray);">No sales data available</p>';
+            } else {
+                topProductsList.innerHTML = analytics.topProducts.map(product => `
+                    <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600;">${product.name}</div>
+                            <div style="font-size: 12px; color: var(--color-gray);">SKU: ${product.sku}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600;">${product.sold} sold</div>
+                            <div style="font-size: 12px; color: var(--color-gray);">${formatCurrency(product.price * product.sold)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Low stock
+            const lowStockList = document.getElementById('lowStockList');
+            if (analytics.lowStockProducts.length === 0) {
+                lowStockList.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-gray);">No low stock items</td></tr>';
+            } else {
+                lowStockList.innerHTML = analytics.lowStockProducts.map(product => `
+                    <tr>
+                        <td><strong>${product.name}</strong></td>
+                        <td>${product.sku}</td>
+                        <td><span style="color: var(--color-danger); font-weight: 600;">${product.quantity} units</span></td>
+                        <td><a href="products.html?id=${product.id}" class="btn btn-sm btn-accent">Restock</a></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                adminDataService.logoutAdmin();
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

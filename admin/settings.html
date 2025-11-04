@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - FJL Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo"><span>FJL</span></div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link">📊 Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link">📦 Products</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link">🛒 Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link">👥 Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link">📈 Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link active">⚙️ Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h2 class="header-title">Settings & Account</h2>
+                <button class="header-icon-btn" onclick="toggleSidebar()">≡</button>
+            </header>
+
+            <div class="admin-content">
+                <!-- Store Information -->
+                <div class="card mb-xl">
+                    <div class="card-header">
+                        <h3 class="card-title">Store Information</h3>
+                    </div>
+                    <form id="storeForm" onsubmit="saveStoreSettings(event)">
+                        <div class="card-body">
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Business Name</label>
+                                    <input type="text" id="businessName" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Store Name</label>
+                                    <input type="text" id="storeName" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Store Email</label>
+                                    <input type="email" id="storeEmail" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Store Phone</label>
+                                    <input type="tel" id="storePhone" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Store Address</label>
+                                <textarea id="storeAddress" class="form-textarea" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Tax Rate (%)</label>
+                                    <input type="number" id="taxRate" class="form-control" min="0" max="100" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Shipping Cost (₦)</label>
+                                    <input type="number" id="shippingCost" class="form-control" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Save Store Settings</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Bank Account Details -->
+                <div class="card mb-xl">
+                    <div class="card-header">
+                        <h3 class="card-title">Bank Account Details</h3>
+                    </div>
+                    <form id="bankForm" onsubmit="saveBankSettings(event)">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Bank Name</label>
+                                <input type="text" id="bankName" class="form-control" value="First Bank Nigeria">
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="text" id="accountNumber" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Account Holder Name</label>
+                                    <input type="text" id="accountHolder" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Account Type</label>
+                                <select id="accountType" class="form-select">
+                                    <option value="Business">Business</option>
+                                    <option value="Personal">Personal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Save Bank Details</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Account Security -->
+                <div class="card mb-xl">
+                    <div class="card-header">
+                        <h3 class="card-title">Account Security</h3>
+                    </div>
+                    <form id="securityForm" onsubmit="changePassword(event)">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" id="currentPassword" class="form-control" required>
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" id="newPassword" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" id="confirmPassword" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- System Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">System Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Admin Panel Version</div>
+                                <div style="font-weight: 600;">1.0.0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Last Updated</div>
+                                <div style="font-weight: 600;" id="lastUpdated">-</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Total Products</div>
+                                <div style="font-weight: 600;" id="totalProducts">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Total Orders</div>
+                                <div style="font-weight: 600;" id="totalOrders">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+    <script>
+        if (!checkAdminAuth()) {
+            window.location.href = '/admin/index.html';
+        } else {
+            initializeSettings();
+        }
+
+        function initializeSettings() {
+            const adminInfo = adminDataService.getAdminInfo();
+            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            loadSettings();
+        }
+
+        function loadSettings() {
+            const settings = adminDataService.getAdminSettings();
+
+            // Load store settings
+            document.getElementById('businessName').value = settings.businessName || '';
+            document.getElementById('storeName').value = settings.storeName || '';
+            document.getElementById('storeEmail').value = settings.storeEmail || '';
+            document.getElementById('storePhone').value = settings.storePhone || '';
+            document.getElementById('storeAddress').value = settings.storeAddress || '';
+            document.getElementById('taxRate').value = settings.taxRate || 7.5;
+            document.getElementById('shippingCost').value = settings.shippingCost || 0;
+
+            // Load bank settings
+            document.getElementById('bankName').value = settings.bankName || 'First Bank Nigeria';
+            document.getElementById('accountNumber').value = settings.accountNumber || '';
+            document.getElementById('accountHolder').value = settings.accountHolder || '';
+
+            // System info
+            const analytics = adminDataService.getAnalytics();
+            document.getElementById('totalProducts').textContent = analytics.totalProducts;
+            document.getElementById('totalOrders').textContent = analytics.totalOrders;
+            document.getElementById('lastUpdated').textContent = formatDate(new Date());
+        }
+
+        function saveStoreSettings(event) {
+            event.preventDefault();
+
+            const updates = {
+                businessName: document.getElementById('businessName').value,
+                storeName: document.getElementById('storeName').value,
+                storeEmail: document.getElementById('storeEmail').value,
+                storePhone: document.getElementById('storePhone').value,
+                storeAddress: document.getElementById('storeAddress').value,
+                taxRate: parseFloat(document.getElementById('taxRate').value),
+                shippingCost: parseInt(document.getElementById('shippingCost').value)
+            };
+
+            adminDataService.updateAdminSettings(updates);
+            alert('Store settings saved successfully!');
+        }
+
+        function saveBankSettings(event) {
+            event.preventDefault();
+
+            const updates = {
+                bankName: document.getElementById('bankName').value,
+                accountNumber: document.getElementById('accountNumber').value,
+                accountHolder: document.getElementById('accountHolder').value
+            };
+
+            adminDataService.updateAdminSettings(updates);
+            alert('Bank details saved successfully!');
+        }
+
+        function changePassword(event) {
+            event.preventDefault();
+
+            const admin = adminDataService.getAdminSettings();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (admin.password !== currentPassword) {
+                alert('Current password is incorrect!');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters long!');
+                return;
+            }
+
+            adminDataService.updateAdminSettings({ password: newPassword });
+            document.getElementById('securityForm').reset();
+            alert('Password changed successfully! Please log in again.');
+            setTimeout(() => {
+                adminDataService.logoutAdmin();
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+        }
+
+        function logoutAdmin() {
+            if (confirm('Are you sure you want to logout?')) {
+                adminDataService.logoutAdmin();
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
