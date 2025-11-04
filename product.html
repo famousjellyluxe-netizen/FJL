@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTG Tracksuit - Famous Jelly Luxe (FJL)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --color-primary: #000;
+            --color-secondary: #fff;
+            --color-accent: #E09F3E;
+            --color-gray: #8b8b8b;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: white;
+        }
+
+        .top-banner {
+            background: black;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Product Images Styles */
+        .product-gallery {
+            display: grid;
+            gap: 16px;
+        }
+
+        .main-image {
+            background: #f5f5f5;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .gallery-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+
+        .thumbnail {
+            background: #f5f5f5;
+            aspect-ratio: 1;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail:hover,
+        .thumbnail.active {
+            border-color: #000;
+        }
+
+        /* Product Details Styles */
+        .product-details {
+            padding-top: 16px;
+        }
+
+        .product-title {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 16px;
+        }
+
+        .stock-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .stock-status.low-stock {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .stock-status.in-stock {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Size Selection */
+        .size-section {
+            margin-bottom: 24px;
+        }
+
+        .size-label {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .size-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .size-btn {
+            padding: 12px 16px;
+            border: 2px solid #e5e5e5;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .size-btn:hover {
+            border-color: #000;
+        }
+
+        .size-btn.active {
+            border-color: #000;
+            background: #000;
+            color: white;
+        }
+
+        .size-chart-link {
+            font-size: 12px;
+            color: #8b8b8b;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .size-chart-link:hover {
+            color: #000;
+        }
+
+        /* Quantity Selector */
+        .quantity-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .quantity-input {
+            display: flex;
+            align-items: center;
+            border: 2px solid #e5e5e5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .quantity-display {
+            width: 50px;
+            text-align: center;
+            border: none;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Add to Cart Button */
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 16px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Product Features Icons */
+        .product-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px 0;
+            border-top: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-text {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #8b8b8b;
+        }
+
+        /* Product Description */
+        .product-description {
+            margin-bottom: 24px;
+        }
+
+        .description-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .description-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .description-content.collapsed {
+            max-height: 0;
+        }
+
+        .description-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .description-list li {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .description-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #E09F3E;
+            font-weight: bold;
+        }
+
+        /* Model Details */
+        .model-details {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 12px;
+        }
+
+        .model-details h4 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .model-detail-row {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Email input styling */
+        .email-input {
+            background: #f5f5f5;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .email-input:focus {
+            outline: none;
+            background: #eee;
+            box-shadow: inset 0 0 0 1px #E09F3E;
+        }
+
+        .submit-btn {
+            background: white;
+            color: black;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .submit-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            font-size: 12px;
+            color: #8b8b8b;
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: #8b8b8b;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: #000;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .product-title {
+                font-size: 20px;
+            }
+
+            .product-features {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .size-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top banner -->
+    <div class="top-banner">
+        FAMOUS JELLY LUXE - LUXURY STREETWEAR
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="sticky-header">
+        <nav class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Left nav items -->
+                    <div class="hidden md:flex gap-8">
+                        <a href="index.html" class="text-gray-700 text-sm font-medium hover:text-black transition">HOME</a>
+                        <a href="about.html" class="text-gray-700 text-sm font-medium hover:text-black transition">ABOUT US</a>
+                        <a href="shop.html" class="text-gray-700 text-sm font-medium hover:text-black transition">SHOP</a>
+                        <a href="#" class="text-gray-700 text-sm font-medium hover:text-black transition">ORDER LOOKUP</a>
+                        <a href="#" class="text-gray-700 text-sm font-medium hover:text-black transition">CONTACT US</a>
+                    </div>
+
+                    <!-- Logo -->
+                    <div class="absolute left-1/2 transform -translate-x-1/2">
+                        <div class="text-lg font-bold tracking-widest" style="color: #E09F3E;">FJL</div>
+                    </div>
+
+                    <!-- Right icons -->
+                    <div class="flex gap-6 items-center">
+                        <button class="text-gray-700 hover:text-black transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                        <button class="text-gray-700 hover:text-black transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Product Section -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb mb-8">
+                <a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>FTG Tracksuit</span>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Product Gallery (Left) -->
+                <div class="product-gallery">
+                    <!-- Main Image -->
+                    <div class="main-image">
+                        <img id="mainImage" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'><rect fill='%23f5f5f5' width='600' height='600'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='32'>Product Image</text></svg>" alt="FTG Tracksuit">
+                    </div>
+
+                    <!-- Thumbnails -->
+                    <div class="gallery-thumbnails">
+                        <div class="thumbnail active" onclick="changeImage(this)">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23f5f5f5' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 1</text></svg>" alt="Thumbnail 1">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this)">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e8e8e8' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 2</text></svg>" alt="Thumbnail 2">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this)">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23d5d5d5' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 3</text></svg>" alt="Thumbnail 3">
+                        </div>
+                        <div class="thumbnail" onclick="changeImage(this)">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23c2c2c2' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 4</text></svg>" alt="Thumbnail 4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details (Right) -->
+                <div class="product-details">
+                    <h1 class="product-title">FTG Tracksuit</h1>
+                    <div class="product-price">₦75,000.00</div>
+                    <span class="stock-status low-stock">Low Stock</span>
+
+                    <!-- Size Selection -->
+                    <div class="size-section">
+                        <label class="size-label">Size</label>
+                        <div class="size-grid">
+                            <button class="size-btn" onclick="selectSize(this)">XSmall</button>
+                            <button class="size-btn" onclick="selectSize(this)">Small</button>
+                            <button class="size-btn active" onclick="selectSize(this)">Medium</button>
+                            <button class="size-btn" onclick="selectSize(this)">Large</button>
+                            <button class="size-btn" onclick="selectSize(this)">XL</button>
+                            <button class="size-btn" onclick="selectSize(this)">2XL</button>
+                        </div>
+                        <a href="#" class="size-chart-link">Size Chart</a>
+                    </div>
+
+                    <!-- Quantity Selector -->
+                    <div class="quantity-section">
+                        <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; margin-right: 8px;">QTY</span>
+                        <div class="quantity-input">
+                            <button class="quantity-btn" onclick="decreaseQty()">−</button>
+                            <input type="text" class="quantity-display" id="quantityDisplay" value="1" readonly>
+                            <button class="quantity-btn" onclick="increaseQty()">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart Button -->
+                    <button class="add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
+
+                    <!-- Product Features -->
+                    <div class="product-features">
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="feature-text">Add Favorite</p>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="feature-text">Secure Purchase</p>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="feature-text">Low Impact</p>
+                        </div>
+                    </div>
+
+                    <!-- Product Description -->
+                    <div class="product-description">
+                        <div class="description-title" onclick="toggleDescription(this)">
+                            Product Description
+                            <span id="toggleIcon">▼</span>
+                        </div>
+                        <div class="description-content">
+                            <ul class="description-list">
+                                <li>Pure polyamide for lightweight stretch and durability</li>
+                                <li>Custom oversized silhouette with relaxed fit</li>
+                                <li>Ribbed crew neck with tonal embroidery</li>
+                                <li>Matching zip-up jacket and sweatpants set</li>
+                                <li>Elastic waistband and cuffs for all-day comfort</li>
+                                <li>Minimal FTG logo detailing on chest and thigh</li>
+                                <li>250 GSM</li>
+                            </ul>
+
+                            <!-- Model Details -->
+                            <div class="model-details">
+                                <h4>MODEL DETAILS:</h4>
+                                <div class="model-detail-row">
+                                    <strong>1st Model: Height: 6'1" - wearing size XL</strong><br>
+                                    2nd and 3rd Model(s): Height: 5'9" wearing size S<br>
+                                    <br>
+                                    <strong>3rd Model: Height: 5'2" - wearing size L</strong>
+                                </div>
+                                <div class="model-detail-row" style="margin-top: 12px;">
+                                    <strong>📦 Shipping and Returns</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Products Section -->
+    <section class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-2xl font-bold tracking-wide mb-12 text-gray-900">YOU MIGHT ALSO LIKE</h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Related Product 1 -->
+                <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+                    <div class="bg-gray-100 aspect-square flex items-center justify-center">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="Related Product">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase">FTG Rugby Polo</h3>
+                        <p class="text-gray-600 text-xs mt-2">₦67,000.00</p>
+                    </div>
+                </div>
+
+                <!-- Related Product 2 -->
+                <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+                    <div class="bg-gray-100 aspect-square flex items-center justify-center">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="Related Product">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase">FTG Checkered Jersey</h3>
+                        <p class="text-gray-600 text-xs mt-2">₦75,300.00</p>
+                    </div>
+                </div>
+
+                <!-- Related Product 3 -->
+                <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+                    <div class="bg-gray-100 aspect-square flex items-center justify-center">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="Related Product">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase">Urban Varsity Jacket</h3>
+                        <p class="text-gray-600 text-xs mt-2">₦70,000.00</p>
+                    </div>
+                </div>
+
+                <!-- Related Product 4 -->
+                <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+                    <div class="bg-gray-100 aspect-square flex items-center justify-center">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="Related Product">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase">Soccer Baby Tee</h3>
+                        <p class="text-gray-600 text-xs mt-2">₦7,700.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Join the Geng Section -->
+    <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li><a href="index.html" class="text-gray-600 text-sm hover:text-black transition">Home</a></li>
+                        <li><a href="about.html" class="text-gray-600 text-sm hover:text-black transition">About Us</a></li>
+                        <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Shop</a></li>
+                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Campaigns</a></li>
+                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Order Lookup</a></li>
+                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Policies -->
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">Policies</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Search</a></li>
+                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Refund policy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Email Signup -->
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">BECOME A MEMBER</h3>
+                    <p class="text-gray-600 text-sm mb-4">Join the FJL family and stay ahead of every drop.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Email address" class="email-input flex-1" aria-label="Email address">
+                        <button class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Logo/Brand -->
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <div class="text-lg font-bold tracking-widest" style="color: #E09F3E;">FJL</div>
+                </div>
+
+                <!-- Copyright & Links -->
+                <div class="text-center text-xs text-gray-600 space-x-2">
+                    <span>© 2025 Famous Jelly Luxe . All Rights Reserved</span>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Refund policy</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Privacy policy</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Terms of service</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Shipping policy</a>
+                </div>
+
+                <!-- Social Icons -->
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-600 hover:text-black transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-black transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.441 15.892c-2.102.144-6.784.144-8.883 0C5.282 15.706 5.017 14.999 5 12c.017-2.998.282-3.706 2.538-3.892 2.099-.144 6.782-.144 8.883 0 2.256.186 2.521.894 2.538 3.892-.017 2.998-.282 3.706-2.538 3.892zM10 9.5l4 2.5-4 2.5v-5z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-black transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.495-1.1-1.109 0-.614.493-1.109 1.1-1.109s1.1.495 1.1 1.109c0 .614-.493 1.109-1.1 1.109zM16 16h-2v-3c0-.835-.289-1.4-1.049-1.4-.572 0-.911.385-1.061.757-.055.134-.069.321-.069.508V16h-2s.026-5.116 0-5.646h2v.8c.249-.383.694-.927 1.684-.927 1.231 0 2.155.806 2.155 2.541V16z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-black transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23 3a10.9 10.9 0 11-1.29-2A10.9 10.9 0 0123 3z" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Quantity selector functions
+        function increaseQty() {
+            const display = document.getElementById('quantityDisplay');
+            display.value = parseInt(display.value) + 1;
+        }
+
+        function decreaseQty() {
+            const display = document.getElementById('quantityDisplay');
+            if (parseInt(display.value) > 1) {
+                display.value = parseInt(display.value) - 1;
+            }
+        }
+
+        // Size selection
+        function selectSize(btn) {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Image gallery
+        function changeImage(thumbnail) {
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            thumbnail.classList.add('active');
+
+            const src = thumbnail.querySelector('img').src;
+            document.getElementById('mainImage').src = src;
+        }
+
+        // Product description toggle
+        function toggleDescription(titleElement) {
+            const content = titleElement.nextElementSibling;
+            const icon = titleElement.querySelector('#toggleIcon');
+
+            content.classList.toggle('collapsed');
+            icon.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+        }
+
+        // Add to cart
+        function addToCart() {
+            const size = document.querySelector('.size-btn.active')?.textContent || 'Not selected';
+            const qty = document.getElementById('quantityDisplay').value;
+
+            alert(`Added to cart!\nProduct: FTG Tracksuit\nSize: ${size}\nQuantity: ${qty}`);
+        }
+    </script>
+</body>
+</html>
