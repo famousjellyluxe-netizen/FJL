@@ -523,7 +523,6 @@
             }
         }
     </style>
-    <script src="cart-drawer.js"></script>
 </head>
 <body>
     <!-- Top banner -->
@@ -932,8 +931,80 @@
             }
         }
 
+        // Product Database
+        const productDatabase = {
+            'ftg-checkered-jersey': {
+                id: 'ftg-checkered-jersey',
+                name: 'FTG Checkered Jersey',
+                price: 75300,
+                description: 'Premium quality checkered jersey with custom FJL branding'
+            },
+            'ftg-rugby-polo': {
+                id: 'ftg-rugby-polo',
+                name: 'FTG Rugby Polo',
+                price: 67000,
+                description: 'Classic rugby polo with embroidered FJL logo'
+            },
+            'ftg-tracksuit': {
+                id: 'ftg-tracksuit',
+                name: 'FTG Tracksuit',
+                price: 75000,
+                description: 'Complete tracksuit set with custom oversized silhouette'
+            },
+            'soccer-baby-tee': {
+                id: 'soccer-baby-tee',
+                name: 'Soccer Baby Tee',
+                price: 7700,
+                description: 'Lightweight baby tee with soccer-inspired design'
+            },
+            'soccer-baby-crop-top': {
+                id: 'soccer-baby-crop-top',
+                name: 'Soccer Baby Crop Top',
+                price: 6500,
+                description: 'Stylish crop top with soccer aesthetic'
+            },
+            'ftg-logo-tshirt': {
+                id: 'ftg-logo-tshirt',
+                name: 'FTG Logo T-Shirt',
+                price: 4100,
+                description: 'Classic FTG logo t-shirt in premium cotton'
+            },
+            'urban-varsity-jacket': {
+                id: 'urban-varsity-jacket',
+                name: 'Urban Varsity Jacket',
+                price: 70000,
+                description: 'Sleek varsity jacket with urban street style'
+            }
+        };
+
+        // Load product based on URL parameter
+        function loadProduct() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id') || 'ftg-tracksuit';
+            const product = productDatabase[productId] || productDatabase['ftg-tracksuit'];
+
+            // Update page title
+            document.title = product.name + ' - Famous Jelly Luxe (FJL)';
+
+            // Update breadcrumb
+            const breadcrumb = document.querySelector('a[href="shop.html"]').parentElement;
+            breadcrumb.innerHTML = '<a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>' + product.name + '</span>';
+
+            // Update product heading
+            document.querySelector('.product-title').textContent = product.name;
+
+            // Update product price
+            document.querySelector('.product-price').textContent = '₦' + product.price.toLocaleString() + '.00';
+
+            // Store current product ID for add to cart
+            window.currentProductId = product.id;
+            window.currentProductName = product.name;
+            window.currentProductPrice = product.price;
+        }
+
         // Call on page load
         document.addEventListener('DOMContentLoaded', function() {
+            loadProduct();
             updateCartBadge();
         });
 
@@ -1007,14 +1078,19 @@
             }
 
             const product = {
-                id: 'ftg-tracksuit',
-                name: 'FTG Tracksuit',
+                id: window.currentProductId || 'ftg-tracksuit',
+                name: window.currentProductName || 'FTG Tracksuit',
                 size: size,
                 quantity: quantity,
-                price: 75000
+                price: window.currentProductPrice || 75000
             };
 
             cart.addItem(product);
+
+            // Update cart drawer display
+            if (typeof cartDrawerInstance !== 'undefined') {
+                cartDrawerInstance.render();
+            }
 
             // Show success message
             const btn = document.querySelector('.add-to-cart-btn');
@@ -1028,5 +1104,6 @@
             }, 2000);
         }
     </script>
+        <script src="cart-drawer.js"></script>
 </body>
 </html>

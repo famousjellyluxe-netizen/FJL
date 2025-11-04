@@ -193,7 +193,9 @@ class CartDrawer {
         document.getElementById('cartOverlay').addEventListener('click', () => this.close());
 
         // Continue shopping button
-        document.getElementById('continueShopping').addEventListener('click', () => this.close());
+        document.getElementById('continueShopping').addEventListener('click', () => {
+            window.location.href = 'shop.html';
+        });
 
         // Checkout button
         document.getElementById('goToCheckout').addEventListener('click', () => {
@@ -208,6 +210,41 @@ class CartDrawer {
                 this.toggle();
             });
         });
+
+        // Cart items button listeners (quantity +/- and remove)
+        const itemsContainer = document.getElementById('cartItemsContainer');
+        if (itemsContainer) {
+            itemsContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-decrease], [data-increase], [data-remove]');
+
+                if (!btn) return;
+
+                e.preventDefault();
+
+                if (btn.hasAttribute('data-decrease')) {
+                    const productId = btn.getAttribute('data-product-id');
+                    const size = btn.getAttribute('data-size');
+                    const currentQty = parseInt(btn.getAttribute('data-qty'));
+                    console.log('Decrease clicked:', productId, size, currentQty);
+                    this.updateQuantity(productId, size, currentQty - 1);
+                }
+
+                if (btn.hasAttribute('data-increase')) {
+                    const productId = btn.getAttribute('data-product-id');
+                    const size = btn.getAttribute('data-size');
+                    const currentQty = parseInt(btn.getAttribute('data-qty'));
+                    console.log('Increase clicked:', productId, size, currentQty);
+                    this.updateQuantity(productId, size, currentQty + 1);
+                }
+
+                if (btn.hasAttribute('data-remove')) {
+                    const productId = btn.getAttribute('data-product-id');
+                    const size = btn.getAttribute('data-size');
+                    console.log('Remove clicked:', productId, size);
+                    this.removeItem(productId, size);
+                }
+            });
+        }
     }
 
     render() {
@@ -288,7 +325,7 @@ class CartDrawer {
                                 gap: 8px;
                                 margin-top: 8px;
                             ">
-                                <button onclick="cartDrawerInstance.updateQuantity('${item.id}', '${item.size}', ${item.quantity - 1})" style="
+                                <button data-decrease data-product-id="${item.id}" data-size="${item.size}" data-qty="${item.quantity}" style="
                                     width: 24px;
                                     height: 24px;
                                     border: 1px solid #e5e5e5;
@@ -303,7 +340,7 @@ class CartDrawer {
                                     font-size: 12px;
                                     font-weight: 600;
                                 ">${item.quantity}</span>
-                                <button onclick="cartDrawerInstance.updateQuantity('${item.id}', '${item.size}', ${item.quantity + 1})" style="
+                                <button data-increase data-product-id="${item.id}" data-size="${item.size}" data-qty="${item.quantity}" style="
                                     width: 24px;
                                     height: 24px;
                                     border: 1px solid #e5e5e5;
@@ -312,7 +349,7 @@ class CartDrawer {
                                     font-size: 12px;
                                     border-radius: 2px;
                                 ">+</button>
-                                <button onclick="cartDrawerInstance.removeItem('${item.id}', '${item.size}')" style="
+                                <button data-remove data-product-id="${item.id}" data-size="${item.size}" style="
                                     margin-left: auto;
                                     background: none;
                                     border: none;
@@ -335,8 +372,10 @@ class CartDrawer {
     }
 
     updateQuantity(productId, size, newQuantity) {
+        console.log('updateQuantity called with:', productId, size, newQuantity);
         const cart = new Cart();
         if (newQuantity > 0) {
+            console.log('Updating quantity for:', productId, size, 'to:', newQuantity);
             cart.updateQuantity(productId, size, newQuantity);
             this.render();
             updateCartBadge();
@@ -344,6 +383,7 @@ class CartDrawer {
     }
 
     removeItem(productId, size) {
+        console.log('removeItem called with:', productId, size);
         const cart = new Cart();
         cart.removeItem(productId, size);
         this.render();

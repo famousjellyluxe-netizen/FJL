@@ -422,8 +422,7 @@
             background: #f5f5f5;
         }
     </style>
-    <script src="cart-drawer.js"></script>
-</head>
+    </head>
 <body>
     <!-- Top banner -->
     <div class="top-banner">
@@ -695,6 +694,10 @@
                 localStorage.setItem('fjl_cart', JSON.stringify(this.items));
                 updateCartBadge();
                 renderCart();
+                // Update cart drawer if it exists
+                if (typeof cartDrawerInstance !== 'undefined') {
+                    cartDrawerInstance.render();
+                }
             }
         }
 
@@ -778,5 +781,6 @@
         updateCartBadge();
         renderCart();
     </script>
+    <script src="cart-drawer.js"></script>
 </body>
 </html>
