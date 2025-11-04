@@ -682,37 +682,6 @@
             }
         }
 
-        // Cart Management (same as other pages)
-        class Cart {
-            constructor() {
-                this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
-            }
-
-            addItem(product) {
-                const existingItem = this.items.find(item => item.id === product.id && item.size === product.size);
-                if (existingItem) {
-                    existingItem.quantity += product.quantity;
-                } else {
-                    this.items.push(product);
-                }
-                this.save();
-            }
-
-            removeItem(productId, size) {
-                this.items = this.items.filter(item => !(item.id === productId && item.size === size));
-                this.save();
-            }
-
-            getItemCount() {
-                return this.items.reduce((count, item) => count + item.quantity, 0);
-            }
-
-            save() {
-                localStorage.setItem('fjl_cart', JSON.stringify(this.items));
-            }
-        }
-
-        const cart = new Cart();
 
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', function() {
@@ -723,6 +692,7 @@
         // Initialize Lucide icons
         lucide.createIcons();
     </script>
+    <script src="cart-manager.js"></script>
     <script src="cart-drawer.js"></script>
 </body>
 </html>
