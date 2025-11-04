@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation - Famous Jelly Luxe (FJL)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -579,6 +580,24 @@
                 </div>
             </div>
 
+            <!-- Payment Account Information -->
+            <div class="section">
+                <h2 class="section-title">Your Payment Details (Bank Alert)</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Your Bank Name</span>
+                        <span class="info-value" id="buyerBankName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Your Account Name (As used for transfer)</span>
+                        <span class="info-value" id="buyerName">-</span>
+                    </div>
+                </div>
+                <div style="background: #f0f8ff; border-left: 4px solid #0066cc; padding: 12px; border-radius: 4px; margin-top: 16px; font-size: 12px; color: #333;">
+                    <strong>Note:</strong> This is the account name that will appear in FJL's bank alert when you send the payment. Make sure it matches your bank records.
+                </div>
+            </div>
+
             <!-- Order Summary -->
             <div class="section">
                 <h2 class="section-title">Order Summary</h2>
@@ -607,31 +626,33 @@
 
             <!-- Payment Instructions -->
             <div class="section">
-                <h2 class="section-title">Payment Instructions</h2>
+                <h2 class="section-title">How to Pay</h2>
                 <div class="payment-instructions">
-                    <h4>How to Complete Your Payment</h4>
+                    <h4>Send Payment To This Account</h4>
                     <ol>
-                        <li><strong>Visit your bank</strong> or use your online banking app</li>
-                        <li><strong>Initiate a transfer</strong> to the account details below</li>
-                        <li><strong>Include your order number</strong> (FJL + number) as reference</li>
+                        <li><strong>Open your bank app</strong> or visit your bank branch</li>
+                        <li><strong>Make a bank transfer</strong> using the account details below</li>
+                        <li><strong>Transfer amount:</strong> ₦<span id="confirmTotal">0.00</span></li>
+                        <li><strong>Use this reference:</strong> <span id="confirmOrderNum" style="font-weight: 700; color: #0066cc;">FJL...</span></li>
+                        <li><strong>Wait for confirmation</strong> - we'll email you once payment is verified</li>
                     </ol>
                 </div>
                 <div class="payment-details">
                     <div class="payment-detail-row">
                         <span class="payment-detail-label">Account Holder:</span>
-                        <span class="payment-detail-value" id="paymentName">-</span>
+                        <span class="payment-detail-value" id="fjlPaymentName">-</span>
                     </div>
                     <div class="payment-detail-row">
                         <span class="payment-detail-label">Bank Name:</span>
-                        <span class="payment-detail-value" id="paymentBank">-</span>
+                        <span class="payment-detail-value" id="fjlPaymentBank">-</span>
                     </div>
                     <div class="payment-detail-row">
                         <span class="payment-detail-label">Account Number:</span>
-                        <span class="payment-detail-value" id="paymentAccount">-</span>
+                        <span class="payment-detail-value" id="fjlPaymentAccount" style="font-family: monospace; letter-spacing: 1px; font-weight: 700;">-</span>
                     </div>
                     <div class="payment-detail-row">
                         <span class="payment-detail-label">Account Type:</span>
-                        <span class="payment-detail-value" id="paymentType">-</span>
+                        <span class="payment-detail-value" id="fjlPaymentType">-</span>
                     </div>
                 </div>
             </div>
@@ -818,11 +839,20 @@
             document.getElementById('summaryTax').textContent = `₦${tax.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
             document.getElementById('summaryTotal').textContent = `₦${total.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
 
-            // Populate payment information
-            document.getElementById('paymentName').textContent = order.accountName;
-            document.getElementById('paymentBank').textContent = order.bankName;
-            document.getElementById('paymentAccount').textContent = order.accountNumber;
-            document.getElementById('paymentType').textContent = order.accountType;
+            // Populate buyer's payment details (account name from bank alert)
+            document.getElementById('buyerName').textContent = order.buyerName || '-';
+            document.getElementById('buyerBankName').textContent = order.buyerBankName || 'Not provided';
+
+            // Populate FJL business account details (where customer should send payment)
+            const businessAccount = order.businessAccount || getBusinessAccount();
+            document.getElementById('fjlPaymentName').textContent = businessAccount.accountHolder;
+            document.getElementById('fjlPaymentBank').textContent = businessAccount.bankName;
+            document.getElementById('fjlPaymentAccount').textContent = businessAccount.accountNumber;
+            document.getElementById('fjlPaymentType').textContent = businessAccount.accountType;
+
+            // Populate confirmation total and order number
+            document.getElementById('confirmTotal').textContent = total.toLocaleString('en-NG', {minimumFractionDigits: 2});
+            document.getElementById('confirmOrderNum').textContent = order.orderNumber;
         }
 
         // Mobile Menu Toggle

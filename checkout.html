@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Famous Jelly Luxe (FJL)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -501,41 +502,66 @@
 
                     <!-- Payment Information -->
                     <h2>Payment Information</h2>
+
+                    <!-- Your Bank Details -->
                     <div class="form-section">
-                        <div class="form-grid full">
-                            <div class="form-group">
-                                <label>Account Holder Name *</label>
-                                <input type="text" name="accountName" required placeholder="John Doe">
+                        <div class="form-group">
+                            <label>Your Name (As shown on bank) *</label>
+                            <input type="text" name="buyerName" required placeholder="John Doe" style="font-size: 14px;">
+                        </div>
+                        <p style="font-size: 11px; color: #666; margin-top: 6px; margin-bottom: 0;">This name will appear in the bank alert. Make sure it matches your bank records so we can verify your payment quickly.</p>
+                    </div>
+
+                    <!-- FJL Business Account (Where to send payment) -->
+                    <div class="form-section">
+                        <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
+                            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #2e7d32; margin-bottom: 12px;">📤 Send Payment To This Account</div>
+                            <div id="fjlAccountDetails"></div>
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #81c784; font-size: 11px; color: #558b2f;">
+                                <strong>Step-by-Step Instructions:</strong>
+                                <ol style="margin: 6px 0 0 16px; padding: 0;">
+                                    <li>Copy the account details above</li>
+                                    <li>Open your bank app or visit your bank branch</li>
+                                    <li>Transfer the <strong>exact amount</strong> shown below</li>
+                                    <li>Include this reference: <strong id="refOrderNum">FJL...</strong></li>
+                                    <li>We'll verify and process your order immediately</li>
+                                </ol>
                             </div>
                         </div>
-                        <div class="form-grid full">
-                            <div class="form-group">
-                                <label>Bank Name *</label>
-                                <input type="text" name="bankName" required placeholder="First Bank of Nigeria">
+                    </div>
+
+                    <!-- Exact Amount Warning -->
+                    <div class="form-section">
+                        <div style="background: #fff8e1; border-left: 4px solid #fbc02d; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
+                            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #f57f17; margin-bottom: 8px;">⚠️ Important: Pay Exact Amount</div>
+                            <div style="font-size: 13px; color: #333; line-height: 1.6; margin-bottom: 12px;">
+                                Transfer <strong>exactly ₦<span id="exactAmount">0.00</span></strong> to the account above. This amount includes your products + tax.
+                            </div>
+                            <div style="background: white; padding: 12px; border-radius: 4px; font-size: 12px; color: #666;">
+                                <strong>Order Total Breakdown:</strong>
+                                <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                                    <span>Subtotal:</span>
+                                    <span id="warningSubtotal">₦0.00</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                                    <span>Tax (7.5%):</span>
+                                    <span id="warningTax">₦0.00</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 2px solid #000; font-weight: 700; color: #000;">
+                                    <span>TOTAL TO PAY:</span>
+                                    <span id="warningTotal">₦0.00</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Account Number *</label>
-                                <input type="text" name="accountNumber" required placeholder="0123456789" maxlength="20">
+                    </div>
+
+                    <!-- Confirmation Section -->
+                    <div class="form-section">
+                        <div style="background: #e3f2fd; border-left: 4px solid #1976d2; padding: 16px; border-radius: 4px;">
+                            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #1565c0; margin-bottom: 8px;">✓ I Understand</div>
+                            <div style="font-size: 13px; color: #333; line-height: 1.6;">
+                                I confirm that I will send <strong>exactly ₦<span id="confirmAmount">0.00</span></strong> from my account in the name of <strong><span id="confirmName">-</span></strong> to the FJL account details above. I understand that my order will only be processed after payment is verified.
                             </div>
-                            <div class="form-group">
-                                <label>Account Type *</label>
-                                <select name="accountType" required>
-                                    <option value="">Select Account Type</option>
-                                    <option value="savings">Savings Account</option>
-                                    <option value="checking">Checking Account</option>
-                                    <option value="business">Business Account</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div style="background: #f0f8ff; padding: 16px; border-radius: 4px; margin-top: 16px; font-size: 12px; color: #333; line-height: 1.6;">
-                            <strong>How to Pay:</strong>
-                            <ul style="margin-top: 8px; margin-left: 16px;">
-                                <li>1. Transfer the total amount to the account details above</li>
-                                <li>2. Use your order number as the transfer reference</li>
-                                <li>3. We'll verify payment and process your order immediately</li>
-                            </ul>
                         </div>
                     </div>
 
@@ -693,11 +719,69 @@
             document.getElementById('summaryTotal').textContent = `₦${total.toLocaleString('en-NG')}`;
         }
 
+        // Generate temporary order number for display
+        let tempOrderNumber = 'FJL' + Date.now();
+
+        // Function to display FJL's account details and amounts
+        function displayFJLAccount() {
+            const account = getBusinessAccount();
+            const subtotal = cart.getTotal();
+            const tax = subtotal * 0.075;
+            const total = subtotal + tax;
+
+            const accountHtml = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <div style="font-size: 11px; font-weight: 600; color: #558b2f; text-transform: uppercase; margin-bottom: 4px;">Account Holder</div>
+                        <div style="font-size: 13px; font-weight: 600; color: #1b5e20;">${account.accountHolder}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; font-weight: 600; color: #558b2f; text-transform: uppercase; margin-bottom: 4px;">Bank Name</div>
+                        <div style="font-size: 13px; font-weight: 600; color: #1b5e20;">${account.bankName}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 12px;">
+                    <div style="font-size: 11px; font-weight: 600; color: #558b2f; text-transform: uppercase; margin-bottom: 4px;">Account Number</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #1b5e20; font-family: monospace; letter-spacing: 1px;">${account.accountNumber}</div>
+                </div>
+                <div style="margin-top: 12px;">
+                    <div style="font-size: 11px; font-weight: 600; color: #558b2f; text-transform: uppercase; margin-bottom: 4px;">Account Type</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #1b5e20;">${account.accountType}</div>
+                </div>
+            `;
+            document.getElementById('fjlAccountDetails').innerHTML = accountHtml;
+            document.getElementById('refOrderNum').textContent = tempOrderNumber;
+
+            // Update exact amount warning section
+            document.getElementById('exactAmount').textContent = total.toLocaleString('en-NG', {minimumFractionDigits: 2});
+            document.getElementById('warningSubtotal').textContent = `₦${subtotal.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+            document.getElementById('warningTax').textContent = `₦${tax.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+            document.getElementById('warningTotal').textContent = `₦${total.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+        }
+
+        // Function to update confirmation when buyer name changes
+        function updateConfirmationMessage() {
+            const buyerName = document.querySelector('input[name="buyerName"]').value || '-';
+            const subtotal = cart.getTotal();
+            const tax = subtotal * 0.075;
+            const total = subtotal + tax;
+
+            document.getElementById('confirmName').textContent = buyerName;
+            document.getElementById('confirmAmount').textContent = total.toLocaleString('en-NG', {minimumFractionDigits: 2});
+        }
+
+        // Add listener for buyer name input
+        document.querySelector('input[name="buyerName"]').addEventListener('input', updateConfirmationMessage);
+
         // Form Handling
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
             // Get form data
+            const subtotal = cart.getTotal();
+            const tax = subtotal * 0.075;
+            const businessAccount = getBusinessAccount();
+
             const formData = {
                 firstName: this.firstName.value,
                 lastName: this.lastName.value,
@@ -708,18 +792,18 @@
                 state: this.state.value,
                 postalCode: this.postalCode.value,
                 country: this.country.value,
-                accountName: this.accountName.value,
-                bankName: this.bankName.value,
-                accountNumber: this.accountNumber.value,
-                accountType: this.accountType.value,
+                buyerName: this.buyerName.value,
                 items: cart.items,
-                total: cart.getTotal() * 1.075,
+                subtotal: subtotal,
+                tax: tax,
+                total: subtotal + tax,
+                businessAccount: businessAccount,
                 orderDate: new Date().toISOString()
             };
 
             // Save order to localStorage
             const orders = JSON.parse(localStorage.getItem('fjl_orders')) || [];
-            const orderNumber = 'FJL' + Date.now();
+            const orderNumber = tempOrderNumber;
             formData.orderNumber = orderNumber;
             orders.push(formData);
             localStorage.setItem('fjl_orders', JSON.stringify(orders));
@@ -743,6 +827,8 @@
         // Initialize
         updateCartBadge();
         renderOrderSummary();
+        displayFJLAccount();
+        updateConfirmationMessage();
 
         // If cart is empty, redirect to cart
         if (cart.items.length === 0) {
