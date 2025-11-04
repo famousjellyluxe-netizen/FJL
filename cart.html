@@ -527,6 +527,7 @@
                         <span id="total">₦0.00</span>
                     </div>
                     <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+                    <button class="checkout-btn" style="background: white; color: black; border: 1px solid #e5e5e5; margin-top: 8px;" onclick="clearCartPage()">Clear Cart</button>
                 </div>
             </div>
         </div>
@@ -764,6 +765,14 @@
                 return;
             }
             window.location.href = 'checkout.html';
+        }
+
+        function clearCartPage() {
+            if (confirm('Are you sure you want to clear your cart? This action cannot be undone.')) {
+                cart.clear();
+                updateCartBadge();
+                renderCart();
+            }
         }
 
         // Initialize cart on page load

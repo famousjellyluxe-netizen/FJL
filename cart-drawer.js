@@ -190,6 +190,19 @@ class CartDrawer {
                             cursor: pointer;
                             transition: all 0.3s ease;
                         ">Proceed to Checkout</button>
+                        <button id="clearCart" style="
+                            width: 100%;
+                            padding: 12px 16px;
+                            background: white;
+                            color: #999;
+                            border: 1px solid #e5e5e5;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">Clear Cart</button>
                     </div>
                 </div>
             </div>
@@ -212,12 +225,22 @@ class CartDrawer {
 
         // View summary button
         document.getElementById('viewSummary').addEventListener('click', () => {
-            window.location.href = 'cart-summary.html';
+            window.location.href = 'cart.html';
         });
 
         // Checkout button
         document.getElementById('goToCheckout').addEventListener('click', () => {
             window.location.href = 'checkout.html';
+        });
+
+        // Clear cart button
+        document.getElementById('clearCart').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear your cart?')) {
+                const cart = new Cart();
+                cart.clear();
+                this.render();
+                updateCartBadge();
+            }
         });
 
         // Cart icon click (handle on each page)
