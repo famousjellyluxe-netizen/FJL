@@ -252,78 +252,99 @@
 
         .product-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.8) 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            bottom: 12px;
+            left: 12px;
             z-index: 10;
-            padding: 16px;
+            display: flex;
+            gap: 8px;
         }
 
-        .product-card:hover .product-overlay {
+        .cart-icon-btn {
+            background: #E09F3E;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .product-card:hover .cart-icon-btn {
+            transform: scale(1);
             opacity: 1;
         }
 
-        .add-to-cart-btn {
-            background: #E09F3E;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-        }
-
-        .add-to-cart-btn:hover {
+        .cart-icon-btn:hover {
             background: #d08a2f;
-            transform: scale(1.05);
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
 
-        .add-to-cart-btn:active {
-            transform: scale(0.98);
+        .cart-icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .cart-icon-btn i {
+            color: white;
+            width: 24px;
+            height: 24px;
+        }
+
+        .size-selector-popup {
+            background: white;
+            border-radius: 4px;
+            padding: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: scale(0);
+            opacity: 0;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .product-card:hover .size-selector-popup {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .size-selector-popup select {
+            width: 100%;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            background: white;
+            appearance: none;
+            padding-right: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
         }
 
         .add-to-cart-success {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
             color: white;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            text-align: center;
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: rgba(0, 0, 0, 0.8);
-            border-radius: 4px;
+            border-radius: 20px;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
 
         .add-to-cart-success.show {
             opacity: 1;
-        }
-
-        .size-selector {
-            background: white;
-            padding: 0;
-            border: none;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            max-width: 100%;
         }
     </style>
     </head>
@@ -605,15 +626,16 @@
                             <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="${product.name}">
                         </div>
                         <div class="product-overlay">
-                            <select class="size-selector" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" onchange="handleQuickAddToCart(this)">
-                                <option value="">Select Size</option>
-                                ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
-                            </select>
-                            <button class="add-to-cart-btn" onclick="quickAddToCart('${product.id}', '${product.name}', ${product.price})">
-                                <i data-lucide="shopping-bag" style="width: 16px; height: 16px;"></i>
-                                Add to Cart
+                            <div class="size-selector-popup">
+                                <select data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" onchange="handleQuickAddToCart(this)">
+                                    <option value="">Size</option>
+                                    ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
+                                </select>
+                            </div>
+                            <button class="cart-icon-btn" onclick="quickAddToCart('${product.id}', '${product.name}', ${product.price})" title="Add to cart">
+                                <i data-lucide="shopping-bag"></i>
                             </button>
-                            <div class="add-to-cart-success" id="success-${product.id}">Added to Cart!</div>
+                            <div class="add-to-cart-success" id="success-${product.id}">✓ Added</div>
                         </div>
                     </div>
                     <div class="p-3">
