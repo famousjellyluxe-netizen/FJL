@@ -773,11 +773,16 @@
             const form = document.getElementById('memberForm');
             const successMessage = document.getElementById('successMessage');
 
-            // Show modal on page load
+            // Show modal on page load only if not shown in this session
             function initModal() {
-                setTimeout(() => {
-                    modal.classList.add('active');
-                }, 1500); // Show modal after 1.5 seconds
+                // Check if modal has been shown in this session using sessionStorage
+                if (!sessionStorage.getItem('memberModalShown')) {
+                    setTimeout(() => {
+                        modal.classList.add('active');
+                        // Mark modal as shown for this session
+                        sessionStorage.setItem('memberModalShown', 'true');
+                    }, 1500); // Show modal after 1.5 seconds
+                }
             }
 
             // Handle form submission
