@@ -164,6 +164,19 @@ class CartDrawer {
                             cursor: pointer;
                             transition: all 0.3s ease;
                         ">Continue Shopping</button>
+                        <button id="viewSummary" style="
+                            width: 100%;
+                            padding: 12px 16px;
+                            background: #E09F3E;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">View Summary</button>
                         <button id="goToCheckout" style="
                             width: 100%;
                             padding: 12px 16px;
@@ -195,6 +208,11 @@ class CartDrawer {
         // Continue shopping button
         document.getElementById('continueShopping').addEventListener('click', () => {
             window.location.href = 'shop.html';
+        });
+
+        // View summary button
+        document.getElementById('viewSummary').addEventListener('click', () => {
+            window.location.href = 'cart-summary.html';
         });
 
         // Checkout button
