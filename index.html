@@ -452,11 +452,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </button>
-                        <button class="text-gray-700 hover:text-black transition hidden md:flex">
+                        <a href="cart.html" class="text-gray-700 hover:text-black transition hidden md:flex relative">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
-                        </button>
+                            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+                        </a>
                         <!-- Mobile Menu Button -->
                         <button class="mobile-menu-btn md:hidden" id="mobileMenuBtn" onclick="toggleMobileMenu()">
                             <span></span>
@@ -682,6 +683,34 @@
     </footer>
 
     <script>
+        // Cart Management Class
+        class Cart {
+            constructor() {
+                this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
+            }
+
+            getItemCount() {
+                return this.items.reduce((count, item) => count + item.quantity, 0);
+            }
+        }
+
+        // Initialize cart
+        const cart = new Cart();
+
+        // Update cart badge on page load
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const count = cart.getItemCount();
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
@@ -706,6 +735,7 @@
 
         // Modal functionality
         document.addEventListener('DOMContentLoaded', function() {
+            updateCartBadge();
             const modal = document.getElementById('memberModal');
             const form = document.getElementById('memberForm');
             const successMessage = document.getElementById('successMessage');

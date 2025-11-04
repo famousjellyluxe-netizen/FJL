@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Famous Jelly Luxe (FJL)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --color-primary: #000;
+            --color-secondary: #fff;
+            --color-accent: #E09F3E;
+            --color-gray: #8b8b8b;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: white;
+        }
+
+        .top-banner {
+            background: black;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile Menu Styles */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+        }
+
+        .mobile-menu-btn span {
+            width: 24px;
+            height: 3px;
+            background: black;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 40;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 41;
+        }
+
+        .mobile-menu-close {
+            font-size: 28px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: black;
+        }
+
+        .mobile-menu-content {
+            flex: 1;
+            padding: 20px 16px;
+        }
+
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu-links li {
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .mobile-menu-links a {
+            display: block;
+            padding: 16px 0;
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-menu-links a:hover {
+            color: #E09F3E;
+        }
+
+        .mobile-menu-image {
+            margin-top: auto;
+            padding: 16px 0 0 0;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .mobile-menu-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Checkout Styles */
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .checkout-form h2 {
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            margin-top: 32px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #E09F3E;
+            padding-bottom: 12px;
+        }
+
+        .checkout-form h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #000;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #000;
+            box-shadow: 0 0 0 3px rgba(224, 159, 62, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #bbb;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: #f9f9f9;
+            padding: 24px;
+            border-radius: 4px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        @media (max-width: 1024px) {
+            .order-summary {
+                position: static;
+                top: auto;
+            }
+        }
+
+        .summary-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .summary-item.total {
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            margin-top: 12px;
+            padding-bottom: 0;
+        }
+
+        .summary-item.total span:last-child {
+            color: #E09F3E;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 16px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .checkout-btn:disabled {
+            background: #bbb;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-to-cart {
+            color: #8b8b8b;
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-block;
+            margin-bottom: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .back-to-cart:hover {
+            color: #000;
+        }
+
+        .email-input {
+            background: #f5f5f5;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .email-input:focus {
+            outline: none;
+            background: #eee;
+            box-shadow: inset 0 0 0 1px #E09F3E;
+        }
+
+        .submit-btn {
+            background: white;
+            color: black;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .submit-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top banner -->
+    <div class="top-banner">
+        FAMOUS JELLY LUXE - LUXURY STREETWEAR
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="sticky-header">
+        <nav class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Left nav items -->
+                    <div class="hidden md:flex gap-8">
+                        <a href="index.html" class="text-gray-700 text-sm font-medium hover:text-black transition">HOME</a>
+                        <a href="about.html" class="text-gray-700 text-sm font-medium hover:text-black transition">ABOUT US</a>
+                        <a href="shop.html" class="text-gray-700 text-sm font-medium hover:text-black transition">SHOP</a>
+                        <a href="contact.html" class="text-gray-700 text-sm font-medium hover:text-black transition">CONTACT US</a>
+                    </div>
+
+                    <!-- Logo -->
+                    <div class="absolute left-1/2 transform -translate-x-1/2">
+                        <div class="text-lg font-bold tracking-widest" style="color: #E09F3E;">FJL</div>
+                    </div>
+
+                    <!-- Right icons -->
+                    <div class="flex gap-6 items-center">
+                        <button class="text-gray-700 hover:text-black transition hidden md:flex">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                        <a href="cart.html" class="text-gray-700 hover:text-black transition relative">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+                        </a>
+                        <!-- Mobile Menu Button -->
+                        <button class="mobile-menu-btn md:hidden" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+                            <span></span>
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="text-lg font-bold tracking-widest" style="color: #E09F3E;">FJL</div>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
+        </div>
+        <div class="mobile-menu-content">
+            <ul class="mobile-menu-links">
+                <li><a href="index.html" onclick="toggleMobileMenu()">HOME</a></li>
+                <li><a href="about.html" onclick="toggleMobileMenu()">ABOUT US</a></li>
+                <li><a href="shop.html" onclick="toggleMobileMenu()">SHOP</a></li>
+                <li><a href="contact.html" onclick="toggleMobileMenu()">CONTACT US</a></li>
+            </ul>
+        </div>
+        <div class="mobile-menu-image">
+            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><rect fill='%23f5f5f5' width='300' height='400'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='18'>Featured Product</text></svg>" alt="Featured Product">
+        </div>
+    </div>
+
+    <!-- Checkout Section -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <!-- Breadcrumb -->
+            <div class="text-xs text-gray-600 mb-8">
+                <a href="cart.html" class="hover:text-black">Cart</a> / <span>Checkout</span>
+            </div>
+
+            <h1 class="text-3xl font-bold tracking-wide mb-12 text-gray-900">CHECKOUT</h1>
+
+            <div class="success-message" id="successMessage">
+                Order placed successfully! You will receive a confirmation email shortly.
+            </div>
+
+            <div class="checkout-container">
+                <!-- Checkout Form -->
+                <form class="checkout-form" id="checkoutForm">
+                    <!-- Shipping Information -->
+                    <h2>Shipping Information</h2>
+                    <div class="form-section">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>First Name *</label>
+                                <input type="text" name="firstName" required placeholder="John">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name *</label>
+                                <input type="text" name="lastName" required placeholder="Doe">
+                            </div>
+                        </div>
+                        <div class="form-grid full">
+                            <div class="form-group">
+                                <label>Email Address *</label>
+                                <input type="email" name="email" required placeholder="john@example.com">
+                            </div>
+                        </div>
+                        <div class="form-grid full">
+                            <div class="form-group">
+                                <label>Phone Number *</label>
+                                <input type="tel" name="phone" required placeholder="+234 800 000 0000">
+                            </div>
+                        </div>
+                        <div class="form-grid full">
+                            <div class="form-group">
+                                <label>Street Address *</label>
+                                <input type="text" name="address" required placeholder="123 Main Street">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>City *</label>
+                                <input type="text" name="city" required placeholder="Lagos">
+                            </div>
+                            <div class="form-group">
+                                <label>State *</label>
+                                <input type="text" name="state" required placeholder="Lagos State">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Postal Code *</label>
+                                <input type="text" name="postalCode" required placeholder="100001">
+                            </div>
+                            <div class="form-group">
+                                <label>Country *</label>
+                                <input type="text" name="country" required placeholder="Nigeria" value="Nigeria">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <h2>Payment Information</h2>
+                    <div class="form-section">
+                        <div class="form-grid full">
+                            <div class="form-group">
+                                <label>Account Holder Name *</label>
+                                <input type="text" name="accountName" required placeholder="John Doe">
+                            </div>
+                        </div>
+                        <div class="form-grid full">
+                            <div class="form-group">
+                                <label>Bank Name *</label>
+                                <input type="text" name="bankName" required placeholder="First Bank of Nigeria">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Account Number *</label>
+                                <input type="text" name="accountNumber" required placeholder="0123456789" maxlength="20">
+                            </div>
+                            <div class="form-group">
+                                <label>Account Type *</label>
+                                <select name="accountType" required>
+                                    <option value="">Select Account Type</option>
+                                    <option value="savings">Savings Account</option>
+                                    <option value="checking">Checking Account</option>
+                                    <option value="business">Business Account</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="background: #f0f8ff; padding: 16px; border-radius: 4px; margin-top: 16px; font-size: 12px; color: #333; line-height: 1.6;">
+                            <strong>How to Pay:</strong>
+                            <ul style="margin-top: 8px; margin-left: 16px;">
+                                <li>1. Transfer the total amount to the account details above</li>
+                                <li>2. Use your order number as the transfer reference</li>
+                                <li>3. We'll verify payment and process your order immediately</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Order Terms -->
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal; text-transform: none;">
+                                <input type="checkbox" name="terms" required style="width: 16px; height: 16px; cursor: pointer;">
+                                I agree to the terms and conditions
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="checkout-btn">Complete Order</button>
+                </form>
+
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="summary-title">Order Summary</div>
+                    <div id="summaryItems"></div>
+                    <div class="summary-item">
+                        <span>Subtotal</span>
+                        <span id="summarySubtotal">₦0.00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Tax (7.5%)</span>
+                        <span id="summaryTax">₦0.00</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Total</span>
+                        <span id="summaryTotal">₦0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Logo/Brand -->
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <div class="text-lg font-bold tracking-widest" style="color: #E09F3E;">FJL</div>
+                </div>
+
+                <!-- Copyright & Links -->
+                <div class="text-center text-xs text-gray-600 space-x-2">
+                    <span>© 2025 Famous Jelly Luxe . All Rights Reserved</span>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Refund policy</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Privacy policy</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Terms of service</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-black transition">Shipping policy</a>
+                </div>
+
+                <!-- Social Icons -->
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-600 hover:text-black transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-black transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.441 15.892c-2.102.144-6.784.144-8.883 0C5.282 15.706 5.017 14.999 5 12c.017-2.998.282-3.706 2.538-3.892 2.099-.144 6.782-.144 8.883 0 2.256.186 2.521.894 2.538 3.892-.017 2.998-.282 3.706-2.538 3.892zM10 9.5l4 2.5-4 2.5v-5z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+            mobileMenu.classList.toggle('active');
+            mobileMenuBtn.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+            if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                if (mobileMenu.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
+                    mobileMenuBtn.classList.remove('active');
+                }
+            }
+        });
+
+        // Cart Management
+        class Cart {
+            constructor() {
+                this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
+            }
+
+            getTotal() {
+                return this.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+            }
+
+            getItemCount() {
+                return this.items.reduce((count, item) => count + item.quantity, 0);
+            }
+
+            clear() {
+                this.items = [];
+                localStorage.setItem('fjl_cart', JSON.stringify(this.items));
+            }
+        }
+
+        const cart = new Cart();
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const count = cart.getItemCount();
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function renderOrderSummary() {
+            const subtotal = cart.getTotal();
+            const tax = subtotal * 0.075;
+            const total = subtotal + tax;
+
+            let itemsHtml = '';
+            cart.items.forEach(item => {
+                itemsHtml += `
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e5e5;">
+                        <span>${item.name} (${item.quantity}x)</span>
+                        <span>₦${(item.price * item.quantity).toLocaleString('en-NG')}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('summaryItems').innerHTML = itemsHtml;
+            document.getElementById('summarySubtotal').textContent = `₦${subtotal.toLocaleString('en-NG')}`;
+            document.getElementById('summaryTax').textContent = `₦${tax.toLocaleString('en-NG')}`;
+            document.getElementById('summaryTotal').textContent = `₦${total.toLocaleString('en-NG')}`;
+        }
+
+        // Form Handling
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = {
+                firstName: this.firstName.value,
+                lastName: this.lastName.value,
+                email: this.email.value,
+                phone: this.phone.value,
+                address: this.address.value,
+                city: this.city.value,
+                state: this.state.value,
+                postalCode: this.postalCode.value,
+                country: this.country.value,
+                accountName: this.accountName.value,
+                bankName: this.bankName.value,
+                accountNumber: this.accountNumber.value,
+                accountType: this.accountType.value,
+                items: cart.items,
+                total: cart.getTotal() * 1.075,
+                orderDate: new Date().toISOString()
+            };
+
+            // Save order to localStorage
+            const orders = JSON.parse(localStorage.getItem('fjl_orders')) || [];
+            const orderNumber = 'FJL' + Date.now();
+            formData.orderNumber = orderNumber;
+            orders.push(formData);
+            localStorage.setItem('fjl_orders', JSON.stringify(orders));
+
+            // Clear cart
+            cart.clear();
+            updateCartBadge();
+
+            // Show success message
+            document.getElementById('successMessage').classList.add('show');
+
+            // Reset form
+            this.reset();
+
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'order-confirmation.html?order=' + orderNumber;
+            }, 2000);
+        });
+
+        // Initialize
+        updateCartBadge();
+        renderOrderSummary();
+
+        // If cart is empty, redirect to cart
+        if (cart.items.length === 0) {
+            alert('Your cart is empty');
+            window.location.href = 'cart.html';
+        }
+    </script>
+</body>
+</html>

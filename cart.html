@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop - Famous Jelly Luxe (FJL)</title>
+    <title>Shopping Cart - Famous Jelly Luxe (FJL)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
@@ -28,6 +28,16 @@
             top: 0;
             z-index: 50;
             background: white;
+        }
+
+        .top-banner {
+            background: black;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         /* Mobile Menu Styles */
@@ -146,44 +156,243 @@
             display: block;
         }
 
-        .top-banner {
-            background: black;
-            color: white;
-            padding: 8px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 500;
+        /* Cart Styles */
+        .cart-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cart-items-section h2 {
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 24px;
             letter-spacing: 0.5px;
         }
 
-        .product-card {
-            position: relative;
-            overflow: hidden;
-            background: white;
-            transition: all 0.3s ease;
+        .cart-item {
+            display: grid;
+            grid-template-columns: 120px 1fr 100px;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e5;
+            align-items: start;
         }
 
-        .product-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        @media (max-width: 640px) {
+            .cart-item {
+                grid-template-columns: 80px 1fr;
+                gap: 16px;
+            }
         }
 
-        .product-image {
+        .cart-item-image {
+            width: 120px;
+            height: 120px;
             background: #f5f5f5;
-            aspect-ratio: 1;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #999;
+            overflow: hidden;
+        }
+
+        @media (max-width: 640px) {
+            .cart-item-image {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cart-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cart-item-name {
             font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #000;
         }
 
-        .hover-lift {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .cart-item-meta {
+            font-size: 12px;
+            color: #8b8b8b;
         }
 
-        .hover-lift:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        .cart-item-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+            margin-top: 8px;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .qty-btn:hover {
+            border-color: #000;
+        }
+
+        .qty-display {
+            width: 40px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .remove-btn {
+            color: #8b8b8b;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            border: none;
+            background: none;
+            padding: 0;
+            font-weight: 600;
+        }
+
+        .remove-btn:hover {
+            color: #E09F3E;
+        }
+
+        .cart-summary {
+            background: #f9f9f9;
+            padding: 24px;
+            border-radius: 4px;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        @media (max-width: 1024px) {
+            .cart-summary {
+                position: static;
+                top: auto;
+            }
+        }
+
+        .summary-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .summary-row.total {
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            margin-top: 12px;
+            padding-bottom: 0;
+        }
+
+        .summary-row.total span:last-child {
+            color: #E09F3E;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 16px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-cart-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-cart h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .empty-cart p {
+            color: #8b8b8b;
+            margin-bottom: 24px;
+        }
+
+        .continue-shopping-btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: #000;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .continue-shopping-btn:hover {
+            background: #333;
         }
 
         .email-input {
@@ -210,32 +419,6 @@
         }
 
         .submit-btn:hover {
-            background: #f5f5f5;
-        }
-
-        .filter-dropdown {
-            background: white;
-            border: 1px solid #e5e5e5;
-            padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-dropdown:hover {
-            border-color: #000;
-        }
-
-        .view-toggle-btn {
-            padding: 8px 12px;
-            border: 1px solid #e5e5e5;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .view-toggle-btn.active {
-            border-color: #000;
             background: #f5f5f5;
         }
     </style>
@@ -271,7 +454,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </button>
-                        <a href="cart.html" class="text-gray-700 hover:text-black transition hidden md:flex relative">
+                        <a href="cart.html" class="text-gray-700 hover:text-black transition relative">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
@@ -307,134 +490,47 @@
         </div>
     </div>
 
-    <!-- Shop Filter & Controls Section -->
-    <section class="py-6 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <!-- Filters -->
-                <div class="flex gap-4 items-center">
-                    <label class="text-sm font-medium text-gray-700">AVAILABILITY</label>
-                    <select class="filter-dropdown">
-                        <option>All Items</option>
-                        <option>In Stock</option>
-                        <option>Out of Stock</option>
-                    </select>
-                </div>
-
-                <!-- Right controls -->
-                <div class="flex gap-4 items-center ml-auto">
-                    <span class="text-sm text-gray-600">7 ITEMS</span>
-
-                    <select class="filter-dropdown">
-                        <option>SORT</option>
-                        <option>Price: Low to High</option>
-                        <option>Price: High to Low</option>
-                        <option>Newest</option>
-                    </select>
-
-                    <!-- View Toggle -->
-                    <div class="flex gap-2">
-                        <button class="view-toggle-btn active" title="Grid view">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <rect x="3" y="3" width="7" height="7"/>
-                                <rect x="14" y="3" width="7" height="7"/>
-                                <rect x="3" y="14" width="7" height="7"/>
-                                <rect x="14" y="14" width="7" height="7"/>
-                            </svg>
-                        </button>
-                        <button class="view-toggle-btn" title="List view">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <rect x="3" y="4" width="18" height="2"/>
-                                <rect x="3" y="11" width="18" height="2"/>
-                                <rect x="3" y="18" width="18" height="2"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Products Grid Section -->
+    <!-- Cart Section -->
     <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white">
         <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Product Card 1 -->
-                <a href="product.html" class="product-card hover-lift">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="FTG Checkered Jersey">
-                    </div>
-                    <div class="p-3">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">FTG Checkered Jersey</h3>
-                        <p class="text-gray-600 text-xs mt-2">₦75,300.00</p>
-                    </div>
-                </a>
+            <!-- Breadcrumb -->
+            <div class="text-xs text-gray-600 mb-8">
+                <a href="index.html" class="hover:text-black">Home</a> / <span>Shopping Cart</span>
+            </div>
 
-                <!-- Product Card 2 -->
-                <a href="product.html" class="product-card hover-lift">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="FTG Rugby Polo">
-                    </div>
-                    <div class="p-3">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">FTG Rugby Polo</h3>
-                        <p class="text-gray-600 text-xs mt-2">₦67,000.00</p>
-                    </div>
-                </a>
+            <h1 class="text-3xl font-bold tracking-wide mb-12 text-gray-900">SHOPPING CART</h1>
 
-                <!-- Product Card 3 -->
-                <a href="product.html" class="product-card hover-lift">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="FTG Tracksuit">
+            <!-- Cart Items -->
+            <div class="cart-container">
+                <!-- Items List -->
+                <div class="cart-items-section">
+                    <h2>Order Summary</h2>
+                    <div id="cartItemsContainer">
+                        <!-- Cart items will be inserted here -->
                     </div>
-                    <div class="p-3">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">FTG Tracksuit</h3>
-                        <p class="text-gray-600 text-xs mt-2">₦75,000.00</p>
-                    </div>
-                </a>
+                </div>
 
-                <!-- Product Card 4 -->
-                <a href="product.html" class="product-card hover-lift">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="Soccer Baby Tee">
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <div class="summary-title">Price Summary</div>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">₦0.00</span>
                     </div>
-                    <div class="p-3">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Soccer Baby Tee</h3>
-                        <p class="text-gray-600 text-xs mt-2">₦7,700.00</p>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span id="shipping">Free</span>
                     </div>
-                </a>
-
-                <!-- Product Card 5 -->
-                <a href="product.html" class="product-card hover-lift">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="Soccer Baby Crop Top">
+                    <div class="summary-row">
+                        <span>Tax</span>
+                        <span id="tax">₦0.00</span>
                     </div>
-                    <div class="p-3">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Soccer Baby Crop Top</h3>
-                        <p class="text-gray-600 text-xs mt-2">₦6,500.00</p>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="total">₦0.00</span>
                     </div>
-                </a>
-
-                <!-- Product Card 6 -->
-                <a href="product.html" class="product-card hover-lift">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="FTG Logo T-Shirt">
-                    </div>
-                    <div class="p-3">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">FTG Logo T-Shirt</h3>
-                        <p class="text-gray-600 text-xs mt-2">₦4,100.00</p>
-                    </div>
-                </a>
-
-                <!-- Product Card 7 -->
-                <a href="product.html" class="product-card hover-lift">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="Urban Varsity Jacket">
-                    </div>
-                    <div class="p-3">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">Urban Varsity Jacket</h3>
-                        <p class="text-gray-600 text-xs mt-2">₦70,000.00</p>
-                    </div>
-                </a>
+                    <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+                </div>
             </div>
         </div>
     </section>
@@ -450,9 +546,8 @@
                         <li><a href="index.html" class="text-gray-600 text-sm hover:text-black transition">Home</a></li>
                         <li><a href="about.html" class="text-gray-600 text-sm hover:text-black transition">About Us</a></li>
                         <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Shop</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Campaigns</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Order Lookup</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
+                        <li><a href="contact.html" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
+                        <li><a href="cart.html" class="text-gray-600 text-sm hover:text-black transition">Shopping Cart</a></li>
                     </ul>
                 </div>
 
@@ -529,39 +624,6 @@
     </footer>
 
     <script>
-        // Cart Management Class
-        class Cart {
-            constructor() {
-                this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
-            }
-
-            getItemCount() {
-                return this.items.reduce((count, item) => count + item.quantity, 0);
-            }
-        }
-
-        // Initialize cart
-        const cart = new Cart();
-
-        // Update cart badge on page load
-        function updateCartBadge() {
-            const badge = document.getElementById('cartBadge');
-            const count = cart.getItemCount();
-            if (badge) {
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
-        }
-
-        // Call on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCartBadge();
-        });
-
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
@@ -583,6 +645,137 @@
                 }
             }
         });
+
+        // Cart Management
+        class Cart {
+            constructor() {
+                this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
+            }
+
+            addItem(product) {
+                const existingItem = this.items.find(item => item.id === product.id && item.size === product.size);
+
+                if (existingItem) {
+                    existingItem.quantity += product.quantity;
+                } else {
+                    this.items.push(product);
+                }
+
+                this.save();
+            }
+
+            removeItem(productId, size) {
+                this.items = this.items.filter(item => !(item.id === productId && item.size === size));
+                this.save();
+            }
+
+            updateQuantity(productId, size, quantity) {
+                const item = this.items.find(item => item.id === productId && item.size === size);
+                if (item) {
+                    item.quantity = Math.max(1, quantity);
+                    this.save();
+                }
+            }
+
+            getTotal() {
+                return this.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+            }
+
+            getItemCount() {
+                return this.items.reduce((count, item) => count + item.quantity, 0);
+            }
+
+            clear() {
+                this.items = [];
+                this.save();
+            }
+
+            save() {
+                localStorage.setItem('fjl_cart', JSON.stringify(this.items));
+                updateCartBadge();
+                renderCart();
+            }
+        }
+
+        const cart = new Cart();
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const count = cart.getItemCount();
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+
+            if (cart.items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">🛒</div>
+                        <h2>Your Cart is Empty</h2>
+                        <p>Add some items to get started</p>
+                        <a href="shop.html" class="continue-shopping-btn">Continue Shopping</a>
+                    </div>
+                `;
+                document.querySelector('.cart-summary').style.display = 'none';
+                return;
+            }
+
+            document.querySelector('.cart-summary').style.display = 'block';
+
+            let html = '';
+            cart.items.forEach(item => {
+                html += `
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect fill='%23f5f5f5' width='120' height='120'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='12'>Product</text></svg>" alt="${item.name}">
+                        </div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-meta">Size: ${item.size}</div>
+                            <div class="cart-item-price">₦${item.price.toLocaleString('en-NG')}</div>
+                            <div class="cart-item-quantity">
+                                <button class="qty-btn" onclick="cart.updateQuantity('${item.id}', '${item.size}', ${item.quantity - 1})">−</button>
+                                <div class="qty-display">${item.quantity}</div>
+                                <button class="qty-btn" onclick="cart.updateQuantity('${item.id}', '${item.size}', ${item.quantity + 1})">+</button>
+                                <button class="remove-btn" onclick="cart.removeItem('${item.id}', '${item.size}')">Remove</button>
+                            </div>
+                        </div>
+                        <div style="text-align: right; white-space: nowrap;">
+                            <div style="font-size: 14px; font-weight: 600;">₦${(item.price * item.quantity).toLocaleString('en-NG')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Update summary
+            const subtotal = cart.getTotal();
+            const tax = subtotal * 0.075; // 7.5% tax
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').textContent = `₦${subtotal.toLocaleString('en-NG')}`;
+            document.getElementById('tax').textContent = `₦${tax.toLocaleString('en-NG')}`;
+            document.getElementById('total').textContent = `₦${total.toLocaleString('en-NG')}`;
+        }
+
+        function proceedToCheckout() {
+            if (cart.items.length === 0) {
+                alert('Your cart is empty');
+                return;
+            }
+            window.location.href = 'checkout.html';
+        }
+
+        // Initialize cart on page load
+        updateCartBadge();
+        renderCart();
     </script>
 </body>
 </html>
