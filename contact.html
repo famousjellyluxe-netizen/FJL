@@ -30,6 +30,122 @@
             background: white;
         }
 
+        /* Mobile Menu Styles */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+        }
+
+        .mobile-menu-btn span {
+            width: 24px;
+            height: 3px;
+            background: black;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 40;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 41;
+        }
+
+        .mobile-menu-close {
+            font-size: 28px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: black;
+        }
+
+        .mobile-menu-content {
+            flex: 1;
+            padding: 20px 16px;
+        }
+
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu-links li {
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .mobile-menu-links a {
+            display: block;
+            padding: 16px 0;
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-menu-links a:hover {
+            color: #E09F3E;
+        }
+
+        .mobile-menu-image {
+            margin-top: auto;
+            padding: 16px 0 0 0;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .mobile-menu-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
         .top-banner {
             background: black;
             color: white;
@@ -277,21 +393,45 @@
 
                     <!-- Right icons -->
                     <div class="flex gap-6 items-center">
-                        <button class="text-gray-700 hover:text-black transition">
+                        <button class="text-gray-700 hover:text-black transition hidden md:flex">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </button>
-                        <button class="text-gray-700 hover:text-black transition">
+                        <button class="text-gray-700 hover:text-black transition hidden md:flex">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
+                        </button>
+                        <!-- Mobile Menu Button -->
+                        <button class="mobile-menu-btn md:hidden" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+                            <span></span>
+                            <span></span>
                         </button>
                     </div>
                 </div>
             </div>
         </nav>
     </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="text-lg font-bold tracking-widest" style="color: #E09F3E;">FJL</div>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
+        </div>
+        <div class="mobile-menu-content">
+            <ul class="mobile-menu-links">
+                <li><a href="index.html" onclick="toggleMobileMenu()">HOME</a></li>
+                <li><a href="about.html" onclick="toggleMobileMenu()">ABOUT US</a></li>
+                <li><a href="shop.html" onclick="toggleMobileMenu()">SHOP</a></li>
+                <li><a href="contact.html" onclick="toggleMobileMenu()">CONTACT US</a></li>
+            </ul>
+        </div>
+        <div class="mobile-menu-image">
+            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><rect fill='%23f5f5f5' width='300' height='400'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='18'>Featured Product</text></svg>" alt="Featured Product">
+        </div>
+    </div>
 
     <!-- Contact Hero Section -->
     <section class="contact-hero">
@@ -507,6 +647,28 @@
     </footer>
 
     <script>
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+            mobileMenu.classList.toggle('active');
+            mobileMenuBtn.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+            if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                if (mobileMenu.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
+                    mobileMenuBtn.classList.remove('active');
+                }
+            }
+        });
+
         function handleFormSubmit(event) {
             event.preventDefault();
 
