@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - FJL Admin Panel</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -18,37 +19,37 @@
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
                     <a href="dashboard.html" class="sidebar-menu-link active">
-                        <span>📊</span>
+                        <span><i data-lucide="bar-chart-3" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="products.html" class="sidebar-menu-link">
-                        <span>📦</span>
+                        <span><i data-lucide="package" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
                         <span>Products</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="orders.html" class="sidebar-menu-link">
-                        <span>🛒</span>
+                        <span><i data-lucide="shopping-cart" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
                         <span>Orders</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="customers.html" class="sidebar-menu-link">
-                        <span>👥</span>
+                        <span><i data-lucide="users" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
                         <span>Customers</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="analytics.html" class="sidebar-menu-link">
-                        <span>📈</span>
+                        <span><i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
                         <span>Analytics</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="settings.html" class="sidebar-menu-link">
-                        <span>⚙️</span>
+                        <span><i data-lucide="settings" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
                         <span>Settings</span>
                     </a>
                 </li>
@@ -75,7 +76,7 @@
                 </div>
                 <div class="header-right">
                     <div class="header-icons">
-                        <button class="header-icon-btn" onclick="refreshDashboard()" title="Refresh">🔄</button>
+                        <button class="header-icon-btn" onclick="refreshDashboard()" title="Refresh"><i data-lucide="refresh-cw" style="width: 20px; height: 20px;"></i></button>
                         <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
                     </div>
                 </div>
@@ -86,7 +87,7 @@
                 <!-- Statistics Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon success">💰</div>
+                        <div class="stat-icon success"><i data-lucide="dollar-sign" style="width: 24px; height: 24px;"></i></div>
                         <div class="stat-content">
                             <h3>Total Revenue</h3>
                             <div class="value" id="totalRevenue">₦0</div>
@@ -95,7 +96,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon info">🛒</div>
+                        <div class="stat-icon info"><i data-lucide="shopping-cart" style="width: 24px; height: 24px;"></i></div>
                         <div class="stat-content">
                             <h3>Total Orders</h3>
                             <div class="value" id="totalOrders">0</div>
@@ -104,7 +105,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon primary">👥</div>
+                        <div class="stat-icon primary"><i data-lucide="users" style="width: 24px; height: 24px;"></i></div>
                         <div class="stat-content">
                             <h3>Total Customers</h3>
                             <div class="value" id="totalCustomers">0</div>
@@ -113,7 +114,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon warning">📦</div>
+                        <div class="stat-icon warning"><i data-lucide="package" style="width: 24px; height: 24px;"></i></div>
                         <div class="stat-content">
                             <h3>Total Products</h3>
                             <div class="value" id="totalProducts">0</div>
@@ -168,7 +169,7 @@
                 <!-- Low Stock Alert -->
                 <div class="card mt-xl">
                     <div class="card-header">
-                        <h3 class="card-title">⚠️ Low Stock Products</h3>
+                        <h3 class="card-title"><i data-lucide="alert-triangle" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Low Stock Products</h3>
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -282,6 +283,9 @@
                 window.location.href = 'index.html';
             }
         }
+
+        // Initialize Lucide icons
+        lucide.createIcons();
     </script>
 </body>
 </html>

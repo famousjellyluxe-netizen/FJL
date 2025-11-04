@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customers - FJL Admin Panel</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="sidebar-logo"><span>FJL</span></div>
             <ul class="sidebar-menu">
-                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link">📊 Dashboard</a></li>
-                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link">📦 Products</a></li>
-                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link">🛒 Orders</a></li>
-                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link active">👥 Customers</a></li>
-                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link">📈 Analytics</a></li>
-                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link">⚙️ Settings</a></li>
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Products</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link active"><i data-lucide="users" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Settings</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
@@ -43,7 +44,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Customers (<span id="customerCount">0</span>)</h3>
-                        <button class="btn btn-secondary btn-sm" onclick="exportCustomers()">📥 Export CSV</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportCustomers()"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Export CSV</button>
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -149,6 +150,9 @@
                 window.location.href = 'index.html';
             }
         }
+
+        // Initialize Lucide icons
+        lucide.createIcons();
     </script>
 </body>
 </html>
