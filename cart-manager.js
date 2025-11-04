@@ -16,11 +16,13 @@ class Cart {
         }
 
         this.save();
+        this.dispatchChange();
     }
 
     removeItem(productId, size) {
         this.items = this.items.filter(item => !(item.id === productId && item.size === size));
         this.save();
+        this.dispatchChange();
     }
 
     updateQuantity(productId, size, quantity) {
@@ -28,6 +30,7 @@ class Cart {
         if (item) {
             item.quantity = Math.max(1, quantity);
             this.save();
+            this.dispatchChange();
         }
     }
 
@@ -42,10 +45,19 @@ class Cart {
     clear() {
         this.items = [];
         this.save();
+        this.dispatchChange();
     }
 
     save() {
         localStorage.setItem('fjl_cart', JSON.stringify(this.items));
+    }
+
+    dispatchChange() {
+        // Dispatch a custom event so other components can listen for cart changes
+        const event = new CustomEvent('cartUpdated', {
+            detail: { items: this.items, count: this.getItemCount() }
+        });
+        window.dispatchEvent(event);
     }
 }
 

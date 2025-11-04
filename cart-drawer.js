@@ -20,6 +20,11 @@ class CartDrawer {
         // Add event listeners
         this.addEventListeners();
         this.render();
+
+        // Listen for cart updates from other pages/components
+        window.addEventListener('cartUpdated', () => {
+            this.render();
+        });
     }
 
     createDrawer() {

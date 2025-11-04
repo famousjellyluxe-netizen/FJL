@@ -581,6 +581,11 @@
             updateCartBadge();
         });
 
+        // Listen for cart updates and update badge in real-time
+        window.addEventListener('cartUpdated', () => {
+            updateCartBadge();
+        });
+
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
