@@ -262,17 +262,22 @@
         .cart-icon-btn {
             background: #E09F3E;
             border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+            padding: 8px 16px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             transform: scale(0);
             opacity: 0;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: white;
+            white-space: nowrap;
         }
 
         .product-card:hover .cart-icon-btn {
@@ -282,7 +287,6 @@
 
         .cart-icon-btn:hover {
             background: #d08a2f;
-            transform: scale(1.1);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
 
@@ -292,8 +296,8 @@
 
         .cart-icon-btn i {
             color: white;
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
         }
 
         .size-selector-popup {
@@ -549,20 +553,14 @@
         </div>
     </footer>
 
+    <!-- Load cart manager and drawer BEFORE inline scripts -->
+    <script src="cart-manager.js"></script>
+    <script src="cart-drawer.js"></script>
+
     <script>
         // Cart Management Class
-        class Cart {
-            constructor() {
-                this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
-            }
-
-            getItemCount() {
-                return this.items.reduce((count, item) => count + item.quantity, 0);
-            }
-        }
-
-        // Initialize cart
-        const cart = new Cart();
+        // Cart class is loaded from cart-manager.js
+        // Initialize cart instance (global from cart-manager.js)
 
         // Update cart badge on page load
         function updateCartBadge() {
@@ -627,13 +625,14 @@
                         </div>
                         <div class="product-overlay">
                             <div class="size-selector-popup">
-                                <select data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" onchange="handleQuickAddToCart(this)">
+                                <select data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
                                     <option value="">Size</option>
                                     ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
                                 </select>
                             </div>
                             <button class="cart-icon-btn" onclick="quickAddToCart('${product.id}', '${product.name}', ${product.price})" title="Add to cart">
                                 <i data-lucide="shopping-bag"></i>
+                                <span>Add</span>
                             </button>
                             <div class="add-to-cart-success" id="success-${product.id}">✓ Added</div>
                         </div>
@@ -714,7 +713,5 @@
         // Initialize Lucide icons
         lucide.createIcons();
     </script>
-    <script src="cart-manager.js"></script>
-    <script src="cart-drawer.js"></script>
 </body>
 </html>

@@ -51,5 +51,5 @@ class Cart {
 
 // Initialize cart globally only if not already defined
 if (typeof cart === 'undefined') {
-    const cart = new Cart();
+    var cart = new Cart();
 }
