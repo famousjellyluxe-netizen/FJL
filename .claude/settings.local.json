@@ -27,7 +27,9 @@
       "WebFetch(domain:forthegengonly.com)",
       "Bash(for file in index.html about.html contact.html product.html checkout.html cart.html order-confirmation.html)",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(for file in about.html cart.html checkout.html contact.html order-confirmation.html product.html shop.html)",
+      "Bash(do)"
     ],
     "deny": [],
     "ask": []
