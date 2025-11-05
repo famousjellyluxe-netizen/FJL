@@ -553,9 +553,10 @@
         </div>
     </footer>
 
-    <!-- Load cart manager and drawer BEFORE inline scripts -->
+    <!-- Load cart manager, drawer, and notifications BEFORE inline scripts -->
     <script src="cart-manager.js"></script>
     <script src="cart-drawer.js"></script>
+    <script src="notifications.js"></script>
 
     <script>
         // Cart Management Class
@@ -676,7 +677,9 @@
             if (!size) {
                 const dropdown = document.querySelector(`[data-product-id="${productId}"]`);
                 if (!dropdown || !dropdown.value) {
-                    alert('Please select a size first');
+                    if (notifications) {
+                        notifications.warning('Please select a size first');
+                    }
                     dropdown?.focus();
                     return;
                 }
@@ -697,13 +700,9 @@
                 cart.addItem(cartItem);
                 updateCartBadge();
 
-                // Show success message
-                const successMsg = document.getElementById(`success-${productId}`);
-                if (successMsg) {
-                    successMsg.classList.add('show');
-                    setTimeout(() => {
-                        successMsg.classList.remove('show');
-                    }, 2000);
+                // Show success notification
+                if (notifications) {
+                    notifications.success(`${productName} (Size: ${size}) added to cart!`);
                 }
             }
         }

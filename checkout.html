@@ -363,6 +363,7 @@
             display: block;
         }
     </style>
+    <script src="notifications.js"></script>
     </head>
 <body>
     <!-- Top banner -->
@@ -831,8 +832,12 @@
 
         // If cart is empty, redirect to cart
         if (cart.items.length === 0) {
-            alert('Your cart is empty');
-            window.location.href = 'cart.html';
+            if (notifications) {
+                notifications.error('Your cart is empty');
+            }
+            setTimeout(() => {
+                window.location.href = 'cart.html';
+            }, 1500);
         }
 
         // Initialize Lucide icons

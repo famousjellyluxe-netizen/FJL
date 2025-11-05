@@ -240,10 +240,13 @@ class CartDrawer {
 
         // Clear cart button
         document.getElementById('clearCart').addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear your cart?')) {
-                cart.clear();
-                this.render();
-                // updateCartBadge is called by the cartUpdated event listener on each page
+            if (notifications) {
+                notifications.confirm('Are you sure you want to clear your cart?', () => {
+                    cart.clear();
+                    this.render();
+                    notifications.success('Cart cleared successfully!');
+                    // updateCartBadge is called by the cartUpdated event listener on each page
+                });
             }
         });
 
@@ -418,21 +421,25 @@ class CartDrawer {
 
     updateQuantity(productId, size, newQuantity) {
         console.log('updateQuantity called with:', productId, size, newQuantity);
-        const cart = new Cart();
         if (newQuantity > 0) {
             console.log('Updating quantity for:', productId, size, 'to:', newQuantity);
             cart.updateQuantity(productId, size, newQuantity);
             this.render();
             updateCartBadge();
+            // Notification is shown by cartUpdated event
         }
     }
 
     removeItem(productId, size) {
         console.log('removeItem called with:', productId, size);
-        const cart = new Cart();
         cart.removeItem(productId, size);
         this.render();
         updateCartBadge();
+
+        // Show remove notification
+        if (notifications) {
+            notifications.info('Item removed from cart');
+        }
     }
 
     open() {

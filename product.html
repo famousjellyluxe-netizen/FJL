@@ -524,6 +524,7 @@
             }
         }
     </style>
+    <script src="notifications.js"></script>
 </head>
 <body>
     <!-- Top banner -->
@@ -1056,7 +1057,9 @@
             const quantity = parseInt(document.getElementById('quantityDisplay').value);
 
             if (!size) {
-                alert('Please select a size');
+                if (notifications) {
+                    notifications.warning('Please select a size');
+                }
                 return;
             }
 
