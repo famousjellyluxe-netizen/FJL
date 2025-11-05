@@ -614,19 +614,8 @@
                     </div>
 
                     <!-- Thumbnails -->
-                    <div class="gallery-thumbnails">
-                        <div class="thumbnail active" onclick="changeImage(this)">
-                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23f5f5f5' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 1</text></svg>" alt="Thumbnail 1">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this)">
-                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e8e8e8' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 2</text></svg>" alt="Thumbnail 2">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this)">
-                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23d5d5d5' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 3</text></svg>" alt="Thumbnail 3">
-                        </div>
-                        <div class="thumbnail" onclick="changeImage(this)">
-                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23c2c2c2' width='200' height='200'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Image 4</text></svg>" alt="Thumbnail 4">
-                        </div>
+                    <div class="gallery-thumbnails" id="galleryThumbnails">
+                        <!-- Thumbnails will be generated dynamically based on product images -->
                     </div>
                 </div>
 
@@ -1011,9 +1000,50 @@
 
             // Update product image if available
             const mainImage = document.getElementById('mainImage');
-            if (mainImage && product.image && product.image !== 'placeholder') {
-                mainImage.src = product.image;
+            let productImages = [];
+
+            // Collect product images (support both single image and multiple images)
+            if (product.image && product.image !== 'placeholder') {
+                productImages.push(product.image);
+            }
+            if (product.images && Array.isArray(product.images)) {
+                productImages = productImages.concat(product.images.filter(img => img && img !== 'placeholder'));
+            }
+
+            // Set main image
+            if (productImages.length > 0) {
+                mainImage.src = productImages[0];
                 mainImage.alt = product.name;
+            }
+
+            // Generate thumbnails dynamically
+            const thumbnailsContainer = document.getElementById('galleryThumbnails');
+            if (thumbnailsContainer) {
+                thumbnailsContainer.innerHTML = '';
+
+                // If no images, create a placeholder thumbnail
+                if (productImages.length === 0) {
+                    const placeholderThumb = document.createElement('div');
+                    placeholderThumb.className = 'thumbnail active';
+                    placeholderThumb.onclick = function() { changeImage(this); };
+                    placeholderThumb.innerHTML = '<img src="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'><rect fill=\'%23f5f5f5\' width=\'200\' height=\'200\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'16\'>No Image</text></svg>" alt="No Image">';
+                    thumbnailsContainer.appendChild(placeholderThumb);
+                } else {
+                    // Create thumbnails for each product image
+                    productImages.forEach((imgUrl, index) => {
+                        const thumb = document.createElement('div');
+                        thumb.className = 'thumbnail' + (index === 0 ? ' active' : '');
+                        thumb.onclick = function() { changeImage(this); };
+
+                        const img = document.createElement('img');
+                        img.src = imgUrl;
+                        img.alt = product.name + ' Image ' + (index + 1);
+                        img.dataset.fullImageUrl = imgUrl; // Store full image URL for switching
+
+                        thumb.appendChild(img);
+                        thumbnailsContainer.appendChild(thumb);
+                    });
+                }
             }
 
             // Update product description if available
@@ -1026,6 +1056,7 @@
             window.currentProductId = product.id;
             window.currentProductName = product.name;
             window.currentProductPrice = product.price;
+            window.productImages = productImages; // Store for changeImage function
         }
 
         // Call on page load
@@ -1080,8 +1111,11 @@
             document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
             thumbnail.classList.add('active');
 
-            const src = thumbnail.querySelector('img').src;
+            const img = thumbnail.querySelector('img');
+            // Use full image URL if stored, otherwise use src
+            const src = img.dataset.fullImageUrl || img.src;
             document.getElementById('mainImage').src = src;
+            document.getElementById('mainImage').alt = img.alt;
         }
 
         // Product description toggle
