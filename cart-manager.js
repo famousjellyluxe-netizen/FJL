@@ -19,10 +19,26 @@ class Cart {
         this.dispatchChange();
     }
 
-    removeItem(productId, size) {
-        this.items = this.items.filter(item => !(item.id === productId && item.size === size));
+    removeItem(productIdOrIndex, size) {
+        // Support both: removeItem(productId, size) and removeItem(index)
+        if (typeof productIdOrIndex === 'number') {
+            // Removing by index
+            this.items.splice(productIdOrIndex, 1);
+        } else {
+            // Removing by productId and size
+            this.items = this.items.filter(item => !(item.id === productIdOrIndex && item.size === size));
+        }
         this.save();
         this.dispatchChange();
+    }
+
+    updateItem(index, updates) {
+        // Update cart item by index (for cart-summary.html)
+        if (index >= 0 && index < this.items.length) {
+            this.items[index] = { ...this.items[index], ...updates };
+            this.save();
+            this.dispatchChange();
+        }
     }
 
     updateQuantity(productId, size, quantity) {

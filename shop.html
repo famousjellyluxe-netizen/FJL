@@ -934,13 +934,18 @@
                 size = dropdown.value;
             }
 
+            // Find the product to get its image
+            const product = products.find(p => p.id === productId);
+            const productImage = product ? (product.image || '') : '';
+
             // Create cart item
             const cartItem = {
                 id: productId,
                 name: productName,
                 price: productPrice,
                 size: size,
-                quantity: 1
+                quantity: 1,
+                image: productImage // Include product image in cart
             };
 
             // Add to cart using Cart class

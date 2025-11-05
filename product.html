@@ -1199,6 +1199,7 @@
             window.currentProductId = product.id;
             window.currentProductName = product.name;
             window.currentProductPrice = product.price;
+            window.currentProductImage = product.image; // Store main product image for cart
             window.productImages = productImages; // Store for changeImage function
         }
 
@@ -1287,7 +1288,8 @@
                 name: window.currentProductName || 'FTG Tracksuit',
                 size: size,
                 quantity: quantity,
-                price: window.currentProductPrice || 75000
+                price: window.currentProductPrice || 75000,
+                image: window.currentProductImage || '' // Include product image in cart
             };
 
             cart.addItem(product);
