@@ -35,29 +35,34 @@ class NotificationManager {
         // Define styles based on type
         const styles = {
             success: {
-                background: '#E09F3E',
+                background: '#000',
                 icon: '✓',
-                textColor: '#fff'
+                textColor: '#fff',
+                iconColor: '#E09F3E'
             },
             error: {
-                background: '#d32f2f',
+                background: '#000',
                 icon: '✕',
-                textColor: '#fff'
+                textColor: '#fff',
+                iconColor: '#d32f2f'
             },
             warning: {
-                background: '#ffa726',
+                background: '#000',
                 icon: '⚠',
-                textColor: '#fff'
+                textColor: '#fff',
+                iconColor: '#ffa726'
             },
             info: {
-                background: '#1976d2',
+                background: '#000',
                 icon: 'ℹ',
-                textColor: '#fff'
+                textColor: '#fff',
+                iconColor: '#1976d2'
             },
             confirm: {
                 background: '#000',
                 icon: '?',
-                textColor: '#E09F3E'
+                textColor: '#fff',
+                iconColor: '#E09F3E'
             }
         };
 
@@ -81,7 +86,7 @@ class NotificationManager {
         `;
 
         notification.innerHTML = `
-            <span style="font-size: 18px; font-weight: bold; min-width: 20px;">${style.icon}</span>
+            <span style="font-size: 18px; font-weight: bold; min-width: 20px; color: ${style.iconColor};">${style.icon}</span>
             <span style="flex: 1;">${message}</span>
             <button style="
                 background: none;
