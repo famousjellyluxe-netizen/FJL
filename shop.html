@@ -847,6 +847,20 @@
 
             grid.innerHTML = htmlContent;
 
+            // Prevent link navigation when clicking on size dropdown or add button
+            grid.querySelectorAll('a').forEach(link => {
+                const overlay = link.querySelector('.product-overlay');
+                if (overlay) {
+                    link.addEventListener('click', (e) => {
+                        // Check if click was inside the overlay (size dropdown or add button)
+                        if (overlay.contains(e.target)) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        }
+                    }, true); // Use capture phase to intercept before link's default behavior
+                }
+            });
+
             // Render pagination buttons separately outside the grid
             renderPaginationButtons(totalPages);
 
