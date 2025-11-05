@@ -853,13 +853,12 @@
                 const select = overlay ? overlay.querySelector('select') : null;
                 const button = overlay ? overlay.querySelector('button.cart-icon-btn') : null;
 
-                // Prevent navigation on both mousedown and click
+                // Prevent navigation only for the button, allow select to work
                 const preventNavigation = (e) => {
                     const clickedElement = e.target;
-                    const isInSelect = select && (select === clickedElement || select.contains(clickedElement));
                     const isInButton = button && (button === clickedElement || button.contains(clickedElement));
 
-                    if (isInSelect || isInButton) {
+                    if (isInButton) {
                         e.preventDefault();
                     }
                 };
