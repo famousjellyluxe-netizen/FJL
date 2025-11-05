@@ -924,57 +924,77 @@
             }
         }
 
-        // Product Database
-        const productDatabase = {
-            'ftg-checkered-jersey': {
-                id: 'ftg-checkered-jersey',
-                name: 'FTG Checkered Jersey',
-                price: 75300,
-                description: 'Premium quality checkered jersey with custom FJL branding'
-            },
-            'ftg-rugby-polo': {
-                id: 'ftg-rugby-polo',
-                name: 'FTG Rugby Polo',
-                price: 67000,
-                description: 'Classic rugby polo with embroidered FJL logo'
-            },
-            'ftg-tracksuit': {
-                id: 'ftg-tracksuit',
-                name: 'FTG Tracksuit',
-                price: 75000,
-                description: 'Complete tracksuit set with custom oversized silhouette'
-            },
-            'soccer-baby-tee': {
-                id: 'soccer-baby-tee',
-                name: 'Soccer Baby Tee',
-                price: 7700,
-                description: 'Lightweight baby tee with soccer-inspired design'
-            },
-            'soccer-baby-crop-top': {
-                id: 'soccer-baby-crop-top',
-                name: 'Soccer Baby Crop Top',
-                price: 6500,
-                description: 'Stylish crop top with soccer aesthetic'
-            },
-            'ftg-logo-tshirt': {
-                id: 'ftg-logo-tshirt',
-                name: 'FTG Logo T-Shirt',
-                price: 4100,
-                description: 'Classic FTG logo t-shirt in premium cotton'
-            },
-            'urban-varsity-jacket': {
-                id: 'urban-varsity-jacket',
-                name: 'Urban Varsity Jacket',
-                price: 70000,
-                description: 'Sleek varsity jacket with urban street style'
-            }
-        };
+        // Default product database (fallback if localStorage is empty)
+        function getDefaultProductDatabase() {
+            return {
+                'ftg-checkered-jersey': {
+                    id: 'ftg-checkered-jersey',
+                    name: 'FTG Checkered Jersey',
+                    price: 75300,
+                    description: 'Premium quality checkered jersey with custom FJL branding'
+                },
+                'ftg-rugby-polo': {
+                    id: 'ftg-rugby-polo',
+                    name: 'FTG Rugby Polo',
+                    price: 67000,
+                    description: 'Classic rugby polo with embroidered FJL logo'
+                },
+                'ftg-tracksuit': {
+                    id: 'ftg-tracksuit',
+                    name: 'FTG Tracksuit',
+                    price: 75000,
+                    description: 'Complete tracksuit set with custom oversized silhouette'
+                },
+                'soccer-baby-tee': {
+                    id: 'soccer-baby-tee',
+                    name: 'Soccer Baby Tee',
+                    price: 7700,
+                    description: 'Lightweight baby tee with soccer-inspired design'
+                },
+                'soccer-baby-crop-top': {
+                    id: 'soccer-baby-crop-top',
+                    name: 'Soccer Baby Crop Top',
+                    price: 6500,
+                    description: 'Stylish crop top with soccer aesthetic'
+                },
+                'ftg-logo-tshirt': {
+                    id: 'ftg-logo-tshirt',
+                    name: 'FTG Logo T-Shirt',
+                    price: 4100,
+                    description: 'Classic FTG logo t-shirt in premium cotton'
+                },
+                'urban-varsity-jacket': {
+                    id: 'urban-varsity-jacket',
+                    name: 'Urban Varsity Jacket',
+                    price: 70000,
+                    description: 'Sleek varsity jacket with urban street style'
+                }
+            };
+        }
 
         // Load product based on URL parameter
         function loadProduct() {
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id') || 'ftg-tracksuit';
-            const product = productDatabase[productId] || productDatabase['ftg-tracksuit'];
+
+            // Load products from localStorage or use default database
+            let product = null;
+            const storedProducts = localStorage.getItem('fjl_products');
+
+            if (storedProducts) {
+                try {
+                    const allProducts = JSON.parse(storedProducts);
+                    product = allProducts.find(p => p.id === productId);
+                } catch (e) {
+                    console.error('Error loading products from localStorage:', e);
+                }
+            }
+
+            // Fallback to default database if not found in localStorage
+            if (!product) {
+                const defaultDB = getDefaultProductDatabase();
+                product = defaultDB[productId] || defaultDB['ftg-tracksuit'];
+            }
 
             // Update page title
             document.title = product.name + ' - Famous Jelly Luxe (FJL)';
@@ -988,6 +1008,19 @@
 
             // Update product price
             document.querySelector('.product-price').textContent = '₦' + product.price.toLocaleString() + '.00';
+
+            // Update product image if available
+            const mainImage = document.getElementById('mainImage');
+            if (mainImage && product.image && product.image !== 'placeholder') {
+                mainImage.src = product.image;
+                mainImage.alt = product.name;
+            }
+
+            // Update product description if available
+            const descriptionElement = document.querySelector('.product-description');
+            if (descriptionElement && product.description) {
+                descriptionElement.textContent = product.description;
+            }
 
             // Store current product ID for add to cart
             window.currentProductId = product.id;
