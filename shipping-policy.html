@@ -153,12 +153,12 @@
         .policy-header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            color: #000;
+            color: #fff;
         }
 
         .policy-header p {
             font-size: 1rem;
-            color: #666;
+            color: #ccc;
         }
 
         .policy-section {
@@ -169,7 +169,7 @@
             font-size: 1.5rem;
             margin-bottom: 15px;
             margin-top: 30px;
-            color: #000;
+            color: #fff;
             border-bottom: 2px solid #E09F3E;
             padding-bottom: 10px;
         }
@@ -178,12 +178,12 @@
             font-size: 1.1rem;
             margin-bottom: 10px;
             margin-top: 20px;
-            color: #333;
+            color: #ddd;
         }
 
         .policy-section p {
             line-height: 1.8;
-            color: #555;
+            color: #ccc;
             margin-bottom: 15px;
         }
 
@@ -191,7 +191,7 @@
             list-style: disc;
             margin-left: 20px;
             margin-bottom: 15px;
-            color: #555;
+            color: #ccc;
             line-height: 1.8;
         }
 
@@ -219,7 +219,7 @@
     </style>
     <script src="notifications.js"></script>
 </head>
-<body>
+<body class="bg-black text-white">
     <!-- Top banner -->
     <div class="top-banner">
         Stay fresh. Stay fearless. Stay FJL.
@@ -382,14 +382,46 @@
     </div>
 
     <!-- Footer -->
-    <footer>
-        <div class="mb-4">
-            <a href="/privacy-policy.html" class="mx-2">Privacy Policy</a> |
-            <a href="/terms-of-service.html" class="mx-2">Terms of Service</a> |
-            <a href="/shipping-policy.html" class="mx-2">Shipping Policy</a> |
-            <a href="/refund-policy.html" class="mx-2">Refund Policy</a>
+    <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Logo/Brand -->
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <a href="/index.html" style="display: inline-block; text-decoration: none;">
+                        <img src="ftg-logo.svg" alt="FJL Logo" style="height: 36px; width: auto; cursor: pointer;">
+                    </a>
+                </div>
+
+                <!-- Copyright & Links -->
+                <div class="text-center text-xs text-gray-600 space-x-2">
+                    <span>© 2025 Famous Jelly Luxe . All Rights Reserved</span>
+                    <span>|</span>
+                    <a href="/refund-policy.html" class="hover:text-black transition">Refund policy</a>
+                    <span>|</span>
+                    <a href="/privacy-policy.html" class="hover:text-black transition">Privacy policy</a>
+                    <span>|</span>
+                    <a href="/terms-of-service.html" class="hover:text-black transition">Terms of service</a>
+                    <span>|</span>
+                    <a href="/shipping-policy.html" class="hover:text-black transition">Shipping policy</a>
+                </div>
+
+                <!-- Social Icons -->
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Facebook">
+                        <i data-lucide="facebook" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="YouTube">
+                        <i data-lucide="youtube" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="LinkedIn">
+                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Twitter">
+                        <i data-lucide="twitter" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
         </div>
-        <p>&copy; 2024 Famous Jelly Luxe. All rights reserved.</p>
     </footer>
 
     <script>
