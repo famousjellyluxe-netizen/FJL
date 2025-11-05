@@ -308,18 +308,14 @@
             border-radius: 4px;
             padding: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 140px;
-            position: absolute;
-            bottom: 50px;
-            left: 0;
-            z-index: 20;
-            visibility: hidden;
+            min-width: 100px;
+            transform: scale(0);
             opacity: 0;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .product-card:hover .size-selector-popup {
-            visibility: visible;
+            transform: scale(1);
             opacity: 1;
         }
 
