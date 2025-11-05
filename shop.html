@@ -308,30 +308,30 @@
             border-radius: 4px;
             padding: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: scale(0);
-            opacity: 0;
-            transition: all 0.3s ease;
             min-width: 140px;
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            z-index: 20;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
         }
 
         .product-card:hover .size-selector-popup {
-            transform: scale(1);
+            visibility: visible;
             opacity: 1;
         }
 
         .size-selector-popup select {
             width: 100%;
             padding: 6px 8px;
-            border: none;
+            border: 1px solid #e0e0e0;
             border-radius: 3px;
             font-size: 12px;
             cursor: pointer;
             background: white;
-            appearance: none;
-            padding-right: 24px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
+            font-family: inherit;
         }
 
         .add-to-cart-success {
