@@ -53,14 +53,11 @@
                                 <input type="text" id="searchInput" class="form-control" placeholder="Search by name or SKU...">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Category</label>
+                                <label class="form-label">Sleeve Type</label>
                                 <select id="categoryFilter" class="form-select">
-                                    <option value="">All Categories</option>
-                                    <option value="Tops">Tops</option>
-                                    <option value="Bottoms">Bottoms</option>
-                                    <option value="Outerwear">Outerwear</option>
-                                    <option value="Sets">Sets</option>
-                                    <option value="Accessories">Accessories</option>
+                                    <option value="">All Types</option>
+                                    <option value="sleeveless">Sleeveless</option>
+                                    <option value="short-sleeve">Short-Sleeve</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -89,7 +86,7 @@
                                 <tr>
                                     <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
                                     <th>Product Name</th>
-                                    <th>Category</th>
+                                    <th>Sleeve Type</th>
                                     <th>SKU</th>
                                     <th>Price</th>
                                     <th>Stock</th>
@@ -133,14 +130,11 @@
 
                 <div class="form-group-row">
                     <div class="form-group">
-                        <label class="form-label">Category *</label>
+                        <label class="form-label">Sleeve Type *</label>
                         <select id="productCategory" class="form-select" required>
-                            <option value="">Select Category</option>
-                            <option value="Tops">Tops</option>
-                            <option value="Bottoms">Bottoms</option>
-                            <option value="Outerwear">Outerwear</option>
-                            <option value="Sets">Sets</option>
-                            <option value="Accessories">Accessories</option>
+                            <option value="">Select Sleeve Type</option>
+                            <option value="sleeveless">Sleeveless</option>
+                            <option value="short-sleeve">Short-Sleeve</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -179,6 +173,19 @@
                 <div class="form-group">
                     <label class="form-label">Available Colors</label>
                     <input type="text" id="productColors" class="form-control" placeholder="Black, White, Navy">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Product Image</label>
+                    <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
+                        <input type="file" id="productImage" class="form-control" accept="image/*" onchange="previewImage(event)">
+                    </div>
+                    <div id="imagePreview" style="margin-top: var(--spacing-md);"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Image URL (Optional)</label>
+                    <input type="text" id="productImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
                 </div>
 
                 <div class="form-group">
@@ -235,7 +242,7 @@
                 <tr>
                     <td><input type="checkbox" class="product-checkbox" value="${product.id}" onchange="updateSelection()"></td>
                     <td><strong>${product.name}</strong></td>
-                    <td>${product.category}</td>
+                    <td>${product.sleeve === 'sleeve' ? 'Sleeve' : 'Sleeveless'}</td>
                     <td>${product.sku}</td>
                     <td>${formatCurrency(product.price)}</td>
                     <td>${product.quantity} units</td>
@@ -278,6 +285,7 @@
             currentEditingProduct = null;
             document.getElementById('modalTitle').textContent = 'Add New Product';
             document.getElementById('productForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
             document.getElementById('productModal').classList.add('active');
         }
 
@@ -287,7 +295,7 @@
 
             document.getElementById('modalTitle').textContent = 'Edit Product';
             document.getElementById('productName').value = currentEditingProduct.name;
-            document.getElementById('productCategory').value = currentEditingProduct.category;
+            document.getElementById('productCategory').value = currentEditingProduct.sleeve || '';
             document.getElementById('productSku').value = currentEditingProduct.sku;
             document.getElementById('productPrice').value = currentEditingProduct.price;
             document.getElementById('productOriginalPrice').value = currentEditingProduct.originalPrice || '';
@@ -295,17 +303,67 @@
             document.getElementById('productQuantity').value = currentEditingProduct.quantity;
             document.getElementById('productSizes').value = currentEditingProduct.sizes ? currentEditingProduct.sizes.join(', ') : '';
             document.getElementById('productColors').value = currentEditingProduct.colors ? currentEditingProduct.colors.join(', ') : '';
+            document.getElementById('productImageUrl').value = currentEditingProduct.image || '';
             document.getElementById('productInStock').checked = currentEditingProduct.inStock;
 
+            // Show preview if exists
+            if (currentEditingProduct.image) {
+                showImagePreview(currentEditingProduct.image);
+            }
+
             document.getElementById('productModal').classList.add('active');
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                showImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showImagePreview(imageData) {
+            const previewDiv = document.getElementById('imagePreview');
+            if (imageData) {
+                previewDiv.innerHTML = `
+                    <div style="border: 2px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); text-align: center; max-width: 200px;">
+                        <img src="${imageData}" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 4px;">
+                        <p style="margin-top: var(--spacing-sm); font-size: 12px; color: var(--color-gray);">Preview</p>
+                    </div>
+                `;
+            } else {
+                previewDiv.innerHTML = '';
+            }
         }
 
         function saveProduct(event) {
             event.preventDefault();
 
+            // Get image from file input or URL
+            let imageData = document.getElementById('productImageUrl').value;
+            const fileInput = document.getElementById('productImage');
+
+            // If a file was selected, it will be converted to base64
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData = e.target.result; // Base64 image
+                    saveProductData(imageData);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // No file selected, use URL or previous image
+                saveProductData(imageData);
+            }
+        }
+
+        function saveProductData(imageData) {
             const productData = {
                 name: document.getElementById('productName').value,
-                category: document.getElementById('productCategory').value,
+                sleeve: document.getElementById('productCategory').value,
                 sku: document.getElementById('productSku').value,
                 price: parseInt(document.getElementById('productPrice').value),
                 originalPrice: parseInt(document.getElementById('productOriginalPrice').value) || 0,
@@ -313,6 +371,7 @@
                 quantity: parseInt(document.getElementById('productQuantity').value),
                 sizes: document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s),
                 colors: document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c),
+                image: imageData,
                 inStock: document.getElementById('productInStock').checked
             };
 

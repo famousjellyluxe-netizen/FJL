@@ -34,7 +34,7 @@ class AdminDataService {
                 {
                     id: 'ftg-checkered-jersey',
                     name: 'FTG Checkered Jersey',
-                    category: 'Tops',
+                    sleeve: 'sleeveless',
                     price: 75300,
                     originalPrice: 85000,
                     sku: 'FCJ-001',
@@ -50,7 +50,7 @@ class AdminDataService {
                 {
                     id: 'ftg-rugby-polo',
                     name: 'FTG Rugby Polo',
-                    category: 'Tops',
+                    sleeve: 'sleeve',
                     price: 67000,
                     originalPrice: 75000,
                     sku: 'FRP-001',
@@ -66,7 +66,7 @@ class AdminDataService {
                 {
                     id: 'ftg-tracksuit',
                     name: 'FTG Tracksuit',
-                    category: 'Sets',
+                    sleeve: 'sleeve',
                     price: 75000,
                     originalPrice: 90000,
                     sku: 'FTS-001',
@@ -82,7 +82,7 @@ class AdminDataService {
                 {
                     id: 'soccer-baby-tee',
                     name: 'Soccer Baby Tee',
-                    category: 'Tops',
+                    sleeve: 'sleeveless',
                     price: 7700,
                     originalPrice: 10000,
                     sku: 'SBT-001',
@@ -98,7 +98,7 @@ class AdminDataService {
                 {
                     id: 'soccer-baby-crop-top',
                     name: 'Soccer Baby Crop Top',
-                    category: 'Tops',
+                    sleeve: 'sleeveless',
                     price: 6500,
                     originalPrice: 8500,
                     sku: 'SBCT-001',
@@ -114,7 +114,7 @@ class AdminDataService {
                 {
                     id: 'ftg-logo-tshirt',
                     name: 'FTG Logo T-Shirt',
-                    category: 'Tops',
+                    sleeve: 'sleeveless',
                     price: 4100,
                     originalPrice: 5500,
                     sku: 'FLT-001',
@@ -130,7 +130,7 @@ class AdminDataService {
                 {
                     id: 'urban-varsity-jacket',
                     name: 'Urban Varsity Jacket',
-                    category: 'Outerwear',
+                    sleeve: 'sleeve',
                     price: 70000,
                     originalPrice: 85000,
                     sku: 'UVJ-001',
@@ -197,7 +197,7 @@ class AdminDataService {
         let products = JSON.parse(localStorage.getItem('fjl_products'));
 
         if (filters.category) {
-            products = products.filter(p => p.category === filters.category);
+            products = products.filter(p => p.sleeve === filters.category);
         }
         if (filters.inStock !== undefined) {
             products = products.filter(p => p.inStock === filters.inStock);

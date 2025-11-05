@@ -689,22 +689,39 @@
             }
         });
 
-        // Product data with sleeve information
-        const products = [
-            { id: 'ftg-checkered-jersey', name: 'FTG Checkered Jersey', price: 75300, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
-            { id: 'ftg-rugby-polo', name: 'FTG Rugby Polo', price: 67000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
-            { id: 'ftg-tracksuit', name: 'FTG Tracksuit', price: 75000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
-            { id: 'soccer-baby-tee', name: 'Soccer Baby Tee', price: 7700, sizes: ['XS', 'S', 'M', 'L', 'XL'], sleeve: 'sleeveless', inStock: true },
-            { id: 'soccer-baby-crop-top', name: 'Soccer Baby Crop Top', price: 6500, sizes: ['XS', 'S', 'M', 'L'], sleeve: 'sleeveless', inStock: true },
-            { id: 'ftg-logo-tshirt', name: 'FTG Logo T-Shirt', price: 4100, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
-            { id: 'urban-varsity-jacket', name: 'Urban Varsity Jacket', price: 70000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true }
-        ];
+        // Load products from localStorage (set by admin panel)
+        // Falls back to default hardcoded products if no localStorage data exists
+        let products = [];
+        const storedProducts = localStorage.getItem('fjl_products');
+
+        if (storedProducts) {
+            try {
+                products = JSON.parse(storedProducts);
+            } catch (e) {
+                console.error('Error loading products from localStorage:', e);
+                products = getDefaultProducts();
+            }
+        } else {
+            products = getDefaultProducts();
+        }
+
+        function getDefaultProducts() {
+            return [
+                { id: 'ftg-checkered-jersey', name: 'FTG Checkered Jersey', price: 75300, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
+                { id: 'ftg-rugby-polo', name: 'FTG Rugby Polo', price: 67000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
+                { id: 'ftg-tracksuit', name: 'FTG Tracksuit', price: 75000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
+                { id: 'soccer-baby-tee', name: 'Soccer Baby Tee', price: 7700, sizes: ['XS', 'S', 'M', 'L', 'XL'], sleeve: 'sleeveless', inStock: true },
+                { id: 'soccer-baby-crop-top', name: 'Soccer Baby Crop Top', price: 6500, sizes: ['XS', 'S', 'M', 'L'], sleeve: 'sleeveless', inStock: true },
+                { id: 'ftg-logo-tshirt', name: 'FTG Logo T-Shirt', price: 4100, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
+                { id: 'urban-varsity-jacket', name: 'Urban Varsity Jacket', price: 70000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true }
+            ];
+        }
 
         // Filter and sort state
-        let filteredProducts = [...products];
+        let filteredProducts = [...products].reverse(); // Show newest (last added) first by default
         let currentFilters = {
             availability: 'All Items',
-            sort: 'SORT',
+            sort: 'Newest', // Default to showing newest first
             sleeve: 'All'
         };
 
@@ -732,8 +749,8 @@
             } else if (currentFilters.sort === 'Price: High to Low') {
                 filteredProducts.sort((a, b) => b.price - a.price);
             } else if (currentFilters.sort === 'Newest') {
-                // Keep original order (newest first)
-                filteredProducts = filteredProducts.sort((a, b) => products.indexOf(b) - products.indexOf(a));
+                // Show newest first (reverse order - last added at top)
+                filteredProducts.reverse();
             }
 
             // Update item count
@@ -792,12 +809,16 @@
             // Add all paginated products
             for (let i = 0; i < paginatedProducts.length; i++) {
                 const product = paginatedProducts[i];
+                // Use product image if available, fallback to placeholder
+                const imageUrl = product.image && product.image !== 'placeholder'
+                    ? product.image
+                    : "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>";
                 htmlContent += `
                     <div class="product-card hover-lift">
                         <a href="product.html?id=${product.id}" class="text-decoration-none">
                             <div class="product-image-wrapper">
                                 <div class="product-image">
-                                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="${product.name}">
+                                    <img src="${imageUrl}" alt="${product.name}">
                                 </div>
                                 <div class="product-overlay">
                                     <div class="size-selector-popup">
