@@ -850,15 +850,22 @@
             // Prevent link navigation when clicking on size dropdown or add button
             grid.querySelectorAll('a').forEach(link => {
                 const overlay = link.querySelector('.product-overlay');
-                if (overlay) {
-                    link.addEventListener('click', (e) => {
-                        // Check if click was inside the overlay (size dropdown or add button)
-                        if (overlay.contains(e.target)) {
-                            e.preventDefault();
-                            e.stopImmediatePropagation();
-                        }
-                    }, true); // Use capture phase to intercept before link's default behavior
-                }
+                const select = overlay ? overlay.querySelector('select') : null;
+                const button = overlay ? overlay.querySelector('button.cart-icon-btn') : null;
+
+                // Prevent navigation on both mousedown and click
+                const preventNavigation = (e) => {
+                    const clickedElement = e.target;
+                    const isInSelect = select && (select === clickedElement || select.contains(clickedElement));
+                    const isInButton = button && (button === clickedElement || button.contains(clickedElement));
+
+                    if (isInSelect || isInButton) {
+                        e.preventDefault();
+                    }
+                };
+
+                link.addEventListener('mousedown', preventNavigation, true);
+                link.addEventListener('click', preventNavigation, true);
             });
 
             // Render pagination buttons separately outside the grid
