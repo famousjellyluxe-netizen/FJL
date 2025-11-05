@@ -241,10 +241,9 @@ class CartDrawer {
         // Clear cart button
         document.getElementById('clearCart').addEventListener('click', () => {
             if (confirm('Are you sure you want to clear your cart?')) {
-                const cart = new Cart();
                 cart.clear();
                 this.render();
-                updateCartBadge();
+                // updateCartBadge is called by the cartUpdated event listener on each page
             }
         });
 
