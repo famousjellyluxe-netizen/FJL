@@ -777,58 +777,11 @@
             const endIndex = startIndex + itemsPerPage;
             const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
 
-            // Build complete HTML with products and pagination
+            // Build HTML with only products
             let htmlContent = '';
 
-            // Add first 3 products
-            for (let i = 0; i < Math.min(3, paginatedProducts.length); i++) {
-                const product = paginatedProducts[i];
-                htmlContent += `
-                    <div class="product-card hover-lift">
-                        <div class="product-image-wrapper">
-                            <div class="product-image">
-                                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>" alt="${product.name}">
-                            </div>
-                            <div class="product-overlay">
-                                <div class="size-selector-popup">
-                                    <select data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}">
-                                        <option value="">Size</option>
-                                        ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
-                                    </select>
-                                </div>
-                                <button class="cart-icon-btn" onclick="quickAddToCart('${product.id}', '${product.name}', ${product.price})" title="Add to cart">
-                                    <i data-lucide="shopping-bag"></i>
-                                    <span>Add</span>
-                                </button>
-                                <div class="add-to-cart-success" id="success-${product.id}">✓ Added</div>
-                            </div>
-                        </div>
-                        <div class="p-3">
-                            <a href="product.html?id=${product.id}" class="text-decoration-none hover:text-gray-700">
-                                <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">${product.name}</h3>
-                                <p class="text-gray-600 text-xs mt-2">₦${product.price.toLocaleString('en-NG')}</p>
-                            </a>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Add pagination row if there are multiple pages
-            if (totalPages > 1) {
-                htmlContent += `
-                    <div class="pagination-row" style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 0;">
-                        <button class="pagination-btn" onclick="previousPage()" ${currentPage === 1 ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === 1 ? '0.5' : '1'};">
-                            ◀ Prev
-                        </button>
-                        <button class="pagination-btn" onclick="nextPage()" ${currentPage === totalPages ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === totalPages ? '0.5' : '1'};">
-                            Next ▶
-                        </button>
-                    </div>
-                `;
-            }
-
-            // Add remaining products (if any)
-            for (let i = 3; i < paginatedProducts.length; i++) {
+            // Add all paginated products
+            for (let i = 0; i < paginatedProducts.length; i++) {
                 const product = paginatedProducts[i];
                 htmlContent += `
                     <div class="product-card hover-lift">
@@ -862,8 +815,40 @@
 
             grid.innerHTML = htmlContent;
 
+            // Render pagination buttons separately outside the grid
+            renderPaginationButtons(totalPages);
+
             // Reinitialize Lucide icons for the newly added elements
             lucide.createIcons();
+        }
+
+        function renderPaginationButtons(totalPages) {
+            let paginationContainer = document.getElementById('paginationContainer');
+
+            // Create pagination container if it doesn't exist
+            if (!paginationContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = 'paginationContainer';
+                const grid = document.getElementById('productsGrid');
+                grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
+            }
+
+            // Only show pagination if there are multiple pages
+            if (totalPages > 1) {
+                paginationContainer.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px;">
+                        <button class="pagination-btn" onclick="previousPage()" ${currentPage === 1 ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === 1 ? '0.5' : '1'};">
+                            ◀ Prev
+                        </button>
+                        <button class="pagination-btn" onclick="nextPage()" ${currentPage === totalPages ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === totalPages ? '0.5' : '1'};">
+                            Next ▶
+                        </button>
+                    </div>
+                `;
+                paginationContainer.style.display = 'block';
+            } else {
+                paginationContainer.style.display = 'none';
+            }
         }
 
         // Pagination functions
