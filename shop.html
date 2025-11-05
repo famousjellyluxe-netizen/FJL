@@ -842,6 +842,7 @@
                         <button class="pagination-btn" onclick="previousPage()" ${currentPage === 1 ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === 1 ? '0.5' : '1'};">
                             ◀ Prev
                         </button>
+                        <span style="font-weight: 600; color: #666;">Page ${currentPage} of ${totalPages}</span>
                         <button class="pagination-btn" onclick="nextPage()" ${currentPage === totalPages ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === totalPages ? '0.5' : '1'};">
                             Next ▶
                         </button>
