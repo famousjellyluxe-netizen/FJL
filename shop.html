@@ -261,6 +261,13 @@
             z-index: 10;
             display: flex;
             gap: 8px;
+            flex-direction: column;
+            pointer-events: none;
+        }
+
+        .product-overlay button,
+        .product-overlay .add-to-cart-success {
+            pointer-events: auto;
         }
 
         .cart-icon-btn {
@@ -972,8 +979,8 @@
                                 </div>
                             </div>
                         </a>
-                        <div class="product-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s ease; pointer-events: none;">
-                            <button class="cart-icon-btn" onclick="event.stopPropagation(); openProductModal('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${imageUrl.replace(/'/g, "\\'")}')" title="Add to cart" data-product-id="${product.id}" type="button" style="pointer-events: auto;">
+                        <div class="product-overlay">
+                            <button class="cart-icon-btn" onclick="event.stopPropagation(); openProductModal('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${imageUrl.replace(/'/g, "\\'")}')" title="Add to cart" data-product-id="${product.id}" type="button">
                                 <i data-lucide="shopping-bag"></i>
                                 <span>Add</span>
                             </button>
