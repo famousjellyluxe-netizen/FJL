@@ -254,19 +254,16 @@
             overflow: hidden;
         }
 
-        .product-overlay {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            z-index: 10;
+        .product-info-header {
             display: flex;
-            gap: 8px;
-            flex-direction: column;
-            pointer-events: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px 0 12px;
+            min-height: 32px;
         }
 
-        .product-overlay button,
-        .product-overlay .add-to-cart-success {
+        .product-info-header button,
+        .product-info-header .add-to-cart-success {
             pointer-events: auto;
         }
 
@@ -282,18 +279,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transform: scale(0);
-            opacity: 0;
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
             color: white;
             white-space: nowrap;
-        }
-
-        .product-card:hover .cart-icon-btn {
-            transform: scale(1);
-            opacity: 1;
         }
 
         .cart-icon-btn:hover {
@@ -979,7 +969,7 @@
                                 </div>
                             </div>
                         </a>
-                        <div class="product-overlay">
+                        <div class="product-info-header">
                             <button class="cart-icon-btn" onclick="event.stopPropagation(); openProductModal('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${imageUrl.replace(/'/g, "\\'")}')" title="Add to cart" data-product-id="${product.id}" type="button">
                                 <i data-lucide="shopping-bag"></i>
                                 <span>Add</span>
