@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Policy - Famous Jelly Luxe (FJL)</title>
+    <link rel="icon" type="image/svg+xml" href="ftg-logo-favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --color-primary: #000;
+            --color-secondary: #fff;
+            --color-accent: #E09F3E;
+            --color-gray: #8b8b8b;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: white;
+        }
+
+        .top-banner {
+            background: black;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+            font-style: italic;
+        }
+
+        .logo-image {
+            height: auto;
+            display: block;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+        }
+
+        .mobile-menu-btn span {
+            width: 24px;
+            height: 3px;
+            background: black;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 40;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 41;
+        }
+
+        .mobile-menu-close {
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .mobile-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu li {
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .mobile-menu a, .mobile-menu-footer a {
+            display: block;
+            padding: 16px;
+            color: black;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .mobile-menu-footer {
+            margin-top: auto;
+            border-top: 1px solid #e5e5e5;
+            padding: 16px 0;
+        }
+
+        .policy-container {
+            max-width: 4xl;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .policy-header {
+            margin-bottom: 40px;
+        }
+
+        .policy-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #000;
+        }
+
+        .policy-header p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .policy-section {
+            margin-bottom: 40px;
+        }
+
+        .policy-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            margin-top: 30px;
+            color: #000;
+            border-bottom: 2px solid #E09F3E;
+            padding-bottom: 10px;
+        }
+
+        .policy-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .policy-section p {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .policy-section ul {
+            list-style: disc;
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .policy-section li {
+            margin-bottom: 10px;
+        }
+
+        .highlight-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #E09F3E;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        footer {
+            background: black;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #E09F3E;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script src="notifications.js"></script>
+</head>
+<body>
+    <!-- Top banner -->
+    <div class="top-banner">
+        Stay fresh. Stay fearless. Stay FJL.
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="sticky-header">
+        <nav class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <a href="index.html" style="display: inline-block; text-decoration: none;">
+                            <img src="ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto;" class="logo-image">
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex space-x-8">
+                        <a href="index.html" class="text-black hover:text-gray-600 font-medium">Home</a>
+                        <a href="shop.html" class="text-black hover:text-gray-600 font-medium">Shop</a>
+                        <a href="about.html" class="text-black hover:text-gray-600 font-medium">About</a>
+                        <a href="contact.html" class="text-black hover:text-gray-600 font-medium">Contact</a>
+                    </div>
+
+                    <!-- Cart & Mobile Menu Button -->
+                    <div class="flex items-center space-x-4">
+                        <a href="cart.html" class="text-black hover:text-gray-600">
+                            <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
+                        </a>
+                        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <img src="ftg-logo.svg" alt="FJL Logo" style="height: 32px; width: auto;">
+                <span class="mobile-menu-close" id="mobileMenuClose">×</span>
+            </div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="mobile-menu-footer">
+                <a href="cart.html">Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Refund Policy Content -->
+    <div class="policy-container">
+        <div class="policy-header">
+            <h1>Refund Policy</h1>
+            <p>Last updated: November 2024</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Overview</h2>
+            <p>At Famous Jelly Luxe, we are committed to ensuring customer satisfaction with every purchase. This Refund Policy outlines our procedures for handling refunds and returns.</p>
+        </div>
+
+        <div class="highlight-box">
+            <strong>Important Note:</strong> All FJL sales are final. We do not accept returns, exchanges, or cancellations on any products. This is due to the exclusive nature of our limited releases and special designs.
+        </div>
+
+        <div class="policy-section">
+            <h2>When Refunds May Apply</h2>
+            <p>The following are the only circumstances under which a refund may be processed:</p>
+
+            <h3>1. Defective Products</h3>
+            <p>If you receive a product with manufacturing defects:</p>
+            <ul>
+                <li>Contact us within 7 days of delivery</li>
+                <li>Provide your order number and photos of the defect</li>
+                <li>Email: support@fjl.com</li>
+                <li>We will review and work with you on a resolution</li>
+            </ul>
+
+            <h3>2. Incorrect Item Shipped</h3>
+            <p>If we ship you an item different from what was ordered:</p>
+            <ul>
+                <li>Contact us within 7 days of delivery</li>
+                <li>Include your order number and photos</li>
+                <li>We will arrange for the correct item to be shipped or process a refund</li>
+            </ul>
+
+            <h3>3. Payment Processing Errors</h3>
+            <p>If you were double-charged or charged in error:</p>
+            <ul>
+                <li>We will identify and reverse the erroneous charge</li>
+                <li>Refunds typically process within 5-10 business days</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Refund Process</h2>
+            <p>When a refund is approved, the following process will be followed:</p>
+            <ol style="list-style: decimal; margin-left: 20px; margin-bottom: 15px; color: #555; line-height: 1.8;">
+                <li style="margin-bottom: 10px;">We will notify you via email with refund approval details</li>
+                <li style="margin-bottom: 10px;">If the item needs to be returned, we will provide a return shipping label</li>
+                <li style="margin-bottom: 10px;">Once we receive and inspect the returned item, we will process your refund</li>
+                <li style="margin-bottom: 10px;">Refund will be credited to your original payment method</li>
+                <li style="margin-bottom: 10px;">Allow 5-10 business days for the refund to appear in your account</li>
+            </ol>
+        </div>
+
+        <div class="policy-section">
+            <h2>What Is NOT Refundable</h2>
+            <p>The following are NOT eligible for refunds:</p>
+            <ul>
+                <li>Items that have been worn, washed, or altered</li>
+                <li>Items without original tags or packaging</li>
+                <li>Items damaged due to customer misuse</li>
+                <li>Items purchased during final sale or clearance</li>
+                <li>Shipping costs (unless the error was on our part)</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Unauthorized Charges</h2>
+            <p>If you believe your credit card was charged without authorization:</p>
+            <ul>
+                <li>Contact us immediately at support@fjl.com</li>
+                <li>Provide your order number and any relevant details</li>
+                <li>We will investigate and resolve the issue promptly</li>
+                <li>You may also dispute the charge with your credit card company</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Cancellations</h2>
+            <p>Orders cannot be cancelled once they have been placed. If you need to cancel an order:</p>
+            <ul>
+                <li>Contact us immediately at support@fjl.com</li>
+                <li>If the order has not been processed, we will attempt to cancel it</li>
+                <li>If processing has begun, cancellation may not be possible</li>
+                <li>Once shipped, the order cannot be cancelled, but you may refuse delivery</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Gift Purchases</h2>
+            <p>Items purchased as gifts are subject to the same refund policy. The gift recipient should contact us with the order information within 7 days if there is an issue with the product.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Contact Us</h2>
+            <p>For questions about our Refund Policy or to initiate a refund request, please contact us:</p>
+            <p>
+                <strong>Email:</strong> support@fjl.com<br>
+                <strong>Address:</strong> Famous Jelly Luxe, [Your Address]<br>
+                <strong>Phone:</strong> [Your Phone Number]<br>
+                <strong>Response Time:</strong> We aim to respond to all inquiries within 2 business days
+            </p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Policy Changes</h2>
+            <p>We reserve the right to modify this Refund Policy at any time. Changes will be effective immediately upon posting to our website. Your continued use of our website constitutes acceptance of the updated policy.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="mb-4">
+            <a href="privacy-policy.html" class="mx-2">Privacy Policy</a> |
+            <a href="terms-of-service.html" class="mx-2">Terms of Service</a> |
+            <a href="shipping-policy.html" class="mx-2">Shipping Policy</a> |
+            <a href="refund-policy.html" class="mx-2">Refund Policy</a>
+        </div>
+        <p>&copy; 2024 Famous Jelly Luxe. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenuBtn.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

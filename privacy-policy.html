@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Famous Jelly Luxe (FJL)</title>
+    <link rel="icon" type="image/svg+xml" href="ftg-logo-favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --color-primary: #000;
+            --color-secondary: #fff;
+            --color-accent: #E09F3E;
+            --color-gray: #8b8b8b;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: white;
+        }
+
+        .top-banner {
+            background: black;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+            font-style: italic;
+        }
+
+        .logo-image {
+            height: auto;
+            display: block;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+        }
+
+        .mobile-menu-btn span {
+            width: 24px;
+            height: 3px;
+            background: black;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 40;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 41;
+        }
+
+        .mobile-menu-close {
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .mobile-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu li {
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .mobile-menu a, .mobile-menu-footer a {
+            display: block;
+            padding: 16px;
+            color: black;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .mobile-menu-footer {
+            margin-top: auto;
+            border-top: 1px solid #e5e5e5;
+            padding: 16px 0;
+        }
+
+        .policy-container {
+            max-width: 4xl;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .policy-header {
+            margin-bottom: 40px;
+        }
+
+        .policy-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #000;
+        }
+
+        .policy-header p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .policy-section {
+            margin-bottom: 40px;
+        }
+
+        .policy-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            margin-top: 30px;
+            color: #000;
+            border-bottom: 2px solid #E09F3E;
+            padding-bottom: 10px;
+        }
+
+        .policy-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .policy-section p {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .policy-section ul {
+            list-style: disc;
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .policy-section li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: black;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #E09F3E;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script src="notifications.js"></script>
+</head>
+<body>
+    <!-- Top banner -->
+    <div class="top-banner">
+        Stay fresh. Stay fearless. Stay FJL.
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="sticky-header">
+        <nav class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <a href="index.html" style="display: inline-block; text-decoration: none;">
+                            <img src="ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto;" class="logo-image">
+                        </a>
+                    </div>
+
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex space-x-8">
+                        <a href="index.html" class="text-black hover:text-gray-600 font-medium">Home</a>
+                        <a href="shop.html" class="text-black hover:text-gray-600 font-medium">Shop</a>
+                        <a href="about.html" class="text-black hover:text-gray-600 font-medium">About</a>
+                        <a href="contact.html" class="text-black hover:text-gray-600 font-medium">Contact</a>
+                    </div>
+
+                    <!-- Cart & Mobile Menu Button -->
+                    <div class="flex items-center space-x-4">
+                        <a href="cart.html" class="text-black hover:text-gray-600">
+                            <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
+                        </a>
+                        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <img src="ftg-logo.svg" alt="FJL Logo" style="height: 32px; width: auto;">
+                <span class="mobile-menu-close" id="mobileMenuClose">×</span>
+            </div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="mobile-menu-footer">
+                <a href="cart.html">Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Privacy Policy Content -->
+    <div class="policy-container">
+        <div class="policy-header">
+            <h1>Privacy Policy</h1>
+            <p>Last updated: November 2024</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Introduction</h2>
+            <p>At Famous Jelly Luxe (FJL), your privacy is our priority. This Privacy Policy explains how we collect, use, and protect your personal information when you visit our website and interact with our services.</p>
+            <p>Please read this policy carefully. By accessing and using our website, you consent to the terms outlined below.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Information We Collect</h2>
+            <h3>Personal Information You Provide</h3>
+            <p>We collect personal information you voluntarily provide, including:</p>
+            <ul>
+                <li>Name, email address, and phone number</li>
+                <li>Shipping and billing address</li>
+                <li>Account information when you create an account</li>
+                <li>Messages and inquiries you send to us</li>
+            </ul>
+
+            <h3>Automatically Collected Information</h3>
+            <p>When you visit our website, we automatically collect certain information:</p>
+            <ul>
+                <li>IP addresses and browser information</li>
+                <li>Pages visited and time spent on our site</li>
+                <li>Device type and operating system</li>
+                <li>Referral sources and click patterns</li>
+            </ul>
+
+            <h3>Cookies</h3>
+            <p>We use cookies to enhance your browsing experience. You can control cookies through your browser settings if you prefer not to accept them.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <ul>
+                <li>Process and fulfill your orders</li>
+                <li>Send order confirmations and shipping updates</li>
+                <li>Respond to your inquiries and provide customer support</li>
+                <li>Improve our website and services</li>
+                <li>Analyze trends and user behavior</li>
+                <li>Send promotional updates (only with your consent)</li>
+                <li>Prevent fraud and ensure security</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Information Sharing</h2>
+            <p>We do not sell your personal information to third parties. We may share information only:</p>
+            <ul>
+                <li>With service providers who assist us (payment processors, shipping partners)</li>
+                <li>When required by law or to protect our rights</li>
+                <li>With your consent for specific purposes</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h2>Your Rights</h2>
+            <p>Depending on your location, you may have the following rights:</p>
+            <ul>
+                <li><strong>Right to Access:</strong> Request a copy of your personal data</li>
+                <li><strong>Right to Correction:</strong> Request corrections to inaccurate information</li>
+                <li><strong>Right to Deletion:</strong> Request erasure of your data (subject to exceptions)</li>
+                <li><strong>Right to Opt-Out:</strong> Unsubscribe from promotional communications</li>
+            </ul>
+            <p>To exercise any of these rights, contact us at support@fjl.com with your request.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Data Security</h2>
+            <p>We implement industry-standard security measures to protect your information from unauthorized access, alteration, or disclosure. However, no online transmission is completely secure.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Children's Privacy</h2>
+            <p>Our website is not intended for children under 13 years old. We do not knowingly collect personal information from children. If we become aware that we've collected information from a child, we will take steps to delete it promptly.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Third-Party Links</h2>
+            <p>Our website may contain links to third-party websites. We are not responsible for their privacy practices. Please review their privacy policies before sharing your information.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Policy Updates</h2>
+            <p>We may update this Privacy Policy periodically. We will notify you of significant changes by posting the new policy on our website with an updated date.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>Contact Us</h2>
+            <p>If you have questions about this Privacy Policy or our privacy practices, please contact us:</p>
+            <p>
+                <strong>Email:</strong> support@fjl.com<br>
+                <strong>Address:</strong> Famous Jelly Luxe, [Your Address]<br>
+                <strong>Phone:</strong> [Your Phone Number]
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="mb-4">
+            <a href="privacy-policy.html" class="mx-2">Privacy Policy</a> |
+            <a href="terms-of-service.html" class="mx-2">Terms of Service</a> |
+            <a href="shipping-policy.html" class="mx-2">Shipping Policy</a> |
+            <a href="refund-policy.html" class="mx-2">Refund Policy</a>
+        </div>
+        <p>&copy; 2024 Famous Jelly Luxe. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenuBtn.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
