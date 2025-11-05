@@ -502,18 +502,25 @@
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <!-- Filters -->
-                <div class="flex gap-4 items-center">
+                <div class="flex gap-4 items-center flex-wrap">
                     <label class="text-sm font-medium text-gray-700">AVAILABILITY</label>
                     <select class="filter-dropdown">
                         <option>All Items</option>
                         <option>In Stock</option>
                         <option>Out of Stock</option>
                     </select>
+
+                    <label class="text-sm font-medium text-gray-700">SLEEVE</label>
+                    <select class="filter-dropdown" id="sleeveFilter">
+                        <option value="All">All</option>
+                        <option value="sleeve">Sleeve</option>
+                        <option value="sleeveless">Sleeveless</option>
+                    </select>
                 </div>
 
                 <!-- Right controls -->
                 <div class="flex gap-4 items-center ml-auto">
-                    <span class="text-sm text-gray-600">7 ITEMS</span>
+                    <span class="text-sm text-gray-600 items-count">7 ITEMS</span>
 
                     <select class="filter-dropdown">
                         <option>SORT</option>
@@ -691,23 +698,93 @@
             }
         });
 
-        // Product data
+        // Product data with sleeve information
         const products = [
-            { id: 'ftg-checkered-jersey', name: 'FTG Checkered Jersey', price: 75300, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] },
-            { id: 'ftg-rugby-polo', name: 'FTG Rugby Polo', price: 67000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] },
-            { id: 'ftg-tracksuit', name: 'FTG Tracksuit', price: 75000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] },
-            { id: 'soccer-baby-tee', name: 'Soccer Baby Tee', price: 7700, sizes: ['XS', 'S', 'M', 'L', 'XL'] },
-            { id: 'soccer-baby-crop-top', name: 'Soccer Baby Crop Top', price: 6500, sizes: ['XS', 'S', 'M', 'L'] },
-            { id: 'ftg-logo-tshirt', name: 'FTG Logo T-Shirt', price: 4100, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] },
-            { id: 'urban-varsity-jacket', name: 'Urban Varsity Jacket', price: 70000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
+            { id: 'ftg-checkered-jersey', name: 'FTG Checkered Jersey', price: 75300, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
+            { id: 'ftg-rugby-polo', name: 'FTG Rugby Polo', price: 67000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
+            { id: 'ftg-tracksuit', name: 'FTG Tracksuit', price: 75000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
+            { id: 'soccer-baby-tee', name: 'Soccer Baby Tee', price: 7700, sizes: ['XS', 'S', 'M', 'L', 'XL'], sleeve: 'sleeveless', inStock: true },
+            { id: 'soccer-baby-crop-top', name: 'Soccer Baby Crop Top', price: 6500, sizes: ['XS', 'S', 'M', 'L'], sleeve: 'sleeveless', inStock: true },
+            { id: 'ftg-logo-tshirt', name: 'FTG Logo T-Shirt', price: 4100, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
+            { id: 'urban-varsity-jacket', name: 'Urban Varsity Jacket', price: 70000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true }
         ];
+
+        // Filter and sort state
+        let filteredProducts = [...products];
+        let currentFilters = {
+            availability: 'All Items',
+            sort: 'SORT',
+            sleeve: 'All'
+        };
 
         // Render product grid
         let currentView = 'grid'; // Track current view
 
+        // Filter and sort products
+        function applyFiltersAndSort() {
+            filteredProducts = products.filter(product => {
+                // Availability filter
+                if (currentFilters.availability === 'In Stock' && !product.inStock) return false;
+                if (currentFilters.availability === 'Out of Stock' && product.inStock) return false;
+
+                // Sleeve filter
+                if (currentFilters.sleeve !== 'All' && product.sleeve !== currentFilters.sleeve) return false;
+
+                return true;
+            });
+
+            // Apply sorting
+            if (currentFilters.sort === 'Price: Low to High') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (currentFilters.sort === 'Price: High to Low') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            } else if (currentFilters.sort === 'Newest') {
+                // Keep original order (newest first)
+                filteredProducts = filteredProducts.sort((a, b) => products.indexOf(b) - products.indexOf(a));
+            }
+
+            // Update item count
+            document.querySelector('.items-count')?.textContent || '7 ITEMS';
+            const itemsCountElement = document.querySelector('.items-count');
+            if (itemsCountElement) {
+                itemsCountElement.textContent = filteredProducts.length + ' ITEMS';
+            }
+
+            renderProducts();
+        }
+
+        // Handle filter changes
+        function handleFilterChange() {
+            const availabilitySelect = document.querySelector('select.filter-dropdown');
+            const sleeveSelect = document.getElementById('sleeveFilter');
+            const sortSelects = document.querySelectorAll('select.filter-dropdown');
+            const sortSelect = sortSelects[sortSelects.length - 1]; // Last dropdown is sort
+
+            if (availabilitySelect) {
+                availabilitySelect.addEventListener('change', (e) => {
+                    currentFilters.availability = e.target.value;
+                    applyFiltersAndSort();
+                });
+            }
+
+            if (sleeveSelect) {
+                sleeveSelect.addEventListener('change', (e) => {
+                    currentFilters.sleeve = e.target.value;
+                    applyFiltersAndSort();
+                });
+            }
+
+            if (sortSelect) {
+                sortSelect.addEventListener('change', (e) => {
+                    currentFilters.sort = e.target.value;
+                    applyFiltersAndSort();
+                });
+            }
+        }
+
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
-            grid.innerHTML = products.map(product => {
+            grid.innerHTML = filteredProducts.map(product => {
                 if (currentView === 'grid') {
                     return `
                         <div class="product-card hover-lift">
@@ -849,7 +926,8 @@
 
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', function() {
-            renderProducts();
+            applyFiltersAndSort();
+            handleFilterChange();
             updateCartBadge();
         });
 
