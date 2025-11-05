@@ -170,7 +170,7 @@
             margin-bottom: 15px;
             margin-top: 30px;
             color: #fff;
-            border-bottom: 2px solid #E09F3E;
+            border-bottom: 2px solid #666;
             padding-bottom: 10px;
         }
 
@@ -200,11 +200,20 @@
         }
 
         .highlight-box {
-            background-color: #fff3cd;
-            border-left: 4px solid #E09F3E;
+            background-color: transparent;
+            border-left: none;
             padding: 20px;
             margin: 20px 0;
             border-radius: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #fff;
+        }
+
+        .highlight-box i {
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
         footer {
@@ -290,7 +299,7 @@
     <div class="policy-container">
         <div class="policy-header">
             <h1>Refund Policy</h1>
-            <p>Last updated: November 2024</p>
+            <p>Last updated: November 2025</p>
         </div>
 
         <div class="policy-section">
@@ -299,7 +308,10 @@
         </div>
 
         <div class="highlight-box">
-            <strong>Important Note:</strong> All FJL sales are final. We do not accept returns, exchanges, or cancellations on any products. This is due to the exclusive nature of our limited releases and special designs.
+            <i data-lucide="alert-circle" class="w-6 h-6" style="color: #E09F3E; flex-shrink: 0;"></i>
+            <div>
+                <strong>Important Note:</strong> All FJL sales are final. We do not accept returns, exchanges, or cancellations on any products. This is due to the exclusive nature of our limited releases and special designs.
+            </div>
         </div>
 
         <div class="policy-section">
@@ -334,7 +346,7 @@
         <div class="policy-section">
             <h2>Refund Process</h2>
             <p>When a refund is approved, the following process will be followed:</p>
-            <ol style="list-style: decimal; margin-left: 20px; margin-bottom: 15px; color: #555; line-height: 1.8;">
+            <ol style="list-style: decimal; margin-left: 20px; margin-bottom: 15px; color: #ccc; line-height: 1.8;">
                 <li style="margin-bottom: 10px;">We will notify you via email with refund approval details</li>
                 <li style="margin-bottom: 10px;">If the item needs to be returned, we will provide a return shipping label</li>
                 <li style="margin-bottom: 10px;">Once we receive and inspect the returned item, we will process your refund</li>
