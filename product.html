@@ -273,38 +273,53 @@
 
         .image-modal-nav {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
             display: flex;
-            gap: 12px;
+            justify-content: space-between;
             align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 12px 16px;
-            border-radius: 50px;
             z-index: 1001;
+            padding: 0 20px;
+            pointer-events: none;
         }
 
         .image-modal-nav button {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 12px 16px;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 20px;
+            pointer-events: all;
         }
 
         .image-modal-nav button:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+            transform: scale(1.1);
         }
 
         .image-modal-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.4);
             color: white;
             font-size: 14px;
-            min-width: 60px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            min-width: 80px;
             text-align: center;
+            z-index: 1001;
         }
 
         .gallery-thumbnails {
@@ -1372,12 +1387,14 @@
             <img id="modalImage" src="" alt="Product Image Zoom">
             <button class="image-modal-close" onclick="closeImageModal()">×</button>
 
-            <!-- Navigation Controls -->
+            <!-- Navigation Controls - Positioned on sides -->
             <div class="image-modal-nav" id="imageNavigation" style="display: none;">
-                <button onclick="previousImage()">← Previous</button>
-                <span class="image-modal-counter" id="imageCounter">1 / 1</span>
-                <button onclick="nextImage()">Next →</button>
+                <button onclick="previousImage()" title="Previous image">←</button>
+                <button onclick="nextImage()" title="Next image">→</button>
             </div>
+
+            <!-- Image Counter -->
+            <span class="image-modal-counter" id="imageCounter" style="display: none;">1 / 1</span>
         </div>
     </div>
 
@@ -1388,10 +1405,13 @@
             window.openImageModal = function() {
                 originalOpenImageModal.call(this);
                 const navDiv = document.getElementById('imageNavigation');
+                const counter = document.getElementById('imageCounter');
                 if (allProductImages.length > 1) {
                     navDiv.style.display = 'flex';
+                    counter.style.display = 'block';
                 } else {
                     navDiv.style.display = 'none';
+                    counter.style.display = 'none';
                 }
             };
         });
