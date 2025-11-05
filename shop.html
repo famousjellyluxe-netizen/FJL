@@ -864,6 +864,17 @@
                 link.addEventListener('click', preventNavigation, true);
             });
 
+            // Attach change event listeners to all product size selects
+            // This allows users to add items to cart by selecting a size from the dropdown
+            grid.addEventListener('change', function(e) {
+                if (e.target.closest('.size-selector-popup select')) {
+                    const select = e.target;
+                    if (select.value) {
+                        handleQuickAddToCart(select);
+                    }
+                }
+            });
+
             // Render pagination buttons separately outside the grid
             renderPaginationButtons(totalPages);
 
