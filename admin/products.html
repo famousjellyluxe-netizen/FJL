@@ -176,16 +176,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Product Image</label>
-                    <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
-                        <input type="file" id="productImage" class="form-control" accept="image/*" onchange="previewImage(event)">
+                    <label class="form-label">Product Images</label>
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <p style="font-size: 12px; color: var(--color-gray); margin-bottom: var(--spacing-sm);">Upload multiple images for your product. The first image will be the primary image.</p>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addImageUploadField()">+ Add Image</button>
                     </div>
-                    <div id="imagePreview" style="margin-top: var(--spacing-md);"></div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Image URL (Optional)</label>
-                    <input type="text" id="productImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
+                    <div id="imagesContainer" style="display: grid; gap: var(--spacing-md);"></div>
                 </div>
 
                 <div class="form-group">
@@ -285,7 +281,8 @@
             currentEditingProduct = null;
             document.getElementById('modalTitle').textContent = 'Add New Product';
             document.getElementById('productForm').reset();
-            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('imagesContainer').innerHTML = '';
+            addImageUploadField(); // Add one empty image upload field by default
             document.getElementById('productModal').classList.add('active');
         }
 
@@ -303,64 +300,138 @@
             document.getElementById('productQuantity').value = currentEditingProduct.quantity;
             document.getElementById('productSizes').value = currentEditingProduct.sizes ? currentEditingProduct.sizes.join(', ') : '';
             document.getElementById('productColors').value = currentEditingProduct.colors ? currentEditingProduct.colors.join(', ') : '';
-            document.getElementById('productImageUrl').value = currentEditingProduct.image || '';
             document.getElementById('productInStock').checked = currentEditingProduct.inStock;
 
-            // Show preview if exists
-            if (currentEditingProduct.image) {
-                showImagePreview(currentEditingProduct.image);
+            // Load existing images
+            document.getElementById('imagesContainer').innerHTML = '';
+
+            // Add primary image if exists
+            if (currentEditingProduct.image && currentEditingProduct.image !== 'placeholder') {
+                addImageUploadField(currentEditingProduct.image, true);
+            }
+
+            // Add additional images if they exist
+            if (currentEditingProduct.images && Array.isArray(currentEditingProduct.images)) {
+                currentEditingProduct.images.forEach(img => {
+                    if (img && img !== 'placeholder') {
+                        addImageUploadField(img, false);
+                    }
+                });
+            }
+
+            // Add one empty field for new uploads
+            if (document.getElementById('imagesContainer').children.length === 0) {
+                addImageUploadField();
+            } else {
+                addImageUploadField();
             }
 
             document.getElementById('productModal').classList.add('active');
+        }
+
+        let imageUploadCounter = 0;
+
+        function addImageUploadField(existingImage = null, isPrimary = false) {
+            const container = document.getElementById('imagesContainer');
+            const fieldId = 'imageField_' + (imageUploadCounter++);
+
+            const fieldHtml = `
+                <div id="${fieldId}" style="border: 1px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                        <label class="form-label" style="margin: 0;">Image ${container.children.length + 1}</label>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeImageField('${fieldId}')" style="padding: 4px 8px;">Remove</button>
+                    </div>
+
+                    ${existingImage ? `
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <p style="font-size: 12px; color: var(--color-gray); margin-bottom: 4px;">Current image:</p>
+                            <div style="border: 2px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); text-align: center; max-width: 200px;">
+                                <img src="${existingImage}" alt="Current" style="max-width: 100%; max-height: 120px; border-radius: 4px;">
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: var(--color-gray); margin-bottom: 8px;">Or upload a new image to replace:</p>
+                    ` : ''}
+
+                    <input type="file" class="form-control image-upload-input" accept="image/*" data-field-id="${fieldId}" onchange="previewImage(event)">
+                    <div id="preview_${fieldId}" style="margin-top: var(--spacing-md);"></div>
+                </div>
+            `;
+
+            const newField = document.createElement('div');
+            newField.innerHTML = fieldHtml;
+            container.appendChild(newField.firstElementChild);
+        }
+
+        function removeImageField(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.remove();
+            }
         }
 
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
+            const fieldId = event.target.getAttribute('data-field-id');
             const reader = new FileReader();
             reader.onload = function(e) {
-                showImagePreview(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function showImagePreview(imageData) {
-            const previewDiv = document.getElementById('imagePreview');
-            if (imageData) {
+                const previewDiv = document.getElementById('preview_' + fieldId);
                 previewDiv.innerHTML = `
                     <div style="border: 2px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); text-align: center; max-width: 200px;">
-                        <img src="${imageData}" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 4px;">
+                        <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 4px;">
                         <p style="margin-top: var(--spacing-sm); font-size: 12px; color: var(--color-gray);">Preview</p>
                     </div>
                 `;
-            } else {
-                previewDiv.innerHTML = '';
-            }
+            };
+            reader.readAsDataURL(file);
         }
 
         function saveProduct(event) {
             event.preventDefault();
 
-            // Get image from file input or URL
-            let imageData = document.getElementById('productImageUrl').value;
-            const fileInput = document.getElementById('productImage');
+            // Collect all image files from upload fields
+            const imageInputs = document.querySelectorAll('.image-upload-input');
+            const imagesToProcess = [];
+            let filesProcessed = 0;
 
-            // If a file was selected, it will be converted to base64
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imageData = e.target.result; // Base64 image
-                    saveProductData(imageData);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                // No file selected, use URL or previous image
-                saveProductData(imageData);
+            imageInputs.forEach((input, index) => {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagesToProcess[index] = e.target.result;
+                        filesProcessed++;
+
+                        // When all files are processed, save the product
+                        if (filesProcessed === imageInputs.length) {
+                            saveProductData(imagesToProcess.filter(img => img !== undefined));
+                        }
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    // Check if there's a preview - if so, the image was already set (from editing)
+                    const fieldId = input.getAttribute('data-field-id');
+                    const previewDiv = document.getElementById('preview_' + fieldId);
+
+                    // If no file selected and no preview, skip this field
+                    if (!previewDiv || !previewDiv.innerHTML.trim()) {
+                        imagesToProcess[index] = null;
+                    }
+                    filesProcessed++;
+
+                    if (filesProcessed === imageInputs.length) {
+                        saveProductData(imagesToProcess.filter(img => img !== undefined));
+                    }
+                }
+            });
+
+            // If there are no image inputs at all, save with empty images
+            if (imageInputs.length === 0) {
+                saveProductData([]);
             }
         }
 
-        function saveProductData(imageData) {
+        function saveProductData(images) {
             const productData = {
                 name: document.getElementById('productName').value,
                 sleeve: document.getElementById('productCategory').value,
@@ -371,7 +442,8 @@
                 quantity: parseInt(document.getElementById('productQuantity').value),
                 sizes: document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s),
                 colors: document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c),
-                image: imageData,
+                image: images.length > 0 ? images[0] : '', // Primary image (first one)
+                images: images.length > 1 ? images.slice(1) : [], // Additional images
                 inStock: document.getElementById('productInStock').checked
             };
 
