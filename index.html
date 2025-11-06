@@ -920,6 +920,213 @@
 
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // ===== PRODUCT MODAL FUNCTIONALITY =====
+
+        // Create modal overlay and modal HTML if they don't exist
+        function initProductModal() {
+            if (document.getElementById('productModalOverlay')) return;
+
+            const modalHTML = `
+                <div id="productModalOverlay" class="product-modal-overlay">
+                    <div class="product-modal">
+                        <button class="modal-close-btn" onclick="closeProductModal()">&times;</button>
+
+                        <img id="modalProductImage" class="modal-product-image" src="" alt="Product">
+                        <h2 id="modalProductName" class="modal-product-name"></h2>
+                        <p id="modalProductPrice" class="modal-product-price"></p>
+
+                        <div>
+                            <label class="modal-size-label">Size</label>
+                            <div id="modalSizeButtons" class="modal-size-buttons"></div>
+                        </div>
+
+                        <div>
+                            <label class="modal-quantity-label">Quantity</label>
+                            <div class="modal-quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity()">−</button>
+                                <span id="modalQuantity" class="quantity-display">1</span>
+                                <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                            </div>
+                        </div>
+
+                        <button id="modalAddButton" class="modal-add-to-cart" onclick="confirmAddToCart()">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Close modal when clicking outside
+            document.getElementById('productModalOverlay').addEventListener('click', (e) => {
+                if (e.target.id === 'productModalOverlay') {
+                    closeProductModal();
+                }
+            });
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeProductModal();
+                }
+            });
+        }
+
+        // Modal state
+        let modalState = {
+            productId: null,
+            productName: null,
+            productPrice: null,
+            imageUrl: null,
+            sizes: [],
+            selectedSize: null,
+            quantity: 1
+        };
+
+        // Open product modal
+        function openProductModal(productId, productName, productPrice, imageUrl) {
+            initProductModal();
+
+            // Find the product to get sizes
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Update modal state
+            modalState.productId = productId;
+            modalState.productName = productName;
+            modalState.productPrice = productPrice;
+            modalState.imageUrl = imageUrl;
+            modalState.sizes = product.sizes || [];
+            modalState.selectedSize = null;
+            modalState.quantity = 1;
+            modalState.sizeInventory = product.sizeInventory || {};
+
+            // Populate modal
+            document.getElementById('modalProductName').textContent = productName;
+            document.getElementById('modalProductPrice').textContent = `₦${productPrice.toLocaleString('en-NG')}`;
+            document.getElementById('modalProductImage').src = imageUrl;
+            document.getElementById('modalQuantity').textContent = '1';
+
+            // Create size buttons with inventory status
+            const sizeButtonsContainer = document.getElementById('modalSizeButtons');
+            sizeButtonsContainer.innerHTML = '';
+            modalState.sizes.forEach(size => {
+                const stockCount = modalState.sizeInventory[size] || 0;
+                const isOutOfStock = stockCount <= 0;
+
+                const btn = document.createElement('button');
+                btn.className = `size-btn ${isOutOfStock ? 'out-of-stock' : ''}`;
+                btn.textContent = size;
+                btn.disabled = isOutOfStock;
+
+                if (!isOutOfStock) {
+                    btn.onclick = () => selectSize(size);
+                } else {
+                    btn.title = 'Out of stock';
+                }
+
+                sizeButtonsContainer.appendChild(btn);
+            });
+
+            // Show modal
+            document.getElementById('productModalOverlay').classList.add('active');
+        }
+
+        // Close modal
+        function closeProductModal() {
+            const overlay = document.getElementById('productModalOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+        }
+
+        // Select size
+        function selectSize(size) {
+            modalState.selectedSize = size;
+
+            // Update button states
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === size) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Decrease quantity
+        function decreaseQuantity() {
+            if (modalState.quantity > 1) {
+                modalState.quantity--;
+                document.getElementById('modalQuantity').textContent = modalState.quantity;
+            }
+        }
+
+        // Increase quantity
+        function increaseQuantity() {
+            modalState.quantity++;
+            document.getElementById('modalQuantity').textContent = modalState.quantity;
+        }
+
+        // Confirm and add to cart
+        function confirmAddToCart() {
+            if (!modalState.selectedSize) {
+                if (notifications) {
+                    notifications.warning('Please select a size');
+                }
+                return;
+            }
+
+            // Check inventory before adding to cart
+            const stockCount = modalState.sizeInventory[modalState.selectedSize] || 0;
+            if (stockCount <= 0) {
+                if (notifications) {
+                    notifications.error(`${modalState.selectedSize} size is out of stock`);
+                }
+                return;
+            }
+
+            if (stockCount < modalState.quantity) {
+                if (notifications) {
+                    notifications.error(`Only ${stockCount} item(s) available in ${modalState.selectedSize} size`);
+                }
+                return;
+            }
+
+            // Create cart item
+            const cartItem = {
+                id: modalState.productId,
+                name: modalState.productName,
+                price: modalState.productPrice,
+                size: modalState.selectedSize,
+                quantity: modalState.quantity,
+                image: modalState.imageUrl
+            };
+
+            // Add to cart
+            if (typeof cart !== 'undefined') {
+                let addedCount = 0;
+                for (let i = 0; i < modalState.quantity; i++) {
+                    const item = { ...cartItem, quantity: 1 };
+                    const success = cart.addItem(item);
+                    if (success) {
+                        addedCount++;
+                        // Deduct inventory when item is successfully added
+                        if (typeof adminDataService !== 'undefined') {
+                            adminDataService.deductInventory(modalState.productId, modalState.selectedSize, 1);
+                        }
+                    }
+                }
+                updateCartBadge();
+
+                // Show success notification
+                if (addedCount > 0 && notifications) {
+                    notifications.success(`${modalState.productName} (Size: ${modalState.selectedSize}) x${addedCount} added to cart!`);
+                }
+
+                // Close modal
+                closeProductModal();
+            }
+        }
     </script>
     <script src="cart-drawer.js"></script>
 </body>

@@ -915,7 +915,7 @@
         });
 
         // Load products from localStorage (set by admin panel)
-        // Falls back to default hardcoded products if no localStorage data exists
+        // Only display products added through the admin panel
         let products = [];
         const storedProducts = localStorage.getItem('fjl_products');
 
@@ -924,22 +924,8 @@
                 products = JSON.parse(storedProducts);
             } catch (e) {
                 console.error('Error loading products from localStorage:', e);
-                products = getDefaultProducts();
+                products = [];
             }
-        } else {
-            products = getDefaultProducts();
-        }
-
-        function getDefaultProducts() {
-            return [
-                { id: 'ftg-checkered-jersey', name: 'FTG Checkered Jersey', price: 75300, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
-                { id: 'ftg-rugby-polo', name: 'FTG Rugby Polo', price: 67000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
-                { id: 'ftg-tracksuit', name: 'FTG Tracksuit', price: 75000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true },
-                { id: 'soccer-baby-tee', name: 'Soccer Baby Tee', price: 7700, sizes: ['XS', 'S', 'M', 'L', 'XL'], sleeve: 'sleeveless', inStock: true },
-                { id: 'soccer-baby-crop-top', name: 'Soccer Baby Crop Top', price: 6500, sizes: ['XS', 'S', 'M', 'L'], sleeve: 'sleeveless', inStock: true },
-                { id: 'ftg-logo-tshirt', name: 'FTG Logo T-Shirt', price: 4100, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeveless', inStock: true },
-                { id: 'urban-varsity-jacket', name: 'Urban Varsity Jacket', price: 70000, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], sleeve: 'sleeve', inStock: true }
-            ];
         }
 
         // Filter and sort state
