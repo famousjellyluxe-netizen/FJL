@@ -789,13 +789,6 @@
                                     </div>
                                 </div>
                             </a>
-                            <div class="product-info-header">
-                                <button class="cart-icon-btn ${isAllOutOfStock ? 'disabled' : ''}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-image-url="${imageUrl}" data-out-of-stock="${isAllOutOfStock}" title="${isAllOutOfStock ? 'Out of stock' : 'Add to cart'}" type="button" ${isAllOutOfStock ? 'disabled' : ''}>
-                                    <i data-lucide="shopping-bag"></i>
-                                    <span>${isAllOutOfStock ? 'Sold Out' : 'Add'}</span>
-                                </button>
-                                <div class="add-to-cart-success" id="success-${product.id}">✓ Added</div>
-                            </div>
                             <div class="p-3">
                                 <a href="product.html?id=${product.id}" class="text-decoration-none hover:text-gray-700">
                                     <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">${product.name}</h3>
@@ -805,70 +798,6 @@
                         </div>
                     `;
                 }).join('');
-
-                // Prevent link navigation when clicking on add button
-                grid.querySelectorAll('a').forEach(link => {
-                    const button = link.querySelector('button.cart-icon-btn');
-                    if (button) {
-                        link.addEventListener('click', (e) => {
-                            if (e.target.closest('button.cart-icon-btn') || e.target.closest('[data-lucide]')) {
-                                e.preventDefault();
-                            }
-                        });
-                    }
-                });
-
-                // Handle add to cart button clicks
-                grid.querySelectorAll('.cart-icon-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-
-                        const isOutOfStock = btn.getAttribute('data-out-of-stock') === 'true';
-                        if (isOutOfStock || btn.disabled) {
-                            return false;
-                        }
-
-                        const productId = btn.getAttribute('data-product-id');
-                        const productName = btn.getAttribute('data-product-name');
-                        const productPrice = parseInt(btn.getAttribute('data-product-price'));
-                        const imageUrl = btn.getAttribute('data-image-url');
-
-                        // Open product modal (same as shop page)
-                        const product = allProducts.find(p => p.id === productId);
-                        if (product) {
-                            // Dispatch custom event that shop.html can listen to
-                            // For now, just add to cart directly
-                            if (typeof cart !== 'undefined') {
-                                // Create a simple cart item for direct purchase
-                                const sizeOptions = product.sizes || [];
-                                if (sizeOptions.length > 0) {
-                                    const firstSize = sizeOptions[0];
-                                    const cartItem = {
-                                        id: productId,
-                                        name: productName,
-                                        price: productPrice,
-                                        size: firstSize,
-                                        quantity: 1,
-                                        image: imageUrl
-                                    };
-                                    cart.addItem(cartItem);
-                                    updateCartBadge();
-
-                                    // Show success notification
-                                    const successEl = document.getElementById(`success-${productId}`);
-                                    if (successEl) {
-                                        successEl.classList.add('show');
-                                        setTimeout(() => successEl.classList.remove('show'), 2000);
-                                    }
-                                }
-                            }
-                        }
-                        return false;
-                    });
-                });
-
-                // Reinitialize Lucide icons for the newly added elements
-                lucide.createIcons();
             } catch (e) {
                 console.error('Error loading featured products:', e);
                 emptyState.style.display = 'block';
