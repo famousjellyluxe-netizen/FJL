@@ -6,6 +6,7 @@
     <title>Admin Login - Famous Jelly Luxe</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../notifications.js"></script>
     <style>
         body {
             display: flex;
@@ -113,7 +114,7 @@
                         <input type="checkbox" id="remember" checked>
                         <span>Remember me</span>
                     </label>
-                    <a href="#" onclick="alert('Password reset functionality coming soon!')">Forgot Password?</a>
+                    <a href="#" onclick="notifications.info('Password reset functionality coming soon!'); return false;">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">Sign In</button>

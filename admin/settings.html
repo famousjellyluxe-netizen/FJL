@@ -6,6 +6,7 @@
     <title>Settings - FJL Admin Panel</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../notifications.js"></script>
 </head>
 <body>
     <div class="admin-layout">
@@ -234,7 +235,7 @@
             };
 
             adminDataService.updateAdminSettings(updates);
-            alert('Store settings saved successfully!');
+            notifications.success('Store settings saved successfully!');
         }
 
         function saveBankSettings(event) {
@@ -247,7 +248,7 @@
             };
 
             adminDataService.updateAdminSettings(updates);
-            alert('Bank details saved successfully!');
+            notifications.success('Bank details saved successfully!');
         }
 
         function changePassword(event) {
@@ -259,23 +260,23 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
 
             if (admin.password !== currentPassword) {
-                alert('Current password is incorrect!');
+                notifications.error('Current password is incorrect!');
                 return;
             }
 
             if (newPassword !== confirmPassword) {
-                alert('New passwords do not match!');
+                notifications.error('New passwords do not match!');
                 return;
             }
 
             if (newPassword.length < 6) {
-                alert('Password must be at least 6 characters long!');
+                notifications.error('Password must be at least 6 characters long!');
                 return;
             }
 
             adminDataService.updateAdminSettings({ password: newPassword });
             document.getElementById('securityForm').reset();
-            alert('Password changed successfully! Please log in again.');
+            notifications.success('Password changed successfully! Please log in again.');
             setTimeout(() => {
                 adminDataService.logoutAdmin();
                 window.location.href = 'index.html';
@@ -287,10 +288,10 @@
         }
 
         function logoutAdmin() {
-            if (confirm('Are you sure you want to logout?')) {
+            notifications.confirm('Are you sure you want to logout?', () => {
                 adminDataService.logoutAdmin();
                 window.location.href = 'index.html';
-            }
+            });
         }
 
         // Initialize Lucide icons

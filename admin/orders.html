@@ -6,6 +6,7 @@
     <title>Orders - FJL Admin Panel</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../notifications.js"></script>
 </head>
 <body>
     <div class="admin-layout">
@@ -303,7 +304,7 @@
         function saveOrderStatus() {
             const newStatus = document.getElementById('statusSelect').value;
             adminDataService.updateOrderStatus(currentOrder.id, newStatus);
-            alert('Order status updated successfully!');
+            notifications.success('Order status updated successfully!');
             closeOrderModal();
             loadOrders();
         }
@@ -342,10 +343,10 @@
         }
 
         function logoutAdmin() {
-            if (confirm('Are you sure you want to logout?')) {
+            notifications.confirm('Are you sure you want to logout?', () => {
                 adminDataService.logoutAdmin();
                 window.location.href = 'index.html';
-            }
+            });
         }
 
         // Initialize Lucide icons

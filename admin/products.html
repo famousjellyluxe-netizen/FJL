@@ -6,6 +6,7 @@
     <title>Products - FJL Admin Panel</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../notifications.js"></script>
 </head>
 <body>
     <div class="admin-layout">
@@ -449,10 +450,10 @@
 
             if (currentEditingProduct) {
                 adminDataService.updateProduct(currentEditingProduct.id, productData);
-                alert('Product updated successfully!');
+                notifications.success('Product updated successfully!');
             } else {
                 adminDataService.createProduct(productData);
-                alert('Product created successfully!');
+                notifications.success('Product created successfully!');
             }
 
             closeProductModal();
@@ -460,11 +461,11 @@
         }
 
         function deleteProduct(id) {
-            if (confirm('Are you sure you want to delete this product?')) {
+            notifications.confirm('Are you sure you want to delete this product?', () => {
                 adminDataService.deleteProduct(id);
                 loadProducts();
-                alert('Product deleted successfully!');
-            }
+                notifications.success('Product deleted successfully!');
+            });
         }
 
         function closeProductModal() {
@@ -503,14 +504,14 @@
 
         function bulkDelete() {
             if (selectedProducts.size === 0) return;
-            if (confirm(`Delete ${selectedProducts.size} products? This cannot be undone.`)) {
+            notifications.confirm(`Delete ${selectedProducts.size} products? This cannot be undone.`, () => {
                 selectedProducts.forEach(id => {
                     adminDataService.deleteProduct(id);
                 });
                 loadProducts();
                 clearSelection();
-                alert('Products deleted successfully!');
-            }
+                notifications.success('Products deleted successfully!');
+            });
         }
 
         function exportProducts() {
@@ -533,10 +534,10 @@
         }
 
         function logoutAdmin() {
-            if (confirm('Are you sure you want to logout?')) {
+            notifications.confirm('Are you sure you want to logout?', () => {
                 adminDataService.logoutAdmin();
                 window.location.href = 'index.html';
-            }
+            });
         }
 
         // Initialize Lucide icons
