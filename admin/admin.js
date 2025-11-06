@@ -304,6 +304,25 @@ class AdminDataService {
         return true;
     }
 
+    toggleFeatured(id) {
+        const products = JSON.parse(localStorage.getItem('fjl_products'));
+        const product = products.find(p => p.id === id);
+        if (product) {
+            product.isFeatured = !product.isFeatured;
+            product.updatedAt = new Date().toISOString();
+            localStorage.setItem('fjl_products', JSON.stringify(products));
+            // Dispatch storage event to notify other tabs/pages
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'fjl_products',
+                newValue: JSON.stringify(products),
+                oldValue: JSON.stringify(products),
+                storageArea: localStorage
+            }));
+            return product;
+        }
+        return null;
+    }
+
     // Inventory Management Methods
     checkInventory(productId, size, quantity = 1) {
         const product = this.getProductById(productId);

@@ -92,11 +92,12 @@
                                     <th>Price</th>
                                     <th>Stock</th>
                                     <th>Status</th>
+                                    <th style="text-align: center;">Featured</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="productsTable">
-                                <tr><td colspan="8" style="text-align: center; color: var(--color-gray);">Loading products...</td></tr>
+                                <tr><td colspan="9" style="text-align: center; color: var(--color-gray);">Loading products...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -231,7 +232,7 @@
             document.getElementById('productCount').textContent = products.length;
 
             if (products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-gray);">No products found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--color-gray);">No products found</td></tr>';
                 return;
             }
 
@@ -247,6 +248,9 @@
                         <span class="table-status ${product.inStock ? 'status-delivered' : 'status-cancelled'}">
                             ${product.inStock ? 'In Stock' : 'Out of Stock'}
                         </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" class="featured-checkbox" ${product.isFeatured ? 'checked' : ''} onchange="toggleFeatured('${product.id}', this)" title="Mark as featured" style="cursor: pointer; width: 18px; height: 18px;">
                     </td>
                     <td>
                         <button class="btn btn-sm btn-secondary" onclick="editProduct('${product.id}')">Edit</button>
@@ -505,6 +509,14 @@
                 loadProducts();
                 notifications.success('Product deleted successfully!');
             });
+        }
+
+        function toggleFeatured(id, checkbox) {
+            adminDataService.toggleFeatured(id);
+            const product = adminDataService.getProductById(id);
+            if (product) {
+                notifications.success(`Product marked as ${product.isFeatured ? 'featured' : 'not featured'}!`);
+            }
         }
 
         function closeProductModal() {
