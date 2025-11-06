@@ -7,6 +7,19 @@ class Cart {
     }
 
     addItem(product) {
+        // Check inventory before adding to cart
+        if (typeof adminDataService !== 'undefined') {
+            const inventoryCheck = adminDataService.checkInventory(product.id, product.size, product.quantity);
+            if (!inventoryCheck.available) {
+                // Emit error event that components can listen to
+                const event = new CustomEvent('inventoryError', {
+                    detail: { message: inventoryCheck.message, productId: product.id, size: product.size }
+                });
+                window.dispatchEvent(event);
+                return false;
+            }
+        }
+
         const existingItem = this.items.find(item => item.id === product.id && item.size === product.size);
 
         if (existingItem) {
@@ -17,6 +30,7 @@ class Cart {
 
         this.save();
         this.dispatchChange();
+        return true;
     }
 
     removeItem(productIdOrIndex, size) {

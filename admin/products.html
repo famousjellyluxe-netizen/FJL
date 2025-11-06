@@ -433,6 +433,40 @@
         }
 
         function saveProductData(images) {
+            const quantity = parseInt(document.getElementById('productQuantity').value);
+            const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+            const inStock = document.getElementById('productInStock').checked;
+
+            // Generate sizeInventory by distributing total quantity evenly across sizes
+            const sizeInventory = {};
+            if (inStock && sizes.length > 0 && quantity > 0) {
+                const qtyPerSize = Math.floor(quantity / sizes.length);
+                const remainder = quantity % sizes.length;
+                sizes.forEach((size, index) => {
+                    sizeInventory[size] = qtyPerSize + (index < remainder ? 1 : 0);
+                });
+            } else {
+                // If out of stock or no sizes, set all to 0
+                sizes.forEach(size => {
+                    sizeInventory[size] = 0;
+                });
+            }
+
+            // Determine images to use
+            let primaryImage = '';
+            let additionalImages = [];
+
+            if (images && images.length > 0) {
+                // Use new images if provided
+                primaryImage = images[0];
+                additionalImages = images.length > 1 ? images.slice(1) : [];
+            } else if (currentEditingProduct) {
+                // If editing and no new images provided, preserve existing images
+                primaryImage = currentEditingProduct.image || '';
+                additionalImages = currentEditingProduct.images || [];
+            }
+            // If creating new product with no images, leave as empty
+
             const productData = {
                 name: document.getElementById('productName').value,
                 sleeve: document.getElementById('productCategory').value,
@@ -440,12 +474,13 @@
                 price: parseInt(document.getElementById('productPrice').value),
                 originalPrice: parseInt(document.getElementById('productOriginalPrice').value) || 0,
                 description: document.getElementById('productDescription').value,
-                quantity: parseInt(document.getElementById('productQuantity').value),
-                sizes: document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s),
+                quantity: quantity,
+                sizes: sizes,
                 colors: document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c),
-                image: images.length > 0 ? images[0] : '', // Primary image (first one)
-                images: images.length > 1 ? images.slice(1) : [], // Additional images
-                inStock: document.getElementById('productInStock').checked
+                image: primaryImage,
+                images: additionalImages,
+                inStock: inStock,
+                sizeInventory: sizeInventory
             };
 
             if (currentEditingProduct) {

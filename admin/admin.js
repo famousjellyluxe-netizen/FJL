@@ -43,7 +43,16 @@ class AdminDataService {
                     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
                     colors: ['Black', 'Navy', 'Gold'],
                     quantity: 50,
+                    sizeInventory: { 'XS': 8, 'S': 12, 'M': 15, 'L': 10, 'XL': 3, 'XXL': 2 },
                     inStock: true,
+                    sizeChart: {
+                        'XS': { chest: '32"(81cm)', length: '24"(61cm)', sleeve: '6"(15cm)', shoulder: '13"(33cm)' },
+                        'S': { chest: '34"(86cm)', length: '25"(64cm)', sleeve: '6.5"(17cm)', shoulder: '14"(36cm)' },
+                        'M': { chest: '36"(91cm)', length: '26"(66cm)', sleeve: '7"(18cm)', shoulder: '15"(38cm)' },
+                        'L': { chest: '38"(97cm)', length: '27"(69cm)', sleeve: '7.5"(19cm)', shoulder: '16"(41cm)' },
+                        'XL': { chest: '40"(102cm)', length: '28"(71cm)', sleeve: '8"(20cm)', shoulder: '17"(43cm)' },
+                        'XXL': { chest: '42"(107cm)', length: '29"(74cm)', sleeve: '8.5"(22cm)', shoulder: '18"(46cm)' }
+                    },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 },
@@ -59,7 +68,15 @@ class AdminDataService {
                     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
                     colors: ['Black', 'White', 'Navy'],
                     quantity: 45,
+                    sizeInventory: { 'S': 12, 'M': 15, 'L': 10, 'XL': 5, 'XXL': 3 },
                     inStock: true,
+                    sizeChart: {
+                        'S': { chest: '34"(86cm)', length: '26"(66cm)', sleeve: '9"(23cm)', shoulder: '14"(36cm)' },
+                        'M': { chest: '36"(91cm)', length: '27"(69cm)', sleeve: '9.5"(24cm)', shoulder: '15"(38cm)' },
+                        'L': { chest: '38"(97cm)', length: '28"(71cm)', sleeve: '10"(25cm)', shoulder: '16"(41cm)' },
+                        'XL': { chest: '40"(102cm)', length: '29"(74cm)', sleeve: '10.5"(27cm)', shoulder: '17"(43cm)' },
+                        'XXL': { chest: '42"(107cm)', length: '30"(76cm)', sleeve: '11"(28cm)', shoulder: '18"(46cm)' }
+                    },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 },
@@ -75,7 +92,16 @@ class AdminDataService {
                     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
                     colors: ['Black', 'Gold', 'Navy'],
                     quantity: 30,
+                    sizeInventory: { 'XS': 0, 'S': 5, 'M': 8, 'L': 10, 'XL': 5, 'XXL': 2 },
                     inStock: true,
+                    sizeChart: {
+                        'XS': { chest: '32"(81cm)', length: '24"(61cm)', inseam: '28"(71cm)', shoulder: '13"(33cm)' },
+                        'S': { chest: '34"(86cm)', length: '25"(64cm)', inseam: '29"(74cm)', shoulder: '14"(36cm)' },
+                        'M': { chest: '36"(91cm)', length: '26"(66cm)', inseam: '30"(76cm)', shoulder: '15"(38cm)' },
+                        'L': { chest: '38"(97cm)', length: '27"(69cm)', inseam: '31"(79cm)', shoulder: '16"(41cm)' },
+                        'XL': { chest: '40"(102cm)', length: '28"(71cm)', inseam: '32"(81cm)', shoulder: '17"(43cm)' },
+                        'XXL': { chest: '42"(107cm)', length: '29"(74cm)', inseam: '33"(84cm)', shoulder: '18"(46cm)' }
+                    },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 },
@@ -91,7 +117,13 @@ class AdminDataService {
                     sizes: ['XS', 'S', 'M'],
                     colors: ['Black', 'White', 'Red'],
                     quantity: 100,
+                    sizeInventory: { 'XS': 35, 'S': 40, 'M': 25 },
                     inStock: true,
+                    sizeChart: {
+                        'XS': { chest: '28"(71cm)', length: '20"(51cm)', shoulder: '11"(28cm)' },
+                        'S': { chest: '30"(76cm)', length: '21"(53cm)', shoulder: '12"(30cm)' },
+                        'M': { chest: '32"(81cm)', length: '22"(56cm)', shoulder: '13"(33cm)' }
+                    },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 },
@@ -107,7 +139,14 @@ class AdminDataService {
                     sizes: ['XS', 'S', 'M', 'L'],
                     colors: ['Black', 'White', 'Gold'],
                     quantity: 75,
+                    sizeInventory: { 'XS': 0, 'S': 25, 'M': 30, 'L': 20 },
                     inStock: true,
+                    sizeChart: {
+                        'XS': { chest: '28"(71cm)', length: '14"(36cm)', shoulder: '11"(28cm)' },
+                        'S': { chest: '30"(76cm)', length: '15"(38cm)', shoulder: '12"(30cm)' },
+                        'M': { chest: '32"(81cm)', length: '16"(41cm)', shoulder: '13"(33cm)' },
+                        'L': { chest: '34"(86cm)', length: '17"(43cm)', shoulder: '14"(36cm)' }
+                    },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 },
@@ -123,7 +162,15 @@ class AdminDataService {
                     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
                     colors: ['Black', 'White', 'Navy'],
                     quantity: 150,
+                    sizeInventory: { 'S': 40, 'M': 50, 'L': 35, 'XL': 15, 'XXL': 10 },
                     inStock: true,
+                    sizeChart: {
+                        'S': { chest: '34"(86cm)', length: '25"(64cm)', shoulder: '14"(36cm)' },
+                        'M': { chest: '36"(91cm)', length: '26"(66cm)', shoulder: '15"(38cm)' },
+                        'L': { chest: '38"(97cm)', length: '27"(69cm)', shoulder: '16"(41cm)' },
+                        'XL': { chest: '40"(102cm)', length: '28"(71cm)', shoulder: '17"(43cm)' },
+                        'XXL': { chest: '42"(107cm)', length: '29"(74cm)', shoulder: '18"(46cm)' }
+                    },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 },
@@ -139,7 +186,15 @@ class AdminDataService {
                     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
                     colors: ['Black', 'Navy', 'Gold'],
                     quantity: 25,
+                    sizeInventory: { 'S': 5, 'M': 6, 'L': 7, 'XL': 4, 'XXL': 3 },
                     inStock: true,
+                    sizeChart: {
+                        'S': { chest: '36"(91cm)', length: '26"(66cm)', sleeve: '10"(25cm)', shoulder: '15"(38cm)' },
+                        'M': { chest: '38"(97cm)', length: '27"(69cm)', sleeve: '10.5"(27cm)', shoulder: '16"(41cm)' },
+                        'L': { chest: '40"(102cm)', length: '28"(71cm)', sleeve: '11"(28cm)', shoulder: '17"(43cm)' },
+                        'XL': { chest: '42"(107cm)', length: '29"(74cm)', sleeve: '11.5"(29cm)', shoulder: '18"(46cm)' },
+                        'XXL': { chest: '44"(112cm)', length: '30"(76cm)', sleeve: '12"(30cm)', shoulder: '19"(48cm)' }
+                    },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 }
@@ -246,6 +301,74 @@ class AdminDataService {
         const products = JSON.parse(localStorage.getItem('fjl_products'));
         const filtered = products.filter(p => p.id !== id);
         localStorage.setItem('fjl_products', JSON.stringify(filtered));
+        return true;
+    }
+
+    // Inventory Management Methods
+    checkInventory(productId, size, quantity = 1) {
+        const product = this.getProductById(productId);
+        if (!product) return { available: false, message: 'Product not found' };
+
+        // Check if size exists
+        if (!product.sizes.includes(size)) {
+            return { available: false, message: 'Invalid size for this product' };
+        }
+
+        // Get size inventory (with fallback for backward compatibility)
+        const sizeInventory = product.sizeInventory || {};
+        const availableQuantity = sizeInventory[size] || 0;
+
+        if (availableQuantity <= 0) {
+            return { available: false, message: `${size} size is out of stock`, stock: 0 };
+        }
+
+        if (availableQuantity < quantity) {
+            return { available: false, message: `Only ${availableQuantity} ${size} items available`, stock: availableQuantity };
+        }
+
+        return { available: true, stock: availableQuantity };
+    }
+
+    getSizeInventory(productId, size) {
+        const product = this.getProductById(productId);
+        if (!product) return 0;
+
+        const sizeInventory = product.sizeInventory || {};
+        return sizeInventory[size] || 0;
+    }
+
+    deductInventory(productId, size, quantity = 1) {
+        const products = JSON.parse(localStorage.getItem('fjl_products'));
+        const index = products.findIndex(p => p.id === productId);
+
+        if (index === -1) return false;
+
+        const product = products[index];
+        if (!product.sizeInventory) product.sizeInventory = {};
+
+        const currentStock = product.sizeInventory[size] || 0;
+        if (currentStock < quantity) return false;
+
+        product.sizeInventory[size] = currentStock - quantity;
+        product.updatedAt = new Date().toISOString();
+
+        localStorage.setItem('fjl_products', JSON.stringify(products));
+        return true;
+    }
+
+    updateSizeInventory(productId, size, quantity) {
+        const products = JSON.parse(localStorage.getItem('fjl_products'));
+        const index = products.findIndex(p => p.id === productId);
+
+        if (index === -1) return false;
+
+        const product = products[index];
+        if (!product.sizeInventory) product.sizeInventory = {};
+
+        product.sizeInventory[size] = Math.max(0, quantity);
+        product.updatedAt = new Date().toISOString();
+
+        localStorage.setItem('fjl_products', JSON.stringify(products));
         return true;
     }
 
@@ -420,6 +543,76 @@ class AdminDataService {
 
 // Global instance
 const adminDataService = new AdminDataService();
+
+// Data migration function to add sizeChart to existing products
+function migrateSizeChartData() {
+    const products = JSON.parse(localStorage.getItem('fjl_products') || '[]');
+    const defaultSizeCharts = {
+        'ftg-checkered-jersey': {
+            'XS': { chest: '32"(81cm)', length: '24"(61cm)', sleeve: '6"(15cm)', shoulder: '13"(33cm)' },
+            'S': { chest: '34"(86cm)', length: '25"(64cm)', sleeve: '6.5"(17cm)', shoulder: '14"(36cm)' },
+            'M': { chest: '36"(91cm)', length: '26"(66cm)', sleeve: '7"(18cm)', shoulder: '15"(38cm)' },
+            'L': { chest: '38"(97cm)', length: '27"(69cm)', sleeve: '7.5"(19cm)', shoulder: '16"(41cm)' },
+            'XL': { chest: '40"(102cm)', length: '28"(71cm)', sleeve: '8"(20cm)', shoulder: '17"(43cm)' },
+            'XXL': { chest: '42"(107cm)', length: '29"(74cm)', sleeve: '8.5"(22cm)', shoulder: '18"(46cm)' }
+        },
+        'ftg-rugby-polo': {
+            'S': { chest: '34"(86cm)', length: '26"(66cm)', sleeve: '9"(23cm)', shoulder: '14"(36cm)' },
+            'M': { chest: '36"(91cm)', length: '27"(69cm)', sleeve: '9.5"(24cm)', shoulder: '15"(38cm)' },
+            'L': { chest: '38"(97cm)', length: '28"(71cm)', sleeve: '10"(25cm)', shoulder: '16"(41cm)' },
+            'XL': { chest: '40"(102cm)', length: '29"(74cm)', sleeve: '10.5"(27cm)', shoulder: '17"(43cm)' },
+            'XXL': { chest: '42"(107cm)', length: '30"(76cm)', sleeve: '11"(28cm)', shoulder: '18"(46cm)' }
+        },
+        'ftg-tracksuit': {
+            'XS': { chest: '32"(81cm)', length: '24"(61cm)', inseam: '28"(71cm)', shoulder: '13"(33cm)' },
+            'S': { chest: '34"(86cm)', length: '25"(64cm)', inseam: '29"(74cm)', shoulder: '14"(36cm)' },
+            'M': { chest: '36"(91cm)', length: '26"(66cm)', inseam: '30"(76cm)', shoulder: '15"(38cm)' },
+            'L': { chest: '38"(97cm)', length: '27"(69cm)', inseam: '31"(79cm)', shoulder: '16"(41cm)' },
+            'XL': { chest: '40"(102cm)', length: '28"(71cm)', inseam: '32"(81cm)', shoulder: '17"(43cm)' },
+            'XXL': { chest: '42"(107cm)', length: '29"(74cm)', inseam: '33"(84cm)', shoulder: '18"(46cm)' }
+        },
+        'soccer-baby-tee': {
+            'XS': { chest: '28"(71cm)', length: '20"(51cm)', shoulder: '11"(28cm)' },
+            'S': { chest: '30"(76cm)', length: '21"(53cm)', shoulder: '12"(30cm)' },
+            'M': { chest: '32"(81cm)', length: '22"(56cm)', shoulder: '13"(33cm)' }
+        },
+        'soccer-baby-crop-top': {
+            'XS': { chest: '28"(71cm)', length: '14"(36cm)', shoulder: '11"(28cm)' },
+            'S': { chest: '30"(76cm)', length: '15"(38cm)', shoulder: '12"(30cm)' },
+            'M': { chest: '32"(81cm)', length: '16"(41cm)', shoulder: '13"(33cm)' },
+            'L': { chest: '34"(86cm)', length: '17"(43cm)', shoulder: '14"(36cm)' }
+        },
+        'ftg-logo-tshirt': {
+            'S': { chest: '34"(86cm)', length: '25"(64cm)', shoulder: '14"(36cm)' },
+            'M': { chest: '36"(91cm)', length: '26"(66cm)', shoulder: '15"(38cm)' },
+            'L': { chest: '38"(97cm)', length: '27"(69cm)', shoulder: '16"(41cm)' },
+            'XL': { chest: '40"(102cm)', length: '28"(71cm)', shoulder: '17"(43cm)' },
+            'XXL': { chest: '42"(107cm)', length: '29"(74cm)', shoulder: '18"(46cm)' }
+        },
+        'urban-varsity-jacket': {
+            'S': { chest: '36"(91cm)', length: '26"(66cm)', sleeve: '10"(25cm)', shoulder: '15"(38cm)' },
+            'M': { chest: '38"(97cm)', length: '27"(69cm)', sleeve: '10.5"(27cm)', shoulder: '16"(41cm)' },
+            'L': { chest: '40"(102cm)', length: '28"(71cm)', sleeve: '11"(28cm)', shoulder: '17"(43cm)' },
+            'XL': { chest: '42"(107cm)', length: '29"(74cm)', sleeve: '11.5"(29cm)', shoulder: '18"(46cm)' },
+            'XXL': { chest: '44"(112cm)', length: '30"(76cm)', sleeve: '12"(30cm)', shoulder: '19"(48cm)' }
+        }
+    };
+
+    let updated = false;
+    products.forEach(product => {
+        if (!product.sizeChart && defaultSizeCharts[product.id]) {
+            product.sizeChart = defaultSizeCharts[product.id];
+            updated = true;
+        }
+    });
+
+    if (updated) {
+        localStorage.setItem('fjl_products', JSON.stringify(products));
+    }
+}
+
+// Run migration on page load
+migrateSizeChartData();
 
 // Utility Functions
 function formatCurrency(amount) {
