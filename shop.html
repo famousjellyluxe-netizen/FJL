@@ -1048,7 +1048,7 @@
                             </div>
                         </a>
                         <div class="product-info-header">
-                            <button class="cart-icon-btn ${isAllOutOfStock ? 'disabled' : ''}" onclick="${isAllOutOfStock ? 'event.stopPropagation(); notifications.error(\"This product is out of stock\"); return false;' : 'event.stopPropagation(); openProductModal(\"' + product.id + '\", \"' + product.name.replace(/'/g, "\\'") + '\", ' + product.price + ', \"' + imageUrl.replace(/'/g, "\\'") + '\"); return false;'}" title="${isAllOutOfStock ? 'Out of stock' : 'Add to cart'}" data-product-id="${product.id}" type="button" ${isAllOutOfStock ? 'disabled' : ''}>
+                            <button class="cart-icon-btn ${isAllOutOfStock ? 'disabled' : ''}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-image-url="${imageUrl}" data-out-of-stock="${isAllOutOfStock}" title="${isAllOutOfStock ? 'Out of stock' : 'Add to cart'}" type="button" ${isAllOutOfStock ? 'disabled' : ''}>
                                 <i data-lucide="shopping-bag"></i>
                                 <span>${isAllOutOfStock ? 'Sold Out' : 'Add'}</span>
                             </button>
@@ -1076,6 +1076,29 @@
                         }
                     });
                 }
+            });
+
+            // Handle add to cart button clicks
+            grid.querySelectorAll('.cart-icon-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    const isOutOfStock = btn.getAttribute('data-out-of-stock') === 'true';
+                    if (isOutOfStock || btn.disabled) {
+                        if (notifications) {
+                            notifications.error('This product is out of stock');
+                        }
+                        return false;
+                    }
+
+                    const productId = btn.getAttribute('data-product-id');
+                    const productName = btn.getAttribute('data-product-name');
+                    const productPrice = parseInt(btn.getAttribute('data-product-price'));
+                    const imageUrl = btn.getAttribute('data-image-url');
+
+                    openProductModal(productId, productName, productPrice, imageUrl);
+                    return false;
+                });
             });
 
             // Render pagination buttons separately outside the grid
