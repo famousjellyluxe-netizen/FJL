@@ -14,11 +14,16 @@ class NotificationManager {
             container.id = 'notificationContainer';
             container.style.cssText = `
                 position: fixed;
-                top: 20px;
-                right: 20px;
+                top: 70px;
+                left: 50%;
+                transform: translateX(-50%);
                 z-index: 9999;
-                max-width: 400px;
+                max-width: 500px;
                 pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
             `;
             document.body.appendChild(container);
             this.container = container;
@@ -71,8 +76,7 @@ class NotificationManager {
         notification.style.cssText = `
             background: ${style.background};
             color: ${style.textColor};
-            padding: 16px 20px;
-            margin-bottom: 12px;
+            padding: 14px 24px;
             border-radius: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             display: flex;
@@ -81,8 +85,9 @@ class NotificationManager {
             font-family: 'Inter', sans-serif;
             font-size: 14px;
             font-weight: 500;
-            animation: slideIn 0.3s ease;
+            animation: slideDown 0.3s ease;
             pointer-events: auto;
+            white-space: nowrap;
         `;
 
         notification.innerHTML = `
@@ -112,23 +117,23 @@ class NotificationManager {
             const style = document.createElement('style');
             style.id = 'notificationStyles';
             style.textContent = `
-                @keyframes slideIn {
+                @keyframes slideDown {
                     from {
-                        transform: translateX(400px);
+                        transform: translateY(-20px);
                         opacity: 0;
                     }
                     to {
-                        transform: translateX(0);
+                        transform: translateY(0);
                         opacity: 1;
                     }
                 }
-                @keyframes slideOut {
+                @keyframes slideUp {
                     from {
-                        transform: translateX(0);
+                        transform: translateY(0);
                         opacity: 1;
                     }
                     to {
-                        transform: translateX(400px);
+                        transform: translateY(-20px);
                         opacity: 0;
                     }
                 }
@@ -142,7 +147,7 @@ class NotificationManager {
         if (duration > 0) {
             setTimeout(() => {
                 if (notification.parentNode) {
-                    notification.style.animation = 'slideOut 0.3s ease';
+                    notification.style.animation = 'slideUp 0.3s ease';
                     setTimeout(() => {
                         notification.remove();
                     }, 300);
