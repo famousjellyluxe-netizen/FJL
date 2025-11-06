@@ -389,6 +389,11 @@
             color: #155724;
         }
 
+        .stock-status.out-of-stock {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         /* Size Selection */
         .size-section {
             margin-bottom: 24px;
@@ -431,6 +436,20 @@
             color: white;
         }
 
+        .size-btn:disabled,
+        .size-btn.out-of-stock {
+            background: #f5f5f5;
+            color: #999;
+            border-color: #e5e5e5;
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .size-btn:disabled:hover,
+        .size-btn.out-of-stock:hover {
+            border-color: #e5e5e5;
+        }
+
         .size-chart-link {
             font-size: 12px;
             color: #8b8b8b;
@@ -441,6 +460,136 @@
 
         .size-chart-link:hover {
             color: #000;
+            cursor: pointer;
+        }
+
+        /* Size Chart Modal */
+        .size-chart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        .size-chart-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size-chart-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+
+        .size-chart-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .size-chart-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size-chart-close:hover {
+            color: #000;
+        }
+
+        .size-chart-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            margin-top: 0;
+        }
+
+        .size-chart-table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .size-chart-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .size-chart-table thead {
+            background: #f5f5f5;
+        }
+
+        .size-chart-table th,
+        .size-chart-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .size-chart-table th {
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .size-chart-table td {
+            color: #555;
+        }
+
+        .size-chart-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .size-chart-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .size-chart-note {
+            font-size: 12px;
+            color: #999;
+            margin: 0;
+            text-align: center;
         }
 
         /* Quantity Selector */
@@ -1195,18 +1344,106 @@
                 descriptionElement.textContent = product.description;
             }
 
+            // If product doesn't have sizeChart, try to get it from the stored products
+            if (!product.sizeChart && typeof adminDataService !== 'undefined') {
+                const allProducts = JSON.parse(localStorage.getItem('fjl_products') || '[]');
+                const fullProduct = allProducts.find(p => p.id === product.id);
+                if (fullProduct && fullProduct.sizeChart) {
+                    product.sizeChart = fullProduct.sizeChart;
+                }
+            }
+
             // Store current product ID for add to cart
             window.currentProductId = product.id;
             window.currentProductName = product.name;
             window.currentProductPrice = product.price;
             window.currentProductImage = product.image; // Store main product image for cart
             window.productImages = productImages; // Store for changeImage function
+            window.currentProduct = product; // Store full product object for inventory checks
+
+            // Update stock status based on inventory
+            const sizeInventory = product.sizeInventory || {};
+            const totalStock = Object.values(sizeInventory).reduce((sum, stock) => sum + stock, 0);
+            const stockStatusElement = document.querySelector('.stock-status');
+
+            if (stockStatusElement) {
+                if (totalStock <= 0) {
+                    stockStatusElement.textContent = 'Out of Stock';
+                    stockStatusElement.className = 'stock-status out-of-stock';
+                } else if (totalStock <= 10) {
+                    stockStatusElement.textContent = 'Low Stock';
+                    stockStatusElement.className = 'stock-status low-stock';
+                } else {
+                    stockStatusElement.textContent = 'In Stock';
+                    stockStatusElement.className = 'stock-status in-stock';
+                }
+            }
+
+            // Update size buttons based on inventory
+            const sizeButtons = document.querySelectorAll('.size-btn');
+            sizeButtons.forEach(btn => {
+                const sizeText = btn.textContent.trim();
+                const stockCount = sizeInventory[sizeText] || 0;
+
+                if (stockCount <= 0) {
+                    btn.disabled = true;
+                    btn.classList.add('out-of-stock');
+                    btn.title = 'Out of stock';
+                    btn.textContent = sizeText + ' (Out)';
+                } else {
+                    btn.disabled = false;
+                    btn.classList.remove('out-of-stock');
+                    btn.title = `${stockCount} available`;
+                    btn.textContent = sizeText;
+                }
+            });
+
+            // Disable add to cart button if all stock is 0
+            const addBtn = document.querySelector('.add-to-cart-btn');
+            if (addBtn) {
+                if (totalStock <= 0) {
+                    addBtn.disabled = true;
+                    addBtn.style.opacity = '0.5';
+                    addBtn.style.cursor = 'not-allowed';
+                    addBtn.textContent = 'Out of Stock';
+                } else {
+                    addBtn.disabled = false;
+                    addBtn.style.opacity = '1';
+                    addBtn.style.cursor = 'pointer';
+                    addBtn.textContent = 'Add to Cart';
+                }
+            }
         }
 
         // Call on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadProduct();
             updateCartBadge();
+        });
+
+        // Listen for storage changes from admin panel (real-time product updates)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'fjl_products') {
+                // Products were updated in admin panel, reload the current product
+                try {
+                    const newProducts = JSON.parse(event.newValue);
+                    const params = new URLSearchParams(window.location.search);
+                    const productId = params.get('id') || 'ftg-tracksuit';
+                    const updatedProduct = newProducts.find(p => p.id === productId);
+
+                    if (updatedProduct) {
+                        // Reload the product details
+                        loadProduct();
+
+                        // Show notification that product was updated
+                        if (notifications) {
+                            notifications.info('Product details updated!');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error updating product from storage:', e);
+                }
+            }
         });
 
         // Mobile Menu Toggle
@@ -1246,6 +1483,14 @@
 
         // Size selection
         function selectSize(btn) {
+            // Prevent selecting disabled (out of stock) sizes
+            if (btn.disabled) {
+                if (notifications) {
+                    notifications.warning('This size is out of stock');
+                }
+                return;
+            }
+
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
@@ -1273,7 +1518,12 @@
 
         // Add to cart
         function addToCart() {
-            const size = document.querySelector('.size-btn.active')?.textContent || '';
+            const sizeBtn = document.querySelector('.size-btn.active');
+            let size = sizeBtn?.textContent || '';
+
+            // Clean up size text if it has inventory info appended
+            size = size.replace(/\s*\(Out\)/, '').trim();
+
             const quantity = parseInt(document.getElementById('quantityDisplay').value);
 
             if (!size) {
@@ -1281,6 +1531,25 @@
                     notifications.warning('Please select a size');
                 }
                 return;
+            }
+
+            // Check if button is disabled (out of stock)
+            if (sizeBtn && sizeBtn.disabled) {
+                if (notifications) {
+                    notifications.error('This size is out of stock');
+                }
+                return;
+            }
+
+            // Check inventory using adminDataService
+            if (typeof adminDataService !== 'undefined' && window.currentProduct) {
+                const inventoryCheck = adminDataService.checkInventory(window.currentProductId, size, quantity);
+                if (!inventoryCheck.available) {
+                    if (notifications) {
+                        notifications.error(inventoryCheck.message);
+                    }
+                    return;
+                }
             }
 
             const product = {
@@ -1292,12 +1561,26 @@
                 image: window.currentProductImage || '' // Include product image in cart
             };
 
-            cart.addItem(product);
+            const success = cart.addItem(product);
+
+            if (!success) {
+                if (notifications) {
+                    notifications.error('Failed to add item to cart. Please try again.');
+                }
+                return;
+            }
+
+            // Deduct inventory when item is successfully added
+            if (typeof adminDataService !== 'undefined') {
+                adminDataService.deductInventory(window.currentProductId, size, quantity);
+            }
 
             // Update cart drawer display
             if (typeof cartDrawerInstance !== 'undefined') {
                 cartDrawerInstance.render();
             }
+
+            updateCartBadge();
 
             // Show success message
             const btn = document.querySelector('.add-to-cart-btn');
@@ -1313,6 +1596,92 @@
 
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Size Chart Modal Functions
+        function openSizeChart() {
+            const modal = document.getElementById('sizeChartModal');
+            const product = window.currentProduct;
+
+            if (!product || !product.sizeChart) {
+                if (notifications) {
+                    notifications.warning('Size chart not available for this product');
+                }
+                return;
+            }
+
+            // Get size chart data
+            const sizeChart = product.sizeChart;
+            const sizes = Object.keys(sizeChart).sort((a, b) => {
+                const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+                return sizeOrder.indexOf(a) - sizeOrder.indexOf(b);
+            });
+
+            if (sizes.length === 0) return;
+
+            // Get measurement keys from first size entry
+            const measurementKeys = Object.keys(sizeChart[sizes[0]]);
+
+            // Update table headers
+            for (let i = 0; i < measurementKeys.length; i++) {
+                const header = document.getElementById(`header${i + 1}`);
+                if (header) {
+                    // Capitalize first letter
+                    header.textContent = measurementKeys[i].charAt(0).toUpperCase() + measurementKeys[i].slice(1);
+                }
+            }
+
+            // Populate table body
+            const tbody = document.getElementById('sizeChartTableBody');
+            tbody.innerHTML = '';
+
+            sizes.forEach(size => {
+                const row = document.createElement('tr');
+                const sizeCell = document.createElement('td');
+                sizeCell.textContent = size;
+                sizeCell.style.fontWeight = '600';
+                sizeCell.style.color = '#000';
+                row.appendChild(sizeCell);
+
+                measurementKeys.forEach(key => {
+                    const cell = document.createElement('td');
+                    cell.textContent = sizeChart[size][key];
+                    row.appendChild(cell);
+                });
+
+                tbody.appendChild(row);
+            });
+
+            // Show modal with animation
+            modal.classList.add('active');
+
+            // Close on ESC key
+            document.addEventListener('keydown', handleEscKey);
+        }
+
+        function closeSizeChart() {
+            const modal = document.getElementById('sizeChartModal');
+            modal.classList.remove('active');
+
+            // Remove ESC key listener
+            document.removeEventListener('keydown', handleEscKey);
+        }
+
+        function handleEscKey(e) {
+            if (e.key === 'Escape') {
+                closeSizeChart();
+            }
+        }
+
+        // Update the size chart link to open the modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const sizeChartLink = document.querySelector('.size-chart-link');
+            if (sizeChartLink) {
+                sizeChartLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openSizeChart();
+                });
+            }
+        });
 
         // Image Modal Functions
         let currentImageIndex = 0;
@@ -1419,6 +1788,32 @@
             };
         });
     </script>
+
+        <!-- Size Chart Modal -->
+        <div id="sizeChartModal" class="size-chart-modal">
+            <div class="size-chart-overlay" onclick="closeSizeChart()"></div>
+            <div class="size-chart-container">
+                <button class="size-chart-close" onclick="closeSizeChart()">&times;</button>
+                <h2 class="size-chart-title">Size Chart</h2>
+                <div class="size-chart-table-wrapper">
+                    <table class="size-chart-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th id="header1"></th>
+                                <th id="header2"></th>
+                                <th id="header3"></th>
+                                <th id="header4"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="sizeChartTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <p class="size-chart-note">All measurements are approximate and may vary by ±1 inch (±2-3 cm)</p>
+            </div>
+        </div>
 
         <script src="cart-drawer.js"></script>
 </body>

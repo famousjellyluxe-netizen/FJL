@@ -298,6 +298,48 @@
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
 
+        /* Out of Stock Styles */
+        .cart-icon-btn.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 1 !important;
+            box-shadow: none;
+            color: #666;
+        }
+
+        .cart-icon-btn.disabled:hover {
+            background: #ccc;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .product-card.out-of-stock-card {
+            opacity: 0.85;
+        }
+
+        .product-card.out-of-stock-card .product-image.out-of-stock-image {
+            filter: grayscale(60%) brightness(0.9);
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stock-badge.out-of-stock-badge {
+            background: #d32f2f;
+            color: white;
+            box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+        }
+
         .cart-icon-btn:active {
             transform: scale(0.95);
         }
@@ -445,6 +487,28 @@
             background: #000;
             color: white;
             border-color: #000;
+        }
+
+        .size-btn:disabled,
+        .size-btn.out-of-stock {
+            background: #f5f5f5;
+            color: #999;
+            border-color: #e0e0e0;
+            cursor: not-allowed;
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .size-btn:disabled::after,
+        .size-btn.out-of-stock::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #d32f2f;
+            transform: translateY(-50%) scaleX(1.2);
         }
 
         .modal-quantity-label {
@@ -967,19 +1031,26 @@
                 const imageUrl = product.image && product.image !== 'placeholder'
                     ? product.image
                     : "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect fill='%23f5f5f5' width='300' height='300'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='16'>Product</text></svg>";
+
+                // Check if product has any stock
+                const sizeInventory = product.sizeInventory || {};
+                const hasAnyStock = Object.values(sizeInventory).some(stock => stock > 0);
+                const isAllOutOfStock = !hasAnyStock;
+
                 htmlContent += `
-                    <div class="product-card hover-lift">
+                    <div class="product-card hover-lift ${isAllOutOfStock ? 'out-of-stock-card' : ''}">
+                        ${isAllOutOfStock ? '<div class="stock-badge out-of-stock-badge">Out of Stock</div>' : ''}
                         <a href="product.html?id=${product.id}" class="text-decoration-none">
                             <div class="product-image-wrapper">
-                                <div class="product-image">
+                                <div class="product-image ${isAllOutOfStock ? 'out-of-stock-image' : ''}">
                                     <img src="${imageUrl}" alt="${product.name}">
                                 </div>
                             </div>
                         </a>
                         <div class="product-info-header">
-                            <button class="cart-icon-btn" onclick="event.stopPropagation(); openProductModal('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${imageUrl.replace(/'/g, "\\'")}')" title="Add to cart" data-product-id="${product.id}" type="button">
+                            <button class="cart-icon-btn ${isAllOutOfStock ? 'disabled' : ''}" onclick="${isAllOutOfStock ? 'event.stopPropagation(); notifications.error(\"This product is out of stock\"); return false;' : 'event.stopPropagation(); openProductModal(\"' + product.id + '\", \"' + product.name.replace(/'/g, "\\'") + '\", ' + product.price + ', \"' + imageUrl.replace(/'/g, "\\'") + '\"); return false;'}" title="${isAllOutOfStock ? 'Out of stock' : 'Add to cart'}" data-product-id="${product.id}" type="button" ${isAllOutOfStock ? 'disabled' : ''}>
                                 <i data-lucide="shopping-bag"></i>
-                                <span>Add</span>
+                                <span>${isAllOutOfStock ? 'Sold Out' : 'Add'}</span>
                             </button>
                             <div class="add-to-cart-success" id="success-${product.id}">✓ Added</div>
                         </div>
@@ -1121,6 +1192,30 @@
         }
 
 
+        // Listen for storage changes from admin panel (real-time product updates)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'fjl_products') {
+                // Products were updated in admin panel, reload them
+                try {
+                    const newProducts = JSON.parse(event.newValue);
+                    products = newProducts;
+                    // Reset filters and re-render products
+                    currentPage = 1;
+                    currentFilters.availability = 'All Items';
+                    currentFilters.sort = 'Newest';
+                    currentFilters.sleeve = 'All';
+                    applyFiltersAndSort();
+
+                    // Show notification that products were updated
+                    if (notifications) {
+                        notifications.info('Products updated!');
+                    }
+                } catch (e) {
+                    console.error('Error updating products from storage:', e);
+                }
+            }
+        });
+
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', function() {
             applyFiltersAndSort();
@@ -1209,6 +1304,7 @@
             modalState.sizes = product.sizes || [];
             modalState.selectedSize = null;
             modalState.quantity = 1;
+            modalState.sizeInventory = product.sizeInventory || {};
 
             // Populate modal
             document.getElementById('modalProductName').textContent = productName;
@@ -1216,14 +1312,24 @@
             document.getElementById('modalProductImage').src = imageUrl;
             document.getElementById('modalQuantity').textContent = '1';
 
-            // Create size buttons
+            // Create size buttons with inventory status
             const sizeButtonsContainer = document.getElementById('modalSizeButtons');
             sizeButtonsContainer.innerHTML = '';
             modalState.sizes.forEach(size => {
+                const stockCount = modalState.sizeInventory[size] || 0;
+                const isOutOfStock = stockCount <= 0;
+
                 const btn = document.createElement('button');
-                btn.className = 'size-btn';
+                btn.className = `size-btn ${isOutOfStock ? 'out-of-stock' : ''}`;
                 btn.textContent = size;
-                btn.onclick = () => selectSize(size);
+                btn.disabled = isOutOfStock;
+
+                if (!isOutOfStock) {
+                    btn.onclick = () => selectSize(size);
+                } else {
+                    btn.title = 'Out of stock';
+                }
+
                 sizeButtonsContainer.appendChild(btn);
             });
 
@@ -1275,6 +1381,22 @@
                 return;
             }
 
+            // Check inventory before adding to cart
+            const stockCount = modalState.sizeInventory[modalState.selectedSize] || 0;
+            if (stockCount <= 0) {
+                if (notifications) {
+                    notifications.error(`${modalState.selectedSize} size is out of stock`);
+                }
+                return;
+            }
+
+            if (stockCount < modalState.quantity) {
+                if (notifications) {
+                    notifications.error(`Only ${stockCount} item(s) available in ${modalState.selectedSize} size`);
+                }
+                return;
+            }
+
             // Create cart item
             const cartItem = {
                 id: modalState.productId,
@@ -1287,15 +1409,23 @@
 
             // Add to cart
             if (typeof cart !== 'undefined') {
+                let addedCount = 0;
                 for (let i = 0; i < modalState.quantity; i++) {
                     const item = { ...cartItem, quantity: 1 };
-                    cart.addItem(item);
+                    const success = cart.addItem(item);
+                    if (success) {
+                        addedCount++;
+                        // Deduct inventory when item is successfully added
+                        if (typeof adminDataService !== 'undefined') {
+                            adminDataService.deductInventory(modalState.productId, modalState.selectedSize, 1);
+                        }
+                    }
                 }
                 updateCartBadge();
 
                 // Show success notification
-                if (notifications) {
-                    notifications.success(`${modalState.productName} (Size: ${modalState.selectedSize}) x${modalState.quantity} added to cart!`);
+                if (addedCount > 0 && notifications) {
+                    notifications.success(`${modalState.productName} (Size: ${modalState.selectedSize}) x${addedCount} added to cart!`);
                 }
 
                 // Close modal
