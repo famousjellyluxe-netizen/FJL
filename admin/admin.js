@@ -6,7 +6,42 @@
 
 class AdminDataService {
     constructor() {
-        this.initializeData();
+        // Initialize admin authentication data (required for login to work)
+        this.initializeAdminAuth();
+    }
+
+    // Initialize only admin authentication - NOT demo products
+    initializeAdminAuth() {
+        if (!localStorage.getItem('fjl_admin')) {
+            localStorage.setItem('fjl_admin', JSON.stringify({
+                email: 'admin@fjl.com',
+                password: 'admin123', // In production: use bcrypt + backend
+                businessName: 'Famous Jelly Luxe',
+                storeName: 'FJL Premium Store',
+                storeEmail: 'store@fjl.com',
+                storePhone: '+234 800 123 4567',
+                storeAddress: '123 Luxury Street, Lagos, Nigeria',
+                bankName: 'First Bank Nigeria',
+                accountNumber: '2058123456',
+                accountHolder: 'Famous Jelly Luxe Ltd',
+                taxRate: 7.5,
+                shippingCost: 0,
+                createdAt: new Date().toISOString()
+            }));
+        }
+        // Initialize empty products/orders/customers if they don't exist
+        if (!localStorage.getItem('fjl_products')) {
+            localStorage.setItem('fjl_products', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('fjl_orders')) {
+            localStorage.setItem('fjl_orders', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('fjl_customers')) {
+            localStorage.setItem('fjl_customers', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('fjl_categories')) {
+            localStorage.setItem('fjl_categories', JSON.stringify([]));
+        }
     }
 
     // Initialize default data structures in localStorage
