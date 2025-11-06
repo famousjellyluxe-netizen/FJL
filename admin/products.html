@@ -410,24 +410,29 @@
                     };
                     reader.readAsDataURL(input.files[0]);
                 } else {
-                    // Check if there's a preview - if so, the image was already set (from editing)
+                    // Check if there's a preview or existing image
                     const fieldId = input.getAttribute('data-field-id');
-                    const previewDiv = document.getElementById('preview_' + fieldId);
+                    const fieldContainer = document.getElementById(fieldId);
+                    let imgElement = null;
 
-                    // If there's a preview (existing image from editing), preserve it
-                    // Mark it as a special preserved marker that we'll handle in saveProductData
+                    // First check the new preview div (for newly uploaded images)
+                    const previewDiv = document.getElementById('preview_' + fieldId);
                     if (previewDiv && previewDiv.innerHTML.trim()) {
-                        // Get the existing image URL from the current product
-                        const imgElement = previewDiv.querySelector('img');
-                        if (imgElement && imgElement.src) {
-                            // Mark this as a preserved image (it's either a data URL or a file path)
-                            imagesToProcess[index] = imgElement.src;
-                        } else {
-                            imagesToProcess[index] = null;
-                        }
+                        imgElement = previewDiv.querySelector('img');
+                    }
+
+                    // If no new preview, check the entire field for existing image (from editing)
+                    if (!imgElement && fieldContainer) {
+                        imgElement = fieldContainer.querySelector('img');
+                    }
+
+                    // If we found an image (either new or existing), preserve it
+                    if (imgElement && imgElement.src) {
+                        imagesToProcess[index] = imgElement.src;
                     } else {
                         imagesToProcess[index] = null;
                     }
+
                     filesProcessed++;
 
                     if (filesProcessed === imageInputs.length) {
