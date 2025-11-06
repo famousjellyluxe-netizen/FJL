@@ -497,6 +497,7 @@
         }
     </style>
     <script src="notifications.js"></script>
+    <script src="cart-manager.js"></script>
     </head>
 <body>
     <!-- Top banner -->
@@ -987,8 +988,9 @@
         function openProductModal(productId, productName, productPrice, imageUrl) {
             initProductModal();
 
-            // Find the product to get sizes
-            const product = products.find(p => p.id === productId);
+            // Find the product to get sizes - get from localStorage
+            const allProducts = JSON.parse(localStorage.getItem('fjl_products')) || [];
+            const product = allProducts.find(p => p.id === productId);
             if (!product) return;
 
             // Update modal state
