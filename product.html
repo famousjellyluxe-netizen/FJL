@@ -1629,20 +1629,19 @@
                 image: window.currentProductImage || '' // Include product image in cart
             };
 
-            // FIX #3: Call cart.addItem() which validates inventory again
-            // If it returns false, it's due to the custom event 'inventoryError'
-            // We should listen for that event instead of showing generic error
-            const success = cart.addItem(product);
+            // FIX #3: Add item to cart directly (we already validated inventory above)
+            // Store in cart
+            const existingItem = cart.items.find(item => item.id === product.id && item.size === product.size);
 
-            // FIX #4: Better error handling - listen for actual inventory error event
-            if (!success) {
-                // Item was NOT added due to inventory check in cart.addItem()
-                // This shouldn't happen since we already checked above, but be safe
-                if (notifications) {
-                    notifications.error('Unable to add item to cart - inventory issue');
-                }
-                return;
+            if (existingItem) {
+                existingItem.quantity += product.quantity;
+            } else {
+                cart.items.push(product);
             }
+
+            // Save cart to localStorage
+            cart.save();
+            cart.dispatchChange();
 
             // Deduct inventory when item is successfully added
             if (typeof adminDataService !== 'undefined') {
