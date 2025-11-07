@@ -296,7 +296,13 @@ class CartDrawer {
     }
 
     render() {
-        const cart = new Cart();
+        // Use the global cart instance instead of creating a new one
+        // This ensures we're always using the same cart data that was just updated
+        if (typeof cart === 'undefined') {
+            console.warn('Global cart instance not available');
+            return;
+        }
+
         const itemsContainer = document.getElementById('cartItemsContainer');
         const emptyMessage = document.getElementById('emptyCartMessage');
 

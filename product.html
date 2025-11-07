@@ -1188,8 +1188,8 @@
             }
         }
 
-        // Initialize cart
-        const cart = new Cart();
+        // Use the global cart instance (defined in cart-manager.js)
+        // Do NOT create a new cart here - use window.cart instead
 
         // Update cart badge on page load
         function updateCartBadge() {
