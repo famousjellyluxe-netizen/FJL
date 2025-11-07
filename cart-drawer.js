@@ -230,7 +230,7 @@ class CartDrawer {
 
         // View summary button
         document.getElementById('viewSummary').addEventListener('click', () => {
-            window.location.href = 'cart-summary.html';
+            window.location.href = 'cart.html';
         });
 
         // Checkout button

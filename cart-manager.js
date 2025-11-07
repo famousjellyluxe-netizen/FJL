@@ -51,7 +51,7 @@
             }
 
             updateItem(index, updates) {
-                // Update cart item by index (for cart-summary.html)
+                // Update cart item by index (for cart.html)
                 if (index >= 0 && index < this.items.length) {
                     this.items[index] = { ...this.items[index], ...updates };
                     this.save();
