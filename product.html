@@ -1629,28 +1629,22 @@
                 image: window.currentProductImage || '' // Include product image in cart
             };
 
-            // FIX #3: Add item to cart directly (we already validated inventory above)
-            // Store in cart
-            const existingItem = cart.items.find(item => item.id === product.id && item.size === product.size);
+            // FIX #3: Add item to cart using addItem method
+            // Skip inventory check since we already validated above
+            // This ensures the cartUpdated event is fired properly
+            const success = cart.addItem(product, true);
 
-            if (existingItem) {
-                existingItem.quantity += product.quantity;
-            } else {
-                cart.items.push(product);
+            if (!success) {
+                // This shouldn't happen since we already validated, but handle it
+                if (notifications) {
+                    notifications.error('Unable to add item to cart');
+                }
+                return;
             }
-
-            // Save cart to localStorage
-            cart.save();
-            cart.dispatchChange();
 
             // Deduct inventory when item is successfully added
             if (typeof adminDataService !== 'undefined') {
                 adminDataService.deductInventory(window.currentProductId, size, quantity);
-            }
-
-            // Update cart drawer display
-            if (typeof cartDrawerInstance !== 'undefined') {
-                cartDrawerInstance.render();
             }
 
             updateCartBadge();

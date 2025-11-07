@@ -6,9 +6,9 @@ class Cart {
         this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
     }
 
-    addItem(product) {
-        // Check inventory before adding to cart
-        if (typeof adminDataService !== 'undefined') {
+    addItem(product, skipInventoryCheck = false) {
+        // Check inventory before adding to cart (unless already validated)
+        if (!skipInventoryCheck && typeof adminDataService !== 'undefined') {
             const inventoryCheck = adminDataService.checkInventory(product.id, product.size, product.quantity);
             if (!inventoryCheck.available) {
                 // Emit error event that components can listen to
