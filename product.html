@@ -1258,7 +1258,7 @@
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('id') || 'ftg-tracksuit';
 
-            // Load products from localStorage or use default database
+            // ALWAYS load from localStorage first (live data from admin/Supabase)
             let product = null;
             const storedProducts = localStorage.getItem('fjl_products');
 
@@ -1271,10 +1271,28 @@
                 }
             }
 
-            // Fallback to default database if not found in localStorage
+            // Only fallback to default database if product truly doesn't exist in localStorage
+            // This preserves the full product data (sizeChart, etc.) from defaults if localStorage is empty
             if (!product) {
                 const defaultDB = getDefaultProductDatabase();
                 product = defaultDB[productId] || defaultDB['ftg-tracksuit'];
+            }
+
+            // CRITICAL: If product was loaded from defaults, ensure we get the REAL inventory from localStorage
+            // This ensures we always validate against the actual stock, not the default mock data
+            if (storedProducts) {
+                try {
+                    const allProducts = JSON.parse(storedProducts);
+                    const liveProduct = allProducts.find(p => p.id === productId);
+                    if (liveProduct && liveProduct.sizeInventory) {
+                        // Use live inventory from localStorage, but keep all other product data
+                        product.sizeInventory = liveProduct.sizeInventory;
+                        product.inStock = liveProduct.inStock;
+                        product.updatedAt = liveProduct.updatedAt;
+                    }
+                } catch (e) {
+                    console.error('Error syncing live inventory:', e);
+                }
             }
 
             // Update page title
@@ -1533,20 +1551,22 @@
                 return;
             }
 
-            // Check if button is disabled (out of stock)
-            if (sizeBtn && sizeBtn.disabled) {
-                if (notifications) {
-                    notifications.error('This size is out of stock');
-                }
-                return;
-            }
-
-            // Check inventory using adminDataService
-            if (typeof adminDataService !== 'undefined' && window.currentProduct) {
+            // CRITICAL: Always validate inventory against the live backend data
+            // This ensures consistency across shop.html and product.html
+            if (typeof adminDataService !== 'undefined') {
                 const inventoryCheck = adminDataService.checkInventory(window.currentProductId, size, quantity);
                 if (!inventoryCheck.available) {
                     if (notifications) {
                         notifications.error(inventoryCheck.message);
+                    }
+                    return;
+                }
+            } else {
+                // Fallback: If adminDataService not available, use client-side check
+                // (This shouldn't happen in normal circumstances but provides defense-in-depth)
+                if (sizeBtn && sizeBtn.disabled) {
+                    if (notifications) {
+                        notifications.error('This size is out of stock');
                     }
                     return;
                 }

@@ -1397,20 +1397,36 @@
                 return;
             }
 
-            // Check inventory before adding to cart
-            const stockCount = modalState.sizeInventory[modalState.selectedSize] || 0;
-            if (stockCount <= 0) {
-                if (notifications) {
-                    notifications.error(`${modalState.selectedSize} size is out of stock`);
+            // CRITICAL: Validate against live backend inventory data using adminDataService
+            // This ensures consistency across shop.html and product.html pages
+            if (typeof adminDataService !== 'undefined') {
+                const inventoryCheck = adminDataService.checkInventory(
+                    modalState.productId,
+                    modalState.selectedSize,
+                    modalState.quantity
+                );
+                if (!inventoryCheck.available) {
+                    if (notifications) {
+                        notifications.error(inventoryCheck.message);
+                    }
+                    return;
                 }
-                return;
-            }
+            } else {
+                // Fallback: If adminDataService not available, use local cache check
+                const stockCount = modalState.sizeInventory[modalState.selectedSize] || 0;
+                if (stockCount <= 0) {
+                    if (notifications) {
+                        notifications.error(`${modalState.selectedSize} size is out of stock`);
+                    }
+                    return;
+                }
 
-            if (stockCount < modalState.quantity) {
-                if (notifications) {
-                    notifications.error(`Only ${stockCount} item(s) available in ${modalState.selectedSize} size`);
+                if (stockCount < modalState.quantity) {
+                    if (notifications) {
+                        notifications.error(`Only ${stockCount} item(s) available in ${modalState.selectedSize} size`);
+                    }
+                    return;
                 }
-                return;
             }
 
             // Create cart item
