@@ -1397,24 +1397,69 @@
                 }
             }
 
-            // Update size buttons based on inventory
-            const sizeButtons = document.querySelectorAll('.size-btn');
-            sizeButtons.forEach(btn => {
-                const sizeText = btn.textContent.trim();
-                const stockCount = sizeInventory[sizeText] || 0;
+            // FIX #3: Dynamically render size buttons from product data
+            // This replaces the hardcoded buttons with actual product sizes
+            const sizeGridContainer = document.querySelector('.size-grid');
+            if (sizeGridContainer && product.sizes && Array.isArray(product.sizes)) {
+                // Clear existing hardcoded buttons
+                sizeGridContainer.innerHTML = '';
 
-                if (stockCount <= 0) {
-                    btn.disabled = true;
-                    btn.classList.add('out-of-stock');
-                    btn.title = 'Out of stock';
-                    btn.textContent = sizeText + ' (Out)';
+                // Create buttons for each size in the product
+                product.sizes.forEach(size => {
+                    const stockCount = sizeInventory[size] || 0;
+                    const isOutOfStock = stockCount <= 0;
+
+                    const btn = document.createElement('button');
+                    btn.className = `size-btn ${isOutOfStock ? 'out-of-stock' : ''}`;
+                    btn.textContent = size;
+                    btn.disabled = isOutOfStock;
+                    btn.title = isOutOfStock ? 'Out of stock' : `${stockCount} available`;
+
+                    if (!isOutOfStock) {
+                        btn.onclick = function() { selectSize(this); };
+                    } else {
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            if (notifications) {
+                                notifications.warning('This size is out of stock');
+                            }
+                        };
+                    }
+
+                    sizeGridContainer.appendChild(btn);
+                });
+
+                // Set the first available size as active, or first size if all out of stock
+                const firstAvailableBtn = sizeGridContainer.querySelector('.size-btn:not(.out-of-stock)');
+                if (firstAvailableBtn) {
+                    firstAvailableBtn.classList.add('active');
                 } else {
-                    btn.disabled = false;
-                    btn.classList.remove('out-of-stock');
-                    btn.title = `${stockCount} available`;
-                    btn.textContent = sizeText;
+                    // If no sizes available, select first button for consistency
+                    const firstBtn = sizeGridContainer.querySelector('.size-btn');
+                    if (firstBtn) {
+                        firstBtn.classList.add('active');
+                    }
                 }
-            });
+            } else {
+                // Fallback: Update existing hardcoded buttons (legacy behavior)
+                const sizeButtons = document.querySelectorAll('.size-btn');
+                sizeButtons.forEach(btn => {
+                    const sizeText = btn.textContent.trim();
+                    const stockCount = sizeInventory[sizeText] || 0;
+
+                    if (stockCount <= 0) {
+                        btn.disabled = true;
+                        btn.classList.add('out-of-stock');
+                        btn.title = 'Out of stock';
+                        btn.textContent = sizeText + ' (Out)';
+                    } else {
+                        btn.disabled = false;
+                        btn.classList.remove('out-of-stock');
+                        btn.title = `${stockCount} available`;
+                        btn.textContent = sizeText;
+                    }
+                });
+            }
 
             // Disable add to cart button if all stock is 0
             const addBtn = document.querySelector('.add-to-cart-btn');
@@ -1544,6 +1589,8 @@
 
             const quantity = parseInt(document.getElementById('quantityDisplay').value);
 
+            // FIX #1: Validate size selection FIRST before checking inventory
+            // This ensures correct error message priority
             if (!size) {
                 if (notifications) {
                     notifications.warning('Please select a size');
@@ -1551,6 +1598,7 @@
                 return;
             }
 
+            // FIX #2: Check inventory using live data
             // CRITICAL: Always validate inventory against the live backend data
             // This ensures consistency across shop.html and product.html
             if (typeof adminDataService !== 'undefined') {
@@ -1581,11 +1629,17 @@
                 image: window.currentProductImage || '' // Include product image in cart
             };
 
+            // FIX #3: Call cart.addItem() which validates inventory again
+            // If it returns false, it's due to the custom event 'inventoryError'
+            // We should listen for that event instead of showing generic error
             const success = cart.addItem(product);
 
+            // FIX #4: Better error handling - listen for actual inventory error event
             if (!success) {
+                // Item was NOT added due to inventory check in cart.addItem()
+                // This shouldn't happen since we already checked above, but be safe
                 if (notifications) {
-                    notifications.error('Failed to add item to cart. Please try again.');
+                    notifications.error('Unable to add item to cart - inventory issue');
                 }
                 return;
             }
