@@ -243,17 +243,22 @@
                 return;
             }
 
-            tbody.innerHTML = products.map(product => `
+            tbody.innerHTML = products.map(product => {
+                // Handle both API field names (total_stock, is_active) and local format (quantity, inStock)
+                const stockQuantity = product.total_stock !== undefined ? product.total_stock : product.quantity;
+                const inStock = product.is_active !== undefined ? product.is_active : product.inStock;
+
+                return `
                 <tr>
                     <td><input type="checkbox" class="product-checkbox" value="${product.id}" onchange="updateSelection()"></td>
                     <td><strong>${product.name}</strong></td>
                     <td>${product.sleeve === 'sleeve' ? 'Sleeve' : 'Sleeveless'}</td>
                     <td>${product.sku}</td>
                     <td>${formatCurrency(product.price)}</td>
-                    <td>${product.quantity} units</td>
+                    <td>${stockQuantity !== undefined ? stockQuantity : 'N/A'} units</td>
                     <td>
-                        <span class="table-status ${product.inStock ? 'status-delivered' : 'status-cancelled'}">
-                            ${product.inStock ? 'In Stock' : 'Out of Stock'}
+                        <span class="table-status ${inStock ? 'status-delivered' : 'status-cancelled'}">
+                            ${inStock ? 'In Stock' : 'Out of Stock'}
                         </span>
                     </td>
                     <td style="text-align: center;">
@@ -264,7 +269,8 @@
                         <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">Delete</button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         async function applyFilters() {
@@ -307,6 +313,11 @@
             try {
                 currentEditingProduct = await adminDataService.getProductById(id);
                 if (!currentEditingProduct) return;
+
+                // Reset form to clear any previous data
+                document.getElementById('productForm').reset();
+                // Clear images container
+                document.getElementById('imagesContainer').innerHTML = '';
 
             document.getElementById('modalTitle').textContent = 'Edit Product';
             document.getElementById('productName').value = currentEditingProduct.name;
@@ -514,6 +525,50 @@
                     await adminDataService.updateProduct(currentEditingProduct.id, productData);
                     productId = currentEditingProduct.id;
                     notifications.success('Product updated successfully!');
+
+                    // Create variants for updated product if sizeInventory is provided
+                    if (productData.sizeInventory && Object.keys(productData.sizeInventory).length > 0) {
+                        console.log('📦 Creating variants for updated product:', productData.sizeInventory);
+                        try {
+                            let variantsCreated = 0;
+                            for (const [size, quantity] of Object.entries(productData.sizeInventory)) {
+                                if (quantity > 0) {
+                                    const variantData = {
+                                        size: size,
+                                        stock_quantity: parseInt(quantity)
+                                    };
+
+                                    // Add color if available
+                                    if (productData.colors && productData.colors.length > 0) {
+                                        variantData.color = productData.colors[0]; // Use first color
+                                    }
+
+                                    console.log(`Creating variant: ${size} with ${quantity} units`, variantData);
+
+                                    const variantResponse = await fetch(`http://localhost:5001/api/products/${productId}/variants`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                                        },
+                                        body: JSON.stringify(variantData)
+                                    });
+
+                                    if (!variantResponse.ok) {
+                                        const errorData = await variantResponse.json();
+                                        console.error(`❌ Failed to create variant for size ${size}:`, variantResponse.status, errorData);
+                                    } else {
+                                        variantsCreated++;
+                                        console.log(`✅ Created variant for size ${size}`);
+                                    }
+                                }
+                            }
+                            console.log(`✅ Product variants created: ${variantsCreated} variants`);
+                        } catch (variantError) {
+                            console.error('❌ Error creating product variants:', variantError);
+                            // Don't fail the whole operation if variants fail
+                        }
+                    }
                 } else {
                     const createdProduct = await adminDataService.createProduct(productData);
                     productId = createdProduct.id;

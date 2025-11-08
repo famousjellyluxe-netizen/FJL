@@ -117,7 +117,7 @@ export async function getAllProducts(filters = {}) {
   try {
     let query = supabase
       .from('products')
-      .select('*, categories(name, slug)');
+      .select('*, categories(name, slug), product_variants(*)');
 
     if (filters.is_active !== undefined) {
       query = query.eq('is_active', filters.is_active);
@@ -147,8 +147,15 @@ export async function getAllProducts(filters = {}) {
 
     if (error) throw error;
 
+    // Transform data to include variants array
+    const products = (data || []).map(product => ({
+      ...product,
+      variants: Array.isArray(product.product_variants) ? product.product_variants : [],
+      product_variants: undefined  // Remove the nested property
+    }));
+
     return {
-      data: data || [],
+      data: products,
       pagination: {
         page,
         limit,
@@ -185,9 +192,23 @@ export async function getProductById(id) {
 
     if (variantsError) throw variantsError;
 
+    // Extract unique sizes and colors from variants
+    const sizes = new Set();
+    const colors = new Set();
+
+    if (variants && variants.length > 0) {
+      variants.forEach(variant => {
+        if (variant.size) sizes.add(variant.size);
+        if (variant.color) colors.add(variant.color);
+      });
+    }
+
     return {
       ...product,
-      variants: variants || []
+      variants: variants || [],
+      // Include extracted sizes and colors for admin form compatibility
+      available_sizes: Array.from(sizes),
+      available_colors: Array.from(colors)
     };
   } catch (error) {
     if (error instanceof NotFoundError) throw error;
@@ -447,14 +468,21 @@ export async function getFeaturedProducts(limit = 6) {
   try {
     const { data, error } = await supabase
       .from('products')
-      .select('*, categories(name, slug)')
+      .select('*, categories(name, slug), product_variants(*)')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(limit);
 
     if (error) throw error;
 
-    return data || [];
+    // Transform data to include variants array
+    const products = (data || []).map(product => ({
+      ...product,
+      variants: Array.isArray(product.product_variants) ? product.product_variants : [],
+      product_variants: undefined  // Remove the nested property
+    }));
+
+    return products;
   } catch (error) {
     console.error('Error fetching featured products:', error);
     throw error;
