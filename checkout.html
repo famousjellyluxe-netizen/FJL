@@ -783,54 +783,69 @@
         document.querySelector('input[name="buyerName"]').addEventListener('input', updateConfirmationMessage);
 
         // Form Handling
-        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             // Get form data
             const subtotal = cart.getTotal();
             const tax = subtotal * 0.075;
-            const businessAccount = getBusinessAccount();
+            const total = subtotal + tax;
 
             const formData = {
-                firstName: this.firstName.value,
-                lastName: this.lastName.value,
-                email: this.email.value,
-                phone: this.phone.value,
-                address: this.address.value,
-                city: this.city.value,
-                state: this.state.value,
-                postalCode: this.postalCode.value,
-                country: this.country.value,
-                buyerName: this.buyerName.value,
-                items: cart.items,
+                shipping_first_name: this.firstName.value,
+                shipping_last_name: this.lastName.value,
+                shipping_email: this.email.value,
+                shipping_phone: this.phone.value,
+                shipping_address: this.address.value,
+                shipping_city: this.city.value,
+                shipping_state: this.state.value,
+                shipping_postal_code: this.postalCode.value,
+                shipping_country: this.country.value,
+                buyer_name: this.buyerName.value,
                 subtotal: subtotal,
                 tax: tax,
-                total: subtotal + tax,
-                businessAccount: businessAccount,
-                orderDate: new Date().toISOString()
+                shipping_cost: 0,
+                total_amount: total
             };
 
-            // Save order to localStorage
-            const orders = JSON.parse(localStorage.getItem('fjl_orders')) || [];
-            const orderNumber = tempOrderNumber;
-            formData.orderNumber = orderNumber;
-            orders.push(formData);
-            localStorage.setItem('fjl_orders', JSON.stringify(orders));
+            // Validate form data
+            if (!window.validateOrderData(formData, { items: cart.items })) {
+                if (notifications) {
+                    notifications.error('Please fill in all required fields');
+                }
+                return;
+            }
 
-            // Clear cart
-            cart.clear();
-            updateCartBadge();
+            try {
+                // Create order via API
+                const result = await window.createOrderWithAPI(formData, { items: cart.items });
 
-            // Show success message
-            document.getElementById('successMessage').classList.add('show');
+                if (result.success) {
+                    // Show success message
+                    document.getElementById('successMessage').classList.add('show');
 
-            // Reset form
-            this.reset();
+                    // Reset form
+                    this.reset();
 
-            // Redirect after 2 seconds
-            setTimeout(() => {
-                window.location.href = 'order-confirmation.html?order=' + orderNumber;
-            }, 2000);
+                    // Clear cart
+                    cart.clear();
+                    updateCartBadge();
+
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = `/order-confirmation.html?order=${result.orderNumber}`;
+                    }, 2000);
+                } else {
+                    if (notifications) {
+                        notifications.error('Failed to create order. Please try again.');
+                    }
+                }
+            } catch (error) {
+                console.error('Order creation error:', error);
+                if (notifications) {
+                    notifications.error('An error occurred while creating your order. Please try again.');
+                }
+            }
         });
 
         // Initialize
@@ -854,5 +869,8 @@
     </script>
     <script src="cart-manager.js"></script>
     <script src="cart-drawer.js"></script>
+    <!-- Backend API Integration Scripts -->
+    <script src="js/api-integration.js"></script>
+    <script src="js/checkout-integration.js"></script>
 </body>
 </html>

@@ -29,7 +29,20 @@
       "Bash(do echo \"=== $file ===\")",
       "Bash(done)",
       "Bash(for file in about.html cart.html checkout.html contact.html order-confirmation.html product.html shop.html)",
-      "Bash(do)"
+      "Bash(do)",
+      "Bash(tree:*)",
+      "Bash(nul)",
+      "Bash(dir:*)",
+      "mcp__playwright__browser_press_key",
+      "Bash(del \"C:\\Users\\rapha\\Desktop\\FJL\\cart-summary.html\")",
+      "Bash(git rm:*)",
+      "Bash(cat:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "mcp__firecrawl__firecrawl_map",
+      "mcp__firecrawl__firecrawl_crawl",
+      "mcp__firecrawl__firecrawl_search",
+      "mcp__firecrawl__firecrawl_scrape"
     ],
     "deny": [],
     "ask": []

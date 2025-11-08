@@ -511,9 +511,9 @@
             <button type="button" class="modal-close-btn" aria-label="Close modal">×</button>
             <h2 class="modal-title">Become a Member</h2>
             <p class="modal-text">Join the FJL family and get notified when new drops arrive.</p>
-            <form id="memberForm">
-                <input type="text" placeholder="Full name" class="modal-text-input" required aria-label="Full name">
-                <input type="email" placeholder="Email address" class="modal-email-input" required aria-label="Email address">
+            <form id="memberForm" data-newsletter-form data-newsletter-source="homepage_modal">
+                <input type="text" name="full_name" placeholder="Full name" class="modal-text-input" required aria-label="Full name">
+                <input type="email" name="email" placeholder="Email address" class="modal-email-input" required aria-label="Email address">
                 <button type="submit" class="modal-submit-btn">Join Now</button>
             </form>
             <div id="successMessage" style="display: none;" class="modal-success-message">Welcome to the Luxe Club.</div>
@@ -983,5 +983,8 @@
         }
     </script>
     <script src="cart-drawer.js"></script>
+    <!-- Backend API Integration Scripts -->
+    <script src="js/api-integration.js"></script>
+    <script src="js/newsletter-integration.js"></script>
 </body>
 </html>

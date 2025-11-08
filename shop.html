@@ -1242,6 +1242,24 @@
         // Initialize Lucide icons
         lucide.createIcons();
 
+        // ===== BACKEND API INTEGRATION =====
+        // Load products from API instead of localStorage
+        window.initializeShopProducts().then(loadedProducts => {
+            products = loadedProducts || [];
+            handleFilterChange();
+            applyFiltersAndSort();
+        }).catch(error => {
+            console.error('Failed to load products from API, using localStorage fallback:', error);
+            // Already have fallback logic in place
+            applyFiltersAndSort();
+        });
+
+        // Handle product refresh when coming back online
+        window.refreshShopProducts = function(newProducts) {
+            products = newProducts || [];
+            applyFiltersAndSort();
+        };
+
         // ===== PRODUCT MODAL FUNCTIONALITY =====
 
         // Create modal overlay and modal HTML if they don't exist
@@ -1465,5 +1483,9 @@
             }
         }
     </script>
+
+    <!-- Backend API Integration Scripts -->
+    <script src="js/api-integration.js"></script>
+    <script src="js/shop-integration.js"></script>
 </body>
 </html>
