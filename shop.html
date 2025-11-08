@@ -1251,6 +1251,12 @@
             if (typeof window.initializeShopProducts === 'function') {
                 window.initializeShopProducts().then(loadedProducts => {
                     products = loadedProducts || [];
+                    console.log('✅ Loaded', products.length, 'products from API');
+
+                    // Check if products have variant data
+                    const productsWithVariants = products.filter(p => p.variants && p.variants.length > 0);
+                    console.log(`📦 ${productsWithVariants.length} products have variant data`);
+
                     handleFilterChange();
                     applyFiltersAndSort();
                 }).catch(error => {
@@ -1261,6 +1267,22 @@
             } else {
                 // Fallback: use localStorage products
                 console.warn('initializeShopProducts not available yet, using localStorage');
+
+                // Check if localStorage has stale data (no variants)
+                const storedProducts = localStorage.getItem('fjl_products');
+                if (storedProducts) {
+                    try {
+                        const parsed = JSON.parse(storedProducts);
+                        const hasVariants = parsed.some(p => p.variants && p.variants.length > 0);
+                        if (!hasVariants) {
+                            console.warn('⚠️  Stored products don\'t have variant data - clearing cache to force refresh');
+                            localStorage.removeItem('fjl_products');
+                        }
+                    } catch (e) {
+                        console.error('Error checking stored products:', e);
+                    }
+                }
+
                 applyFiltersAndSort();
             }
         }
@@ -1292,6 +1314,12 @@
                         <div>
                             <label class="modal-size-label">Size</label>
                             <div id="modalSizeButtons" class="modal-size-buttons"></div>
+                            <p id="modalSizeError" style="color: #e74c3c; font-size: 12px; margin-top: 8px; display: none;">Sizes not available for this product</p>
+                        </div>
+
+                        <div id="modalColorSection" style="display: none;">
+                            <label class="modal-size-label">Color</label>
+                            <div id="modalColorButtons" class="modal-size-buttons"></div>
                         </div>
 
                         <div>
@@ -1342,17 +1370,56 @@
 
             // Find the product to get sizes
             const product = products.find(p => p.id === productId);
-            if (!product) return;
+            if (!product) {
+                console.error('Product not found:', productId);
+                return;
+            }
+
+            console.log('📦 Opening modal for product:', productId);
+            console.log('Product data:', product);
 
             // Update modal state
             modalState.productId = productId;
             modalState.productName = productName;
             modalState.productPrice = productPrice;
             modalState.imageUrl = imageUrl;
-            modalState.sizes = product.sizes || [];
+            modalState.variants = product.variants || [];
+
+            // If sizes not available but variants exist, extract them
+            let sizes = product.sizes || [];
+            if (sizes.length === 0 && modalState.variants.length > 0) {
+                console.log('⚠️  Sizes not in product data, extracting from variants...');
+                const sizesSet = new Set();
+                modalState.variants.forEach(variant => {
+                    if (variant.size) {
+                        sizesSet.add(variant.size);
+                    }
+                });
+                sizes = Array.from(sizesSet);
+                console.log('✅ Extracted sizes from variants:', sizes);
+            }
+
+            modalState.sizes = sizes;
             modalState.selectedSize = null;
             modalState.quantity = 1;
-            modalState.sizeInventory = product.sizeInventory || {};
+
+            // If sizeInventory not available, build it from variants
+            let sizeInventory = product.sizeInventory || {};
+            if (Object.keys(sizeInventory).length === 0 && modalState.variants.length > 0) {
+                console.log('⚠️  Size inventory not in product data, building from variants...');
+                sizeInventory = {};
+                modalState.variants.forEach(variant => {
+                    if (variant.size) {
+                        if (!sizeInventory[variant.size]) {
+                            sizeInventory[variant.size] = 0;
+                        }
+                        sizeInventory[variant.size] += (variant.stock_quantity || 0);
+                    }
+                });
+                console.log('✅ Built size inventory from variants:', sizeInventory);
+            }
+            modalState.sizeInventory = sizeInventory;
+            modalState.selectedColor = null;
 
             // Populate modal
             document.getElementById('modalProductName').textContent = productName;
@@ -1362,24 +1429,71 @@
 
             // Create size buttons with inventory status
             const sizeButtonsContainer = document.getElementById('modalSizeButtons');
+            const sizeErrorMessage = document.getElementById('modalSizeError');
             sizeButtonsContainer.innerHTML = '';
-            modalState.sizes.forEach(size => {
-                const stockCount = modalState.sizeInventory[size] || 0;
-                const isOutOfStock = stockCount <= 0;
 
-                const btn = document.createElement('button');
-                btn.className = `size-btn ${isOutOfStock ? 'out-of-stock' : ''}`;
-                btn.textContent = size;
-                btn.disabled = isOutOfStock;
+            if (modalState.sizes.length === 0) {
+                // Show error message if no sizes available
+                sizeErrorMessage.style.display = 'block';
+                console.warn('No sizes found for product:', productId, 'Product data:', product);
+            } else {
+                sizeErrorMessage.style.display = 'none';
 
-                if (!isOutOfStock) {
-                    btn.onclick = () => selectSize(size);
-                } else {
-                    btn.title = 'Out of stock';
+                modalState.sizes.forEach(size => {
+                    const stockCount = modalState.sizeInventory[size] || 0;
+                    const isOutOfStock = stockCount <= 0;
+
+                    const btn = document.createElement('button');
+                    btn.className = `size-btn ${isOutOfStock ? 'out-of-stock' : ''}`;
+                    btn.textContent = size;
+                    btn.disabled = isOutOfStock;
+
+                    if (!isOutOfStock) {
+                        btn.onclick = () => selectSize(size);
+                    } else {
+                        btn.title = 'Out of stock';
+                    }
+
+                    sizeButtonsContainer.appendChild(btn);
+                });
+            }
+
+            // Render color buttons if colors available
+            const colorsSet = new Set();
+            if (modalState.variants && Array.isArray(modalState.variants)) {
+                modalState.variants.forEach(variant => {
+                    if (variant.color) {
+                        colorsSet.add(variant.color);
+                    }
+                });
+            }
+
+            const colors = Array.from(colorsSet);
+            const colorSection = document.getElementById('modalColorSection');
+            const colorButtonsContainer = document.getElementById('modalColorButtons');
+
+            if (colors.length > 0) {
+                colorSection.style.display = 'block';
+                colorButtonsContainer.innerHTML = '';
+
+                colors.forEach(color => {
+                    const btn = document.createElement('button');
+                    btn.className = 'size-btn';
+                    btn.textContent = color;
+                    btn.type = 'button';
+                    btn.onclick = () => selectModalColor(color);
+                    colorButtonsContainer.appendChild(btn);
+                });
+
+                // Set first color as active
+                const firstColorBtn = colorButtonsContainer.querySelector('.size-btn');
+                if (firstColorBtn) {
+                    firstColorBtn.classList.add('active');
+                    modalState.selectedColor = firstColorBtn.textContent;
                 }
-
-                sizeButtonsContainer.appendChild(btn);
-            });
+            } else {
+                colorSection.style.display = 'none';
+            }
 
             // Show modal
             document.getElementById('productModalOverlay').classList.add('active');
@@ -1406,6 +1520,22 @@
             });
         }
 
+        // Select color in modal
+        function selectModalColor(color) {
+            modalState.selectedColor = color;
+
+            // Update button states - only for color buttons
+            const colorButtonsContainer = document.getElementById('modalColorButtons');
+            if (colorButtonsContainer) {
+                colorButtonsContainer.querySelectorAll('.size-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.textContent === color) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
         // Decrease quantity
         function decreaseQuantity() {
             if (modalState.quantity > 1) {
@@ -1429,13 +1559,25 @@
                 return;
             }
 
+            // Check if color is required
+            const colorSection = document.getElementById('modalColorSection');
+            if (colorSection && colorSection.style.display !== 'none') {
+                if (!modalState.selectedColor) {
+                    if (notifications) {
+                        notifications.warning('Please select a color');
+                    }
+                    return;
+                }
+            }
+
             // CRITICAL: Validate against live backend inventory data using adminDataService
             // This ensures consistency across shop.html and product.html pages
             if (typeof adminDataService !== 'undefined') {
                 const inventoryCheck = adminDataService.checkInventory(
                     modalState.productId,
                     modalState.selectedSize,
-                    modalState.quantity
+                    modalState.quantity,
+                    modalState.selectedColor
                 );
                 if (!inventoryCheck.available) {
                     if (notifications) {
@@ -1467,6 +1609,7 @@
                 name: modalState.productName,
                 price: modalState.productPrice,
                 size: modalState.selectedSize,
+                color: modalState.selectedColor, // Include color if available
                 quantity: modalState.quantity,
                 image: modalState.imageUrl
             };
@@ -1481,15 +1624,16 @@
                         addedCount++;
                         // Deduct inventory when item is successfully added
                         if (typeof adminDataService !== 'undefined') {
-                            adminDataService.deductInventory(modalState.productId, modalState.selectedSize, 1);
+                            adminDataService.deductInventory(modalState.productId, modalState.selectedSize, 1, modalState.selectedColor);
                         }
                     }
                 }
                 updateCartBadge();
 
                 // Show success notification
+                const colorText = modalState.selectedColor ? ` (${modalState.selectedColor})` : '';
                 if (addedCount > 0 && notifications) {
-                    notifications.success(`${modalState.productName} (Size: ${modalState.selectedSize}) x${addedCount} added to cart!`);
+                    notifications.success(`${modalState.productName} (Size: ${modalState.selectedSize}${colorText}) x${addedCount} added to cart!`);
                 }
 
                 // Close modal
