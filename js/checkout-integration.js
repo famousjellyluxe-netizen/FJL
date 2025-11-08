@@ -134,8 +134,15 @@
       }, false);
 
       if (result.success && result.data) {
-        const order = result.data;
+        // Handle both direct order object and wrapped API response
+        let order = result.data;
+        if (order.data && order.data.order_number) {
+          // Response is wrapped: { success: true, message: "...", data: order }
+          order = order.data;
+        }
+
         console.log(`✅ Order created: ${order.order_number}`);
+        console.log('Order details:', order);
 
         // Store order in localStorage for offline access
         const orders = JSON.parse(localStorage.getItem('fjl_orders') || '[]');
