@@ -1,0 +1,48 @@
+FJL BACKEND STRUCTURE - COMPREHENSIVE SUMMARY
+==============================================
+
+1. API ENDPOINTS (in /src/routes/)
+==================================
+
+AUTH ROUTES (/api/auth):
+- POST /api/auth/login - Admin login with JWT
+- GET /api/auth/verify - Verify token validity
+- POST /api/auth/logout - Logout confirmation
+- POST /api/auth/change-password - Change password
+
+PRODUCTS ROUTES (/api/products):
+- GET /api/products - List products (public, with pagination/filtering)
+- GET /api/products/featured - Get featured products
+- GET /api/products/:id - Get single product
+- POST /api/products - Create product (admin only)
+- PUT /api/products/:id - Update product (admin only)
+- DELETE /api/products/:id - Soft delete product (admin only)
+- GET /api/products/:id/variants - Get product variants
+- POST /api/products/:id/variants - Create variant (admin only)
+- PUT /api/products/:id/variants/:variantId - Update variant stock (admin)
+- GET /api/products/admin/low-stock - Low stock products (admin only)
+
+ORDERS ROUTES (/api/orders):
+- POST /api/orders - Create order (public)
+- GET /api/orders/:id - Get order by ID (public)
+- GET /api/orders/number/:orderNumber - Get by order number
+- GET /api/orders - List orders (admin, with filtering)
+- PUT /api/orders/:id/status - Update status (admin)
+- PUT /api/orders/:id/payment-status - Update payment (admin)
+- DELETE /api/orders/:id - Cancel order (admin)
+- GET /api/orders/customer/:userId - Customer order history (admin)
+
+CUSTOMERS ROUTES (/api/customers):
+- POST /api/customers - Register customer (public)
+- GET /api/customers/:id - Get customer (admin)
+- GET /api/customers - List customers (admin, with pagination)
+- PUT /api/customers/:id - Update customer (admin)
+- GET /api/customers/:userId/orders - Customer order history
+- POST /api/customers/members/subscribe - Newsletter signup (public)
+- GET /api/customers/members/list - List members (admin)
+- PUT /api/customers/members/:id/unsubscribe - Unsubscribe member (admin)
+- DELETE /api/customers/:id - Delete customer (admin)
+
+HEALTH CHECK:
+- GET /health - Server health status
+

@@ -1,0 +1,234 @@
+================================================================================
+KEY CODE SNIPPETS: Featured Products vs Shop Page
+================================================================================
+
+================================================================================
+THE CRITICAL DIFFERENCE - pointer-events: auto
+================================================================================
+
+SHOP PAGE (shop.html, lines 272-275) - HAS THIS:
+---
+        .product-info-header button,
+        .product-info-header .add-to-cart-success {
+            pointer-events: auto;
+        }
+
+FEATURED PRODUCTS (index.html) - MISSING THIS RULE ENTIRELY
+
+IMPACT: 
+Without this rule, if any parent has pointer-events: none, the button
+can't be clicked. The shop page explicitly forces pointer-events: auto
+to override any parent restrictions.
+
+================================================================================
+SCRIPT LOADING - THE TIMING ISSUE
+================================================================================
+
+FEATURED PRODUCTS (index.html):
+---
+Line 499:  <script src="notifications.js"></script>
+Line 500:  <script src="cart-manager.js"></script>
+...
+Line 1104: <script src="cart-drawer.js"></script>
+
+Problem: cart-drawer.js loads AFTER the inline featured products script
+         that attaches event listeners.
+
+SHOP PAGE (shop.html):
+---
+Line 862: <script src="cart-manager.js"></script>
+Line 863: <script src="cart-drawer.js"></script>
+Line 864: <script src="notifications.js"></script>
+...
+[inline script runs - all dependencies loaded]
+
+Advantage: All external scripts load BEFORE the inline script that
+          attaches event listeners.
+
+================================================================================
+LINK CLICK PREVENTION
+================================================================================
+
+FEATURED PRODUCTS (index.html) - Only has stopPropagation():
+---
+grid.querySelectorAll('.cart-icon-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();  // <-- Only this
+        // ... rest of handler
+    });
+});
+
+SHOP PAGE (shop.html) - Has stopPropagation() PLUS preventDefault():
+---
+// Prevent link navigation when clicking on add button
+grid.querySelectorAll('a').forEach(link => {
+    const button = link.querySelector('button.cart-icon-btn');
+    if (button) {
+        link.addEventListener('click', (e) => {
+            if (e.target.closest('button.cart-icon-btn') || 
+                e.target.closest('[data-lucide]')) {
+                e.preventDefault();  // <-- Additional protection
+            }
+        });
+    }
+});
+
+grid.querySelectorAll('.cart-icon-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // ... rest of handler
+    });
+});
+
+Impact: Shop page has explicit parent-level prevention in addition
+        to button-level stopPropagation().
+
+================================================================================
+SUCCESS MESSAGE STYLING
+================================================================================
+
+FEATURED PRODUCTS (index.html, lines 292-294):
+---
+        .add-to-cart-success {
+            display: none;
+        }
+
+Result: Success message is completely hidden and removed from DOM flow.
+
+SHOP PAGE (shop.html, lines 361-379):
+---
+        .add-to-cart-success {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .add-to-cart-success.show {
+            opacity: 1;
+        }
+
+Result: Success message is positioned and animated, shown on success.
+
+Impact: Featured products provides no visual feedback to users.
+
+================================================================================
+CSS WRAPPER STYLES - IDENTICAL
+================================================================================
+
+Both files use identical .product-info-header styles:
+---
+        .product-info-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px 0 12px;
+            min-height: 32px;
+        }
+
+No issues here.
+
+================================================================================
+BUTTON BASE STYLES - MOSTLY IDENTICAL
+================================================================================
+
+Identical in both (lines 258-277 featured, 277-301 shop):
+---
+        .cart-icon-btn {
+            background: #E09F3E;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: white;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .product-card:hover .cart-icon-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cart-icon-btn.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 1 !important;
+            box-shadow: none;
+            color: #666;
+        }
+
+Shop page adds additional hover effect:
+        .cart-icon-btn:hover {
+            background: #d08a2f;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .cart-icon-btn.disabled:hover {
+            background: #ccc;
+            box-shadow: none;
+            transform: none;
+        }
+
+================================================================================
+EVENT LISTENER - IDENTICAL
+================================================================================
+
+Both use identical code (featured lines 858-875, shop lines 1075-1095):
+---
+grid.querySelectorAll('.cart-icon-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOutOfStock = btn.getAttribute('data-out-of-stock') === 'true';
+        if (isOutOfStock || btn.disabled) {
+            if (notifications) {
+                notifications.error('This product is out of stock');
+            }
+            return false;
+        }
+        const productId = btn.getAttribute('data-product-id');
+        const productName = btn.getAttribute('data-product-name');
+        const productPrice = parseInt(btn.getAttribute('data-product-price'));
+        const imageUrl = btn.getAttribute('data-image-url');
+        openProductModal(productId, productName, productPrice, imageUrl);
+        return false;
+    });
+});
+
+No issues here - the click handlers are identical.
+
+================================================================================
+SUMMARY
+================================================================================
+
+Three main differences found:
+
+1. CRITICAL: Missing pointer-events: auto rule in featured products
+   Location: Need to add to style section in index.html
+
+2. HIGH: Script loading order - cart-drawer loads after inline script
+   Location: Script tag on line 1104 should move to before featured script
+
+3. MEDIUM: No explicit link click prevention in featured products
+   Location: Missing code block that shop.html has at lines 1063-1072
+
+================================================================================

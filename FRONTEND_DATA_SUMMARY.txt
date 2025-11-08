@@ -1,0 +1,106 @@
+FRONTEND DATA ENTITIES AND STRUCTURES - COMPLETE ANALYSIS
+
+=== API ENDPOINTS (30 total) ===
+
+PRODUCTS: GET /products, /products/featured, /products/:id, /products/:id/variants, POST /products, PUT /products/:id, DELETE /products/:id, POST /products/:id/variants, PUT /products/:id/variants/:variantId
+
+ORDERS: POST /orders, GET /orders/:id, GET /orders/number/:orderNumber, GET /orders?filters, PUT /orders/:id/status, PUT /orders/:id/payment-status, DELETE /orders/:id, GET /orders/customer/:userId
+
+CUSTOMERS: POST /customers, GET /customers/:id, GET /customers?filters, PUT /customers/:id, DELETE /customers/:id, GET /customers/:id/orders, POST /customers/members/subscribe, GET /customers/members/list, PUT /customers/members/:id/unsubscribe
+
+AUTH: POST /auth/login, GET /auth/verify, POST /auth/logout, POST /auth/change-password
+
+=== GLOBAL STATE OBJECTS ===
+
+window.cart: Cart instance with items, addItem, removeItem, updateQuantity, getTotal, getItemCount, clear, save
+window.cartDrawerInstance: CartDrawer with open, close, toggle, render
+window.notifications: NotificationManager with success, error, warning, info, confirm
+window.apiManager: APIIntegrationManager with cache, retry, offline queueing
+window.productsFromAPI: Product array
+window.orderData: Current order object
+
+=== LOCAL STORAGE KEYS (7 total) ===
+
+fjl_cart: Cart items array
+fjl_products: Transformed products array
+fjl_orders: Orders with offline flag
+fjl_subscriptions: Newsletter subscriptions
+fjl_admin: Admin config and credentials
+fjl_customers: Customer directory
+adminToken: JWT auth token
+
+=== CORE DATA STRUCTURES ===
+
+PRODUCT:
+  - API: id, name, price, sku, description, image_url, images, sleeve_type, total_stock, categories, variants, timestamps
+  - Frontend: id, name, price, image, images, sleeve, inStock, stock, sizeInventory, sku, description, category, variants
+
+CART ITEM: id, name, price, quantity, size, color, image, sku, variant_id, total_price
+
+ORDER REQUEST: items array, shipping fields (email, first_name, last_name, phone, address, city, state, postal_code, country), buyer_name, subtotal, tax, shipping_cost, total_amount, payment_method
+
+ORDER RESPONSE: id, order_number, order_status, payment_status, order_items, created_at, paid_at, shipped_at, offline flag
+
+CUSTOMER: id, email, first_name, last_name, phone, address, city, state, postal_code, country, timestamps
+
+VARIANT: id, product_id, size, color, stock_quantity, timestamps
+
+=== CUSTOM EVENTS ===
+
+cartUpdated: Detail {items, count} - on cart changes
+inventoryError: Detail {message, productId, size} - on inventory fail
+storage: Cross-tab localStorage changes
+BroadcastChannel fjl_products: Sync across tabs
+
+=== FORMS & VALIDATION ===
+
+CHECKOUT: 9 required fields (first_name, last_name, email, phone, address, city, state, postal_code, country)
+NEWSLETTER: email (required), name (optional)
+PRODUCT ADD: size (required), quantity (required, >=1), color (optional)
+
+Email validation: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+=== OFFLINE SUPPORT ===
+
+- Request queueing for POST/PUT/DELETE
+- Offline orders marked with offline flag, ID format 'local-{timestamp}'
+- Offline subscriptions with pending status
+- Product cache for 5 minutes
+- Sync on 'online' event
+
+=== KEY FEATURES ===
+
+- API Response Caching: 5 minutes for GET requests
+- Retry Logic: 3 attempts with exponential backoff
+- Request Deduplication: Same promise for identical requests
+- Currency: Nigerian Naira (₦) format en-NG
+- Tax: 7.5%, Shipping: Free
+- Sizes: XS, S, M, L, XL, XXL with color variants
+- Status values: pending, processing, shipped, delivered, cancelled (orders), pending/verified/failed (payments)
+
+=== INITIALIZATION SEQUENCE ===
+
+Scripts: notifications.js -> cart-manager.js -> cart-drawer.js -> api-integration.js -> api-client.js -> page-specific
+
+DOMContentLoaded: Init NotificationManager -> CartDrawer -> Page-specific init -> Event listeners
+
+Global functions: 
+  window.initializeShopProducts()
+  window.initializeCheckoutIntegration()
+  window.initializeOrderConfirmation()
+  window.initializeNewsletterIntegration()
+  window.createOrderWithAPI(formData, cart)
+  window.validateOrderData(formData, cart)
+  window.handleNewsletterSubmit(email, name, source)
+
+=== CODE STATISTICS ===
+
+Total frontend JS: ~2,700 lines
+Files analyzed: 9 integration files
+Total endpoints: 30
+Total entities: 7 major
+Total storage keys: 7
+Total global objects: 6
+Total custom events: 4
+
+READY FOR DOCUMENTATION AND BACKEND INTEGRATION

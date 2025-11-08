@@ -1,0 +1,1124 @@
+/**
+ * FJL (Famous Jelly Luxe) - Responsive Framework
+ * Comprehensive mobile-first responsive design system
+ * Breakpoints: 320px (mobile) → 768px (tablet) → 1024px (desktop) → 1920px (4K)
+ */
+
+/* ============================================================================
+   ROOT VARIABLES - Color Palette, Spacing, Typography, Shadows, Transitions
+   ============================================================================ */
+
+:root {
+    /* Colors */
+    --color-primary: #000;
+    --color-secondary: #fff;
+    --color-accent: #E09F3E;
+    --color-gray-light: #f5f5f5;
+    --color-gray-medium: #8b8b8b;
+    --color-gray-dark: #333;
+    --color-border: #e5e5e5;
+    --color-success: #2ECC40;
+    --color-warning: #FF851B;
+    --color-danger: #FF4136;
+    --color-info: #0074D9;
+    --color-bg: #fafafa;
+
+    /* Responsive Spacing Scale */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 48px;
+    --spacing-4xl: 64px;
+
+    /* Typography - Fluid sizes using clamp() */
+    /* Mobile base: 14px → Desktop max: 16px */
+    --font-size-body: clamp(14px, 2vw, 16px);
+
+    /* Mobile: 16px → Desktop: 18px */
+    --font-size-sm: clamp(16px, 2.2vw, 18px);
+
+    /* Mobile: 18px → Desktop: 22px */
+    --font-size-base: clamp(18px, 2.5vw, 22px);
+
+    /* Mobile: 20px → Desktop: 24px */
+    --font-size-md: clamp(20px, 3vw, 24px);
+
+    /* Mobile: 24px → Desktop: 32px */
+    --font-size-lg: clamp(24px, 4vw, 32px);
+
+    /* Mobile: 28px → Desktop: 40px */
+    --font-size-xl: clamp(28px, 5vw, 40px);
+
+    /* Mobile: 32px → Desktop: 48px */
+    --font-size-2xl: clamp(32px, 6vw, 48px);
+
+    /* Mobile: 36px → Desktop: 56px */
+    --font-size-3xl: clamp(36px, 7vw, 56px);
+
+    /* Line Height */
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    /* Shadow System */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-2xl: 16px;
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* ============================================================================
+   BASE STYLES - Reset and Global Defaults
+   ============================================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    background: var(--color-secondary);
+    color: var(--color-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure viewport meta tag is set on all pages */
+/* This CSS cannot enforce meta viewport, but it assumes it's in HTML */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    line-height: var(--line-height-tight);
+    margin: 0;
+}
+
+h1 {
+    font-size: var(--font-size-3xl);
+}
+
+h2 {
+    font-size: var(--font-size-2xl);
+}
+
+h3 {
+    font-size: var(--font-size-xl);
+}
+
+h4 {
+    font-size: var(--font-size-lg);
+}
+
+h5 {
+    font-size: var(--font-size-md);
+}
+
+h6 {
+    font-size: var(--font-size-base);
+}
+
+p {
+    margin: 0;
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-relaxed);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+a:hover {
+    color: var(--color-accent);
+}
+
+button, input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ============================================================================
+   CONTAINER & LAYOUT - Responsive Container Sizes
+   ============================================================================ */
+
+/* Max-width containers with padding */
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 var(--spacing-lg);
+    margin: 0 auto;
+}
+
+/* Responsive container sizes */
+.container-sm {
+    width: 100%;
+    max-width: 640px;
+    padding: 0 var(--spacing-lg);
+    margin: 0 auto;
+}
+
+.container-md {
+    width: 100%;
+    max-width: 768px;
+    padding: 0 var(--spacing-lg);
+    margin: 0 auto;
+}
+
+.container-lg {
+    width: 100%;
+    max-width: 1024px;
+    padding: 0 var(--spacing-lg);
+    margin: 0 auto;
+}
+
+.container-xl {
+    width: 100%;
+    max-width: 1280px;
+    padding: 0 var(--spacing-lg);
+    margin: 0 auto;
+}
+
+.container-2xl {
+    width: 100%;
+    max-width: 1536px;
+    padding: 0 var(--spacing-lg);
+    margin: 0 auto;
+}
+
+/* Tablet and up: increase padding */
+@media (min-width: 768px) {
+    .container,
+    .container-sm,
+    .container-md,
+    .container-lg,
+    .container-xl,
+    .container-2xl {
+        padding: 0 var(--spacing-xl);
+    }
+}
+
+/* Desktop and up: even more padding */
+@media (min-width: 1024px) {
+    .container,
+    .container-sm,
+    .container-md,
+    .container-lg,
+    .container-xl,
+    .container-2xl {
+        padding: 0 var(--spacing-2xl);
+    }
+}
+
+/* ============================================================================
+   FLEXBOX & GRID - Responsive Flex and Grid Utilities
+   ============================================================================ */
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-start {
+    display: flex;
+    align-items: flex-start;
+}
+
+.flex-end {
+    display: flex;
+    align-items: flex-end;
+}
+
+/* Grid utilities */
+.grid {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+}
+
+/* Auto-responsive grid (1 column mobile, 2+ columns on larger screens) */
+.grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 768px) {
+    .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Desktop: 3+ columns */
+@media (min-width: 1024px) {
+    .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ============================================================================
+   SPACING UTILITIES - Responsive Margins and Padding
+   ============================================================================ */
+
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+.p-2xl { padding: var(--spacing-2xl); }
+
+.px-sm { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+.px-md { padding-left: var(--spacing-md); padding-right: var(--spacing-md); }
+.px-lg { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
+.px-xl { padding-left: var(--spacing-xl); padding-right: var(--spacing-xl); }
+.px-2xl { padding-left: var(--spacing-2xl); padding-right: var(--spacing-2xl); }
+
+.py-sm { padding-top: var(--spacing-sm); padding-bottom: var(--spacing-sm); }
+.py-md { padding-top: var(--spacing-md); padding-bottom: var(--spacing-md); }
+.py-lg { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+.py-xl { padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl); }
+.py-2xl { padding-top: var(--spacing-2xl); padding-bottom: var(--spacing-2xl); }
+.py-3xl { padding-top: var(--spacing-3xl); padding-bottom: var(--spacing-3xl); }
+.py-4xl { padding-top: var(--spacing-4xl); padding-bottom: var(--spacing-4xl); }
+
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+.m-2xl { margin: var(--spacing-2xl); }
+
+.mx-auto { margin-left: auto; margin-right: auto; }
+.my-auto { margin-top: auto; margin-bottom: auto; }
+
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+.mt-2xl { margin-top: var(--spacing-2xl); }
+
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+.mb-2xl { margin-bottom: var(--spacing-2xl); }
+
+/* ============================================================================
+   RESPONSIVE TEXT & DISPLAY UTILITIES
+   ============================================================================ */
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-uppercase { text-transform: uppercase; }
+.text-lowercase { text-transform: lowercase; }
+.text-capitalize { text-transform: capitalize; }
+
+.text-accent { color: var(--color-accent); }
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-gray { color: var(--color-gray-medium); }
+
+.font-light { font-weight: 300; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+.hidden { display: none !important; }
+.visible { display: block !important; }
+
+/* Hide on mobile, show on tablet+ */
+.hidden-mobile {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .hidden-mobile {
+        display: block;
+    }
+}
+
+/* Show on mobile, hide on tablet+ */
+.hidden-desktop {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .hidden-desktop {
+        display: none;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE NAVIGATION/HEADER
+   ============================================================================ */
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--color-secondary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.top-banner {
+    background: var(--color-primary);
+    color: var(--color-secondary);
+    padding: var(--spacing-sm);
+    text-align: center;
+    font-size: clamp(11px, 1.5vw, 13px);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    transition: transform var(--transition-base);
+}
+
+.mobile-menu-btn span {
+    width: 24px;
+    height: 3px;
+    background: var(--color-primary);
+    transition: all var(--transition-base);
+    display: block;
+}
+
+.mobile-menu-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Show hamburger on mobile, hide on tablet+ */
+@media (max-width: 767px) {
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .nav-desktop {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-btn {
+        display: none;
+    }
+
+    .nav-desktop {
+        display: flex;
+    }
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-secondary);
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-menu.active {
+    transform: translateX(0);
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    background: var(--color-secondary);
+    z-index: 41;
+}
+
+.mobile-menu-close {
+    font-size: 28px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    padding: 0;
+    transition: transform var(--transition-base);
+}
+
+.mobile-menu-close:active {
+    transform: scale(0.9);
+}
+
+.mobile-menu-content {
+    flex: 1;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mobile-menu-links li {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-menu-links a {
+    display: block;
+    padding: var(--spacing-lg) 0;
+    text-decoration: none;
+    color: var(--color-gray-dark);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    text-transform: uppercase;
+    transition: color var(--transition-base);
+}
+
+.mobile-menu-links a:active {
+    color: var(--color-accent);
+}
+
+@media (hover: hover) {
+    .mobile-menu-links a:hover {
+        color: var(--color-accent);
+    }
+}
+
+.mobile-menu-image {
+    margin-top: auto;
+    padding: var(--spacing-lg) 0 0 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.mobile-menu-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ============================================================================
+   RESPONSIVE HERO SECTIONS
+   ============================================================================ */
+
+.hero {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-gray-light);
+    overflow: hidden;
+}
+
+.hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: var(--color-secondary);
+    padding: var(--spacing-2xl);
+    max-width: 100%;
+}
+
+@media (min-width: 768px) {
+    .hero-content {
+        padding: var(--spacing-3xl);
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero-content {
+        padding: var(--spacing-4xl);
+    }
+}
+
+.hero-content h1 {
+    margin-bottom: var(--spacing-lg);
+}
+
+.hero-content p {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-xl);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============================================================================
+   RESPONSIVE PRODUCT CARDS & GRIDS
+   ============================================================================ */
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    width: 100%;
+}
+
+/* Mobile: 2 columns */
+@media (min-width: 320px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-lg);
+    }
+}
+
+/* Desktop: 3 columns */
+@media (min-width: 1024px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-lg);
+    }
+}
+
+/* 4K+: 4 columns */
+@media (min-width: 1920px) {
+    .product-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.product-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-secondary);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+@media (hover: hover) {
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+.product-image {
+    position: relative;
+    background: var(--color-gray-light);
+    aspect-ratio: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-medium);
+    font-size: var(--font-size-sm);
+    overflow: hidden;
+    width: 100%;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.product-info {
+    padding: var(--spacing-lg);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: clamp(12px, 2vw, 14px);
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-gray-dark);
+    margin-bottom: var(--spacing-sm);
+    line-height: var(--line-height-tight);
+}
+
+.product-price {
+    font-size: clamp(14px, 2.2vw, 16px);
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+/* ============================================================================
+   RESPONSIVE MODALS & POPUPS
+   ============================================================================ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: var(--spacing-lg);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: var(--color-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    animation: slideUp var(--transition-base) ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile: Full width with rounded corners */
+@media (max-width: 640px) {
+    .modal {
+        width: 100%;
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        margin-top: auto;
+    }
+}
+
+/* Tablet and up: Centered with max width */
+@media (min-width: 641px) {
+    .modal {
+        max-width: 600px;
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-gray-medium);
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+@media (hover: hover) {
+    .modal-close:hover {
+        background-color: var(--color-gray-light);
+        color: var(--color-primary);
+    }
+}
+
+.modal-close:active {
+    background-color: var(--color-gray-light);
+    color: var(--color-primary);
+}
+
+/* ============================================================================
+   RESPONSIVE FORMS
+   ============================================================================ */
+
+.form-group {
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-label {
+    display: block;
+    font-size: var(--font-size-body);
+    font-weight: 500;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-gray-dark);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-body);
+    background-color: var(--color-secondary);
+    color: var(--color-primary);
+    transition: border-color var(--transition-base);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(224, 159, 62, 0.1);
+}
+
+.form-input::placeholder {
+    color: var(--color-gray-medium);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Form grid: 2 columns on desktop, 1 on mobile */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE BUTTONS
+   ============================================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-decoration: none;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    min-height: 44px;
+}
+
+/* Full width on mobile */
+@media (max-width: 767px) {
+    .btn-block {
+        width: 100%;
+    }
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
+}
+
+@media (hover: hover) {
+    .btn-primary:hover {
+        background-color: var(--color-gray-dark);
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+.btn-primary:active {
+    background-color: var(--color-gray-dark);
+    transform: scale(0.98);
+}
+
+.btn-accent {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+@media (hover: hover) {
+    .btn-accent:hover {
+        background-color: #d88a2b;
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+.btn-accent:active {
+    background-color: #d88a2b;
+    transform: scale(0.98);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+@media (hover: hover) {
+    .btn-outline:hover {
+        background-color: var(--color-primary);
+        color: var(--color-secondary);
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE IMAGES & MEDIA
+   ============================================================================ */
+
+.image-responsive {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.aspect-square {
+    aspect-ratio: 1 / 1;
+}
+
+.aspect-video {
+    aspect-ratio: 16 / 9;
+}
+
+.aspect-product {
+    aspect-ratio: 0.8 / 1;
+}
+
+/* ============================================================================
+   RESPONSIVE UTILITIES - Width, Height, Display
+   ============================================================================ */
+
+.w-full { width: 100%; }
+.w-auto { width: auto; }
+.h-full { height: 100%; }
+.h-auto { height: auto; }
+
+.max-w-full { max-width: 100%; }
+
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-x-auto { overflow-x: auto; }
+.overflow-y-auto { overflow-y: auto; }
+
+.pointer-events-none { pointer-events: none; }
+.pointer-events-auto { pointer-events: auto; }
+
+/* ============================================================================
+   ACCESSIBILITY & TOUCH INTERACTIONS
+   ============================================================================ */
+
+/* Reduce motion for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Touch-friendly target sizes (minimum 44x44px) */
+button,
+a,
+input[type="checkbox"],
+input[type="radio"],
+.clickable {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* Distinguish touch from hover */
+@media (hover: none) and (pointer: coarse) {
+    /* Touch device: no hover effects, use active/focus */
+    a:hover,
+    button:hover,
+    .product-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        font-size: 12pt;
+    }
+
+    a {
+        text-decoration: underline;
+    }
+}
+
+/* ============================================================================
+   BREAKPOINT REFERENCE
+   ============================================================================ */
+
+/*
+ * Mobile First Approach:
+ *
+ * 320px - Extra small phones (iPhone SE, iPhone X)
+ * 375px - Small phones (iPhone 6/7/8)
+ * 480px - Large phones
+ * 640px - Small tablets (landscape phones)
+ * 768px - Tablets (iPad, Galaxy Tab)
+ * 1024px - Large tablets, laptops, desktops
+ * 1440px - Large desktops
+ * 1920px - 4K displays
+ * 2560px - Large 4K displays
+ *
+ * Recommended Media Query Usage:
+ * - Mobile default (320px - 767px): No media query
+ * - Tablet (768px - 1023px): @media (min-width: 768px)
+ * - Desktop (1024px - 1919px): @media (min-width: 1024px)
+ * - 4K (1920px+): @media (min-width: 1920px)
+ */
