@@ -27,25 +27,37 @@ export async function createOrder(orderData) {
 
       customer = existingUser;
     } else {
-      // Create new customer
-      const { data: newUser, error: userError } = await supabase
+      // Check if user with this email already exists
+      const { data: existingUserByEmail } = await supabase
         .from('users')
-        .insert([{
-          email: orderData.shipping_email,
-          first_name: orderData.shipping_first_name,
-          last_name: orderData.shipping_last_name,
-          phone: orderData.shipping_phone,
-          address: orderData.shipping_address,
-          city: orderData.shipping_city,
-          state: orderData.shipping_state,
-          postal_code: orderData.shipping_postal_code,
-          country: orderData.shipping_country
-        }])
-        .select()
+        .select('*')
+        .eq('email', orderData.shipping_email)
         .single();
 
-      if (userError) throw userError;
-      customer = newUser;
+      if (existingUserByEmail) {
+        // User exists, use existing user
+        customer = existingUserByEmail;
+      } else {
+        // Create new customer only if email doesn't exist
+        const { data: newUser, error: userError } = await supabase
+          .from('users')
+          .insert([{
+            email: orderData.shipping_email,
+            first_name: orderData.shipping_first_name,
+            last_name: orderData.shipping_last_name,
+            phone: orderData.shipping_phone,
+            address: orderData.shipping_address,
+            city: orderData.shipping_city,
+            state: orderData.shipping_state,
+            postal_code: orderData.shipping_postal_code,
+            country: orderData.shipping_country
+          }])
+          .select()
+          .single();
+
+        if (userError) throw userError;
+        customer = newUser;
+      }
     }
 
     // Create order

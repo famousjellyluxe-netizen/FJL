@@ -10,39 +10,93 @@
    * Prepare order data from checkout form and cart
    */
   function prepareOrderData(formData, cart) {
+    console.log('Cart items:', cart.items);
+
     // Calculate totals
-    const subtotal = cart.items.reduce((sum, item) => sum + item.total_price, 0);
+    const subtotal = cart.items.reduce((sum, item) => sum + (item.total_price || item.price * item.quantity), 0);
     const taxRate = 0.075; // 7.5%
     const tax = Math.round(subtotal * taxRate * 100) / 100;
     const shippingCost = 0; // Free shipping
     const totalAmount = subtotal + tax + shippingCost;
 
-    // Prepare order items
-    const items = cart.items.map(item => ({
-      product_id: item.id,
-      product_name: item.name,
-      product_sku: item.sku || `SKU-${item.id.substring(0, 8)}`,
-      size: item.size,
-      color: item.color || null,
-      unit_price: item.price,
-      quantity: item.quantity,
-      total_price: item.total_price,
-      variant_id: item.variant_id || null
-    }));
+    // Get products from localStorage to find variant_id
+    let products = [];
+    const storedProducts = localStorage.getItem('fjl_products');
+    if (storedProducts) {
+      try {
+        products = JSON.parse(storedProducts);
+      } catch (e) {
+        console.warn('Error parsing products:', e);
+      }
+    }
+
+    // Prepare order items - find variant_id and ensure uniqueness
+    const items = cart.items.map((item, index) => {
+      // Find the product to get variant info
+      const product = products.find(p => p.id === item.id);
+
+      // Find the matching variant
+      let variantId = item.variant_id;
+      if (!variantId && product && product.variants && Array.isArray(product.variants)) {
+        const matchingVariant = product.variants.find(v =>
+          v.size === item.size &&
+          (!item.color || v.color === item.color)
+        );
+        if (matchingVariant) {
+          variantId = matchingVariant.id;
+        }
+      }
+
+      // Generate unique SKU if not provided
+      let sku = item.sku;
+      if (!sku) {
+        // Create SKU from product ID + size + color + index to ensure uniqueness
+        const sizeStr = item.size ? item.size.substring(0, 2).toUpperCase() : 'XX';
+        const colorStr = item.color ? item.color.substring(0, 2).toUpperCase() : 'XX';
+        sku = `SKU-${item.id.substring(0, 6)}-${sizeStr}-${colorStr}-${index}`;
+      }
+
+      return {
+        product_id: item.id,
+        product_name: item.name,
+        product_sku: sku,
+        size: item.size || null,
+        color: item.color || null,
+        unit_price: item.price || 0,
+        quantity: item.quantity || 1,
+        total_price: item.total_price || (item.price * item.quantity),
+        variant_id: variantId || null
+      };
+    });
+
+    console.log('Prepared order items:', JSON.stringify(items, null, 2));
+    console.log('Variant IDs found:', items.map(i => ({ sku: i.product_sku, variantId: i.variant_id })));
+
+    // Handle form field names - check both with and without "shipping_" prefix
+    const firstName = formData.shipping_first_name || formData.first_name;
+    const lastName = formData.shipping_last_name || formData.last_name;
+    const email = formData.shipping_email || formData.email;
+    const phone = formData.shipping_phone || formData.phone;
+    const address = formData.shipping_address || formData.address;
+    const city = formData.shipping_city || formData.city;
+    const state = formData.shipping_state || formData.state;
+    const postalCode = formData.shipping_postal_code || formData.postal_code;
+    const country = formData.shipping_country || formData.country;
+    const buyerName = formData.buyer_name || `${firstName} ${lastName}`;
 
     // Build order data
     const orderData = {
       items: items,
-      shipping_email: formData.email,
-      shipping_first_name: formData.first_name,
-      shipping_last_name: formData.last_name,
-      shipping_phone: formData.phone,
-      shipping_address: formData.address,
-      shipping_city: formData.city,
-      shipping_state: formData.state,
-      shipping_postal_code: formData.postal_code,
-      shipping_country: formData.country,
-      buyer_name: `${formData.first_name} ${formData.last_name}`,
+      shipping_email: email,
+      shipping_first_name: firstName,
+      shipping_last_name: lastName,
+      shipping_phone: phone,
+      shipping_address: address,
+      shipping_city: city,
+      shipping_state: state,
+      shipping_postal_code: postalCode,
+      shipping_country: country,
+      buyer_name: buyerName,
       subtotal: Math.round(subtotal * 100) / 100,
       tax: tax,
       shipping_cost: shippingCost,
@@ -50,6 +104,7 @@
       payment_method: 'bank_transfer'
     };
 
+    console.log('📦 Complete order data:', JSON.stringify(orderData, null, 2));
     return orderData;
   }
 
@@ -110,14 +165,17 @@
       throw new Error(result.error || 'Unknown error');
     } catch (error) {
       console.error('❌ Error creating order:', error);
+      console.log('Order data sent:', orderData);
 
       // Show detailed error
       if (window.notifications) {
         if (error.details && error.details.length > 0) {
-          const detailMsg = error.details.map(d => d.message).join('\n');
+          const detailMsg = error.details.map(d => d.message || d).join('\n');
           window.notifications.error(`Order failed:\n${detailMsg}`);
-        } else {
+        } else if (error.message) {
           window.notifications.error(`Order failed: ${error.message}`);
+        } else {
+          window.notifications.error('Failed to create order. Please check your information and try again.');
         }
       }
 
@@ -181,17 +239,27 @@
   window.validateOrderData = function(formData, cart) {
     const errors = [];
 
-    // Validate form fields
-    if (!formData.first_name?.trim()) errors.push('First name is required');
-    if (!formData.last_name?.trim()) errors.push('Last name is required');
-    if (!formData.email?.trim()) errors.push('Email is required');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.push('Invalid email format');
-    if (!formData.phone?.trim()) errors.push('Phone number is required');
-    if (!formData.address?.trim()) errors.push('Address is required');
-    if (!formData.city?.trim()) errors.push('City is required');
-    if (!formData.state?.trim()) errors.push('State is required');
-    if (!formData.postal_code?.trim()) errors.push('Postal code is required');
-    if (!formData.country?.trim()) errors.push('Country is required');
+    // Validate form fields - check both with and without "shipping_" prefix
+    const firstName = formData.shipping_first_name || formData.first_name;
+    const lastName = formData.shipping_last_name || formData.last_name;
+    const email = formData.shipping_email || formData.email;
+    const phone = formData.shipping_phone || formData.phone;
+    const address = formData.shipping_address || formData.address;
+    const city = formData.shipping_city || formData.city;
+    const state = formData.shipping_state || formData.state;
+    const postalCode = formData.shipping_postal_code || formData.postal_code;
+    const country = formData.shipping_country || formData.country;
+
+    if (!firstName?.trim()) errors.push('First name is required');
+    if (!lastName?.trim()) errors.push('Last name is required');
+    if (!email?.trim()) errors.push('Email is required');
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('Invalid email format');
+    if (!phone?.trim()) errors.push('Phone number is required');
+    if (!address?.trim()) errors.push('Address is required');
+    if (!city?.trim()) errors.push('City is required');
+    if (!state?.trim()) errors.push('State is required');
+    if (!postalCode?.trim()) errors.push('Postal code is required');
+    if (!country?.trim()) errors.push('Country is required');
 
     // Validate cart
     if (!cart.items || cart.items.length === 0) {
@@ -204,6 +272,8 @@
           'Please fix the following errors:\n' + errors.join('\n')
         );
       }
+      console.log('Validation errors:', errors);
+      console.log('Form data received:', formData);
       return false;
     }
 
