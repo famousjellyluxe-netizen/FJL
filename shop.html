@@ -1244,15 +1244,27 @@
 
         // ===== BACKEND API INTEGRATION =====
         // Load products from API instead of localStorage
-        window.initializeShopProducts().then(loadedProducts => {
-            products = loadedProducts || [];
-            handleFilterChange();
-            applyFiltersAndSort();
-        }).catch(error => {
-            console.error('Failed to load products from API, using localStorage fallback:', error);
-            // Already have fallback logic in place
-            applyFiltersAndSort();
-        });
+        // Wait for scripts to load before calling initializeShopProducts
+        function initializeProducts() {
+            if (typeof window.initializeShopProducts === 'function') {
+                window.initializeShopProducts().then(loadedProducts => {
+                    products = loadedProducts || [];
+                    handleFilterChange();
+                    applyFiltersAndSort();
+                }).catch(error => {
+                    console.error('Failed to load products from API, using localStorage fallback:', error);
+                    // Already have fallback logic in place
+                    applyFiltersAndSort();
+                });
+            } else {
+                // Fallback: use localStorage products
+                console.warn('initializeShopProducts not available yet, using localStorage');
+                applyFiltersAndSort();
+            }
+        }
+
+        // Call after a small delay to ensure scripts are loaded
+        setTimeout(initializeProducts, 100);
 
         // Handle product refresh when coming back online
         window.refreshShopProducts = function(newProducts) {

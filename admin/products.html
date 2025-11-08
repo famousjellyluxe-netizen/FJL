@@ -222,9 +222,16 @@
             loadProducts();
         }
 
-        function loadProducts() {
-            allProducts = adminDataService.getProducts();
-            renderProducts(allProducts);
+        async function loadProducts() {
+            try {
+                allProducts = await adminDataService.getProducts();
+                renderProducts(allProducts);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                notifications.error('Failed to load products');
+                allProducts = [];
+                renderProducts([]);
+            }
         }
 
         function renderProducts(products) {
@@ -260,7 +267,7 @@
             `).join('');
         }
 
-        function applyFilters() {
+        async function applyFilters() {
             const search = document.getElementById('searchInput').value;
             const category = document.getElementById('categoryFilter').value;
             const inStock = document.getElementById('stockFilter').value;
@@ -271,8 +278,13 @@
                 inStock: inStock === '' ? undefined : inStock === 'true'
             };
 
-            const filtered = adminDataService.getProducts(filters);
-            renderProducts(filtered);
+            try {
+                const filtered = await adminDataService.getProducts(filters);
+                renderProducts(filtered);
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                notifications.error('Failed to filter products');
+            }
         }
 
         function resetFilters() {
@@ -291,9 +303,10 @@
             document.getElementById('productModal').classList.add('active');
         }
 
-        function editProduct(id) {
-            currentEditingProduct = adminDataService.getProductById(id);
-            if (!currentEditingProduct) return;
+        async function editProduct(id) {
+            try {
+                currentEditingProduct = await adminDataService.getProductById(id);
+                if (!currentEditingProduct) return;
 
             document.getElementById('modalTitle').textContent = 'Edit Product';
             document.getElementById('productName').value = currentEditingProduct.name;
@@ -332,6 +345,10 @@
             }
 
             document.getElementById('productModal').classList.add('active');
+            } catch (error) {
+                console.error('Error loading product:', error);
+                notifications.error('Failed to load product');
+            }
         }
 
         let imageUploadCounter = 0;
@@ -451,7 +468,7 @@
             }
         }
 
-        function saveProductData(images) {
+        async function saveProductData(images) {
             const quantity = parseInt(document.getElementById('productQuantity').value);
             const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
             const inStock = document.getElementById('productInStock').checked;
@@ -491,31 +508,59 @@
                 sizeInventory: sizeInventory
             };
 
-            if (currentEditingProduct) {
-                adminDataService.updateProduct(currentEditingProduct.id, productData);
-                notifications.success('Product updated successfully!');
-            } else {
-                adminDataService.createProduct(productData);
-                notifications.success('Product created successfully!');
-            }
+            try {
+                let productId;
+                if (currentEditingProduct) {
+                    await adminDataService.updateProduct(currentEditingProduct.id, productData);
+                    productId = currentEditingProduct.id;
+                    notifications.success('Product updated successfully!');
+                } else {
+                    const createdProduct = await adminDataService.createProduct(productData);
+                    productId = createdProduct.id;
+                    notifications.success('Product created successfully!');
+                }
 
-            closeProductModal();
-            loadProducts();
+                // Upload images to Supabase if any file inputs have files
+                const imageInputs = document.querySelectorAll('.image-upload-input');
+                for (const input of imageInputs) {
+                    if (input.files && input.files.length > 0) {
+                        try {
+                            const uploadedUrl = await adminDataService.uploadProductImage(productId, input.files[0]);
+                            notifications.success(`Image uploaded successfully! URL: ${uploadedUrl}`);
+                        } catch (error) {
+                            notifications.error(`Failed to upload image: ${error.message}`);
+                        }
+                    }
+                }
+
+                closeProductModal();
+                loadProducts();
+            } catch (error) {
+                notifications.error(`Error saving product: ${error.message}`);
+                console.error('Save product error:', error);
+            }
         }
 
         function deleteProduct(id) {
-            notifications.confirm('Are you sure you want to delete this product?', () => {
-                adminDataService.deleteProduct(id);
-                loadProducts();
-                notifications.success('Product deleted successfully!');
+            notifications.confirm('Are you sure you want to delete this product?', async () => {
+                try {
+                    await adminDataService.deleteProduct(id);
+                    loadProducts();
+                    notifications.success('Product deleted successfully!');
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    notifications.error(`Failed to delete product: ${error.message}`);
+                }
             });
         }
 
         function toggleFeatured(id, checkbox) {
-            adminDataService.toggleFeatured(id);
-            const product = adminDataService.getProductById(id);
-            if (product) {
-                notifications.success(`Product marked as ${product.isFeatured ? 'featured' : 'not featured'}!`);
+            if (adminDataService.toggleFeatured) {
+                adminDataService.toggleFeatured(id);
+                const product = adminDataService.getProductById(id);
+                if (product) {
+                    notifications.success(`Product marked as ${product.isFeatured ? 'featured' : 'not featured'}!`);
+                }
             }
         }
 

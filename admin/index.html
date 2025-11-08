@@ -136,7 +136,7 @@
             window.location.href = 'dashboard.html';
         }
 
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const email = document.getElementById('email').value.trim();
@@ -149,7 +149,7 @@
             }
 
             // Attempt login
-            const result = adminDataService.loginAdmin(email, password);
+            const result = await adminDataService.loginAdmin(email, password);
 
             if (result.success) {
                 showAlert('Login successful! Redirecting...', 'success');
@@ -157,7 +157,7 @@
                     window.location.href = 'dashboard.html';
                 }, 1500);
             } else {
-                showAlert('Invalid email or password', 'danger');
+                showAlert(result.message || 'Invalid email or password', 'danger');
             }
         });
 

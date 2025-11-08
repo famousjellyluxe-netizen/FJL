@@ -58,7 +58,7 @@ export async function testDatabaseConnection() {
   try {
     const { data, error } = await supabase
       .from('store_settings')
-      .select('store_name')
+      .select('*')
       .limit(1);
 
     if (error) {

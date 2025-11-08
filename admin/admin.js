@@ -256,17 +256,46 @@ class AdminDataService {
     }
 
     // Authentication Methods
-    loginAdmin(email, password) {
-        const admin = JSON.parse(localStorage.getItem('fjl_admin'));
-        if (admin.email === email && admin.password === password) {
+    async loginAdmin(email, password) {
+        try {
+            const response = await fetch('http://localhost:5001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                return { success: false, message: error.error || 'Invalid credentials' };
+            }
+
+            const data = await response.json();
+            const token = data.data.token;
+            const admin = data.data.admin;
+
+            // Store token in localStorage
+            localStorage.setItem('fjl_admin_token', token);
+            localStorage.setItem('fjl_admin', JSON.stringify({
+                email: admin.email,
+                full_name: admin.full_name,
+                role: admin.role,
+                id: admin.id
+            }));
+
+            // Also set in sessionStorage for backward compatibility
             sessionStorage.setItem('fjl_admin_authenticated', JSON.stringify({
                 email: admin.email,
-                businessName: admin.businessName,
+                full_name: admin.full_name,
                 loginTime: new Date().toISOString()
             }));
+
             return { success: true, admin: admin };
+        } catch (error) {
+            console.error('Login error:', error);
+            return { success: false, message: 'Login failed' };
         }
-        return { success: false, message: 'Invalid credentials' };
     }
 
     logoutAdmin() {
@@ -283,60 +312,183 @@ class AdminDataService {
     }
 
     // Product Methods
-    getProducts(filters = {}) {
-        let products = JSON.parse(localStorage.getItem('fjl_products'));
+    async getProducts(filters = {}) {
+        try {
+            const params = new URLSearchParams();
+            if (filters.category) params.append('category', filters.category);
+            if (filters.inStock !== undefined) params.append('inStock', filters.inStock);
+            if (filters.search) params.append('search', filters.search);
+            if (filters.page) params.append('page', filters.page);
+            if (filters.limit) params.append('limit', filters.limit);
 
-        if (filters.category) {
-            products = products.filter(p => p.sleeve === filters.category);
+            const response = await fetch(`http://localhost:5001/api/products?${params}`);
+            if (!response.ok) throw new Error('Failed to fetch products');
+            const data = await response.json();
+            return data.data || [];
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            return [];
         }
-        if (filters.inStock !== undefined) {
-            products = products.filter(p => p.inStock === filters.inStock);
-        }
-        if (filters.search) {
-            const search = filters.search.toLowerCase();
-            products = products.filter(p =>
-                p.name.toLowerCase().includes(search) ||
-                p.sku.toLowerCase().includes(search)
-            );
-        }
-
-        return products;
     }
 
-    getProductById(id) {
-        const products = JSON.parse(localStorage.getItem('fjl_products'));
-        return products.find(p => p.id === id);
-    }
-
-    createProduct(product) {
-        const products = JSON.parse(localStorage.getItem('fjl_products'));
-        const newProduct = {
-            id: product.id || `product-${Date.now()}`,
-            ...product,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-        products.push(newProduct);
-        localStorage.setItem('fjl_products', JSON.stringify(products));
-        return newProduct;
-    }
-
-    updateProduct(id, updates) {
-        const products = JSON.parse(localStorage.getItem('fjl_products'));
-        const index = products.findIndex(p => p.id === id);
-        if (index !== -1) {
-            products[index] = { ...products[index], ...updates, updatedAt: new Date().toISOString() };
-            localStorage.setItem('fjl_products', JSON.stringify(products));
-            return products[index];
+    async getProductById(id) {
+        try {
+            const response = await fetch(`http://localhost:5001/api/products/${id}`);
+            if (!response.ok) throw new Error('Failed to fetch product');
+            const data = await response.json();
+            return data.data;
+        } catch (error) {
+            console.error('Error fetching product:', error);
+            return null;
         }
-        return null;
     }
 
-    deleteProduct(id) {
-        const products = JSON.parse(localStorage.getItem('fjl_products'));
-        const filtered = products.filter(p => p.id !== id);
-        localStorage.setItem('fjl_products', JSON.stringify(filtered));
-        return true;
+    async createProduct(product) {
+        try {
+            // Map frontend product format to backend API format
+            const apiProduct = {
+                name: product.name,
+                sku: product.sku,
+                price: product.price,
+                sleeve_type: product.sleeve, // Map sleeve to sleeve_type
+                total_stock: product.quantity || 0,
+                is_active: product.is_active !== false
+            };
+
+            // Only include fields with actual values
+            if (product.description && product.description.trim()) {
+                apiProduct.description = product.description.trim();
+            }
+
+            // Only include colors/sizes if they have values
+            if (product.colors && product.colors.length > 0) {
+                apiProduct.available_colors = product.colors;
+            }
+            if (product.sizes && product.sizes.length > 0) {
+                apiProduct.available_sizes = product.sizes;
+            }
+
+            // Optional fields
+            if (product.originalPrice) {
+                apiProduct.original_price = product.originalPrice;
+            }
+            if (product.category_id) {
+                apiProduct.category_id = product.category_id;
+            }
+            if (product.image) {
+                apiProduct.image_url = product.image;
+            }
+            if (product.images && product.images.length > 0) {
+                apiProduct.images = product.images;
+            }
+
+            const response = await fetch('http://localhost:5001/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                },
+                body: JSON.stringify(apiProduct)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('API Error Response:', errorData);
+
+                // Extract detailed error message
+                let errorMessage = errorData.error || errorData.message || 'Failed to create product';
+                if (errorData.details && Array.isArray(errorData.details) && errorData.details.length > 0) {
+                    const details = errorData.details.map(d => d.message || d).join(', ');
+                    errorMessage = `${errorMessage}: ${details}`;
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            return data.data;
+        } catch (error) {
+            console.error('Error creating product:', error);
+            throw error;
+        }
+    }
+
+    async updateProduct(id, updates) {
+        try {
+            // Map frontend product format to backend API format
+            const apiUpdates = {};
+            if (updates.name) apiUpdates.name = updates.name;
+            if (updates.sku) apiUpdates.sku = updates.sku;
+            if (updates.price) apiUpdates.price = updates.price;
+            if (updates.originalPrice !== undefined) apiUpdates.original_price = updates.originalPrice;
+            if (updates.description) apiUpdates.description = updates.description;
+            if (updates.category_id !== undefined) apiUpdates.category_id = updates.category_id;
+            if (updates.sleeve) apiUpdates.sleeve_type = updates.sleeve;
+            if (updates.colors) apiUpdates.available_colors = updates.colors;
+            if (updates.sizes) apiUpdates.available_sizes = updates.sizes;
+            if (updates.image) apiUpdates.image_url = updates.image;
+            if (updates.images) apiUpdates.images = updates.images;
+            if (updates.quantity !== undefined) apiUpdates.total_stock = updates.quantity;
+            if (updates.is_active !== undefined) apiUpdates.is_active = updates.is_active;
+
+            const response = await fetch(`http://localhost:5001/api/products/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                },
+                body: JSON.stringify(apiUpdates)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('API Error Response:', errorData);
+                throw new Error(errorData.error || errorData.message || 'Failed to update product');
+            }
+
+            const data = await response.json();
+            return data.data;
+        } catch (error) {
+            console.error('Error updating product:', error);
+            throw error;
+        }
+    }
+
+    async deleteProduct(id) {
+        try {
+            const response = await fetch(`http://localhost:5001/api/products/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to delete product');
+            return true;
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            throw error;
+        }
+    }
+
+    async uploadProductImage(productId, file) {
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch(`http://localhost:5001/api/products/${productId}/upload`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Failed to upload image');
+            const data = await response.json();
+            return data.data.url;
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            throw error;
+        }
     }
 
     toggleFeatured(id) {
