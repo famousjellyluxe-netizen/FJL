@@ -1284,11 +1284,20 @@
                 try {
                     const allProducts = JSON.parse(storedProducts);
                     const liveProduct = allProducts.find(p => p.id === productId);
-                    if (liveProduct && liveProduct.sizeInventory) {
-                        // Use live inventory from localStorage, but keep all other product data
-                        product.sizeInventory = liveProduct.sizeInventory;
-                        product.inStock = liveProduct.inStock;
-                        product.updatedAt = liveProduct.updatedAt;
+                    if (liveProduct) {
+                        // Use live data from localStorage, including inventory and sizes
+                        if (liveProduct.sizeInventory) {
+                            product.sizeInventory = liveProduct.sizeInventory;
+                        }
+                        if (liveProduct.sizes && Array.isArray(liveProduct.sizes)) {
+                            product.sizes = liveProduct.sizes;
+                        }
+                        if (liveProduct.inStock !== undefined) {
+                            product.inStock = liveProduct.inStock;
+                        }
+                        if (liveProduct.updatedAt) {
+                            product.updatedAt = liveProduct.updatedAt;
+                        }
                     }
                 } catch (e) {
                     console.error('Error syncing live inventory:', e);

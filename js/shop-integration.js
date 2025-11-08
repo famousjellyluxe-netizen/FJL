@@ -7,6 +7,48 @@
   'use strict';
 
   /**
+   * Extract unique sizes from variants
+   */
+  function extractUniqueSizesFromVariants(variants) {
+    if (!variants || !Array.isArray(variants)) {
+      return [];
+    }
+
+    const sizes = new Set();
+    variants.forEach(variant => {
+      if (variant.size) {
+        sizes.add(variant.size);
+      }
+    });
+
+    return Array.from(sizes);
+  }
+
+  /**
+   * Transform API variants to inventory format
+   */
+  function transformVariantsToInventory(variants) {
+    if (!variants || !Array.isArray(variants)) {
+      return {};
+    }
+
+    const inventory = {};
+
+    variants.forEach(variant => {
+      // Use only size as key (not including color) for proper lookup
+      // This way sizeInventory['XS'] returns the stock count for that size
+      const key = variant.size;
+      if (!inventory[key]) {
+        inventory[key] = 0;
+      }
+      // Sum stock across all colors for this size
+      inventory[key] += (variant.stock_quantity || 0);
+    });
+
+    return inventory;
+  }
+
+  /**
    * Load products from API or fallback to localStorage
    */
   async function loadProducts() {
@@ -45,6 +87,7 @@
           sleeve: product.sleeve_type === 'sleeveless' ? 'Sleeveless' : 'Sleeve',
           inStock: product.total_stock > 0,
           stock: product.total_stock,
+          sizes: extractUniqueSizesFromVariants(product.variants), // Extract sizes from variants
           sizeInventory: transformVariantsToInventory(product.variants),
           sku: product.sku,
           description: product.description,
@@ -104,24 +147,6 @@
 
     console.warn('⚠️  No cached products available');
     return [];
-  }
-
-  /**
-   * Transform API variants to inventory format
-   */
-  function transformVariantsToInventory(variants) {
-    if (!variants || !Array.isArray(variants)) {
-      return {};
-    }
-
-    const inventory = {};
-
-    variants.forEach(variant => {
-      const key = `${variant.size}${variant.color ? `-${variant.color}` : ''}`;
-      inventory[key] = variant.stock_quantity || 0;
-    });
-
-    return inventory;
   }
 
   /**
