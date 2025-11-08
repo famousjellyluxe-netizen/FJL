@@ -444,7 +444,9 @@ class AdminDataService {
 
             // Create product variants if sizeInventory is provided
             if (product.sizeInventory && Object.keys(product.sizeInventory).length > 0 && createdProduct.id) {
+                console.log('📦 Creating variants for sizes:', product.sizeInventory);
                 try {
+                    let variantsCreated = 0;
                     for (const [size, quantity] of Object.entries(product.sizeInventory)) {
                         if (quantity > 0) {
                             const variantData = {
@@ -457,6 +459,8 @@ class AdminDataService {
                                 variantData.color = product.colors[0]; // Use first color
                             }
 
+                            console.log(`Creating variant: ${size} with ${quantity} units`, variantData);
+
                             const variantResponse = await fetch(`http://localhost:5001/api/products/${createdProduct.id}/variants`, {
                                 method: 'POST',
                                 headers: {
@@ -467,15 +471,25 @@ class AdminDataService {
                             });
 
                             if (!variantResponse.ok) {
-                                console.warn(`Warning: Failed to create variant for size ${size}`, await variantResponse.json());
+                                const errorData = await variantResponse.json();
+                                console.error(`❌ Failed to create variant for size ${size}:`, variantResponse.status, errorData);
+                            } else {
+                                variantsCreated++;
+                                console.log(`✅ Created variant for size ${size}`);
                             }
                         }
                     }
-                    console.log('✅ Product variants created successfully');
+                    console.log(`✅ Product variants created: ${variantsCreated} variants`);
                 } catch (variantError) {
-                    console.warn('Warning: Could not create product variants:', variantError);
+                    console.error('❌ Error creating product variants:', variantError);
                     // Don't fail the whole operation if variants fail
                 }
+            } else {
+                console.warn('⚠️  No variants to create - sizeInventory is empty or product ID missing', {
+                    hasSizeInventory: !!product.sizeInventory,
+                    sizeInventoryKeys: product.sizeInventory ? Object.keys(product.sizeInventory) : [],
+                    productId: createdProduct?.id
+                });
             }
 
             return createdProduct;
