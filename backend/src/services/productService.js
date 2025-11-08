@@ -405,16 +405,27 @@ export async function reduceStock(variantId, quantity) {
  */
 export async function createVariant(productId, variantData) {
   try {
+    // Build variant object with only provided fields to avoid schema conflicts
+    const variantToInsert = {
+      product_id: productId,
+      size: variantData.size,
+      stock_quantity: variantData.stock_quantity || 0
+    };
+
+    // Only add optional fields if they're provided
+    if (variantData.color) {
+      variantToInsert.color = variantData.color;
+    }
+    if (variantData.variant_price) {
+      variantToInsert.variant_price = variantData.variant_price;
+    }
+    if (variantData.reorder_level !== undefined) {
+      variantToInsert.reorder_level = variantData.reorder_level;
+    }
+
     const { data, error } = await supabaseService
       .from('product_variants')
-      .insert([{
-        product_id: productId,
-        size: variantData.size,
-        color: variantData.color,
-        stock_quantity: variantData.stock_quantity || 0,
-        reorder_level: variantData.reorder_level || 10,
-        variant_price: variantData.variant_price
-      }])
+      .insert([variantToInsert])
       .select();
 
     if (error) throw error;
