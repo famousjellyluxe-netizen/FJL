@@ -604,17 +604,54 @@ class AdminDataService {
     }
 
     // Inventory Management Methods
-    checkInventory(productId, size, quantity = 1) {
-        const product = this.getProductById(productId);
-        if (!product) return { available: false, message: 'Product not found' };
+    checkInventory(productId, size, quantity = 1, color = null) {
+        // First try to get product from localStorage (faster and more reliable)
+        let product = null;
+        const storedProducts = localStorage.getItem('fjl_products');
+        if (storedProducts) {
+            try {
+                const allProducts = JSON.parse(storedProducts);
+                product = allProducts.find(p => p.id === productId);
+            } catch (e) {
+                console.warn('Error parsing stored products:', e);
+            }
+        }
+
+        // Fallback: try to get from API (but don't fail if it doesn't work)
+        if (!product) {
+            console.log('Product not found in localStorage for', productId);
+            return { available: false, message: 'Product not found' };
+        }
+
+        // Get sizes - with fallback to extract from variants
+        let sizes = product.sizes || [];
+        if (sizes.length === 0 && product.variants && Array.isArray(product.variants)) {
+            const sizesSet = new Set();
+            product.variants.forEach(v => {
+                if (v.size) sizesSet.add(v.size);
+            });
+            sizes = Array.from(sizesSet);
+        }
 
         // Check if size exists
-        if (!product.sizes.includes(size)) {
+        if (!sizes || !sizes.includes(size)) {
             return { available: false, message: 'Invalid size for this product' };
         }
 
-        // Get size inventory (with fallback for backward compatibility)
-        const sizeInventory = product.sizeInventory || {};
+        // Get size inventory - with fallback to build from variants
+        let sizeInventory = product.sizeInventory || {};
+        if (Object.keys(sizeInventory).length === 0 && product.variants && Array.isArray(product.variants)) {
+            sizeInventory = {};
+            product.variants.forEach(variant => {
+                if (variant.size) {
+                    if (!sizeInventory[variant.size]) {
+                        sizeInventory[variant.size] = 0;
+                    }
+                    sizeInventory[variant.size] += (variant.stock_quantity || 0);
+                }
+            });
+        }
+
         const availableQuantity = sizeInventory[size] || 0;
 
         if (availableQuantity <= 0) {
@@ -636,23 +673,41 @@ class AdminDataService {
         return sizeInventory[size] || 0;
     }
 
-    deductInventory(productId, size, quantity = 1) {
-        const products = JSON.parse(localStorage.getItem('fjl_products'));
-        const index = products.findIndex(p => p.id === productId);
+    deductInventory(productId, size, quantity = 1, color = null) {
+        const productsStr = localStorage.getItem('fjl_products');
+        if (!productsStr) {
+            console.warn('No products in localStorage');
+            return false;
+        }
 
-        if (index === -1) return false;
+        try {
+            const products = JSON.parse(productsStr);
+            const index = products.findIndex(p => p.id === productId);
 
-        const product = products[index];
-        if (!product.sizeInventory) product.sizeInventory = {};
+            if (index === -1) {
+                console.warn('Product not found:', productId);
+                return false;
+            }
 
-        const currentStock = product.sizeInventory[size] || 0;
-        if (currentStock < quantity) return false;
+            const product = products[index];
+            if (!product.sizeInventory) product.sizeInventory = {};
 
-        product.sizeInventory[size] = currentStock - quantity;
-        product.updatedAt = new Date().toISOString();
+            const currentStock = product.sizeInventory[size] || 0;
+            if (currentStock < quantity) {
+                console.warn(`Insufficient stock: ${currentStock} available, ${quantity} requested`);
+                return false;
+            }
 
-        localStorage.setItem('fjl_products', JSON.stringify(products));
-        return true;
+            product.sizeInventory[size] = currentStock - quantity;
+            product.updatedAt = new Date().toISOString();
+
+            localStorage.setItem('fjl_products', JSON.stringify(products));
+            console.log(`✅ Deducted ${quantity} from ${size}${color ? ' (' + color + ')' : ''} (${product.sizeInventory[size]} remaining)`);
+            return true;
+        } catch (error) {
+            console.error('Error deducting inventory:', error);
+            return false;
+        }
     }
 
     updateSizeInventory(productId, size, quantity) {
