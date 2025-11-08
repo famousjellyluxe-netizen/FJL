@@ -324,7 +324,20 @@ class AdminDataService {
             const response = await fetch(`http://localhost:5001/api/products?${params}`);
             if (!response.ok) throw new Error('Failed to fetch products');
             const data = await response.json();
-            return data.data || [];
+
+            // Transform API response to form-friendly format
+            const products = (data.data || []).map(apiProduct => ({
+                ...apiProduct,
+                // Map API field names to form field names
+                quantity: apiProduct.total_stock,
+                inStock: apiProduct.is_active,
+                sleeve: apiProduct.sleeve_type || '', // Use actual sleeve_type value for dropdown
+                sizes: apiProduct.available_sizes || [],
+                colors: apiProduct.available_colors || [],
+                image: apiProduct.image_url
+            }));
+
+            return products;
         } catch (error) {
             console.error('Error fetching products:', error);
             return [];
@@ -336,7 +349,28 @@ class AdminDataService {
             const response = await fetch(`http://localhost:5001/api/products/${id}`);
             if (!response.ok) throw new Error('Failed to fetch product');
             const data = await response.json();
-            return data.data;
+            const apiProduct = data.data;
+
+            // Transform API response to form-friendly format
+            const transformedProduct = {
+                ...apiProduct,
+                // Map API field names to form field names
+                quantity: apiProduct.total_stock,
+                inStock: apiProduct.is_active,
+                sleeve: apiProduct.sleeve_type || '', // Use actual sleeve_type value for dropdown
+                sizes: apiProduct.available_sizes || [],
+                colors: apiProduct.available_colors || [],
+                image: apiProduct.image_url,
+                // Keep original API fields for reference if needed
+                total_stock: apiProduct.total_stock,
+                is_active: apiProduct.is_active,
+                sleeve_type: apiProduct.sleeve_type,
+                available_sizes: apiProduct.available_sizes,
+                available_colors: apiProduct.available_colors,
+                image_url: apiProduct.image_url
+            };
+
+            return transformedProduct;
         } catch (error) {
             console.error('Error fetching product:', error);
             return null;
@@ -352,7 +386,7 @@ class AdminDataService {
                 price: product.price,
                 sleeve_type: product.sleeve, // Map sleeve to sleeve_type
                 total_stock: product.quantity || 0,
-                is_active: product.is_active !== false
+                is_active: product.inStock !== false // FIXED: Use inStock from form, not is_active
             };
 
             // Only include fields with actual values
@@ -406,7 +440,45 @@ class AdminDataService {
             }
 
             const data = await response.json();
-            return data.data;
+            const createdProduct = data.data;
+
+            // Create product variants if sizeInventory is provided
+            if (product.sizeInventory && Object.keys(product.sizeInventory).length > 0 && createdProduct.id) {
+                try {
+                    for (const [size, quantity] of Object.entries(product.sizeInventory)) {
+                        if (quantity > 0) {
+                            const variantData = {
+                                size: size,
+                                stock_quantity: parseInt(quantity)
+                            };
+
+                            // Add color if available
+                            if (product.colors && product.colors.length > 0) {
+                                variantData.color = product.colors[0]; // Use first color
+                            }
+
+                            const variantResponse = await fetch(`http://localhost:5001/api/products/${createdProduct.id}/variants`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                                },
+                                body: JSON.stringify(variantData)
+                            });
+
+                            if (!variantResponse.ok) {
+                                console.warn(`Warning: Failed to create variant for size ${size}`, await variantResponse.json());
+                            }
+                        }
+                    }
+                    console.log('✅ Product variants created successfully');
+                } catch (variantError) {
+                    console.warn('Warning: Could not create product variants:', variantError);
+                    // Don't fail the whole operation if variants fail
+                }
+            }
+
+            return createdProduct;
         } catch (error) {
             console.error('Error creating product:', error);
             throw error;
@@ -429,7 +501,9 @@ class AdminDataService {
             if (updates.image) apiUpdates.image_url = updates.image;
             if (updates.images) apiUpdates.images = updates.images;
             if (updates.quantity !== undefined) apiUpdates.total_stock = updates.quantity;
-            if (updates.is_active !== undefined) apiUpdates.is_active = updates.is_active;
+            // FIXED: Use inStock from form, not is_active
+            if (updates.inStock !== undefined) apiUpdates.is_active = updates.inStock;
+            else if (updates.is_active !== undefined) apiUpdates.is_active = updates.is_active;
 
             const response = await fetch(`http://localhost:5001/api/products/${id}`, {
                 method: 'PUT',

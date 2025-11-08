@@ -1382,13 +1382,16 @@
             // Update stock status based on inventory
             const sizeInventory = product.sizeInventory || {};
             const totalStock = Object.values(sizeInventory).reduce((sum, stock) => sum + stock, 0);
+            // Fallback to checking overall total_stock or inStock flag if sizeInventory is empty
+            const hasOverallStock = product.total_stock > 0 || product.inStock === true;
+            const actualTotalStock = totalStock > 0 ? totalStock : (hasOverallStock ? (product.total_stock || 1) : 0);
             const stockStatusElement = document.querySelector('.stock-status');
 
             if (stockStatusElement) {
-                if (totalStock <= 0) {
+                if (actualTotalStock <= 0) {
                     stockStatusElement.textContent = 'Out of Stock';
                     stockStatusElement.className = 'stock-status out-of-stock';
-                } else if (totalStock <= 10) {
+                } else if (actualTotalStock <= 10) {
                     stockStatusElement.textContent = 'Low Stock';
                     stockStatusElement.className = 'stock-status low-stock';
                 } else {
@@ -1464,7 +1467,7 @@
             // Disable add to cart button if all stock is 0
             const addBtn = document.querySelector('.add-to-cart-btn');
             if (addBtn) {
-                if (totalStock <= 0) {
+                if (actualTotalStock <= 0) {
                     addBtn.disabled = true;
                     addBtn.style.opacity = '0.5';
                     addBtn.style.cursor = 'not-allowed';

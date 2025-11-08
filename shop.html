@@ -1028,7 +1028,9 @@
                 // Check if product has any stock
                 const sizeInventory = product.sizeInventory || {};
                 const hasAnyStock = Object.values(sizeInventory).some(stock => stock > 0);
-                const isAllOutOfStock = !hasAnyStock;
+                // If sizeInventory is empty, fall back to checking total_stock or inStock
+                const hasTotalStock = product.total_stock > 0 || product.inStock === true;
+                const isAllOutOfStock = !hasAnyStock && !hasTotalStock;
 
                 htmlContent += `
                     <div class="product-card hover-lift ${isAllOutOfStock ? 'out-of-stock-card' : ''}">
