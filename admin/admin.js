@@ -449,33 +449,38 @@ class AdminDataService {
                     let variantsCreated = 0;
                     for (const [size, quantity] of Object.entries(product.sizeInventory)) {
                         if (quantity > 0) {
-                            const variantData = {
-                                size: size,
-                                stock_quantity: parseInt(quantity)
-                            };
+                            // Create a variant for EACH color
+                            const colorsToUse = product.colors && product.colors.length > 0 ? product.colors : [null];
 
-                            // Add color if available
-                            if (product.colors && product.colors.length > 0) {
-                                variantData.color = product.colors[0]; // Use first color
-                            }
+                            for (const color of colorsToUse) {
+                                const variantData = {
+                                    size: size,
+                                    stock_quantity: parseInt(quantity)
+                                };
 
-                            console.log(`Creating variant: ${size} with ${quantity} units`, variantData);
+                                // Add color if available
+                                if (color) {
+                                    variantData.color = color;
+                                }
 
-                            const variantResponse = await fetch(`http://localhost:5001/api/products/${createdProduct.id}/variants`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
-                                },
-                                body: JSON.stringify(variantData)
-                            });
+                                console.log(`Creating variant: ${size} with ${quantity} units and color ${color || 'N/A'}`, variantData);
 
-                            if (!variantResponse.ok) {
-                                const errorData = await variantResponse.json();
-                                console.error(`❌ Failed to create variant for size ${size}:`, variantResponse.status, errorData);
-                            } else {
-                                variantsCreated++;
-                                console.log(`✅ Created variant for size ${size}`);
+                                const variantResponse = await fetch(`http://localhost:5001/api/products/${createdProduct.id}/variants`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                                    },
+                                    body: JSON.stringify(variantData)
+                                });
+
+                                if (!variantResponse.ok) {
+                                    const errorData = await variantResponse.json();
+                                    console.error(`❌ Failed to create variant for size ${size} color ${color || 'N/A'}:`, variantResponse.status, errorData);
+                                } else {
+                                    variantsCreated++;
+                                    console.log(`✅ Created variant for size ${size} color ${color || 'N/A'}`);
+                                }
                             }
                         }
                     }

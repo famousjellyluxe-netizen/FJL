@@ -463,6 +463,61 @@
             cursor: pointer;
         }
 
+        .color-section {
+            margin-bottom: 24px;
+        }
+
+        .color-label {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .color-btn {
+            padding: 12px 16px;
+            border: 2px solid #e5e5e5;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: capitalize;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .color-btn:hover {
+            border-color: #000;
+        }
+
+        .color-btn.active {
+            border-color: #000;
+            background: #000;
+            color: white;
+        }
+
+        .color-btn:disabled,
+        .color-btn.out-of-stock {
+            background: #f5f5f5;
+            color: #999;
+            border-color: #e5e5e5;
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .color-btn:disabled:hover,
+        .color-btn.out-of-stock:hover {
+            border-color: #e5e5e5;
+        }
+
         /* Size Chart Modal */
         .size-chart-modal {
             display: none;
@@ -929,6 +984,14 @@
                             <button class="size-btn" onclick="selectSize(this)">2XL</button>
                         </div>
                         <a href="#" class="size-chart-link">Size Chart</a>
+                    </div>
+
+                    <!-- Color Selection -->
+                    <div class="color-section" id="colorSection" style="display: none;">
+                        <label class="color-label">Color</label>
+                        <div class="color-grid" id="colorGrid">
+                            <!-- Colors will be generated dynamically -->
+                        </div>
                     </div>
 
                     <!-- Quantity Selector -->
@@ -1473,6 +1536,50 @@
                 });
             }
 
+            // Render color buttons dynamically from product variants
+            // Extract unique colors from variants
+            const colorsSet = new Set();
+            if (product.variants && Array.isArray(product.variants)) {
+                product.variants.forEach(variant => {
+                    if (variant.color) {
+                        colorsSet.add(variant.color);
+                    }
+                });
+            }
+
+            const colors = Array.from(colorsSet);
+            const colorGridContainer = document.querySelector('.color-grid');
+            const colorSection = document.getElementById('colorSection');
+
+            if (colors.length > 0 && colorGridContainer) {
+                // Show color section if colors are available
+                colorSection.style.display = 'block';
+
+                // Clear existing color buttons
+                colorGridContainer.innerHTML = '';
+
+                // Create buttons for each color
+                colors.forEach(color => {
+                    const btn = document.createElement('button');
+                    btn.className = 'color-btn';
+                    btn.textContent = color;
+                    btn.type = 'button';
+
+                    btn.onclick = function() { selectColor(this); };
+                    colorGridContainer.appendChild(btn);
+                });
+
+                // Set the first color as active
+                const firstColorBtn = colorGridContainer.querySelector('.color-btn');
+                if (firstColorBtn) {
+                    firstColorBtn.classList.add('active');
+                    window.selectedColor = firstColorBtn.textContent;
+                }
+            } else {
+                // Hide color section if no colors available
+                colorSection.style.display = 'none';
+            }
+
             // Disable add to cart button if all stock is 0
             const addBtn = document.querySelector('.add-to-cart-btn');
             if (addBtn) {
@@ -1568,6 +1675,17 @@
 
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            // Store selected size globally for add to cart
+            window.selectedSize = btn.textContent.replace(/\s*\(Out\)/, '').trim();
+        }
+
+        function selectColor(btn) {
+            // Remove active class from all color buttons
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            btn.classList.add('active');
+            // Store selected color globally for add to cart
+            window.selectedColor = btn.textContent;
         }
 
         // Image gallery
@@ -1610,11 +1728,26 @@
                 return;
             }
 
+            // Check if color is required (color section is visible)
+            const colorSection = document.getElementById('colorSection');
+            let color = null;
+            if (colorSection && colorSection.style.display !== 'none') {
+                const colorBtn = document.querySelector('.color-btn.active');
+                color = colorBtn?.textContent || null;
+
+                if (!color) {
+                    if (notifications) {
+                        notifications.warning('Please select a color');
+                    }
+                    return;
+                }
+            }
+
             // FIX #2: Check inventory using live data
             // CRITICAL: Always validate inventory against the live backend data
             // This ensures consistency across shop.html and product.html
             if (typeof adminDataService !== 'undefined') {
-                const inventoryCheck = adminDataService.checkInventory(window.currentProductId, size, quantity);
+                const inventoryCheck = adminDataService.checkInventory(window.currentProductId, size, quantity, color);
                 if (!inventoryCheck.available) {
                     if (notifications) {
                         notifications.error(inventoryCheck.message);
@@ -1636,6 +1769,7 @@
                 id: window.currentProductId || 'ftg-tracksuit',
                 name: window.currentProductName || 'FTG Tracksuit',
                 size: size,
+                color: color, // Include color if available
                 quantity: quantity,
                 price: window.currentProductPrice || 75000,
                 image: window.currentProductImage || '' // Include product image in cart
@@ -1644,8 +1778,13 @@
             // FIX #3: Add item to cart directly
             // We already validated inventory above, so add directly to ensure proper event firing
 
-            // Add to cart
-            const existingItem = cart.items.find(item => item.id === product.id && item.size === product.size);
+            // Add to cart - match items by both size AND color if color is present
+            const matchKey = color ? `${product.id}-${product.size}-${color}` : `${product.id}-${product.size}`;
+            const existingItem = cart.items.find(item => {
+                const itemKey = item.color ? `${item.id}-${item.size}-${item.color}` : `${item.id}-${item.size}`;
+                return itemKey === matchKey;
+            });
+
             if (existingItem) {
                 existingItem.quantity += product.quantity;
             } else {
@@ -1658,7 +1797,7 @@
 
             // Deduct inventory when item is successfully added
             if (typeof adminDataService !== 'undefined') {
-                adminDataService.deductInventory(window.currentProductId, size, quantity);
+                adminDataService.deductInventory(window.currentProductId, size, quantity, color);
             }
 
             updateCartBadge();
