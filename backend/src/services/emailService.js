@@ -1,5 +1,6 @@
 import { resend, EMAIL_TYPES } from '../config/resend.js';
 import { supabase } from '../config/database.js';
+import * as settingsService from './settingsService.js';
 
 /**
  * Log email sending to database
@@ -21,7 +22,7 @@ async function logEmail(emailData) {
 }
 
 /**
- * Send order confirmation email
+ * Send order confirmation email to customer and admin
  */
 export async function sendOrderConfirmation(order, customer) {
   if (!resend) {
@@ -30,65 +31,165 @@ export async function sendOrderConfirmation(order, customer) {
   }
 
   try {
-    const itemsList = order.items
-      .map(item => `
-        <li>
-          <strong>${item.product_name}</strong><br>
-          Size: ${item.size}${item.color ? `, Color: ${item.color}` : ''}<br>
-          Qty: ${item.quantity} x ₦${parseFloat(item.unit_price).toLocaleString('en-NG', {minimumFractionDigits: 2})}<br>
-          Subtotal: ₦${parseFloat(item.total_price).toLocaleString('en-NG', {minimumFractionDigits: 2})}
-        </li>
-      `)
-      .join('');
+    // Fetch business settings dynamically
+    const settings = await settingsService.getSettings();
 
-    const htmlContent = `
-      <h2>Order Confirmation</h2>
-      <p>Hi ${customer.first_name},</p>
-      <p>Thank you for your order! Your order #${order.order_number} has been received.</p>
+    // Format order items for display
+    const itemsText = order.items
+      .map(item => {
+        const sizeColor = `Size: ${item.size}${item.color ? ` | Color: ${item.color}` : ''}`;
+        const subtotal = parseFloat(item.total_price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+        return `${item.product_name}\n${sizeColor} | Qty: ${item.quantity}\nSubtotal: ${settings.currency_symbol}${subtotal}`;
+      })
+      .join('\n\n');
 
-      <h3>Order Details:</h3>
-      <ul>${itemsList}</ul>
+    const subtotal = parseFloat(order.subtotal).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const tax = parseFloat(order.tax).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const shipping = parseFloat(order.shipping_cost || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const total = parseFloat(order.total_amount).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const orderDate = new Date(order.created_at).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
 
-      <h3>Totals:</h3>
-      <p>Subtotal: ₦${parseFloat(order.subtotal).toLocaleString('en-NG', {minimumFractionDigits: 2})}</p>
-      <p>Tax (${process.env.TAX_RATE}%): ₦${parseFloat(order.tax).toLocaleString('en-NG', {minimumFractionDigits: 2})}</p>
-      <p>Shipping: ₦${parseFloat(order.shipping_cost || 0).toLocaleString('en-NG', {minimumFractionDigits: 2})}</p>
-      <p><strong>Total: ₦${parseFloat(order.total_amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</strong></p>
+    // CUSTOMER EMAIL
+    const customerHtmlContent = `
+      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi ${customer.first_name},
 
-      <h3>Shipping Address:</h3>
-      <p>
-        ${order.shipping_first_name} ${order.shipping_last_name}<br>
-        ${order.shipping_address}<br>
-        ${order.shipping_city}, ${order.shipping_state} ${order.shipping_postal_code}<br>
-        ${order.shipping_country}
-      </p>
+Thank you for shopping with Famous Jelly Luxe!
 
-      <p>We'll send you a tracking number soon!</p>
-      <p>Best regards,<br>Famous Jelly Luxe Team</p>
+Here's your order summary:
+
+───────────────────────────────
+${itemsText}
+Subtotal: ${settings.currency_symbol}${subtotal}
+Tax (7.5%): ${settings.currency_symbol}${tax}
+Shipping: Free
+───────────────────────────────
+Total: ${settings.currency_symbol}${total}
+
+Please transfer ${settings.currency_symbol}${total} to:
+Account Name: ${settings.account_name}
+Bank: ${settings.bank_name}
+Account Number: ${settings.account_number}
+Account Type: ${settings.account_type}
+
+Once your payment is received, you'll get a confirmation email and your order will be processed.
+
+Thanks again for choosing FJL.
+Stay fresh. Stay fearless.</pre>
     `;
 
-    const response = await resend.emails.send({
+    // ADMIN EMAIL
+    const adminHtmlContent = `
+      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi Famous Jelly Luxe Team,
+
+A new order has just been placed on your store.
+Here are the details:
+
+───────────────────────────────
+🧾 Order Summary
+
+Customer Name: ${customer.first_name} ${customer.last_name}
+Email: ${customer.email}
+Phone: ${order.shipping_phone}
+Date: ${orderDate}
+Payment Status: Pending (Manual Transfer)
+Payment Method: Bank Transfer
+
+───────────────────────────────
+📦 Items Ordered
+
+${itemsText}
+───────────────────────────────
+Total Amount: ${settings.currency_symbol}${total}
+
+───────────────────────────────
+🚚 Shipping Details
+
+Address:
+${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state} ${order.shipping_postal_code}
+Country: ${order.shipping_country}
+
+───────────────────────────────
+💳 Payment Info
+
+The buyer has been instructed to transfer ${settings.currency_symbol}${total} to:
+Account Name: ${settings.account_name}
+Bank: ${settings.bank_name}
+Account Number: ${settings.account_number}
+Account Type: ${settings.account_type}
+
+Customer's Bank Account Name (as entered): ${order.buyer_name}
+
+🕒 Wait for your bank alert or statement before marking this order as paid.
+Ensure the account name on your bank alert matches the customer's provided account name.
+
+───────────────────────────────
+📩 Next Steps
+
+1. Verify payment in your bank account.
+2. Once payment is confirmed, email the buyer at ${customer.email}
+   to confirm and prepare for shipping.
+3. Mark the order as Paid & Processing in your records.
+
+───────────────────────────────
+Famous Jelly Luxe Order System
+© 2025 Famous Jelly Luxe. All Rights Reserved.</pre>
+    `;
+
+    // Send to customer
+    const customerResponse = await resend.emails.send({
       from: process.env.STORE_EMAIL,
       to: customer.email,
       subject: `Order Confirmation - Order #${order.order_number}`,
-      html: htmlContent
+      html: customerHtmlContent
     });
 
-    // Log email
+    // Log customer email
     await logEmail({
       campaign_id: null,
       recipient_id: customer.id,
       recipient_email: customer.email,
       email_type: EMAIL_TYPES.ORDER_CONFIRMATION,
-      resend_message_id: response.id,
-      resend_response: response,
-      send_status: response.id ? 'sent' : 'failed',
+      resend_message_id: customerResponse.id,
+      resend_response: customerResponse,
+      send_status: customerResponse.id ? 'sent' : 'failed',
       sent_at: new Date(),
       order_id: order.id,
       user_id: customer.id
     });
 
-    return { success: true, messageId: response.id };
+    console.log(`✅ Order confirmation sent to customer: ${customer.email}`);
+
+    // Send to admin
+    const adminEmail = settings.store_email || 'hello@fjlclothing.shop';
+    try {
+      const adminResponse = await resend.emails.send({
+        from: process.env.STORE_EMAIL,
+        to: adminEmail,
+        subject: `🛍️ New Order Received — from ${customer.first_name} ${customer.last_name}`,
+        html: adminHtmlContent
+      });
+
+      // Log admin email
+      await logEmail({
+        campaign_id: null,
+        recipient_id: null,
+        recipient_email: adminEmail,
+        email_type: 'order_admin_notification',
+        resend_message_id: adminResponse.id,
+        resend_response: adminResponse,
+        send_status: adminResponse.id ? 'sent' : 'failed',
+        sent_at: new Date(),
+        order_id: order.id,
+        user_id: null
+      });
+
+      console.log(`✅ Order notification sent to admin: ${adminEmail}`);
+    } catch (adminError) {
+      console.error('Error sending admin notification:', adminError);
+      // Don't throw - customer email was sent successfully, admin email failure shouldn't block order creation
+    }
+
+    return { success: true, messageId: customerResponse.id };
   } catch (error) {
     console.error('Error sending order confirmation:', error);
 

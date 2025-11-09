@@ -473,6 +473,77 @@
                 height: 30px;
             }
         }
+
+        @media print {
+            /* Hide header and navigation */
+            header {
+                display: none;
+            }
+
+            /* Hide mobile menu */
+            .mobile-menu {
+                display: none;
+            }
+
+            /* Hide top banner */
+            .top-banner {
+                display: none;
+            }
+
+            /* Hide action buttons */
+            .action-buttons {
+                display: none;
+            }
+
+            /* Hide footer sections */
+            section {
+                display: none;
+            }
+
+            footer {
+                display: none;
+            }
+
+            /* Adjust main content for printing */
+            main {
+                background: white;
+                padding: 0;
+            }
+
+            .confirmation-container {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            /* Remove margins for print */
+            .section {
+                margin-bottom: 16px;
+            }
+
+            /* Optimize spacing for single page */
+            .confirmation-header {
+                margin-bottom: 24px;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Ensure content fits on one page */
+            * {
+                page-break-inside: avoid;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            tr, td, th {
+                page-break-inside: avoid;
+            }
+        }
     </style>
     <script src="config.js"></script>
     <script src="notifications.js"></script>

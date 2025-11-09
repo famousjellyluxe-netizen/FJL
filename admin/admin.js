@@ -815,6 +815,10 @@ class AdminDataService {
             .map(p => ({
                 ...p,
                 sold: orders.reduce((count, o) => {
+                    // Safety check: ensure order has items array
+                    if (!o.items || !Array.isArray(o.items)) {
+                        return count;
+                    }
                     const item = o.items.find(i => i.id === p.id);
                     return count + (item ? item.quantity : 0);
                 }, 0)

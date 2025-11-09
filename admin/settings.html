@@ -112,14 +112,23 @@
 
                             <div class="form-group">
                                 <label class="form-label">Account Type</label>
-                                <select id="accountType" class="form-select">
-                                    <option value="Business">Business</option>
-                                    <option value="Personal">Personal</option>
-                                </select>
+                                <input type="text" id="accountType" class="form-control" placeholder="e.g., Business Account">
+                            </div>
+
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Currency Code</label>
+                                    <input type="text" id="currency" class="form-control" maxlength="3" placeholder="e.g., NGN">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Currency Symbol</label>
+                                    <input type="text" id="currencySymbol" class="form-control" maxlength="5" placeholder="e.g., ₦">
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary">Save Bank Details</button>
+                            <span id="bankSaveStatus" style="margin-left: 12px; font-size: 14px;"></span>
                         </div>
                     </form>
                 </div>
@@ -200,19 +209,17 @@
         function loadSettings() {
             const settings = adminDataService.getAdminSettings();
 
-            // Load store settings
+            // Load store settings from localStorage (fallback for fields not in database)
             document.getElementById('businessName').value = settings.businessName || '';
             document.getElementById('storeName').value = settings.storeName || '';
-            document.getElementById('storeEmail').value = settings.storeEmail || '';
             document.getElementById('storePhone').value = settings.storePhone || '';
             document.getElementById('storeAddress').value = settings.storeAddress || '';
-            document.getElementById('taxRate').value = settings.taxRate || 7.5;
-            document.getElementById('shippingCost').value = settings.shippingCost || 0;
 
-            // Load bank settings
-            document.getElementById('bankName').value = settings.bankName || 'First Bank Nigeria';
-            document.getElementById('accountNumber').value = settings.accountNumber || '';
-            document.getElementById('accountHolder').value = settings.accountHolder || '';
+            // Load store settings from API (overrides localStorage for these fields)
+            loadStoreSettingsFromAPI();
+
+            // Load bank settings from API
+            loadBankSettings();
 
             // System info
             const analytics = adminDataService.getAnalytics();
@@ -221,34 +228,219 @@
             document.getElementById('lastUpdated').textContent = formatDate(new Date());
         }
 
-        function saveStoreSettings(event) {
-            event.preventDefault();
+        // Load store settings from backend API
+        async function loadStoreSettingsFromAPI() {
+            try {
+                console.log('Loading store settings from API...');
 
-            const updates = {
-                businessName: document.getElementById('businessName').value,
-                storeName: document.getElementById('storeName').value,
-                storeEmail: document.getElementById('storeEmail').value,
-                storePhone: document.getElementById('storePhone').value,
-                storeAddress: document.getElementById('storeAddress').value,
-                taxRate: parseFloat(document.getElementById('taxRate').value),
-                shippingCost: parseInt(document.getElementById('shippingCost').value)
-            };
+                // Construct the full API URL
+                const apiUrl = 'http://localhost:5001/api/settings';
+                console.log('Fetching from:', apiUrl);
 
-            adminDataService.updateAdminSettings(updates);
-            notifications.success('Store settings saved successfully!');
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('API Response Status:', response.status);
+
+                if (!response.ok) {
+                    console.error('API response not ok:', response.status, response.statusText);
+                    const text = await response.text();
+                    console.error('Response body:', text);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('✅ Store settings loaded:', data);
+
+                const settings = data.data || data;
+
+                // Populate store settings fields from API
+                // Map API field names to HTML form IDs
+                document.getElementById('businessName').value = settings.business_name || '';
+                document.getElementById('storeName').value = settings.store_name || '';
+                document.getElementById('storeEmail').value = settings.store_email || '';
+                document.getElementById('storePhone').value = settings.store_phone || '';
+                document.getElementById('storeAddress').value = settings.store_address || '';
+                document.getElementById('taxRate').value = settings.tax_rate || 7.5;
+                document.getElementById('shippingCost').value = settings.shipping_cost || 0;
+
+                console.log('✅ Store settings populated successfully');
+            } catch (error) {
+                console.error('❌ Error loading store settings:', error);
+                console.error('Error stack:', error.stack);
+
+                // Use defaults if API call fails
+                document.getElementById('storeEmail').value = '';
+                document.getElementById('taxRate').value = 7.5;
+                document.getElementById('shippingCost').value = 0;
+            }
         }
 
-        function saveBankSettings(event) {
+        // Load bank settings from backend API
+        async function loadBankSettings() {
+            try {
+                console.log('Loading bank settings from API...');
+
+                // Construct the full API URL
+                const apiUrl = 'http://localhost:5001/api/settings';
+                console.log('Fetching from:', apiUrl);
+
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('API Response Status:', response.status);
+                console.log('API Response Headers:', {
+                    'content-type': response.headers.get('content-type')
+                });
+
+                if (!response.ok) {
+                    console.error('API response not ok:', response.status, response.statusText);
+                    const text = await response.text();
+                    console.error('Response body:', text);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('✅ Bank settings loaded:', data);
+
+                const settings = data.data || data;
+
+                // Populate all form fields
+                document.getElementById('bankName').value = settings.bank_name || 'Access Bank';
+                document.getElementById('accountNumber').value = settings.account_number || '';
+                document.getElementById('accountHolder').value = settings.account_name || '';
+                document.getElementById('accountType').value = settings.account_type || '';
+                document.getElementById('currency').value = settings.currency || 'NGN';
+                document.getElementById('currencySymbol').value = settings.currency_symbol || '₦';
+
+                console.log('✅ Bank settings populated successfully');
+            } catch (error) {
+                console.error('❌ Error loading bank settings:', error);
+                console.error('Error stack:', error.stack);
+
+                // Use defaults if API call fails
+                document.getElementById('bankName').value = 'Access Bank';
+                document.getElementById('accountNumber').value = '';
+                document.getElementById('accountHolder').value = '';
+                document.getElementById('accountType').value = '';
+                document.getElementById('currency').value = 'NGN';
+                document.getElementById('currencySymbol').value = '₦';
+            }
+        }
+
+        async function saveStoreSettings(event) {
             event.preventDefault();
 
-            const updates = {
-                bankName: document.getElementById('bankName').value,
-                accountNumber: document.getElementById('accountNumber').value,
-                accountHolder: document.getElementById('accountHolder').value
+            // Save to localStorage (for fields not in database)
+            const localStorageUpdates = {
+                businessName: document.getElementById('businessName').value,
+                storeName: document.getElementById('storeName').value,
+                storePhone: document.getElementById('storePhone').value,
+                storeAddress: document.getElementById('storeAddress').value
             };
+            adminDataService.updateAdminSettings(localStorageUpdates);
 
-            adminDataService.updateAdminSettings(updates);
-            notifications.success('Bank details saved successfully!');
+            // Save to API (for database fields)
+            try {
+                const token = localStorage.getItem('fjl_token') || '';
+
+                const apiUpdates = {
+                    business_name: document.getElementById('businessName').value,
+                    store_name: document.getElementById('storeName').value,
+                    store_email: document.getElementById('storeEmail').value,
+                    store_phone: document.getElementById('storePhone').value,
+                    store_address: document.getElementById('storeAddress').value,
+                    tax_rate: parseFloat(document.getElementById('taxRate').value),
+                    shipping_cost: parseFloat(document.getElementById('shippingCost').value)
+                };
+
+                const response = await fetch('http://localhost:5001/api/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(apiUpdates)
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('Response text:', text);
+                    try {
+                        const error = JSON.parse(text);
+                        throw new Error(error.error || `HTTP error! status: ${response.status}`);
+                    } catch (e) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                }
+
+                notifications.success('Store settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving store settings to API:', error);
+                notifications.error('Failed to save some settings: ' + error.message);
+            }
+        }
+
+        async function saveBankSettings(event) {
+            event.preventDefault();
+
+            const statusEl = document.getElementById('bankSaveStatus');
+            statusEl.textContent = 'Saving...';
+            statusEl.style.color = '#0066cc';
+
+            try {
+                const token = localStorage.getItem('fjl_token') || '';
+
+                const updates = {
+                    bank_name: document.getElementById('bankName').value,
+                    account_number: document.getElementById('accountNumber').value,
+                    account_name: document.getElementById('accountHolder').value,
+                    account_type: document.getElementById('accountType').value,
+                    currency: document.getElementById('currency').value,
+                    currency_symbol: document.getElementById('currencySymbol').value
+                };
+
+                const response = await fetch('http://localhost:5001/api/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updates)
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('Response text:', text);
+                    try {
+                        const error = JSON.parse(text);
+                        throw new Error(error.error || `HTTP error! status: ${response.status}`);
+                    } catch (e) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                }
+
+                statusEl.textContent = '✅ Saved successfully!';
+                statusEl.style.color = '#28a745';
+                notifications.success('Bank details saved successfully!');
+
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                }, 3000);
+            } catch (error) {
+                console.error('Error saving bank settings:', error);
+                statusEl.textContent = '❌ Save failed';
+                statusEl.style.color = '#dc3545';
+                notifications.error('Failed to save bank details: ' + error.message);
+            }
         }
 
         function changePassword(event) {

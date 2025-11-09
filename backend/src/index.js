@@ -59,6 +59,9 @@ const customersRouter = customersRouterModule.default;
 const authRouterModule = await import('./routes/auth.js');
 const authRouter = authRouterModule.default;
 
+const settingsRouterModule = await import('./routes/settings.js');
+const settingsRouter = settingsRouterModule.default;
+
 // Initialize Express app
 const app = express();
 const port = process.env.PORT || 3000;
@@ -127,6 +130,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/customers', customersRouter);
+app.use('/api/settings', settingsRouter);
 
 // ============================================================================
 // ERROR HANDLING
