@@ -199,7 +199,8 @@ export async function listOrders(filters = {}) {
       .from('orders')
       .select(`
         *,
-        users(id, email, first_name, last_name)
+        users(id, email, first_name, last_name),
+        order_items(id, product_id, product_name, product_sku, size, color, unit_price, quantity, total_price)
       `);
 
     // Apply filters

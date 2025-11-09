@@ -19,7 +19,8 @@ router.post('/', validationChains.createOrder, handleValidationErrors, asyncHand
     const customer = {
       id: order.users.id,
       email: order.users.email,
-      first_name: order.users.first_name
+      first_name: order.users.first_name,
+      last_name: order.users.last_name
     };
     await emailService.sendOrderConfirmation(order, customer);
   } catch (emailError) {
@@ -108,7 +109,8 @@ router.put('/:id/status', verifyJWT, requireAdmin, requirePermission('manage_ord
       const customer = {
         id: order.user_id,
         email: order.shipping_email,
-        first_name: order.shipping_first_name
+        first_name: order.shipping_first_name,
+        last_name: order.shipping_last_name
       };
       await emailService.sendShippingNotification(order, customer);
     } catch (emailError) {
@@ -146,7 +148,8 @@ router.put('/:id/payment-status', verifyJWT, requireAdmin, requirePermission('ma
       const customer = {
         id: order.user_id,
         email: order.shipping_email,
-        first_name: order.shipping_first_name
+        first_name: order.shipping_first_name,
+        last_name: order.shipping_last_name
       };
       await emailService.sendPaymentVerified(order, customer);
     } catch (emailError) {

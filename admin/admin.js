@@ -727,44 +727,229 @@ class AdminDataService {
     }
 
     // Order Methods
-    getOrders(filters = {}) {
-        let orders = JSON.parse(localStorage.getItem('fjl_orders'));
+    async getOrders(filters = {}) {
+        try {
+            const token = localStorage.getItem('fjl_admin_token');
+            if (!token) {
+                console.error('No authentication token found');
+                return [];
+            }
 
-        if (filters.status) {
-            orders = orders.filter(o => o.status === filters.status);
-        }
-        if (filters.search) {
-            const search = filters.search.toLowerCase();
-            orders = orders.filter(o =>
-                o.customerName.toLowerCase().includes(search) ||
-                o.orderId.toLowerCase().includes(search)
-            );
-        }
-        if (filters.dateFrom) {
-            orders = orders.filter(o => new Date(o.createdAt) >= new Date(filters.dateFrom));
-        }
-        if (filters.dateTo) {
-            orders = orders.filter(o => new Date(o.createdAt) <= new Date(filters.dateTo));
-        }
+            const params = new URLSearchParams();
+            if (filters.status) params.append('status', filters.status);
+            if (filters.payment_status) params.append('payment_status', filters.payment_status);
+            if (filters.page) params.append('page', filters.page);
+            if (filters.limit) params.append('limit', filters.limit);
 
-        return orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const response = await fetch(`http://localhost:5001/api/orders?${params}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.error('Failed to fetch orders:', response.statusText);
+                return [];
+            }
+
+            const result = await response.json();
+            let orders = result.data || [];
+
+            // Transform backend response to frontend format
+            orders = orders.map(order => ({
+                id: order.id,
+                orderId: order.order_number,
+                customerName: `${order.users?.first_name || order.shipping_first_name || ''} ${order.users?.last_name || order.shipping_last_name || ''}`.trim(),
+                customerEmail: order.users?.email || order.shipping_email || '',
+                total: order.total_amount || 0,
+                subtotal: order.subtotal || 0,
+                tax: order.tax || 0,
+                shippingCost: order.shipping_cost || 0,
+                status: order.order_status || 'pending',
+                paymentStatus: order.payment_status || 'pending',
+                createdAt: order.created_at,
+                updatedAt: order.updated_at,
+                items: order.order_items ? order.order_items.map(item => ({
+                    id: item.id,
+                    name: item.product_name,
+                    productId: item.product_id,
+                    sku: item.product_sku,
+                    size: item.size,
+                    color: item.color,
+                    quantity: item.quantity,
+                    price: parseFloat(item.unit_price) || 0,
+                    total: parseFloat(item.total_price) || 0
+                })) : [],
+                shippingAddress: {
+                    firstName: order.shipping_first_name,
+                    lastName: order.shipping_last_name,
+                    email: order.shipping_email,
+                    phone: order.shipping_phone,
+                    address: order.shipping_address,
+                    city: order.shipping_city,
+                    state: order.shipping_state,
+                    postalCode: order.shipping_postal_code,
+                    country: order.shipping_country
+                }
+            }));
+
+            // Apply client-side filters (for search)
+            if (filters.search) {
+                const search = filters.search.toLowerCase();
+                orders = orders.filter(o =>
+                    o.customerName.toLowerCase().includes(search) ||
+                    o.orderId.toLowerCase().includes(search)
+                );
+            }
+
+            if (filters.dateFrom) {
+                orders = orders.filter(o => new Date(o.createdAt) >= new Date(filters.dateFrom));
+            }
+
+            if (filters.dateTo) {
+                orders = orders.filter(o => new Date(o.createdAt) <= new Date(filters.dateTo));
+            }
+
+            return orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+            return [];
+        }
     }
 
-    getOrderById(id) {
-        const orders = JSON.parse(localStorage.getItem('fjl_orders'));
-        return orders.find(o => o.id === id || o.orderId === id);
+    async getOrderById(id) {
+        try {
+            const token = localStorage.getItem('fjl_admin_token');
+            if (!token) {
+                console.error('No authentication token found');
+                return null;
+            }
+
+            const response = await fetch(`http://localhost:5001/api/orders/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.error('Failed to fetch order:', response.statusText);
+                return null;
+            }
+
+            const result = await response.json();
+            const order = result.data;
+
+            // Transform backend response to frontend format
+            return {
+                id: order.id,
+                orderId: order.order_number,
+                customerName: `${order.users?.first_name || order.shipping_first_name || ''} ${order.users?.last_name || order.shipping_last_name || ''}`.trim(),
+                customerEmail: order.users?.email || order.shipping_email || '',
+                total: order.total_amount || 0,
+                subtotal: order.subtotal || 0,
+                tax: order.tax || 0,
+                shippingCost: order.shipping_cost || 0,
+                status: order.order_status || 'pending',
+                paymentStatus: order.payment_status || 'pending',
+                createdAt: order.created_at,
+                updatedAt: order.updated_at,
+                items: order.order_items ? order.order_items.map(item => ({
+                    id: item.id,
+                    name: item.product_name,
+                    productId: item.product_id,
+                    sku: item.product_sku,
+                    size: item.size,
+                    color: item.color,
+                    quantity: item.quantity,
+                    price: parseFloat(item.unit_price) || 0,
+                    total: parseFloat(item.total_price) || 0
+                })) : [],
+                shippingAddress: {
+                    firstName: order.shipping_first_name,
+                    lastName: order.shipping_last_name,
+                    email: order.shipping_email,
+                    phone: order.shipping_phone,
+                    address: order.shipping_address,
+                    city: order.shipping_city,
+                    state: order.shipping_state,
+                    postalCode: order.shipping_postal_code,
+                    country: order.shipping_country
+                }
+            };
+        } catch (error) {
+            console.error('Error fetching order:', error);
+            return null;
+        }
     }
 
-    updateOrderStatus(orderId, newStatus) {
-        const orders = JSON.parse(localStorage.getItem('fjl_orders'));
-        const order = orders.find(o => o.id === orderId || o.orderId === orderId);
-        if (order) {
-            order.status = newStatus;
-            order.updatedAt = new Date().toISOString();
-            localStorage.setItem('fjl_orders', JSON.stringify(orders));
-            return order;
+    async updateOrderStatus(orderId, newStatus) {
+        try {
+            const token = localStorage.getItem('fjl_admin_token');
+            if (!token) {
+                console.error('No authentication token found');
+                return null;
+            }
+
+            // Convert status to lowercase for backend compatibility
+            const statusValue = newStatus.toLowerCase();
+
+            const response = await fetch(`http://localhost:5001/api/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: statusValue })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to update order status:', response.statusText);
+                return null;
+            }
+
+            const result = await response.json();
+            return result.data;
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            return null;
         }
-        return null;
+    }
+
+    async updatePaymentStatus(orderId, paymentStatus) {
+        try {
+            const token = localStorage.getItem('fjl_admin_token');
+            if (!token) {
+                console.error('No authentication token found');
+                return null;
+            }
+
+            // Convert status to lowercase for backend compatibility
+            const statusValue = paymentStatus.toLowerCase();
+
+            const response = await fetch(`http://localhost:5001/api/orders/${orderId}/payment-status`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ payment_status: statusValue })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to update payment status:', response.statusText);
+                return null;
+            }
+
+            const result = await response.json();
+            return result.data;
+        } catch (error) {
+            console.error('Error updating payment status:', error);
+            return null;
+        }
     }
 
     // Customer Methods

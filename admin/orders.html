@@ -137,8 +137,8 @@
             loadOrders();
         }
 
-        function loadOrders() {
-            const orders = adminDataService.getOrders();
+        async function loadOrders() {
+            const orders = await adminDataService.getOrders();
             renderOrders(orders);
         }
 
@@ -167,7 +167,7 @@
             `).join('');
         }
 
-        function applyFilters() {
+        async function applyFilters() {
             const search = document.getElementById('searchInput').value;
             const status = document.getElementById('statusFilter').value;
             const dateFrom = document.getElementById('dateFromFilter').value;
@@ -180,7 +180,7 @@
                 dateTo: dateTo
             };
 
-            const filtered = adminDataService.getOrders(filters);
+            const filtered = await adminDataService.getOrders(filters);
             renderOrders(filtered);
         }
 
@@ -192,8 +192,8 @@
             loadOrders();
         }
 
-        function viewOrderDetails(orderId) {
-            currentOrder = adminDataService.getOrderById(orderId);
+        async function viewOrderDetails(orderId) {
+            currentOrder = await adminDataService.getOrderById(orderId);
             if (!currentOrder) return;
 
             const itemsHtml = currentOrder.items.map(item => `
@@ -286,13 +286,26 @@
                         <label class="form-label">Update Order Status</label>
                         <div style="display: flex; gap: var(--spacing-md);">
                             <select id="statusSelect" class="form-select">
-                                <option value="Pending" ${currentOrder.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="Processing" ${currentOrder.status === 'Processing' ? 'selected' : ''}>Processing</option>
-                                <option value="Shipped" ${currentOrder.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                                <option value="Delivered" ${currentOrder.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                                <option value="Cancelled" ${currentOrder.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                <option value="pending" ${currentOrder.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="processing" ${currentOrder.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                <option value="shipped" ${currentOrder.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="delivered" ${currentOrder.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="cancelled" ${currentOrder.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                             </select>
                             <button class="btn btn-primary" onclick="saveOrderStatus()">Save</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-lg);">
+                        <label class="form-label">Update Payment Status</label>
+                        <div style="display: flex; gap: var(--spacing-md);">
+                            <select id="paymentStatusSelect" class="form-select">
+                                <option value="pending" ${currentOrder.paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="verified" ${currentOrder.paymentStatus === 'verified' ? 'selected' : ''}>Verified</option>
+                                <option value="failed" ${currentOrder.paymentStatus === 'failed' ? 'selected' : ''}>Failed</option>
+                                <option value="refunded" ${currentOrder.paymentStatus === 'refunded' ? 'selected' : ''}>Refunded</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="savePaymentStatus()">Save</button>
                         </div>
                     </div>
                 </div>
@@ -301,16 +314,24 @@
             document.getElementById('orderModal').classList.add('active');
         }
 
-        function saveOrderStatus() {
+        async function saveOrderStatus() {
             const newStatus = document.getElementById('statusSelect').value;
-            adminDataService.updateOrderStatus(currentOrder.id, newStatus);
+            await adminDataService.updateOrderStatus(currentOrder.id, newStatus);
             notifications.success('Order status updated successfully!');
             closeOrderModal();
-            loadOrders();
+            await loadOrders();
         }
 
-        function updateOrderStatus(orderId) {
-            viewOrderDetails(orderId);
+        async function savePaymentStatus() {
+            const newPaymentStatus = document.getElementById('paymentStatusSelect').value;
+            await adminDataService.updatePaymentStatus(currentOrder.id, newPaymentStatus);
+            notifications.success('Payment status updated successfully!');
+            closeOrderModal();
+            await loadOrders();
+        }
+
+        async function updateOrderStatus(orderId) {
+            await viewOrderDetails(orderId);
         }
 
         function closeOrderModal() {
@@ -322,8 +343,8 @@
             window.print();
         }
 
-        function exportOrders() {
-            const orders = adminDataService.getOrders();
+        async function exportOrders() {
+            const orders = await adminDataService.getOrders();
             const exportData = orders.map(o => ({
                 'Order ID': o.orderId,
                 'Customer': o.customerName,
