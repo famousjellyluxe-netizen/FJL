@@ -210,7 +210,7 @@ Famous Jelly Luxe Order System
 }
 
 /**
- * Send payment verified email
+ * Send payment verified email to customer
  */
 export async function sendPaymentVerified(order, customer) {
   if (!resend) {
@@ -219,24 +219,80 @@ export async function sendPaymentVerified(order, customer) {
   }
 
   try {
-    const htmlContent = `
-      <h2>Payment Confirmed</h2>
-      <p>Hi ${customer.first_name},</p>
-      <p>Great news! We've received and verified your payment for order #${order.order_number}.</p>
+    // Fetch business settings dynamically
+    const settings = await settingsService.getSettings();
 
-      <h3>Payment Details:</h3>
-      <p>Amount: ₦${parseFloat(order.total_amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</p>
-      <p>Payment Method: ${order.payment_method === 'bank_transfer' ? 'Bank Transfer' : order.payment_method}</p>
+    // Format order items for display
+    const itemsText = order.items
+      .map(item => {
+        const sizeColor = `Size: ${item.size}${item.color ? ` | Color: ${item.color}` : ''}`;
+        const itemPrice = parseFloat(item.unit_price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+        const itemTotal = parseFloat(item.total_price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+        return `${item.product_name}\n${sizeColor} | Qty: ${item.quantity}\nPrice: ${settings.currency_symbol}${itemPrice} x ${item.quantity} = ${settings.currency_symbol}${itemTotal}`;
+      })
+      .join('\n\n');
 
-      <p>Your order is now being processed and will be shipped soon. You'll receive a tracking number shortly.</p>
-      <p>Best regards,<br>Famous Jelly Luxe Team</p>
+    const subtotal = parseFloat(order.subtotal).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const tax = parseFloat(order.tax).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const shipping = parseFloat(order.shipping_cost || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const total = parseFloat(order.total_amount).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const orderDate = new Date(order.created_at).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Calculate expected delivery date (5-7 business days from now)
+    const deliveryDays = settings.delivery_days || 5;
+    const expectedDeliveryDate = new Date(order.created_at);
+    expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + deliveryDays);
+    const deliveryDateStr = expectedDeliveryDate.toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // CUSTOMER EMAIL
+    const customerHtmlContent = `
+      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi ${customer.first_name},
+
+🎉 Payment Verified - Order #${order.order_number}
+
+Thank you! We've received and verified your payment for order #${order.order_number}.
+
+───────────────────────────────
+📦 Your Order Details
+
+Order Number: #${order.order_number}
+Order Date: ${orderDate}
+Status: Payment Verified ✓
+
+${itemsText}
+
+───────────────────────────────
+💳 Payment Summary
+
+Subtotal: ${settings.currency_symbol}${subtotal}
+Tax (7.5%): ${settings.currency_symbol}${tax}
+Shipping: Free
+───────────────────────────────
+Total Paid: ${settings.currency_symbol}${total}
+
+───────────────────────────────
+📅 What's Next?
+
+Your order is now being processed and prepared for shipment.
+Expected Delivery: ${deliveryDateStr}
+
+We'll notify you as soon as your package is on its way with a tracking number.
+
+───────────────────────────────
+💬 Questions?
+
+If you have any questions about your order, please reach out to us at ${settings.store_email}.
+
+Thanks for choosing Famous Jelly Luxe!
+Stay fresh. Stay fearless.</pre>
     `;
 
+    // Send to customer
     const response = await resend.emails.send({
       from: process.env.STORE_EMAIL,
       to: customer.email,
-      subject: `Payment Confirmed - Order #${order.order_number}`,
-      html: htmlContent
+      subject: `🎉 Payment Verified — Order #${order.order_number}`,
+      html: customerHtmlContent
     });
 
     // Log email
@@ -252,6 +308,8 @@ export async function sendPaymentVerified(order, customer) {
       order_id: order.id,
       user_id: customer.id
     });
+
+    console.log(`✅ Payment verified email sent to customer: ${customer.email}`);
 
     return { success: true, messageId: response.id };
   } catch (error) {
