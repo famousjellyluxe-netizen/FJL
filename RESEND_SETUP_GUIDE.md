@@ -75,24 +75,69 @@ re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 - More professional appearance
 - Required for production use
 
-**Steps:**
-1. Go to Domains in Resend dashboard
-2. Click "Add Domain"
-3. Enter your domain (e.g., `mail.fjlclothing.shop`)
-4. Add DNS records provided:
-   - **SPF Record:** `v=spf1 include:resend.com ~all`
-   - **DKIM Record:** Copy from Resend dashboard
-   - **DMARC Record:** `v=DMARC1; p=none;` (or stricter if needed)
-5. Verify DNS propagation (can take 24-48 hours)
-6. Resend will automatically detect verification
+**Important:** DNS records are added in **Namecheap** (your domain registrar), NOT in Resend. Resend only provides the record values.
 
-**Expected DNS Changes:**
+**Step 1: Add Domain in Resend Dashboard**
+1. Log in to https://resend.com dashboard
+2. Go to Settings → Domains
+3. Click "Add Domain"
+4. Enter your domain (e.g., `mail.fjlclothing.shop`)
+5. Resend will display 3 DNS records you need to add
+
+**Step 2: Get DNS Records from Resend**
+Resend will provide:
+- **SPF Record:** `v=spf1 include:resend.com ~all`
+- **DKIM Record:** `default._domainkey` CNAME to `[random-id].dkim.resend.domains`
+- **DMARC Record:** `v=DMARC1; p=none;` (or stricter)
+
+**Step 3: Add DNS Records in Namecheap**
+1. Log in to Namecheap account
+2. Go to Domain List
+3. Click "Manage" next to `fjlclothing.shop`
+4. Go to "Advanced DNS" tab
+5. Add the DNS records:
+
 ```
-Type    Name              Value
-TXT     mail.fjlclothing  v=spf1 include:resend.com ~all
-CNAME   default._domainkey.mail.fjlclothing  [resend-provided-value]
-TXT     _dmarc.mail.fjlclothing  v=DMARC1; p=none;
+Record Type    Host                            Value
+─────────────────────────────────────────────────────────────────
+TXT            mail                            v=spf1 include:resend.com ~all
+CNAME          default._domainkey.mail         [resend-provided-value].dkim.resend.domains
+TXT            _dmarc.mail                     v=DMARC1; p=none;
 ```
+
+**Step-by-Step in Namecheap:**
+
+For each record:
+1. Click "Add Record"
+2. Select Type (TXT or CNAME)
+3. Enter Host (e.g., `mail`)
+4. Enter Value (from Resend)
+5. Click checkmark
+6. Save all changes
+
+**Step 4: Verify in Resend**
+1. Go back to Resend dashboard
+2. DNS propagation takes 15 minutes to 48 hours
+3. Resend will automatically detect and verify
+4. You'll see "✓ Verified" when complete
+
+**Expected DNS Setup in Namecheap:**
+```
+Type    Host                        Value
+TXT     mail                        v=spf1 include:resend.com ~all
+CNAME   default._domainkey.mail     [id].dkim.resend.domains
+TXT     _dmarc.mail                 v=DMARC1; p=none;
+```
+
+**Troubleshooting DNS in Namecheap:**
+- Make sure you're in "Advanced DNS" tab (not "Basic DNS")
+- Use exact host names including subdomain (e.g., `mail` not `mail.fjlclothing.shop`)
+- Wait 24-48 hours for DNS propagation
+- Use `nslookup` or `dig` to verify:
+  ```bash
+  nslookup -type=TXT mail.fjlclothing.shop
+  dig TXT mail.fjlclothing.shop
+  ```
 
 ### 4. Configure Environment Variables
 
