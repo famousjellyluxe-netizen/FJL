@@ -35,11 +35,12 @@ router.post('/', validationChains.createOrder, handleValidationErrors, asyncHand
 }));
 
 /**
- * GET /api/orders/:id
- * Get order by ID (public - can access own order)
+ * GET /api/orders/number/:orderNumber
+ * Get order by order number (public)
+ * NOTE: This must come before /:id to prevent /:id from catching /number/:orderNumber
  */
-router.get('/:id', asyncHandler(async (req, res) => {
-  const order = await orderService.getOrderById(req.params.id);
+router.get('/number/:orderNumber', asyncHandler(async (req, res) => {
+  const order = await orderService.getOrderByNumber(req.params.orderNumber);
 
   res.json({
     success: true,
@@ -48,11 +49,11 @@ router.get('/:id', asyncHandler(async (req, res) => {
 }));
 
 /**
- * GET /api/orders/number/:orderNumber
- * Get order by order number (public)
+ * GET /api/orders/:id
+ * Get order by ID (public - can access own order)
  */
-router.get('/number/:orderNumber', asyncHandler(async (req, res) => {
-  const order = await orderService.getOrderByNumber(req.params.orderNumber);
+router.get('/:id', asyncHandler(async (req, res) => {
+  const order = await orderService.getOrderById(req.params.id);
 
   res.json({
     success: true,

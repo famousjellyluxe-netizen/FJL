@@ -224,8 +224,8 @@
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
         .info-grid.full {
@@ -242,13 +242,13 @@
             font-weight: 600;
             text-transform: uppercase;
             color: #8b8b8b;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
 
         .info-value {
             font-size: 14px;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .order-items {
@@ -549,17 +549,55 @@
         <div class="confirmation-container">
             <!-- Success Header -->
             <div class="confirmation-header">
-                <div class="success-icon">
-                    <i data-lucide="check-circle" class="w-10 h-10 text-green-600" aria-label="Order confirmed"></i>
+                <h1>Order Received!</h1>
+                <p>Thank you, <span id="firstName">Guest</span>.</p>
+                <p id="orderStatus">Your order has been received successfully.</p>
+                <p style="color: #E09F3E; font-weight: 600; margin-top: 12px;">Please complete your payment to confirm your order.</p>
+                <p style="font-size: 13px; color: #8b8b8b; margin-top: 8px;">
+                    🕒 Order Date: <span id="orderDate">-</span> | 📋 Order ID: <span id="orderNumber" style="font-weight: 600; color: #333;">-</span>
+                </p>
+            </div>
+
+            <!-- Order Summary Table -->
+            <div class="section">
+                <h2 class="section-title">📦 Order Summary</h2>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #e5e5e5;">
+                                <th style="text-align: left; padding: 12px 0; font-weight: 700; color: #333;">Item</th>
+                                <th style="text-align: left; padding: 12px 0; font-weight: 700; color: #333;">Details</th>
+                                <th style="text-align: right; padding: 12px 0; font-weight: 700; color: #333;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderItemsContainer">
+                            <!-- Items will be inserted here -->
+                        </tbody>
+                    </table>
                 </div>
-                <h1>Order Confirmed!</h1>
-                <p>Thank you for your purchase</p>
-                <p class="order-number">Order Number: <span id="orderNumber">FJL0000000000000</span></p>
+                <div class="price-summary" style="margin-top: 16px;">
+                    <div class="price-row">
+                        <span>Subtotal:</span>
+                        <span id="summarySubtotal">₦0.00</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Tax (7.5%):</span>
+                        <span id="summaryTax">₦0.00</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Shipping:</span>
+                        <span>Free</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total:</span>
+                        <span id="summaryTotal">₦0.00</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Shipping Information -->
             <div class="section">
-                <h2 class="section-title">Shipping Information</h2>
+                <h2 class="section-title">🚚 Shipping Information</h2>
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="info-label">Name</span>
@@ -584,70 +622,17 @@
                 </div>
             </div>
 
-            <!-- Payment Account Information -->
-            <div class="section">
-                <h2 class="section-title">Your Payment Details (Bank Alert)</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Your Bank Name</span>
-                        <span class="info-value" id="buyerBankName">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Your Account Name (As used for transfer)</span>
-                        <span class="info-value" id="buyerName">-</span>
-                    </div>
-                </div>
-                <div style="background: #f0f8ff; border-left: 4px solid #0066cc; padding: 12px; border-radius: 4px; margin-top: 16px; font-size: 12px; color: #333;">
-                    <strong>Note:</strong> This is the account name that will appear in FJL's bank alert when you send the payment. Make sure it matches your bank records.
-                </div>
-            </div>
-
-            <!-- Order Summary -->
-            <div class="section">
-                <h2 class="section-title">Order Summary</h2>
-                <div class="order-items" id="orderItemsContainer">
-                    <!-- Items will be inserted here -->
-                </div>
-                <div class="price-summary">
-                    <div class="price-row">
-                        <span>Subtotal:</span>
-                        <span id="summarySubtotal">₦0.00</span>
-                    </div>
-                    <div class="price-row">
-                        <span>Shipping:</span>
-                        <span>Free</span>
-                    </div>
-                    <div class="price-row">
-                        <span>Tax (7.5%):</span>
-                        <span id="summaryTax">₦0.00</span>
-                    </div>
-                    <div class="price-row total">
-                        <span>Total:</span>
-                        <span id="summaryTotal">₦0.00</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Payment Instructions -->
             <div class="section">
-                <h2 class="section-title">How to Pay</h2>
-                <div class="payment-instructions">
-                    <h4>Send Payment To This Account</h4>
-                    <ol>
-                        <li><strong>Open your bank app</strong> or visit your bank branch</li>
-                        <li><strong>Make a bank transfer</strong> using the account details below</li>
-                        <li><strong>Transfer amount:</strong> ₦<span id="confirmTotal">0.00</span></li>
-                        <li><strong>Use this reference:</strong> <span id="confirmOrderNum" style="font-weight: 700; color: #0066cc;">FJL...</span></li>
-                        <li><strong>Wait for confirmation</strong> - we'll email you once payment is verified</li>
-                    </ol>
-                </div>
+                <h2 class="section-title">💳 How to Pay</h2>
+                <p style="font-size: 14px; color: #333; margin-bottom: 16px;">Please complete your payment to confirm your order if you haven't already.<br>Transfer <strong id="confirmTotal2">₦0.00</strong> to:</p>
                 <div class="payment-details">
                     <div class="payment-detail-row">
-                        <span class="payment-detail-label">Account Holder:</span>
+                        <span class="payment-detail-label">Account Name:</span>
                         <span class="payment-detail-value" id="fjlPaymentName">-</span>
                     </div>
                     <div class="payment-detail-row">
-                        <span class="payment-detail-label">Bank Name:</span>
+                        <span class="payment-detail-label">Bank:</span>
                         <span class="payment-detail-value" id="fjlPaymentBank">-</span>
                     </div>
                     <div class="payment-detail-row">
@@ -659,11 +644,19 @@
                         <span class="payment-detail-value" id="fjlPaymentType">-</span>
                     </div>
                 </div>
+                <p style="font-size: 13px; color: #666; margin-top: 16px;">📝 Once payment is made, we'll verify and email you a confirmation.</p>
+            </div>
+
+            <!-- Need Help Section -->
+            <div class="section" style="background: #f9f9f9; padding: 16px; border-radius: 4px; border-left: 4px solid #E09F3E;">
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">📧 Need Help?</h3>
+                <p style="font-size: 13px; color: #333; margin: 0;">If you've already made payment or have any issues, reply directly to this email or contact:</p>
+                <p style="font-size: 13px; font-weight: 600; color: #E09F3E; margin: 6px 0 0 0;">hello@fjlclothing.com</p>
             </div>
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="btn print-btn" onclick="window.print()">Print Order</button>
+                <button class="btn print-btn" onclick="window.print()">Print Receipt</button>
                 <a href="shop.html" class="btn btn-primary">Continue Shopping</a>
             </div>
         </div>
@@ -878,7 +871,8 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateCartBadge();
-            loadOrderDetails();
+            // Note: Order loading is now handled by order-confirmation-integration.js
+            // which runs after this script loads
         });
 
         // Initialize Lucide icons

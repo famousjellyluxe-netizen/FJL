@@ -142,12 +142,22 @@
         }
 
         console.log(`✅ Order created: ${order.order_number}`);
-        console.log('Order details:', order);
+        console.log('Complete order object:', JSON.stringify(order, null, 2));
 
-        // Store order in localStorage for offline access
+        // Validate order has required fields
+        if (!order.id || !order.order_number) {
+          throw new Error('Invalid order response: missing id or order_number');
+        }
+
+        // Store complete order in localStorage for offline access and confirmation page
         const orders = JSON.parse(localStorage.getItem('fjl_orders') || '[]');
-        orders.push(order);
-        localStorage.setItem('fjl_orders', JSON.stringify(orders));
+
+        // Remove any duplicate orders with same order_number
+        const filteredOrders = orders.filter(o => o.order_number !== order.order_number);
+        filteredOrders.push(order);
+
+        localStorage.setItem('fjl_orders', JSON.stringify(filteredOrders));
+        console.log('✅ Order stored in localStorage');
 
         // Clear cart
         localStorage.removeItem('fjl_cart');

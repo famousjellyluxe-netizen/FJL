@@ -25,24 +25,37 @@
       }
 
       if (result.success && result.data) {
-        console.log(`✅ Loaded order from API: ${result.data.order_number}`);
+        // Handle both direct order object and wrapped API response
+        let order = result.data;
+        if (order.data && order.data.order_number) {
+          // Response is wrapped: { success: true, message: "...", data: order }
+          order = order.data;
+        }
+
+        console.log(`✅ Loaded order from API: ${order.order_number}`);
+        console.log('Order object with relationships:', JSON.stringify(order, null, 2));
+
+        // Validate order has required fields
+        if (!order.id || !order.order_number) {
+          throw new Error('Invalid order response: missing id or order_number');
+        }
 
         // Cache in localStorage
         const orders = JSON.parse(localStorage.getItem('fjl_orders') || '[]');
         const existingIndex = orders.findIndex(o =>
-          o.id === result.data.id || o.order_number === result.data.order_number
+          o.id === order.id || o.order_number === order.order_number
         );
 
         if (existingIndex >= 0) {
-          orders[existingIndex] = result.data;
+          orders[existingIndex] = order;
         } else {
-          orders.push(result.data);
+          orders.push(order);
         }
 
         localStorage.setItem('fjl_orders', JSON.stringify(orders));
 
         return {
-          order: result.data,
+          order: order,
           source: 'api'
         };
       }
@@ -151,13 +164,18 @@
         const result = await apiManager.call(`/orders/number/${orderNumber}`, { method: 'GET' });
 
         if (result.success && result.data) {
+          // Handle both direct order object and wrapped API response
+          let newOrder = result.data;
+          if (newOrder.data && newOrder.data.order_number) {
+            newOrder = newOrder.data;
+          }
+
           // Update localStorage
           const orders = JSON.parse(localStorage.getItem('fjl_orders') || '[]');
           const index = orders.findIndex(o => o.order_number === orderNumber);
 
           if (index >= 0) {
             const oldOrder = orders[index];
-            const newOrder = result.data;
 
             // Check for status changes
             if (oldOrder.order_status !== newOrder.order_status) {
@@ -205,6 +223,140 @@
 
     return interval;
   }
+
+  /**
+   * Display order confirmation on page
+   */
+  window.displayOrderConfirmation = function(order) {
+    if (!order) {
+      console.error('No order data to display');
+      return;
+    }
+
+    console.log('Displaying order:', order);
+
+    // Populate header with personalization
+    const firstNameEl = document.getElementById('firstName');
+    if (firstNameEl) {
+      firstNameEl.textContent = order.shipping_first_name || 'Guest';
+    }
+
+    const orderDateEl = document.getElementById('orderDate');
+    if (orderDateEl) {
+      orderDateEl.textContent = order.orderDate || new Date(order.created_at).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    const orderNumberEl = document.getElementById('orderNumber');
+    if (orderNumberEl) {
+      orderNumberEl.textContent = order.order_number || order.orderNumber || 'Unknown';
+    }
+
+    // Populate shipping information
+    const shippingNameEl = document.getElementById('shippingName');
+    if (shippingNameEl) {
+      shippingNameEl.textContent = order.customerName || `${order.shipping_first_name || ''} ${order.shipping_last_name || ''}`;
+    }
+
+    const shippingEmailEl = document.getElementById('shippingEmail');
+    if (shippingEmailEl) {
+      shippingEmailEl.textContent = order.shipping_email || '-';
+    }
+
+    const shippingPhoneEl = document.getElementById('shippingPhone');
+    if (shippingPhoneEl) {
+      shippingPhoneEl.textContent = order.shipping_phone || '-';
+    }
+
+    const shippingCountryEl = document.getElementById('shippingCountry');
+    if (shippingCountryEl) {
+      shippingCountryEl.textContent = order.shipping_country || '-';
+    }
+
+    const shippingAddressEl = document.getElementById('shippingAddress');
+    if (shippingAddressEl) {
+      shippingAddressEl.textContent = order.shippingAddress ||
+        `${order.shipping_address || ''}, ${order.shipping_city || ''}, ${order.shipping_state || ''} ${order.shipping_postal_code || ''}`;
+    }
+
+    // Populate order items as table rows
+    const orderItemsContainer = document.getElementById('orderItemsContainer');
+    if (orderItemsContainer && order.items && order.items.length > 0) {
+      orderItemsContainer.innerHTML = '';
+      order.items.forEach(item => {
+        const itemRow = document.createElement('tr');
+        itemRow.style.borderBottom = '1px solid #e5e5e5';
+
+        const productName = item.product_name || item.name || 'Unknown Product';
+        const details = [];
+        if (item.size) details.push(`Size: ${item.size}`);
+        if (item.color) details.push(`Color: ${item.color}`);
+        details.push(`Qty: ${item.quantity || 1}`);
+        const detailsText = details.join(' · ');
+
+        const totalPrice = item.totalDisplay || item.priceDisplay ||
+          `₦${(item.total_price || item.unit_price * item.quantity).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+
+        itemRow.innerHTML = `
+          <td style="padding: 12px 0; text-align: left; color: #333;">${productName}</td>
+          <td style="padding: 12px 0; text-align: left; color: #8b8b8b; font-size: 12px;">${detailsText}</td>
+          <td style="padding: 12px 0; text-align: right; color: #333; font-weight: 600;">${totalPrice}</td>
+        `;
+        orderItemsContainer.appendChild(itemRow);
+      });
+    }
+
+    // Populate price summary
+    const summarySubtotalEl = document.getElementById('summarySubtotal');
+    if (summarySubtotalEl) {
+      summarySubtotalEl.textContent = order.subtotalDisplay || `₦${(order.subtotal || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+    }
+
+    const summaryTaxEl = document.getElementById('summaryTax');
+    if (summaryTaxEl) {
+      summaryTaxEl.textContent = order.taxDisplay || `₦${(order.tax || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+    }
+
+    const summaryTotalEl = document.getElementById('summaryTotal');
+    if (summaryTotalEl) {
+      summaryTotalEl.textContent = order.totalDisplay || `₦${(order.total_amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+    }
+
+    // Populate FJL business account details (where customer should send payment)
+    const fjlPaymentNameEl = document.getElementById('fjlPaymentName');
+    if (fjlPaymentNameEl) {
+      fjlPaymentNameEl.textContent = 'Famous Jelly Luxe';
+    }
+
+    const fjlPaymentBankEl = document.getElementById('fjlPaymentBank');
+    if (fjlPaymentBankEl) {
+      fjlPaymentBankEl.textContent = 'Access Bank';
+    }
+
+    const fjlPaymentAccountEl = document.getElementById('fjlPaymentAccount');
+    if (fjlPaymentAccountEl) {
+      fjlPaymentAccountEl.textContent = '1770816426';
+    }
+
+    const fjlPaymentTypeEl = document.getElementById('fjlPaymentType');
+    if (fjlPaymentTypeEl) {
+      fjlPaymentTypeEl.textContent = 'Business Account';
+    }
+
+    // Populate confirmation total in both places
+    const totalAmount = (order.total_amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+
+    const confirmTotalEl = document.getElementById('confirmTotal');
+    if (confirmTotalEl) {
+      confirmTotalEl.textContent = totalAmount;
+    }
+
+    const confirmTotal2El = document.getElementById('confirmTotal2');
+    if (confirmTotal2El) {
+      confirmTotal2El.textContent = `₦${totalAmount}`;
+    }
+
+    console.log('✅ Order confirmation displayed');
+  };
 
   /**
    * Initialize order confirmation page
