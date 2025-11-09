@@ -443,19 +443,14 @@
             }
         }
 
-        function changePassword(event) {
+        async function changePassword(event) {
             event.preventDefault();
 
-            const admin = adminDataService.getAdminSettings();
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (admin.password !== currentPassword) {
-                notifications.error('Current password is incorrect!');
-                return;
-            }
-
+            // Client-side validation
             if (newPassword !== confirmPassword) {
                 notifications.error('New passwords do not match!');
                 return;
@@ -466,13 +461,45 @@
                 return;
             }
 
-            adminDataService.updateAdminSettings({ password: newPassword });
-            document.getElementById('securityForm').reset();
-            notifications.success('Password changed successfully! Please log in again.');
-            setTimeout(() => {
-                adminDataService.logoutAdmin();
-                window.location.href = 'index.html';
-            }, 1500);
+            if (!currentPassword.trim()) {
+                notifications.error('Current password is required!');
+                return;
+            }
+
+            // Call backend API to change password
+            try {
+                const token = localStorage.getItem('fjl_token') || '';
+
+                const response = await fetch('http://localhost:5001/api/auth/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                }
+
+                // Success - clear form and logout
+                document.getElementById('securityForm').reset();
+                notifications.success('Password changed successfully! Please log in again.');
+
+                setTimeout(() => {
+                    adminDataService.logoutAdmin();
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                console.error('Error changing password:', error);
+                notifications.error('Failed to change password: ' + error.message);
+            }
         }
 
         function toggleSidebar() {
