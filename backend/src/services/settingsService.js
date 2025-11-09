@@ -68,7 +68,10 @@ export async function getSettings() {
       store_name: settings.store_name || '',
       business_name: settings.business_name || '',
       store_phone: settings.store_phone || '',
-      store_address: settings.store_address || ''
+      store_address: settings.store_address || '',
+
+      // Email settings
+      delivery_days: settings.delivery_days ? parseInt(settings.delivery_days) : 5
     };
 
     // Update cache
@@ -103,7 +106,9 @@ function getDefaultSettings() {
     tax_rate: 7.5,
     shipping_cost: 0,
     currency: 'NGN',
-    currency_symbol: '₦'
+    currency_symbol: '₦',
+    // Email settings
+    delivery_days: 5
   };
 }
 
@@ -126,7 +131,8 @@ export async function updateSettings(settingsData) {
       { key: 'tax_rate', value: String(parseFloat(settingsData.tax_rate) || 7.5), type: 'number' },
       { key: 'shipping_cost', value: String(parseFloat(settingsData.shipping_cost) || 0), type: 'number' },
       { key: 'currency', value: settingsData.currency || 'NGN', type: 'string' },
-      { key: 'currency_symbol', value: settingsData.currency_symbol || '₦', type: 'string' }
+      { key: 'currency_symbol', value: settingsData.currency_symbol || '₦', type: 'string' },
+      { key: 'delivery_days', value: String(parseInt(settingsData.delivery_days) || 5), type: 'number' }
     ];
 
     // Update each setting in the table

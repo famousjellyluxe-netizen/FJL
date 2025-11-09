@@ -316,18 +316,38 @@
 
         async function saveOrderStatus() {
             const newStatus = document.getElementById('statusSelect').value;
-            await adminDataService.updateOrderStatus(currentOrder.id, newStatus);
-            notifications.success('Order status updated successfully!');
-            closeOrderModal();
-            await loadOrders();
+            try {
+                const result = await adminDataService.updateOrderStatus(currentOrder.id, newStatus);
+                if (result) {
+                    currentOrder.status = newStatus;
+                    notifications.success('Order status updated successfully!');
+                    closeOrderModal();
+                    await loadOrders();
+                } else {
+                    notifications.error('Failed to update order status. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                notifications.error('Error updating order status: ' + error.message);
+            }
         }
 
         async function savePaymentStatus() {
             const newPaymentStatus = document.getElementById('paymentStatusSelect').value;
-            await adminDataService.updatePaymentStatus(currentOrder.id, newPaymentStatus);
-            notifications.success('Payment status updated successfully!');
-            closeOrderModal();
-            await loadOrders();
+            try {
+                const result = await adminDataService.updatePaymentStatus(currentOrder.id, newPaymentStatus);
+                if (result) {
+                    currentOrder.paymentStatus = newPaymentStatus;
+                    notifications.success('Payment status updated successfully!');
+                    closeOrderModal();
+                    await loadOrders();
+                } else {
+                    notifications.error('Failed to update payment status. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error updating payment status:', error);
+                notifications.error('Error updating payment status: ' + error.message);
+            }
         }
 
         async function updateOrderStatus(orderId) {

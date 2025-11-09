@@ -213,6 +213,8 @@ Famous Jelly Luxe Order System
  * Send payment verified email to customer
  */
 export async function sendPaymentVerified(order, customer) {
+  console.log('📧 Starting payment verified email process...');
+
   if (!resend) {
     console.warn('⚠️  Email service not configured - payment verification email not sent');
     return { success: false, error: 'Email service not configured' };
@@ -220,7 +222,9 @@ export async function sendPaymentVerified(order, customer) {
 
   try {
     // Fetch business settings dynamically
+    console.log('📦 Fetching settings...');
     const settings = await settingsService.getSettings();
+    console.log('✅ Settings fetched:', { store_email: settings.store_email, delivery_days: settings.delivery_days });
 
     // Format order items for display
     const itemsText = order.items
@@ -288,12 +292,18 @@ Stay fresh. Stay fearless.</pre>
     `;
 
     // Send to customer
+    console.log(`📤 Sending payment verified email to: ${customer.email}`);
+    console.log(`📤 From: ${process.env.STORE_EMAIL}`);
+    console.log(`📤 Subject: 🎉 Payment Verified — Order #${order.order_number}`);
+
     const response = await resend.emails.send({
       from: process.env.STORE_EMAIL,
       to: customer.email,
       subject: `🎉 Payment Verified — Order #${order.order_number}`,
       html: customerHtmlContent
     });
+
+    console.log('📬 Resend API response:', response);
 
     // Log email
     await logEmail({
