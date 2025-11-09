@@ -22,9 +22,11 @@ router.post('/', validationChains.createOrder, handleValidationErrors, asyncHand
       first_name: order.users.first_name,
       last_name: order.users.last_name
     };
+    console.log(`📧 Sending order confirmation email for order ${order.order_number} to ${customer.email}...`);
     await emailService.sendOrderConfirmation(order, customer);
+    console.log(`✅ Order confirmation email sent successfully for order ${order.order_number}`);
   } catch (emailError) {
-    console.error('Error sending confirmation email:', emailError);
+    console.error(`❌ Error sending confirmation email for order ${order.order_number}:`, emailError);
     // Don't fail the order creation if email fails
   }
 
@@ -106,22 +108,28 @@ router.put('/:id/status', verifyJWT, requireAdmin, requirePermission('manage_ord
   // Send shipping notification if status is shipped
   if (status === 'shipped') {
     try {
+      // Fetch complete order with items for email service
+      const fullOrder = await orderService.getOrderById(req.params.id);
       const customer = {
         id: order.user_id,
         email: order.shipping_email,
         first_name: order.shipping_first_name,
         last_name: order.shipping_last_name
       };
-      await emailService.sendShippingNotification(order, customer);
+      console.log(`📧 Sending shipping notification for order ${fullOrder.order_number}...`);
+      await emailService.sendShippingNotification(fullOrder, customer);
     } catch (emailError) {
-      console.error('Error sending shipping notification:', emailError);
+      console.error('❌ Error sending shipping notification:', emailError);
     }
   }
+
+  // Return full order with items for consistency
+  const fullOrder = await orderService.getOrderById(req.params.id);
 
   res.json({
     success: true,
     message: 'Order status updated successfully',
-    data: order
+    data: fullOrder
   });
 }));
 
@@ -145,22 +153,28 @@ router.put('/:id/payment-status', verifyJWT, requireAdmin, requirePermission('ma
   // Send payment verified email if status is verified
   if (payment_status === 'verified') {
     try {
+      // Fetch complete order with items for email service
+      const fullOrder = await orderService.getOrderById(req.params.id);
       const customer = {
         id: order.user_id,
         email: order.shipping_email,
         first_name: order.shipping_first_name,
         last_name: order.shipping_last_name
       };
-      await emailService.sendPaymentVerified(order, customer);
+      console.log(`📧 Sending payment verified email for order ${fullOrder.order_number}...`);
+      await emailService.sendPaymentVerified(fullOrder, customer);
     } catch (emailError) {
-      console.error('Error sending payment verified email:', emailError);
+      console.error('❌ Error sending payment verified email:', emailError);
     }
   }
+
+  // Return full order with items for consistency
+  const fullOrder = await orderService.getOrderById(req.params.id);
 
   res.json({
     success: true,
     message: 'Payment status updated successfully',
-    data: order
+    data: fullOrder
   });
 }));
 

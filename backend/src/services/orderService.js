@@ -132,6 +132,12 @@ export async function createOrder(orderData) {
     return getOrderById(order.id);
   } catch (error) {
     console.error('Error creating order:', error);
+    console.error('Error details:', {
+      message: error?.message,
+      code: error?.code,
+      status: error?.status,
+      details: error?.details
+    });
     throw error;
   }
 }
@@ -153,6 +159,11 @@ export async function getOrderById(id) {
 
     if (orderError || !order) {
       throw new NotFoundError('Order');
+    }
+
+    // Normalize: convert order_items to items for email service compatibility
+    if (order.order_items && !order.items) {
+      order.items = order.order_items;
     }
 
     return order;
@@ -180,6 +191,11 @@ export async function getOrderByNumber(orderNumber) {
 
     if (error || !order) {
       throw new NotFoundError('Order');
+    }
+
+    // Normalize: convert order_items to items for email service compatibility
+    if (order.order_items && !order.items) {
+      order.items = order.order_items;
     }
 
     return order;

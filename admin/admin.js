@@ -912,7 +912,45 @@ class AdminDataService {
             }
 
             const result = await response.json();
-            return result.data;
+            const order = result.data;
+
+            // Transform backend response to frontend format (same as getOrderById)
+            return {
+                id: order.id,
+                orderId: order.order_number,
+                customerName: `${order.users?.first_name || order.shipping_first_name || ''} ${order.users?.last_name || order.shipping_last_name || ''}`.trim(),
+                customerEmail: order.users?.email || order.shipping_email || '',
+                total: order.total_amount || 0,
+                subtotal: order.subtotal || 0,
+                tax: order.tax || 0,
+                shippingCost: order.shipping_cost || 0,
+                status: order.order_status || 'pending',
+                paymentStatus: order.payment_status || 'pending',
+                createdAt: order.created_at,
+                updatedAt: order.updated_at,
+                items: order.order_items ? order.order_items.map(item => ({
+                    id: item.id,
+                    name: item.product_name,
+                    productId: item.product_id,
+                    sku: item.product_sku,
+                    size: item.size,
+                    color: item.color,
+                    quantity: item.quantity,
+                    price: parseFloat(item.unit_price) || 0,
+                    total: parseFloat(item.total_price) || 0
+                })) : [],
+                shippingAddress: {
+                    firstName: order.shipping_first_name,
+                    lastName: order.shipping_last_name,
+                    email: order.shipping_email,
+                    phone: order.shipping_phone,
+                    address: order.shipping_address,
+                    city: order.shipping_city,
+                    state: order.shipping_state,
+                    postalCode: order.shipping_postal_code,
+                    country: order.shipping_country
+                }
+            };
         } catch (error) {
             console.error('Error updating order status:', error);
             return null;
@@ -945,7 +983,45 @@ class AdminDataService {
             }
 
             const result = await response.json();
-            return result.data;
+            const order = result.data;
+
+            // Transform backend response to frontend format (same as getOrderById)
+            return {
+                id: order.id,
+                orderId: order.order_number,
+                customerName: `${order.users?.first_name || order.shipping_first_name || ''} ${order.users?.last_name || order.shipping_last_name || ''}`.trim(),
+                customerEmail: order.users?.email || order.shipping_email || '',
+                total: order.total_amount || 0,
+                subtotal: order.subtotal || 0,
+                tax: order.tax || 0,
+                shippingCost: order.shipping_cost || 0,
+                status: order.order_status || 'pending',
+                paymentStatus: order.payment_status || 'pending',
+                createdAt: order.created_at,
+                updatedAt: order.updated_at,
+                items: order.order_items ? order.order_items.map(item => ({
+                    id: item.id,
+                    name: item.product_name,
+                    productId: item.product_id,
+                    sku: item.product_sku,
+                    size: item.size,
+                    color: item.color,
+                    quantity: item.quantity,
+                    price: parseFloat(item.unit_price) || 0,
+                    total: parseFloat(item.total_price) || 0
+                })) : [],
+                shippingAddress: {
+                    firstName: order.shipping_first_name,
+                    lastName: order.shipping_last_name,
+                    email: order.shipping_email,
+                    phone: order.shipping_phone,
+                    address: order.shipping_address,
+                    city: order.shipping_city,
+                    state: order.shipping_state,
+                    postalCode: order.shipping_postal_code,
+                    country: order.shipping_country
+                }
+            };
         } catch (error) {
             console.error('Error updating payment status:', error);
             return null;

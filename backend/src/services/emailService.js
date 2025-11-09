@@ -136,12 +136,15 @@ Famous Jelly Luxe Order System
     `;
 
     // Send to customer
+    console.log(`📤 Sending to: ${customer.email}`);
+    console.log(`📤 From: ${process.env.STORE_EMAIL}`);
     const customerResponse = await resend.emails.send({
       from: process.env.STORE_EMAIL,
       to: customer.email,
       subject: `Order Confirmation - Order #${order.order_number}`,
       html: customerHtmlContent
     });
+    console.log(`📬 Resend API response:`, customerResponse);
 
     // Log customer email
     await logEmail({

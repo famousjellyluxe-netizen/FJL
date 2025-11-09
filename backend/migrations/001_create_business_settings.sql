@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public.business_settings (
   account_type VARCHAR(100) NOT NULL DEFAULT 'Business Account',
   store_email VARCHAR(255) NOT NULL DEFAULT 'hello@fjlclothing.shop',
   tax_rate DECIMAL(5,2) NOT NULL DEFAULT 7.5,
-  shipping_cost DECIMAL(10,2) NOT NULL DEFAULT 0,
+  shipping_cost DECIMAL(10,2) NOT NULL DEFAULT 0,`
   currency VARCHAR(3) NOT NULL DEFAULT 'NGN',
   currency_symbol VARCHAR(5) NOT NULL DEFAULT '₦',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

@@ -64,7 +64,10 @@
       "Bash(__NEW_LINE__ curl -s -X PUT http://localhost:5001/api/products/ce0ad516-4e94-4f21-add8-85b26b42b64a )",
       "Bash(timeout:*)",
       "Bash(taskkill:*)",
-      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNDY3NTU1OC1mYWYzLTQ1YWUtYTgxMC0zZTRhYmVlMThjZDAiLCJlbWFpbCI6ImFkbWluQGZqbC5jb20iLCJyb2xlIjoib3duZXIiLCJ0eXBlIjoiYWRtaW4iLCJpYXQiOjE3NjI2MTU5MjgsImV4cCI6MTc2MzIyMDcyOCwiYXVkIjoiZmpsLWFkbWluIiwiaXNzIjoiZmpsLWJhY2tlbmQifQ.G5Gx38GRGlsbf0mW4grXDmvo6xiSGTrsj-af04Yml60\")"
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNDY3NTU1OC1mYWYzLTQ1YWUtYTgxMC0zZTRhYmVlMThjZDAiLCJlbWFpbCI6ImFkbWluQGZqbC5jb20iLCJyb2xlIjoib3duZXIiLCJ0eXBlIjoiYWRtaW4iLCJpYXQiOjE3NjI2MTU5MjgsImV4cCI6MTc2MzIyMDcyOCwiYXVkIjoiZmpsLWFkbWluIiwiaXNzIjoiZmpsLWJhY2tlbmQifQ.G5Gx38GRGlsbf0mW4grXDmvo6xiSGTrsj-af04Yml60\")",
+      "WebFetch(domain:resend.com)",
+      "Bash(node test-resend.js:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
