@@ -143,10 +143,21 @@
 
         async function loadUnannouncedProducts() {
             try {
-                const response = await apiClient.get('/products/admin/unannounced');
+                const token = localStorage.getItem('fjl_admin_token') || '';
+                const response = await fetch('http://localhost:5001/api/products/admin/unannounced', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-                if (response.success) {
-                    unannouncedProducts = response.data || [];
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    unannouncedProducts = data.data || [];
                     document.getElementById('unannouncedCount').textContent = unannouncedProducts.length;
                     document.getElementById('emailsToSend').textContent = unannouncedProducts.length * subscriberCount;
 
@@ -165,10 +176,21 @@
 
         async function loadSubscriberCount() {
             try {
-                const response = await apiClient.get('/customers/members/list?page=1&limit=1');
+                const token = localStorage.getItem('fjl_admin_token') || '';
+                const response = await fetch('http://localhost:5001/api/customers/members/list?page=1&limit=1', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-                if (response.success && response.pagination) {
-                    subscriberCount = response.pagination.totalCount || 0;
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.pagination) {
+                    subscriberCount = data.pagination.totalCount || 0;
                     document.getElementById('subscriberCount').textContent = subscriberCount;
                     document.getElementById('emailsToSend').textContent = unannouncedProducts.length * subscriberCount;
                 }
@@ -240,13 +262,27 @@
             document.getElementById('sendAnnouncementBtn').disabled = true;
 
             try {
-                const response = await apiClient.post('/products/admin/announce', {});
+                const token = localStorage.getItem('fjl_admin_token') || '';
+                const response = await fetch('http://localhost:5001/api/products/admin/announce', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({})
+                });
 
-                if (response.success) {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
                     document.getElementById('sendingState').style.display = 'none';
                     document.getElementById('successState').style.display = 'block';
                     document.getElementById('successMessage').textContent =
-                        `Successfully sent to ${response.data.emails_sent} subscribers! ${response.data.products_announced} product(s) announced.`;
+                        `Successfully sent to ${data.data.emails_sent} subscribers! ${data.data.products_announced} product(s) announced.`;
 
                     // Update stats
                     document.getElementById('unannouncedCount').textContent = '0';
@@ -254,7 +290,7 @@
 
                     lucide.createIcons();
                 } else {
-                    throw new Error(response.message || 'Failed to send announcement');
+                    throw new Error(data.message || 'Failed to send announcement');
                 }
             } catch (error) {
                 console.error('Error sending announcement:', error);
