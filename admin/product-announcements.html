@@ -190,7 +190,7 @@
                 const data = await response.json();
 
                 if (data.success && data.pagination) {
-                    subscriberCount = data.pagination.totalCount || 0;
+                    subscriberCount = data.pagination.total || 0;
                     document.getElementById('subscriberCount').textContent = subscriberCount;
                     document.getElementById('emailsToSend').textContent = unannouncedProducts.length * subscriberCount;
                 }
@@ -256,8 +256,11 @@
                 return;
             }
 
-            // Show sending state
-            document.getElementById('productsCard').querySelector('.card-body').innerHTML = '';
+            // Show sending state - hide other states instead of clearing innerHTML
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('productsGrid').style.display = 'none';
+            document.getElementById('successState').style.display = 'none';
             document.getElementById('sendingState').style.display = 'block';
             document.getElementById('sendAnnouncementBtn').disabled = true;
 
