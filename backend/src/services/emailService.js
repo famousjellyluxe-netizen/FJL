@@ -539,6 +539,8 @@ export async function sendMemberWelcome(member) {
       throw new Error(`Invalid member email address: ${member.email}`);
     }
 
+    const baseUrl = process.env.APP_URL || 'https://fjl.com';
+
     const htmlContent = `
       <h2>Welcome to Our Newsletter!</h2>
       <p>Hi ${member.full_name || 'there'},</p>
@@ -554,6 +556,12 @@ export async function sendMemberWelcome(member) {
 
       <p>Check back soon for our latest collections!</p>
       <p>Best regards,<br>Famous Jelly Luxe Team</p>
+
+      <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+      <p style="font-size: 12px; color: #6b7280;">
+        You're receiving this because you subscribed to our newsletter.
+        <a href="${baseUrl}/unsubscribe.html?token=${member.unsubscribe_token}" style="color: #E09F3E;">Unsubscribe</a>
+      </p>
     `;
 
     const response = await sendEmailWithRetry({
@@ -696,7 +704,7 @@ Famous Jelly Luxe
 📧 You're receiving this because you subscribed to our newsletter.
 If you'd prefer not to receive product announcements, you can unsubscribe at any time.
 
-Unsubscribe: ${baseUrl}/unsubscribe.html?email=${encodeURIComponent(member.email)}</pre>
+Unsubscribe: ${baseUrl}/unsubscribe.html?token=${member.unsubscribe_token}</pre>
       `;
 
       // Send email with retry

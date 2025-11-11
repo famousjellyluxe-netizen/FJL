@@ -198,6 +198,10 @@ router.post('/members/subscribe', validationChains.subscribeMember, handleValida
     });
   }
 
+  // Generate unique unsubscribe token
+  const crypto = require('crypto');
+  const unsubscribe_token = crypto.randomBytes(32).toString('hex');
+
   // Create member
   const { data: member, error } = await supabase
     .from('members')
@@ -205,7 +209,8 @@ router.post('/members/subscribe', validationChains.subscribeMember, handleValida
       email: email.toLowerCase(),
       full_name: full_name || null,
       is_subscribed: true,
-      signup_source: req.body.source || 'homepage_modal'
+      signup_source: req.body.source || 'homepage_modal',
+      unsubscribe_token: unsubscribe_token
     }])
     .select()
     .single();
@@ -261,6 +266,53 @@ router.get('/members/list', verifyJWT, requireAdmin, requirePermission('manage_c
       limit,
       total: count || 0,
       pages: Math.ceil((count || 0) / limit)
+    }
+  });
+}));
+
+/**
+ * GET /api/customers/members/unsubscribe
+ * Public unsubscribe endpoint - no authentication required
+ * Users can unsubscribe using the token from their email link
+ */
+router.get('/members/unsubscribe', asyncHandler(async (req, res) => {
+  const { token } = req.query;
+
+  // Validate token parameter
+  if (!token) {
+    return res.status(400).json({
+      success: false,
+      error: 'Unsubscribe token is required'
+    });
+  }
+
+  // Find and update member by token
+  const { data: member, error } = await supabase
+    .from('members')
+    .update({
+      is_subscribed: false,
+      unsubscribed_at: new Date().toISOString()
+    })
+    .eq('unsubscribe_token', token)
+    .eq('is_subscribed', true) // Only unsubscribe if currently subscribed
+    .select('id, email, full_name')
+    .single();
+
+  if (error || !member) {
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid or expired unsubscribe token, or already unsubscribed'
+    });
+  }
+
+  console.log(`📭 Member unsubscribed: ${member.email}`);
+
+  res.json({
+    success: true,
+    message: 'Successfully unsubscribed from newsletter',
+    data: {
+      email: member.email,
+      full_name: member.full_name
     }
   });
 }));
