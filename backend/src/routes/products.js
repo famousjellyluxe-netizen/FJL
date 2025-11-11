@@ -4,6 +4,8 @@ import { validationChains, handleValidationErrors } from '../middleware/validati
 import { asyncHandler, NotFoundError } from '../middleware/errorHandler.js';
 import { uploadSingle } from '../middleware/upload.js';
 import * as productService from '../services/productService.js';
+import * as emailService from '../services/emailService.js';
+import { supabase } from '../config/database.js';
 
 const router = express.Router();
 
@@ -194,6 +196,92 @@ router.get('/admin/low-stock', verifyJWT, requireAdmin, requirePermission('manag
   res.json({
     success: true,
     data: products
+  });
+}));
+
+/**
+ * GET /api/products/admin/unannounced
+ * Get products that haven't been announced to subscribers yet (admin only)
+ */
+router.get('/admin/unannounced', verifyJWT, requireAdmin, requirePermission('manage_products'), asyncHandler(async (req, res) => {
+  const products = await productService.getUnannouncedProducts();
+
+  res.json({
+    success: true,
+    data: products,
+    count: products.length
+  });
+}));
+
+/**
+ * POST /api/products/admin/announce
+ * Send product announcement emails to all subscribed members (admin only)
+ * Body: { productIds: ['uuid1', 'uuid2', ...] } (optional - sends all unannounced if omitted)
+ */
+router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manage_products'), asyncHandler(async (req, res) => {
+  // Get products to announce
+  let products;
+  if (req.body.productIds && Array.isArray(req.body.productIds) && req.body.productIds.length > 0) {
+    // Announce specific products
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .in('id', req.body.productIds)
+      .is('announced_at', null);
+
+    if (error) throw error;
+    products = data || [];
+  } else {
+    // Announce all unannounced products
+    products = await productService.getUnannouncedProducts();
+  }
+
+  if (!products || products.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No unannounced products found'
+    });
+  }
+
+  // Get all subscribed members
+  const { data: members, error: membersError } = await supabase
+    .from('members')
+    .select('*')
+    .eq('is_subscribed', true);
+
+  if (membersError) {
+    console.error('Error fetching members:', membersError);
+    throw membersError;
+  }
+
+  if (!members || members.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No subscribed members found to send announcements to'
+    });
+  }
+
+  console.log(`📢 Sending announcement for ${products.length} products to ${members.length} members...`);
+
+  // Send emails
+  const result = await emailService.sendProductAnnouncement(products, members);
+
+  // If emails sent successfully, mark products as announced
+  if (result.success && result.sent > 0) {
+    const productIds = products.map(p => p.id);
+    await productService.markProductsAsAnnounced(productIds);
+  }
+
+  res.json({
+    success: result.success,
+    message: `Product announcement sent to ${result.sent} members`,
+    data: {
+      products_announced: result.products,
+      emails_sent: result.sent,
+      emails_failed: result.failed,
+      total_members: result.members,
+      errors: result.errors
+    }
   });
 }));
 

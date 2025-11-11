@@ -509,6 +509,68 @@ export async function getLowStockProducts() {
   }
 }
 
+/**
+ * Get all products that haven't been announced to subscribers yet
+ * @returns {Promise<Array>} - Array of unannounced products
+ */
+export async function getUnannouncedProducts() {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .is('announced_at', null)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching unannounced products:', error);
+      throw error;
+    }
+
+    console.log(`📦 Found ${data?.length || 0} unannounced products`);
+    return data || [];
+  } catch (error) {
+    console.error('Error in getUnannouncedProducts:', error);
+    throw error;
+  }
+}
+
+/**
+ * Mark products as announced (sets announced_at to current timestamp)
+ * @param {Array<string>} productIds - Array of product UUIDs
+ * @returns {Promise<Object>} - { success: boolean, updated: number }
+ */
+export async function markProductsAsAnnounced(productIds) {
+  if (!productIds || productIds.length === 0) {
+    throw new Error('No product IDs provided');
+  }
+
+  try {
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from('products')
+      .update({ announced_at: now })
+      .in('id', productIds)
+      .select('id, name, announced_at');
+
+    if (error) {
+      console.error('Error marking products as announced:', error);
+      throw error;
+    }
+
+    console.log(`✅ Marked ${data?.length || 0} products as announced at ${now}`);
+    return {
+      success: true,
+      updated: data?.length || 0,
+      products: data || []
+    };
+  } catch (error) {
+    console.error('Error in markProductsAsAnnounced:', error);
+    throw error;
+  }
+}
+
 export default {
   getAllProducts,
   getProductById,
@@ -524,5 +586,7 @@ export default {
   getLowStockProducts,
   uploadProductImage,
   deleteProductImage,
-  validateProductImage
+  validateProductImage,
+  getUnannouncedProducts,
+  markProductsAsAnnounced
 };

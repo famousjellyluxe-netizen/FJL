@@ -594,10 +594,185 @@ export async function sendMemberWelcome(member) {
   }
 }
 
+/**
+ * Send product announcement email to subscribed members (BATCH SENDING)
+ * @param {Array} products - Array of product objects to announce
+ * @param {Array} members - Array of member objects to send to
+ * @returns {Promise<Object>} - { sent: number, failed: number, errors: Array }
+ */
+export async function sendProductAnnouncement(products, members) {
+  console.log('📢 Starting product announcement email campaign...');
+  console.log(`   Products: ${products.length}`);
+  console.log(`   Recipients: ${members.length}`);
+
+  if (!resend) {
+    console.warn('⚠️  Email service not configured - product announcement not sent');
+    return { success: false, error: 'Email service not configured', sent: 0, failed: members.length };
+  }
+
+  if (!products || products.length === 0) {
+    throw new Error('No products to announce');
+  }
+
+  if (!members || members.length === 0) {
+    console.warn('⚠️  No subscribed members to send to');
+    return { success: true, sent: 0, failed: 0, errors: [] };
+  }
+
+  // Fetch business settings
+  const settings = await settingsService.getSettings();
+  const baseUrl = process.env.APP_URL || 'https://fjl.com';
+
+  // Format products for email
+  const productsHtml = products.map(product => {
+    const price = parseFloat(product.price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const originalPrice = product.original_price
+      ? parseFloat(product.original_price).toLocaleString('en-NG', { minimumFractionDigits: 2 })
+      : null;
+
+    const priceDisplay = originalPrice
+      ? `${settings.currency_symbol}${price} (was ${settings.currency_symbol}${originalPrice})`
+      : `${settings.currency_symbol}${price}`;
+
+    const sizes = Array.isArray(product.available_sizes) ? product.available_sizes.join(', ') : 'N/A';
+    const colors = Array.isArray(product.available_colors) ? product.available_colors.join(', ') : 'N/A';
+    const productUrl = `${baseUrl}/product.html?id=${product.id}`;
+
+    return `
+───────────────────────────────
+${product.name}
+${priceDisplay}
+
+${product.description || 'No description available.'}
+
+Available Sizes: ${sizes}
+Available Colors: ${colors}
+Sleeve Type: ${product.sleeve_type || 'N/A'}
+
+👉 View & Purchase: ${productUrl}
+`;
+  }).join('\n');
+
+  const productCount = products.length;
+  const productWord = productCount === 1 ? 'product' : 'products';
+
+  // Email subject
+  const subject = productCount === 1
+    ? `🎉 New Arrival: ${products[0].name}!`
+    : `🎉 ${productCount} New Arrivals at Famous Jelly Luxe!`;
+
+  // Batch sending with rate limiting
+  let sent = 0;
+  let failed = 0;
+  const errors = [];
+
+  for (const member of members) {
+    try {
+      // Validate member email
+      if (!isValidEmail(member.email)) {
+        console.warn(`⚠️  Skipping invalid email: ${member.email}`);
+        failed++;
+        errors.push({ email: member.email, error: 'Invalid email format' });
+        continue;
+      }
+
+      // Personalized email content
+      const htmlContent = `
+<pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi ${member.full_name || 'there'},
+
+We're excited to announce ${productCount === 1 ? 'a new arrival' : `${productCount} new arrivals`} at Famous Jelly Luxe!
+
+${productsHtml}
+
+───────────────────────────────
+
+Don't miss out! Shop now and elevate your style.
+
+Stay fresh. Stay fearless.
+
+Famous Jelly Luxe
+
+───────────────────────────────
+📧 You're receiving this because you subscribed to our newsletter.
+If you'd prefer not to receive product announcements, you can unsubscribe at any time.
+
+Unsubscribe: ${baseUrl}/unsubscribe.html?email=${encodeURIComponent(member.email)}</pre>
+      `;
+
+      // Send email with retry
+      console.log(`📤 Sending to: ${member.email}`);
+      const response = await sendEmailWithRetry({
+        from: process.env.STORE_EMAIL,
+        to: member.email,
+        subject: subject,
+        html: htmlContent
+      });
+
+      // Log email for each product
+      for (const product of products) {
+        await logEmail({
+          campaign_id: null,
+          recipient_id: member.id,
+          recipient_email: member.email,
+          email_type: EMAIL_TYPES.PRODUCT_LAUNCH,
+          resend_message_id: response.id,
+          resend_response: response,
+          send_status: response.id ? 'sent' : 'failed',
+          sent_at: new Date(),
+          product_id: product.id,
+          user_id: member.user_id || null
+        });
+      }
+
+      sent++;
+      console.log(`✅ Sent to ${member.email}`);
+
+      // Rate limiting: 100ms delay between emails
+      if (sent < members.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+    } catch (error) {
+      console.error(`❌ Failed to send to ${member.email}:`, error.message);
+      failed++;
+      errors.push({ email: member.email, error: error.message });
+
+      // Log failed email
+      for (const product of products) {
+        await logEmail({
+          campaign_id: null,
+          recipient_id: member.id,
+          recipient_email: member.email,
+          email_type: EMAIL_TYPES.PRODUCT_LAUNCH,
+          send_status: 'failed',
+          error_message: error.message,
+          product_id: product.id,
+          user_id: member.user_id || null
+        });
+      }
+    }
+  }
+
+  console.log(`\n📊 Campaign Results:`);
+  console.log(`   ✅ Sent: ${sent}`);
+  console.log(`   ❌ Failed: ${failed}`);
+  console.log(`   📦 Products: ${productCount}\n`);
+
+  return {
+    success: sent > 0,
+    sent,
+    failed,
+    errors,
+    products: productCount,
+    members: members.length
+  };
+}
+
 export default {
   sendOrderConfirmation,
   sendPaymentVerified,
   sendShippingNotification,
   sendMemberWelcome,
+  sendProductAnnouncement,
   logEmail
 };
