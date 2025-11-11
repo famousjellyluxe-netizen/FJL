@@ -3,54 +3,7 @@ import { supabase } from '../config/database.js';
 import * as settingsService from './settingsService.js';
 
 /**
- * Validate email address format
- * @param {string} email
- * @returns {boolean}
- */
-function isValidEmail(email) {
-  if (!email || typeof email !== 'string') return false;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email.trim());
-}
-
-/**
- * Exponential backoff retry helper
- * @param {Function} fn - Function to retry
- * @param {number} maxRetries - Maximum number of retries
- * @param {number} baseDelay - Base delay in ms
- * @returns {Promise<any>}
- */
-async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
-  let lastError;
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      lastError = error;
-
-      // Don't retry on client errors (4xx except 429)
-      if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500 && error.statusCode !== 429) {
-        throw error;
-      }
-
-      // Don't retry if this was the last attempt
-      if (attempt === maxRetries) {
-        break;
-      }
-
-      // Calculate delay with exponential backoff and jitter
-      const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
-      console.log(`⏳ Retry attempt ${attempt + 1}/${maxRetries} after ${Math.round(delay)}ms...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-
-  throw lastError;
-}
-
-/**
- * Log email sending to database with enhanced error details
+ * Log email sending to database
  */
 async function logEmail(emailData) {
   try {
@@ -69,55 +22,7 @@ async function logEmail(emailData) {
 }
 
 /**
- * Enhanced email sending wrapper with validation, retry, and comprehensive logging
- * @param {Object} emailPayload
- * @returns {Promise<Object>}
- */
-async function sendEmailWithRetry(emailPayload) {
-  // Validate email payload
-  if (!emailPayload.from || !isValidEmail(emailPayload.from)) {
-    throw new Error(`Invalid sender email: ${emailPayload.from}`);
-  }
-
-  if (!emailPayload.to || !isValidEmail(emailPayload.to)) {
-    throw new Error(`Invalid recipient email: ${emailPayload.to}`);
-  }
-
-  if (!emailPayload.subject || emailPayload.subject.trim().length === 0) {
-    throw new Error('Email subject cannot be empty');
-  }
-
-  if (!emailPayload.html || emailPayload.html.trim().length === 0) {
-    throw new Error('Email content cannot be empty');
-  }
-
-  console.log('📧 Preparing to send email:');
-  console.log(`   From: ${emailPayload.from}`);
-  console.log(`   To: ${emailPayload.to}`);
-  console.log(`   Subject: ${emailPayload.subject}`);
-
-  // Send with retry logic
-  const response = await retryWithBackoff(async () => {
-    const result = await resend.emails.send(emailPayload);
-
-    // Enhanced logging of response
-    console.log('📬 Resend API Response:');
-    console.log(`   Message ID: ${result.id || 'N/A'}`);
-    console.log(`   Status: ${result.id ? 'Accepted' : 'Failed'}`);
-
-    if (result.error) {
-      console.error('❌ Resend API Error:', result.error);
-      throw new Error(`Resend API Error: ${JSON.stringify(result.error)}`);
-    }
-
-    return result;
-  }, 3, 1000);
-
-  return response;
-}
-
-/**
- * Send order confirmation email to customer and admin (ENHANCED)
+ * Send order confirmation email to customer and admin
  */
 export async function sendOrderConfirmation(order, customer) {
   if (!resend) {
@@ -126,11 +31,6 @@ export async function sendOrderConfirmation(order, customer) {
   }
 
   try {
-    // Validate customer email before proceeding
-    if (!isValidEmail(customer.email)) {
-      throw new Error(`Invalid customer email address: ${customer.email}`);
-    }
-
     // Fetch business settings dynamically
     const settings = await settingsService.getSettings();
 
@@ -177,33 +77,7 @@ Thanks again for choosing FJL.
 Stay fresh. Stay fearless.</pre>
     `;
 
-    // Send to customer with retry
-    console.log(`📤 Sending order confirmation to customer: ${customer.email}`);
-    const customerResponse = await sendEmailWithRetry({
-      from: process.env.STORE_EMAIL,
-      to: customer.email,
-      subject: `Order Confirmation - Order #${order.order_number}`,
-      html: customerHtmlContent
-    });
-
-    // Log customer email
-    await logEmail({
-      campaign_id: null,
-      recipient_id: customer.id,
-      recipient_email: customer.email,
-      email_type: EMAIL_TYPES.ORDER_CONFIRMATION,
-      resend_message_id: customerResponse.id,
-      resend_response: customerResponse,
-      send_status: customerResponse.id ? 'sent' : 'failed',
-      sent_at: new Date(),
-      order_id: order.id,
-      user_id: customer.id
-    });
-
-    console.log(`✅ Order confirmation sent to customer: ${customer.email}`);
-
     // ADMIN EMAIL
-    const adminEmail = settings.store_email || 'hello@fjlclothing.shop';
     const adminHtmlContent = `
       <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi Famous Jelly Luxe Team,
 
@@ -261,9 +135,37 @@ Famous Jelly Luxe Order System
 © 2025 Famous Jelly Luxe. All Rights Reserved.</pre>
     `;
 
-    // Send to admin (non-blocking - don't fail order if admin email fails)
+    // Send to customer
+    console.log(`📤 Sending to: ${customer.email}`);
+    console.log(`📤 From: ${process.env.STORE_EMAIL}`);
+    const customerResponse = await resend.emails.send({
+      from: process.env.STORE_EMAIL,
+      to: customer.email,
+      subject: `Order Confirmation - Order #${order.order_number}`,
+      html: customerHtmlContent
+    });
+    console.log(`📬 Resend API response:`, customerResponse);
+
+    // Log customer email
+    await logEmail({
+      campaign_id: null,
+      recipient_id: customer.id,
+      recipient_email: customer.email,
+      email_type: EMAIL_TYPES.ORDER_CONFIRMATION,
+      resend_message_id: customerResponse.id,
+      resend_response: customerResponse,
+      send_status: customerResponse.id ? 'sent' : 'failed',
+      sent_at: new Date(),
+      order_id: order.id,
+      user_id: customer.id
+    });
+
+    console.log(`✅ Order confirmation sent to customer: ${customer.email}`);
+
+    // Send to admin
+    const adminEmail = settings.store_email || 'hello@fjlclothing.shop';
     try {
-      const adminResponse = await sendEmailWithRetry({
+      const adminResponse = await resend.emails.send({
         from: process.env.STORE_EMAIL,
         to: adminEmail,
         subject: `🛍️ New Order Received — from ${customer.first_name} ${customer.last_name}`,
@@ -286,26 +188,15 @@ Famous Jelly Luxe Order System
 
       console.log(`✅ Order notification sent to admin: ${adminEmail}`);
     } catch (adminError) {
-      console.error('⚠️  Error sending admin notification (non-blocking):', adminError.message);
-      // Log failure but don't throw
-      await logEmail({
-        campaign_id: null,
-        recipient_id: null,
-        recipient_email: adminEmail,
-        email_type: 'order_admin_notification',
-        send_status: 'failed',
-        error_message: adminError.message,
-        order_id: order.id,
-        user_id: null
-      });
+      console.error('Error sending admin notification:', adminError);
+      // Don't throw - customer email was sent successfully, admin email failure shouldn't block order creation
     }
 
     return { success: true, messageId: customerResponse.id };
   } catch (error) {
-    console.error('❌ Error sending order confirmation:', error.message);
-    console.error('   Stack:', error.stack);
+    console.error('Error sending order confirmation:', error);
 
-    // Log failed email with comprehensive error details
+    // Log failed email
     await logEmail({
       campaign_id: null,
       recipient_id: customer.id,
@@ -313,7 +204,6 @@ Famous Jelly Luxe Order System
       email_type: EMAIL_TYPES.ORDER_CONFIRMATION,
       send_status: 'failed',
       error_message: error.message,
-      resend_response: { error: error.message, stack: error.stack },
       order_id: order.id,
       user_id: customer.id
     });
@@ -323,7 +213,7 @@ Famous Jelly Luxe Order System
 }
 
 /**
- * Send payment verified email to customer (ENHANCED)
+ * Send payment verified email to customer
  */
 export async function sendPaymentVerified(order, customer) {
   console.log('📧 Starting payment verified email process...');
@@ -334,11 +224,6 @@ export async function sendPaymentVerified(order, customer) {
   }
 
   try {
-    // Validate customer email
-    if (!isValidEmail(customer.email)) {
-      throw new Error(`Invalid customer email address: ${customer.email}`);
-    }
-
     // Fetch business settings dynamically
     console.log('📦 Fetching settings...');
     const settings = await settingsService.getSettings();
@@ -360,7 +245,7 @@ export async function sendPaymentVerified(order, customer) {
     const total = parseFloat(order.total_amount).toLocaleString('en-NG', { minimumFractionDigits: 2 });
     const orderDate = new Date(order.created_at).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    // Calculate expected delivery date
+    // Calculate expected delivery date (5-7 business days from now)
     const deliveryDays = settings.delivery_days || 5;
     const expectedDeliveryDate = new Date(order.created_at);
     expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + deliveryDays);
@@ -409,16 +294,19 @@ Thanks for choosing Famous Jelly Luxe!
 Stay fresh. Stay fearless.</pre>
     `;
 
-    // Send to customer with retry
+    // Send to customer
     console.log(`📤 Sending payment verified email to: ${customer.email}`);
-    const response = await sendEmailWithRetry({
+    console.log(`📤 From: ${process.env.STORE_EMAIL}`);
+    console.log(`📤 Subject: 🎉 Payment Verified — Order #${order.order_number}`);
+
+    const response = await resend.emails.send({
       from: process.env.STORE_EMAIL,
       to: customer.email,
       subject: `🎉 Payment Verified — Order #${order.order_number}`,
       html: customerHtmlContent
     });
 
-    console.log('📬 Email sent successfully');
+    console.log('📬 Resend API response:', response);
 
     // Log email
     await logEmail({
@@ -438,8 +326,7 @@ Stay fresh. Stay fearless.</pre>
 
     return { success: true, messageId: response.id };
   } catch (error) {
-    console.error('❌ Error sending payment verified email:', error.message);
-    console.error('   Stack:', error.stack);
+    console.error('Error sending payment verified email:', error);
 
     await logEmail({
       campaign_id: null,
@@ -448,7 +335,6 @@ Stay fresh. Stay fearless.</pre>
       email_type: EMAIL_TYPES.PAYMENT_VERIFIED,
       send_status: 'failed',
       error_message: error.message,
-      resend_response: { error: error.message, stack: error.stack },
       order_id: order.id,
       user_id: customer.id
     });
@@ -458,7 +344,7 @@ Stay fresh. Stay fearless.</pre>
 }
 
 /**
- * Send shipping notification email (ENHANCED)
+ * Send shipping notification email
  */
 export async function sendShippingNotification(order, customer, trackingNumber) {
   if (!resend) {
@@ -467,10 +353,6 @@ export async function sendShippingNotification(order, customer, trackingNumber) 
   }
 
   try {
-    if (!isValidEmail(customer.email)) {
-      throw new Error(`Invalid customer email address: ${customer.email}`);
-    }
-
     const htmlContent = `
       <h2>Order Shipped</h2>
       <p>Hi ${customer.first_name},</p>
@@ -485,7 +367,7 @@ export async function sendShippingNotification(order, customer, trackingNumber) 
       <p>Best regards,<br>Famous Jelly Luxe Team</p>
     `;
 
-    const response = await sendEmailWithRetry({
+    const response = await resend.emails.send({
       from: process.env.STORE_EMAIL,
       to: customer.email,
       subject: `Your Order #${order.order_number} Has Shipped`,
@@ -526,7 +408,7 @@ export async function sendShippingNotification(order, customer, trackingNumber) 
 }
 
 /**
- * Send member welcome email (ENHANCED)
+ * Send member welcome email
  */
 export async function sendMemberWelcome(member) {
   if (!resend) {
@@ -535,10 +417,6 @@ export async function sendMemberWelcome(member) {
   }
 
   try {
-    if (!isValidEmail(member.email)) {
-      throw new Error(`Invalid member email address: ${member.email}`);
-    }
-
     const htmlContent = `
       <h2>Welcome to Our Newsletter!</h2>
       <p>Hi ${member.full_name || 'there'},</p>
@@ -556,7 +434,7 @@ export async function sendMemberWelcome(member) {
       <p>Best regards,<br>Famous Jelly Luxe Team</p>
     `;
 
-    const response = await sendEmailWithRetry({
+    const response = await resend.emails.send({
       from: process.env.STORE_EMAIL,
       to: member.email,
       subject: 'Welcome to Famous Jelly Luxe Newsletter',
