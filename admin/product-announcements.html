@@ -177,7 +177,7 @@
         async function loadSubscriberCount() {
             try {
                 const token = localStorage.getItem('fjl_admin_token') || '';
-                const response = await fetch('http://localhost:5001/api/customers/members/list?page=1&limit=1', {
+                const response = await fetch('http://localhost:5001/api/customers/members/list?page=1&limit=1&subscribed=true', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
