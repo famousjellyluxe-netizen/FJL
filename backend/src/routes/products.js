@@ -34,6 +34,21 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * GET /api/products/featured
+ * Get featured products (public)
+ * NOTE: This must come BEFORE the /:id route to avoid being caught by parameterized route matching
+ */
+router.get('/featured', asyncHandler(async (req, res) => {
+  const limit = req.query.limit || 6;
+  const products = await productService.getFeaturedProducts(limit);
+
+  res.json({
+    success: true,
+    data: products
+  });
+}));
+
+/**
  * POST /api/products/:id/upload
  * Upload product image (admin only)
  */
@@ -293,20 +308,6 @@ router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manag
       total_members: result.members,
       errors: result.errors
     }
-  });
-}));
-
-/**
- * GET /api/products/featured
- * Get featured products
- */
-router.get('/featured', asyncHandler(async (req, res) => {
-  const limit = req.query.limit || 6;
-  const products = await productService.getFeaturedProducts(limit);
-
-  res.json({
-    success: true,
-    data: products
   });
 }));
 
