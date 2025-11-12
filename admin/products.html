@@ -615,12 +615,40 @@
             });
         }
 
-        function toggleFeatured(id, checkbox) {
-            if (adminDataService.toggleFeatured) {
-                adminDataService.toggleFeatured(id);
-                const product = adminDataService.getProductById(id);
-                if (product) {
-                    notifications.success(`Product marked as ${product.isFeatured ? 'featured' : 'not featured'}!`);
+        async function toggleFeatured(id, checkbox) {
+            try {
+                // Get current product state from backend
+                const product = await adminDataService.getProductById(id);
+
+                // Toggle the featured status
+                const newFeaturedStatus = !product.is_featured;
+
+                // Update via API - send all required fields plus the updated is_featured
+                const updatedProduct = await adminDataService.updateProduct(id, {
+                    name: product.name,
+                    description: product.description,
+                    price: product.price,
+                    is_featured: newFeaturedStatus
+                });
+
+                // Update localStorage after successful API call
+                if (adminDataService.toggleFeatured) {
+                    adminDataService.toggleFeatured(id);
+                }
+
+                // Reload products to ensure UI is in sync with database
+                await loadProducts();
+
+                // Show success message with correct state
+                notifications.success(`Product marked as ${newFeaturedStatus ? 'featured' : 'not featured'}!`);
+
+            } catch (error) {
+                console.error('Error toggling featured status:', error);
+                notifications.error('Failed to update featured status');
+
+                // Revert checkbox state on error
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
                 }
             }
         }

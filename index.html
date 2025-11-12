@@ -588,6 +588,37 @@
         </div>
     </section>
 
+    <!-- Featured Products Section -->
+    <section id="featuredSection" class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50" style="display: none;">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Featured Products</h2>
+                <p class="text-gray-600 text-lg">Handpicked essentials for the bold and luxe</p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="featuredLoading" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                <p class="mt-4 text-gray-600">Loading featured products...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="featuredEmpty" class="text-center py-12" style="display: none;">
+                <p class="text-gray-500">No featured products available at the moment.</p>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="featuredGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" style="display: none;"></div>
+
+            <!-- View All Button -->
+            <div class="text-center mt-12">
+                <a href="shop.html" class="inline-block bg-black text-white px-8 py-3 rounded-md hover:bg-gray-800 transition font-semibold">
+                    View All Products →
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Join the Geng Section -->
     <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200">
         <div class="max-w-7xl mx-auto">
@@ -619,10 +650,13 @@
                 <div>
                     <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">BECOME A MEMBER</h3>
                     <p class="text-gray-600 text-sm mb-4">Join the FJL family and stay ahead of every drop.</p>
-                    <div class="flex">
-                        <input type="email" placeholder="Email address" class="email-input flex-1" aria-label="Email address">
-                        <button class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">→</button>
-                    </div>
+                    <form data-newsletter-form data-newsletter-source="footer" class="space-y-2">
+                        <input type="text" name="full_name" placeholder="Full name" class="email-input w-full" required aria-label="Full name">
+                        <div class="flex gap-2">
+                            <input type="email" name="email" placeholder="Email address" class="email-input flex-1" required aria-label="Email address">
+                            <button type="submit" class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">Join</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -986,5 +1020,73 @@
     <!-- Backend API Integration Scripts -->
     <script src="js/api-integration.js"></script>
     <script src="js/newsletter-integration.js"></script>
+
+    <!-- Featured Products Script -->
+    <script>
+        // Load and display featured products
+        async function loadFeaturedProducts() {
+            try {
+                const response = await fetch('http://localhost:5001/api/products/featured');
+                const data = await response.json();
+
+                if (data.success && data.data && data.data.length > 0) {
+                    const products = data.data;
+
+                    // Show section
+                    document.getElementById('featuredSection').style.display = 'block';
+                    document.getElementById('featuredLoading').style.display = 'none';
+                    document.getElementById('featuredGrid').style.display = 'grid';
+
+                    // Render products
+                    const grid = document.getElementById('featuredGrid');
+                    grid.innerHTML = products.map(product => {
+                        const imageUrl = product.image_url || 'images/placeholder.png';
+                        const price = parseFloat(product.price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                        const isOutOfStock = product.total_stock === 0;
+
+                        return `
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group">
+                                <!-- Product Image -->
+                                <div class="relative overflow-hidden aspect-square">
+                                    ${isOutOfStock ? '<div class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded z-10">Out of Stock</div>' : ''}
+                                    <img src="${imageUrl}"
+                                         alt="${product.name}"
+                                         class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                                         onerror="this.src='images/placeholder.png'">
+                                </div>
+
+                                <!-- Product Info -->
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">${product.name}</h3>
+                                    <div class="flex items-center justify-between mb-3">
+                                        <p class="text-2xl font-bold text-gray-900">₦${price}</p>
+                                    </div>
+
+                                    ${product.description ? `<p class="text-sm text-gray-600 mb-4 line-clamp-2">${product.description}</p>` : ''}
+
+                                    <a href="product.html?id=${product.id}"
+                                       class="block w-full text-center bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition font-medium">
+                                        View Product
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } else {
+                    // No featured products
+                    document.getElementById('featuredLoading').style.display = 'none';
+                    document.getElementById('featuredEmpty').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading featured products:', error);
+                document.getElementById('featuredLoading').style.display = 'none';
+                document.getElementById('featuredEmpty').style.display = 'block';
+            }
+        }
+
+        // Load featured products when page loads
+        document.addEventListener('DOMContentLoaded', loadFeaturedProducts);
+    </script>
 </body>
 </html>

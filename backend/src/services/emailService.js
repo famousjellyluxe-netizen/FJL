@@ -776,11 +776,129 @@ Unsubscribe: ${baseUrl}/unsubscribe.html?token=${member.unsubscribe_token}</pre>
   };
 }
 
+/**
+ * Send contact form email to admin and auto-reply to customer
+ * @param {Object} contactData - Contact form data {name, email, subject, message}
+ * @returns {Promise<Object>} Result object with success status
+ */
+export async function sendContactEmail(contactData) {
+  if (!resend) {
+    console.warn('⚠️  Email service not configured - contact email not sent');
+    return { success: false, error: 'Email service not configured' };
+  }
+
+  const { name, email, subject, message } = contactData;
+
+  try {
+    // Email to admin
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.STORE_EMAIL;
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #E09F3E; border-bottom: 2px solid #E09F3E; padding-bottom: 10px;">
+          📬 New Contact Form Submission
+        </h2>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 10px 0;"><strong>From:</strong> ${name}</p>
+          <p style="margin: 10px 0;"><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+          <p style="margin: 10px 0;"><strong>Subject:</strong> ${subject}</p>
+        </div>
+
+        <div style="background: white; padding: 20px; border-left: 4px solid #E09F3E; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #333;">Message:</h3>
+          <p style="white-space: pre-wrap; line-height: 1.6; color: #555;">${message}</p>
+        </div>
+
+        <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+          <p style="margin: 0; font-size: 14px; color: #856404;">
+            <strong>Reply:</strong> To respond to this inquiry, reply directly to this email or send to
+            <a href="mailto:${email}">${email}</a>
+          </p>
+        </div>
+
+        <footer style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999; font-size: 12px;">
+          <p>Famous Jelly Luxe Admin Dashboard</p>
+          <p>This is an automated message from your contact form</p>
+        </footer>
+      </div>
+    `;
+
+    // Send to admin
+    const adminResponse = await sendEmailWithRetry({
+      from: process.env.STORE_EMAIL,
+      to: adminEmail,
+      replyTo: email, // Allow admin to reply directly to customer
+      subject: `[FJL Contact] ${subject}`,
+      html: adminHtml
+    });
+
+    console.log(`✅ Contact form email sent to admin: ${adminEmail}`);
+
+    // Auto-reply to customer
+    const customerHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #E09F3E; border-bottom: 2px solid #E09F3E; padding-bottom: 10px;">
+          Thank You for Contacting Us!
+        </h2>
+
+        <p style="font-size: 16px; color: #333; line-height: 1.6;">Hi ${name},</p>
+
+        <p style="font-size: 14px; color: #555; line-height: 1.6;">
+          We've received your message and will get back to you as soon as possible. Our team typically responds within 24-48 hours.
+        </p>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #333; font-size: 14px;">Your Message:</h3>
+          <p style="margin: 10px 0; font-size: 13px;"><strong>Subject:</strong> ${subject}</p>
+          <p style="white-space: pre-wrap; font-size: 13px; color: #666; line-height: 1.5;">${message}</p>
+        </div>
+
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${process.env.APP_URL || 'https://fjl.com'}/shop.html"
+             style="display: inline-block; background: #E09F3E; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+            Continue Shopping
+          </a>
+        </div>
+
+        <footer style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999; font-size: 12px;">
+          <p><strong>Famous Jelly Luxe</strong></p>
+          <p>Luxury Streetwear for the Bold</p>
+          <p style="margin-top: 15px;">
+            <a href="${process.env.APP_URL || 'https://fjl.com'}" style="color: #E09F3E; text-decoration: none;">Visit Our Website</a> |
+            <a href="mailto:${process.env.STORE_EMAIL}" style="color: #E09F3E; text-decoration: none;">Email Us</a>
+          </p>
+        </footer>
+      </div>
+    `;
+
+    // Send auto-reply to customer
+    const customerResponse = await sendEmailWithRetry({
+      from: process.env.STORE_EMAIL,
+      to: email,
+      subject: 'We received your message - Famous Jelly Luxe',
+      html: customerHtml
+    });
+
+    console.log(`✅ Auto-reply sent to customer: ${email}`);
+
+    return {
+      success: true,
+      adminMessageId: adminResponse.id,
+      customerMessageId: customerResponse.id
+    };
+
+  } catch (error) {
+    console.error('Error sending contact email:', error);
+    throw error;
+  }
+}
+
 export default {
   sendOrderConfirmation,
   sendPaymentVerified,
   sendShippingNotification,
   sendMemberWelcome,
   sendProductAnnouncement,
+  sendContactEmail,
   logEmail
 };

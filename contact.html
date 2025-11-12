@@ -594,9 +594,12 @@
                 <div>
                     <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">BECOME A MEMBER</h3>
                     <p class="text-gray-600 text-sm mb-4">Join the FJL family and stay ahead of every drop.</p>
-                    <form data-newsletter-form data-newsletter-source="contact_footer" class="flex">
-                        <input type="email" name="email" placeholder="Email address" class="email-input flex-1" aria-label="Email address" required>
-                        <button type="submit" class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">→</button>
+                    <form data-newsletter-form data-newsletter-source="footer" class="space-y-2">
+                        <input type="text" name="full_name" placeholder="Full name" class="email-input w-full" required aria-label="Full name">
+                        <div class="flex gap-2">
+                            <input type="email" name="email" placeholder="Email address" class="email-input flex-1" required aria-label="Email address">
+                            <button type="submit" class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">Join</button>
+                        </div>
                     </form>
                 </div>
             </div>

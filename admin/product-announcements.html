@@ -292,6 +292,11 @@
                     document.getElementById('emailsToSend').textContent = '0';
 
                     lucide.createIcons();
+
+                    // Auto-reload after 3 seconds to clear the announcement list and show updated state
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
                 } else {
                     throw new Error(data.message || 'Failed to send announcement');
                 }

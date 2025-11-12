@@ -258,29 +258,40 @@ export async function createProduct(productData) {
  */
 export async function updateProduct(id, updateData) {
   try {
+    console.log('🔧 updateProduct called with:', { id, updateData });
+
+    const updateObject = {
+      ...(updateData.name && { name: updateData.name }),
+      ...(updateData.description !== undefined && { description: updateData.description }),
+      ...(updateData.price && { price: updateData.price }),
+      ...(updateData.original_price !== undefined && { original_price: updateData.original_price }),
+      ...(updateData.image_url && { image_url: updateData.image_url }),
+      ...(updateData.images && { images: updateData.images }),
+      ...(updateData.is_active !== undefined && { is_active: updateData.is_active }),
+      ...(updateData.is_featured !== undefined && { is_featured: updateData.is_featured }),
+      ...(updateData.sleeve_type && { sleeve_type: updateData.sleeve_type }),
+      ...(updateData.available_colors && { available_colors: updateData.available_colors }),
+      ...(updateData.available_sizes && { available_sizes: updateData.available_sizes }),
+      updated_at: new Date()
+    };
+
+    console.log('📦 Sending to Supabase:', updateObject);
+
     const { data, error } = await supabaseService
       .from('products')
-      .update({
-        ...(updateData.name && { name: updateData.name }),
-        ...(updateData.description !== undefined && { description: updateData.description }),
-        ...(updateData.price && { price: updateData.price }),
-        ...(updateData.original_price !== undefined && { original_price: updateData.original_price }),
-        ...(updateData.image_url && { image_url: updateData.image_url }),
-        ...(updateData.images && { images: updateData.images }),
-        ...(updateData.is_active !== undefined && { is_active: updateData.is_active }),
-        ...(updateData.sleeve_type && { sleeve_type: updateData.sleeve_type }),
-        ...(updateData.available_colors && { available_colors: updateData.available_colors }),
-        ...(updateData.available_sizes && { available_sizes: updateData.available_sizes }),
-        updated_at: new Date()
-      })
+      .update(updateObject)
       .eq('id', id)
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Supabase error:', error);
+      throw error;
+    }
     if (!data?.[0]) {
       throw new NotFoundError('Product');
     }
 
+    console.log('✅ Supabase returned:', data[0]);
     return data[0];
   } catch (error) {
     if (error instanceof NotFoundError) throw error;
@@ -470,6 +481,7 @@ export async function getFeaturedProducts(limit = 6) {
       .from('products')
       .select('*, categories(name, slug), product_variants(*)')
       .eq('is_active', true)
+      .eq('is_featured', true)
       .order('created_at', { ascending: false })
       .limit(limit);
 
