@@ -743,24 +743,128 @@
             document.getElementById('sizeSelect').value = item.size || 'M';
             document.getElementById('quantityInput').value = item.quantity;
 
-            // Render color options
+            // Fetch actual product data to get correct sizes and colors
+            let product = null;
+            try {
+                const allProducts = JSON.parse(localStorage.getItem('fjl_products')) || [];
+                product = allProducts.find(p => p.id === item.id);
+            } catch (e) {
+                console.error('Error fetching product data:', e);
+            }
+
+            // Populate size dropdown with actual product sizes
+            const sizeSelect = document.getElementById('sizeSelect');
+            if (product && product.variants && product.variants.length > 0) {
+                // Extract unique sizes from variants
+                const sizesSet = new Set();
+                product.variants.forEach(variant => {
+                    if (variant.size) {
+                        sizesSet.add(variant.size);
+                    }
+                });
+                const sizes = Array.from(sizesSet);
+
+                if (sizes.length > 0) {
+                    sizeSelect.innerHTML = '';
+                    sizes.forEach(size => {
+                        const option = document.createElement('option');
+                        option.value = size;
+                        option.textContent = size;
+                        sizeSelect.appendChild(option);
+                    });
+                    sizeSelect.value = item.size || (sizes.length > 0 ? sizes[0] : 'M');
+                }
+            }
+
+            // Render color options from actual product variants
             const colorContainer = document.getElementById('colorOptions');
             colorContainer.innerHTML = '';
-            Object.entries(COLORS).forEach(([name, hex]) => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'color-option' + (item.color === name ? ' active' : '');
-                btn.style.backgroundColor = hex;
-                btn.title = name;
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                };
-                colorContainer.appendChild(btn);
-            });
+
+            if (product && product.variants && product.variants.length > 0) {
+                // Extract unique colors from variants
+                const colorsSet = new Set();
+                const colorMap = {}; // Map color name to hex value
+
+                product.variants.forEach(variant => {
+                    if (variant.color) {
+                        colorsSet.add(variant.color);
+                        // Try to get hex color if available, otherwise use generic color
+                        if (!colorMap[variant.color]) {
+                            colorMap[variant.color] = getColorHex(variant.color);
+                        }
+                    }
+                });
+
+                const colors = Array.from(colorsSet);
+
+                if (colors.length > 0) {
+                    colors.forEach(color => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'color-option' + (item.color === color ? ' active' : '');
+                        btn.style.backgroundColor = colorMap[color];
+                        btn.title = color;
+                        btn.onclick = (e) => {
+                            e.preventDefault();
+                            document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                        };
+                        colorContainer.appendChild(btn);
+                    });
+                } else {
+                    // Fallback to hardcoded colors if no colors in variants
+                    Object.entries(COLORS).forEach(([name, hex]) => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'color-option' + (item.color === name ? ' active' : '');
+                        btn.style.backgroundColor = hex;
+                        btn.title = name;
+                        btn.onclick = (e) => {
+                            e.preventDefault();
+                            document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                        };
+                        colorContainer.appendChild(btn);
+                    });
+                }
+            } else {
+                // Fallback to hardcoded colors if product not found
+                Object.entries(COLORS).forEach(([name, hex]) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'color-option' + (item.color === name ? ' active' : '');
+                    btn.style.backgroundColor = hex;
+                    btn.title = name;
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    };
+                    colorContainer.appendChild(btn);
+                });
+            }
 
             document.getElementById('editModal').classList.add('active');
+        }
+
+        // Helper function to get hex color from color name
+        function getColorHex(colorName) {
+            const colorMap = {
+                'Black': '#000000',
+                'White': '#FFFFFF',
+                'Navy': '#001f3f',
+                'Gold': '#E09F3E',
+                'Red': '#FF4136',
+                'Green': '#2ECC40',
+                'Purple': '#B10DC9',
+                'Blue': '#0074D9',
+                'Cream': '#FFFDD0',
+                'Beige': '#F5E6D3',
+                'Gray': '#AAAAAA',
+                'Burgundy': '#800020',
+                'Olive': '#808000'
+            };
+            return colorMap[colorName] || '#999999';
         }
 
         function closeEditModal() {
@@ -774,9 +878,9 @@
             const size = document.getElementById('sizeSelect').value;
             const quantity = parseInt(document.getElementById('quantityInput').value);
             const colorBtn = document.querySelector('.color-option.active');
-            const colorNames = Object.keys(COLORS);
-            const allColorBtns = Array.from(document.querySelectorAll('.color-option'));
-            const color = colorNames[allColorBtns.indexOf(colorBtn)];
+
+            // Get color from button's title attribute (works with both hardcoded and dynamic colors)
+            const color = colorBtn ? colorBtn.title : 'Black';
 
             cart.updateItem(currentEditingIndex, { size, quantity, color });
             renderSummary();
