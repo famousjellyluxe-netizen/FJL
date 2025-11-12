@@ -403,14 +403,14 @@ export async function updateVariantStock(variantId, newQuantity) {
 }
 
 /**
- * Reduce stock after order
+ * Reduce stock after order payment verification
  */
 export async function reduceStock(variantId, quantity) {
   try {
-    // Get current stock
+    // Get current stock and product ID
     const { data: variant, error: getError } = await supabase
       .from('product_variants')
-      .select('stock_quantity')
+      .select('stock_quantity, product_id')
       .eq('id', variantId)
       .single();
 
@@ -424,10 +424,133 @@ export async function reduceStock(variantId, quantity) {
       throw new AppError('Insufficient stock', 400);
     }
 
-    return updateVariantStock(variantId, newQuantity);
+    const updatedVariant = await updateVariantStock(variantId, newQuantity);
+
+    // Update product total stock
+    if (variant.product_id) {
+      await updateProductTotalStock(variant.product_id);
+    }
+
+    return updatedVariant;
   } catch (error) {
     if (error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error reducing stock:', error);
+    throw error;
+  }
+}
+
+/**
+ * Restore stock after order cancellation or payment failure
+ */
+export async function restoreStock(variantId, quantity) {
+  try {
+    // Get current stock
+    const { data: variant, error: getError } = await supabase
+      .from('product_variants')
+      .select('stock_quantity, product_id')
+      .eq('id', variantId)
+      .single();
+
+    if (getError || !variant) {
+      throw new NotFoundError('Variant');
+    }
+
+    // Restore stock
+    const newQuantity = variant.stock_quantity + quantity;
+    const updatedVariant = await updateVariantStock(variantId, newQuantity);
+
+    // Update product total stock
+    if (variant.product_id) {
+      await updateProductTotalStock(variant.product_id);
+    }
+
+    return updatedVariant;
+  } catch (error) {
+    if (error instanceof NotFoundError) throw error;
+    console.error('Error restoring stock:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update product's total stock based on all its variants
+ * Recalculates the denormalized total_stock column
+ */
+export async function updateProductTotalStock(productId) {
+  try {
+    // Get all variants for this product and sum their stock
+    const { data: variants, error: variantError } = await supabase
+      .from('product_variants')
+      .select('stock_quantity')
+      .eq('product_id', productId);
+
+    if (variantError) throw variantError;
+
+    // Calculate total stock
+    const totalStock = (variants || []).reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+
+    // Update product
+    const { data, error } = await supabaseService
+      .from('products')
+      .update({
+        total_stock: totalStock,
+        updated_at: new Date()
+      })
+      .eq('id', productId)
+      .select();
+
+    if (error) throw error;
+
+    console.log(`📦 Updated total_stock for product ${productId}: ${totalStock}`);
+    return data?.[0];
+  } catch (error) {
+    console.error('Error updating product total stock:', error);
+    throw error;
+  }
+}
+
+/**
+ * Check stock availability and mark product as out of stock if needed
+ * Updates is_active status based on total_stock
+ */
+export async function checkAndMarkOutOfStock(productId) {
+  try {
+    // Get product and its total stock
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .select('total_stock, is_active')
+      .eq('id', productId)
+      .single();
+
+    if (productError || !product) {
+      throw new NotFoundError('Product');
+    }
+
+    // Mark out of stock if total_stock is 0
+    const shouldBeActive = product.total_stock > 0;
+    const needsUpdate = product.is_active !== shouldBeActive;
+
+    if (needsUpdate) {
+      const { data, error } = await supabaseService
+        .from('products')
+        .update({
+          is_active: shouldBeActive,
+          updated_at: new Date()
+        })
+        .eq('id', productId)
+        .select();
+
+      if (error) throw error;
+
+      const status = shouldBeActive ? 'In Stock' : 'Out of Stock';
+      console.log(`✓ Marked product ${productId} as ${status}`);
+      return data?.[0];
+    }
+
+    return product;
+  } catch (error) {
+    if (error instanceof NotFoundError) throw error;
+    console.error('Error checking and marking stock status:', error);
     throw error;
   }
 }

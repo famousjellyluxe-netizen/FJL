@@ -1,6 +1,5 @@
 import { supabase } from '../config/database.js';
 import { AppError, NotFoundError } from '../middleware/errorHandler.js';
-import { reduceStock } from './productService.js';
 
 /**
  * Generate unique order number (ORD-XXXXXXX)
@@ -110,12 +109,9 @@ export async function createOrder(orderData) {
 
     if (itemsError) throw itemsError;
 
-    // Reduce stock for each item
-    for (const item of orderData.items) {
-      if (item.variant_id) {
-        await reduceStock(item.variant_id, item.quantity);
-      }
-    }
+    // NOTE: Stock is NOT reduced here anymore
+    // Stock will be reduced when payment is verified (updatePaymentStatus)
+    // This ensures stock is only affected by confirmed payments
 
     // Update customer stats
     const { error: updateError } = await supabase
@@ -319,14 +315,80 @@ export async function updatePaymentStatus(id, paymentStatus) {
       throw new AppError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`, 400);
     }
 
+    // Get order first to check current status and items
+    const order = await getOrderById(id);
+
     const updateData = {
       payment_status: paymentStatus,
       updated_at: new Date()
     };
 
-    // Add timestamp for verified payment
-    if (paymentStatus === 'verified') {
+    // Handle payment verification - REDUCE STOCK
+    if (paymentStatus === 'verified' && order.payment_status !== 'verified') {
+      console.log(`💳 Payment verified for order ${id}, reducing stock...`);
+
+      // Import stock functions
+      const { reduceStock, checkAndMarkOutOfStock } = await import('./productService.js');
+
+      // Reduce stock for each order item
+      for (const item of order.order_items) {
+        if (item.variant_id) {
+          try {
+            await reduceStock(item.variant_id, item.quantity);
+            console.log(`✓ Reduced stock for variant ${item.variant_id} by ${item.quantity}`);
+          } catch (error) {
+            console.error(`Error reducing stock for variant ${item.variant_id}:`, error);
+            throw error;
+          }
+        }
+      }
+
+      // Mark products as out of stock if needed
+      const productIds = [...new Set(order.order_items.map(item => item.product_id))];
+      for (const productId of productIds) {
+        try {
+          await checkAndMarkOutOfStock(productId);
+        } catch (error) {
+          console.error(`Error checking stock status for product ${productId}:`, error);
+        }
+      }
+
       updateData.paid_at = new Date();
+      updateData.stock_deducted = true;
+      updateData.stock_deducted_at = new Date();
+    }
+
+    // Handle payment failure - ENSURE NO STOCK CHANGES
+    if (paymentStatus === 'failed' && order.stock_deducted) {
+      console.log(`❌ Payment failed for order ${id}, restoring stock...`);
+
+      // Import stock functions
+      const { restoreStock, checkAndMarkOutOfStock } = await import('./productService.js');
+
+      // Restore stock if it was deducted
+      for (const item of order.order_items) {
+        if (item.variant_id) {
+          try {
+            await restoreStock(item.variant_id, item.quantity);
+            console.log(`✓ Restored stock for variant ${item.variant_id} by ${item.quantity}`);
+          } catch (error) {
+            console.error(`Error restoring stock for variant ${item.variant_id}:`, error);
+          }
+        }
+      }
+
+      // Check if products should be marked as in stock
+      const productIds = [...new Set(order.order_items.map(item => item.product_id))];
+      for (const productId of productIds) {
+        try {
+          await checkAndMarkOutOfStock(productId);
+        } catch (error) {
+          console.error(`Error checking stock status for product ${productId}:`, error);
+        }
+      }
+
+      updateData.stock_deducted = false;
+      updateData.stock_deducted_at = null;
     }
 
     const { data, error } = await supabase
@@ -340,6 +402,7 @@ export async function updatePaymentStatus(id, paymentStatus) {
       throw new NotFoundError('Order');
     }
 
+    console.log(`✓ Payment status updated to '${paymentStatus}' for order ${id}`);
     return data;
   } catch (error) {
     if (error instanceof NotFoundError || error instanceof AppError) throw error;
@@ -349,7 +412,7 @@ export async function updatePaymentStatus(id, paymentStatus) {
 }
 
 /**
- * Cancel order
+ * Cancel order and restore stock if it was deducted
  */
 export async function cancelOrder(id) {
   try {
@@ -359,29 +422,48 @@ export async function cancelOrder(id) {
       throw new AppError('Order is already cancelled', 400);
     }
 
-    // Refund stock for each item
-    for (const item of order.order_items) {
-      if (item.variant_id) {
-        const { data: variant } = await supabase
-          .from('product_variants')
-          .select('stock_quantity')
-          .eq('id', item.variant_id)
-          .single();
+    console.log(`🔄 Cancelling order ${id}...`);
 
-        if (variant) {
-          await supabase
-            .from('product_variants')
-            .update({ stock_quantity: variant.stock_quantity + item.quantity })
-            .eq('id', item.variant_id);
+    // Restore stock only if it was deducted
+    if (order.stock_deducted) {
+      console.log(`📦 Restoring stock for cancelled order ${id}...`);
+
+      // Import stock functions
+      const { restoreStock, checkAndMarkOutOfStock } = await import('./productService.js');
+
+      // Restore stock for each item
+      for (const item of order.order_items) {
+        if (item.variant_id) {
+          try {
+            await restoreStock(item.variant_id, item.quantity);
+            console.log(`✓ Restored stock for variant ${item.variant_id} by ${item.quantity}`);
+          } catch (error) {
+            console.error(`Error restoring stock for variant ${item.variant_id}:`, error);
+            throw error;
+          }
         }
       }
+
+      // Check if products should be marked as in stock
+      const productIds = [...new Set(order.order_items.map(item => item.product_id))];
+      for (const productId of productIds) {
+        try {
+          await checkAndMarkOutOfStock(productId);
+        } catch (error) {
+          console.error(`Error checking stock status for product ${productId}:`, error);
+        }
+      }
+    } else {
+      console.log(`⚠️ Order ${id} was cancelled before payment was verified, no stock to restore`);
     }
 
-    // Update order status
+    // Update order status and stock deduction flags
     const { data, error } = await supabase
       .from('orders')
       .update({
         order_status: 'cancelled',
+        stock_deducted: false,
+        stock_deducted_at: null,
         updated_at: new Date()
       })
       .eq('id', id)
@@ -392,6 +474,7 @@ export async function cancelOrder(id) {
       throw new NotFoundError('Order');
     }
 
+    console.log(`✓ Order ${id} cancelled successfully`);
     return data;
   } catch (error) {
     if (error instanceof NotFoundError || error instanceof AppError) throw error;
