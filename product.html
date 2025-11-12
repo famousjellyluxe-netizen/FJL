@@ -1374,8 +1374,10 @@
             document.title = product.name + ' - Famous Jelly Luxe (FJL)';
 
             // Update breadcrumb
-            const breadcrumb = document.querySelector('a[href="shop.html"]').parentElement;
-            breadcrumb.innerHTML = '<a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>' + product.name + '</span>';
+            const breadcrumb = document.querySelector('.breadcrumb');
+            if (breadcrumb) {
+                breadcrumb.innerHTML = '<a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>' + product.name + '</span>';
+            }
 
             // Update product heading
             document.querySelector('.product-title').textContent = product.name;
