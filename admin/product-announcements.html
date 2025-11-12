@@ -242,19 +242,28 @@
         }
 
         async function sendAnnouncement() {
+            console.log('\n🔍 [FRONTEND] sendAnnouncement() called');
+            console.log(`📦 [FRONTEND] unannouncedProducts.length = ${unannouncedProducts.length}`);
+            console.log(`👥 [FRONTEND] subscriberCount = ${subscriberCount}`);
+
             if (unannouncedProducts.length === 0) {
+                console.log('⚠️ [FRONTEND] No products to announce - returning');
                 showError('No products to announce');
                 return;
             }
 
             if (subscriberCount === 0) {
+                console.log('⚠️ [FRONTEND] No subscribers - returning');
                 showError('No subscribers to send to. Add subscribers first.');
                 return;
             }
 
             if (!confirm(`Send announcement for ${unannouncedProducts.length} product(s) to ${subscriberCount} subscribers?`)) {
+                console.log('⚠️ [FRONTEND] User cancelled announcement');
                 return;
             }
+
+            console.log('✅ [FRONTEND] User confirmed - proceeding with announcement');
 
             // Show sending state - hide other states instead of clearing innerHTML
             document.getElementById('loadingState').style.display = 'none';
@@ -265,6 +274,7 @@
             document.getElementById('sendAnnouncementBtn').disabled = true;
 
             try {
+                console.log('📤 [FRONTEND] Sending POST request to /api/products/admin/announce');
                 const token = localStorage.getItem('fjl_admin_token') || '';
                 const response = await fetch('http://localhost:5001/api/products/admin/announce', {
                     method: 'POST',
@@ -275,13 +285,23 @@
                     body: JSON.stringify({})
                 });
 
+                console.log(`📥 [FRONTEND] Response received - Status: ${response.status} ${response.statusText}`);
+
                 if (!response.ok) {
+                    console.error(`❌ [FRONTEND] HTTP error: ${response.status} ${response.statusText}`);
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
 
                 const data = await response.json();
+                console.log(`📧 [FRONTEND] Full response data:`, data);
+                console.log(`✅ [FRONTEND] data.success = ${data.success}`);
+                console.log(`📊 [FRONTEND] data.data.emails_sent = ${data.data?.emails_sent}`);
+                console.log(`📊 [FRONTEND] data.data.products_announced = ${data.data?.products_announced}`);
+                console.log(`📊 [FRONTEND] data.data.emails_failed = ${data.data?.emails_failed}`);
+                console.log(`📊 [FRONTEND] data.data.total_members = ${data.data?.total_members}`);
 
                 if (data.success) {
+                    console.log('✅ [FRONTEND] Announcement successful - showing success state');
                     document.getElementById('sendingState').style.display = 'none';
                     document.getElementById('successState').style.display = 'block';
                     document.getElementById('successMessage').textContent =
@@ -293,19 +313,27 @@
 
                     lucide.createIcons();
 
+                    console.log('⏱️ [FRONTEND] Auto-reload scheduled for 3 seconds');
                     // Auto-reload after 3 seconds to clear the announcement list and show updated state
                     setTimeout(() => {
+                        console.log('🔄 [FRONTEND] Executing page reload now');
                         window.location.reload();
                     }, 3000);
                 } else {
+                    console.error(`❌ [FRONTEND] data.success = false - message: ${data.message}`);
                     throw new Error(data.message || 'Failed to send announcement');
                 }
             } catch (error) {
-                console.error('Error sending announcement:', error);
+                console.error('❌ [FRONTEND] Exception caught:', error.message);
+                console.error('❌ [FRONTEND] Full error:', error);
                 document.getElementById('sendingState').style.display = 'none';
                 showError('Failed to send announcement: ' + error.message);
+                console.log('⏱️ [FRONTEND] Reload scheduled for 2 seconds after error');
                 // Reload to show products again
-                setTimeout(() => window.location.reload(), 2000);
+                setTimeout(() => {
+                    console.log('🔄 [FRONTEND] Executing page reload after error');
+                    window.location.reload();
+                }, 2000);
             }
         }
 

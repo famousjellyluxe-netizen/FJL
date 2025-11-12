@@ -609,21 +609,22 @@ export async function sendMemberWelcome(member) {
  * @returns {Promise<Object>} - { sent: number, failed: number, errors: Array }
  */
 export async function sendProductAnnouncement(products, members) {
-  console.log('📢 Starting product announcement email campaign...');
-  console.log(`   Products: ${products.length}`);
-  console.log(`   Recipients: ${members.length}`);
+  console.log('\n📢 [EMAIL SERVICE] Starting product announcement email campaign...');
+  console.log(`📢 [EMAIL SERVICE]   Products: ${products.length}`);
+  console.log(`📢 [EMAIL SERVICE]   Recipients: ${members.length}`);
 
   if (!resend) {
-    console.warn('⚠️  Email service not configured - product announcement not sent');
+    console.warn('⚠️  [EMAIL SERVICE] Email service not configured - product announcement not sent');
     return { success: false, error: 'Email service not configured', sent: 0, failed: members.length };
   }
 
   if (!products || products.length === 0) {
+    console.error('❌ [EMAIL SERVICE] No products to announce');
     throw new Error('No products to announce');
   }
 
   if (!members || members.length === 0) {
-    console.warn('⚠️  No subscribed members to send to');
+    console.warn('⚠️  [EMAIL SERVICE] No subscribed members to send to');
     return { success: true, sent: 0, failed: 0, errors: [] };
   }
 
@@ -674,11 +675,16 @@ Sleeve Type: ${product.sleeve_type || 'N/A'}
   let failed = 0;
   const errors = [];
 
-  for (const member of members) {
+  console.log(`📢 [EMAIL SERVICE] Starting email loop for ${members.length} members...`);
+
+  for (let index = 0; index < members.length; index++) {
+    const member = members[index];
+    console.log(`\n📢 [EMAIL SERVICE] Processing member ${index + 1}/${members.length}: ${member.email}`);
+
     try {
       // Validate member email
       if (!isValidEmail(member.email)) {
-        console.warn(`⚠️  Skipping invalid email: ${member.email}`);
+        console.warn(`⚠️  [EMAIL SERVICE] Skipping invalid email: ${member.email}`);
         failed++;
         errors.push({ email: member.email, error: 'Invalid email format' });
         continue;
@@ -708,7 +714,7 @@ Unsubscribe: ${baseUrl}/unsubscribe.html?token=${member.unsubscribe_token}</pre>
       `;
 
       // Send email with retry
-      console.log(`📤 Sending to: ${member.email}`);
+      console.log(`📤 [EMAIL SERVICE] Sending to: ${member.email}`);
       const response = await sendEmailWithRetry({
         from: process.env.STORE_EMAIL,
         to: member.email,
@@ -716,24 +722,25 @@ Unsubscribe: ${baseUrl}/unsubscribe.html?token=${member.unsubscribe_token}</pre>
         html: htmlContent
       });
 
+      console.log(`📤 [EMAIL SERVICE] Response from Resend:`, { id: response.id, error: response.error });
+
       // Log email for each product
-      for (const product of products) {
-        await logEmail({
-          campaign_id: null,
-          recipient_id: member.id,
-          recipient_email: member.email,
-          email_type: EMAIL_TYPES.PRODUCT_LAUNCH,
-          resend_message_id: response.id,
-          resend_response: response,
-          send_status: response.id ? 'sent' : 'failed',
-          sent_at: new Date(),
-          product_id: product.id,
-          user_id: member.user_id || null
-        });
-      }
+      // NOTE: Email logging temporarily disabled due to schema mismatch
+      // TODO: Fix email_logs table schema to match these fields
+      // for (const product of products) {
+      //   await logEmail({
+      //     recipient_id: member.id,
+      //     recipient_email: member.email,
+      //     email_type: EMAIL_TYPES.PRODUCT_LAUNCH,
+      //     send_status: response.id ? 'sent' : 'failed',
+      //     sent_at: new Date(),
+      //     product_id: product.id,
+      //     user_id: member.user_id || null
+      //   });
+      // }
 
       sent++;
-      console.log(`✅ Sent to ${member.email}`);
+      console.log(`✅ [EMAIL SERVICE] Successfully sent to ${member.email} (Total sent: ${sent}/${members.length})`);
 
       // Rate limiting: 100ms delay between emails
       if (sent < members.length) {
@@ -741,30 +748,33 @@ Unsubscribe: ${baseUrl}/unsubscribe.html?token=${member.unsubscribe_token}</pre>
       }
 
     } catch (error) {
-      console.error(`❌ Failed to send to ${member.email}:`, error.message);
+      console.error(`❌ [EMAIL SERVICE] Failed to send to ${member.email}:`, error.message);
+      console.error(`❌ [EMAIL SERVICE] Error stack:`, error);
       failed++;
       errors.push({ email: member.email, error: error.message });
 
       // Log failed email
-      for (const product of products) {
-        await logEmail({
-          campaign_id: null,
-          recipient_id: member.id,
-          recipient_email: member.email,
-          email_type: EMAIL_TYPES.PRODUCT_LAUNCH,
-          send_status: 'failed',
-          error_message: error.message,
-          product_id: product.id,
-          user_id: member.user_id || null
-        });
-      }
+      // NOTE: Email logging temporarily disabled due to schema mismatch
+      // TODO: Fix email_logs table schema to match these fields
+      // for (const product of products) {
+      //   await logEmail({
+      //     recipient_id: member.id,
+      //     recipient_email: member.email,
+      //     email_type: EMAIL_TYPES.PRODUCT_LAUNCH,
+      //     send_status: 'failed',
+      //     error_message: error.message,
+      //     product_id: product.id,
+      //     user_id: member.user_id || null
+      //   });
+      // }
     }
   }
 
-  console.log(`\n📊 Campaign Results:`);
-  console.log(`   ✅ Sent: ${sent}`);
-  console.log(`   ❌ Failed: ${failed}`);
-  console.log(`   📦 Products: ${productCount}\n`);
+  console.log(`\n📊 [EMAIL SERVICE] Campaign Results:`);
+  console.log(`📊 [EMAIL SERVICE]    ✅ Sent: ${sent}`);
+  console.log(`📊 [EMAIL SERVICE]    ❌ Failed: ${failed}`);
+  console.log(`📊 [EMAIL SERVICE]    📦 Products: ${productCount}`);
+  console.log(`📊 [EMAIL SERVICE]    Total to process: ${members.length}\n`);
 
   return {
     success: sent > 0,

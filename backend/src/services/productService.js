@@ -553,29 +553,77 @@ export async function getUnannouncedProducts() {
  * @returns {Promise<Object>} - { success: boolean, updated: number }
  */
 export async function markProductsAsAnnounced(productIds) {
+  console.log(`\n🔍 [MARK PRODUCTS] markProductsAsAnnounced called with ${productIds.length} product IDs`);
+  console.log(`🔍 [MARK PRODUCTS] Product IDs:`, productIds);
+
   if (!productIds || productIds.length === 0) {
+    console.error(`❌ [MARK PRODUCTS] No product IDs provided!`);
     throw new Error('No product IDs provided');
   }
 
   try {
     const now = new Date().toISOString();
+    console.log(`🔍 [MARK PRODUCTS] Updating with announced_at = ${now}`);
+    console.log(`🔍 [MARK PRODUCTS] Attempting to update ${productIds.length} products...`);
 
-    const { data, error } = await supabase
+    // IMPORTANT: Use supabaseService (admin client) for updates
+    // Regular supabase client has RLS restrictions that prevent this update
+    // Step 1: Update the products with announced_at timestamp
+    const updateResult = await supabaseService
       .from('products')
       .update({ announced_at: now })
       .in('id', productIds)
       .select('id, name, announced_at');
 
-    if (error) {
-      console.error('Error marking products as announced:', error);
-      throw error;
+    const { data: updatedProducts, error: updateError, status } = updateResult;
+
+    console.log(`🔍 [MARK PRODUCTS] Update response status: ${status}`);
+    console.log(`🔍 [MARK PRODUCTS] Update error:`, updateError);
+    console.log(`🔍 [MARK PRODUCTS] Updated products data:`, updatedProducts);
+
+    if (updateError) {
+      console.error('❌ [MARK PRODUCTS] Database update error:', updateError);
+      throw updateError;
     }
 
-    console.log(`✅ Marked ${data?.length || 0} products as announced at ${now}`);
+    console.log(`✅ [MARK PRODUCTS] Database update completed. Updated rows: ${updatedProducts?.length || 0}`);
+
+    if (!updatedProducts || updatedProducts.length === 0) {
+      console.warn(`⚠️ [MARK PRODUCTS] Update returned 0 rows. Fetching products separately to verify...`);
+
+      // Step 2: Fetch the products separately to check if they were actually updated
+      const { data: fetchedProducts, error: fetchError } = await supabase
+        .from('products')
+        .select('id, name, announced_at')
+        .in('id', productIds);
+
+      if (fetchError) {
+        console.error('❌ [MARK PRODUCTS] Database fetch error:', fetchError);
+        throw fetchError;
+      }
+
+      console.log(`✅ [MARK PRODUCTS] Fetched products after update:`, {
+        count: fetchedProducts?.length || 0,
+        products: fetchedProducts?.map(p => ({ id: p.id, name: p.name, announced_at: p.announced_at }))
+      });
+
+      return {
+        success: true,
+        updated: fetchedProducts?.filter(p => p.announced_at !== null).length || 0,
+        products: fetchedProducts || []
+      };
+    }
+
+    console.log(`✅ [MARK PRODUCTS] Database response (update returned data):`, {
+      updatedCount: updatedProducts?.length || 0,
+      products: updatedProducts?.map(p => ({ id: p.id, name: p.name, announced_at: p.announced_at }))
+    });
+
+    console.log(`✅ [MARK PRODUCTS] Successfully marked ${updatedProducts?.length || 0} products as announced at ${now}`);
     return {
       success: true,
-      updated: data?.length || 0,
-      products: data || []
+      updated: updatedProducts?.length || 0,
+      products: updatedProducts || []
     };
   } catch (error) {
     console.error('Error in markProductsAsAnnounced:', error);

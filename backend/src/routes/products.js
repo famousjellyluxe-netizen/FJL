@@ -34,20 +34,6 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 /**
- * GET /api/products/featured
- * Get featured products
- */
-router.get('/featured', asyncHandler(async (req, res) => {
-  const limit = req.query.limit || 6;
-  const products = await productService.getFeaturedProducts(limit);
-
-  res.json({
-    success: true,
-    data: products
-  });
-}));
-
-/**
  * POST /api/products/:id/upload
  * Upload product image (admin only)
  */
@@ -219,10 +205,13 @@ router.get('/admin/unannounced', verifyJWT, requireAdmin, requirePermission('man
  * Body: { productIds: ['uuid1', 'uuid2', ...] } (optional - sends all unannounced if omitted)
  */
 router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manage_products'), asyncHandler(async (req, res) => {
+  console.log('\n🔍 [ANNOUNCE ENDPOINT] Starting announcement process...');
+
   // Get products to announce
   let products;
   if (req.body.productIds && Array.isArray(req.body.productIds) && req.body.productIds.length > 0) {
     // Announce specific products
+    console.log(`📦 [ANNOUNCE ENDPOINT] Fetching specific products: ${req.body.productIds.join(', ')}`);
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -233,10 +222,14 @@ router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manag
     products = data || [];
   } else {
     // Announce all unannounced products
+    console.log(`📦 [ANNOUNCE ENDPOINT] Fetching all unannounced products...`);
     products = await productService.getUnannouncedProducts();
   }
 
+  console.log(`📦 [ANNOUNCE ENDPOINT] Found ${products.length} unannounced products:`, products.map(p => ({ id: p.id, name: p.name, announced_at: p.announced_at })));
+
   if (!products || products.length === 0) {
+    console.log(`⚠️ [ANNOUNCE ENDPOINT] No unannounced products found, returning error`);
     return res.status(400).json({
       success: false,
       message: 'No unannounced products found'
@@ -244,34 +237,52 @@ router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manag
   }
 
   // Get all subscribed members
+  console.log(`👥 [ANNOUNCE ENDPOINT] Fetching subscribed members...`);
   const { data: members, error: membersError } = await supabase
     .from('members')
     .select('*')
     .eq('is_subscribed', true);
 
   if (membersError) {
-    console.error('Error fetching members:', membersError);
+    console.error('❌ [ANNOUNCE ENDPOINT] Error fetching members:', membersError);
     throw membersError;
   }
 
+  console.log(`👥 [ANNOUNCE ENDPOINT] Found ${members.length} subscribed members:`, members.map(m => ({ id: m.id, email: m.email })));
+
   if (!members || members.length === 0) {
+    console.log(`⚠️ [ANNOUNCE ENDPOINT] No subscribed members found, returning error`);
     return res.status(400).json({
       success: false,
       message: 'No subscribed members found to send announcements to'
     });
   }
 
-  console.log(`📢 Sending announcement for ${products.length} products to ${members.length} members...`);
+  console.log(`📢 [ANNOUNCE ENDPOINT] Sending announcement for ${products.length} products to ${members.length} members...`);
 
   // Send emails
   const result = await emailService.sendProductAnnouncement(products, members);
 
+  console.log(`📧 [ANNOUNCE ENDPOINT] Email service returned:`, {
+    success: result.success,
+    sent: result.sent,
+    failed: result.failed,
+    errors: result.errors
+  });
+
   // If emails sent successfully, mark products as announced
+  console.log(`🔍 [ANNOUNCE ENDPOINT] Checking condition: result.success=${result.success}, result.sent=${result.sent}`);
   if (result.success && result.sent > 0) {
+    console.log(`✅ [ANNOUNCE ENDPOINT] Condition met, marking products as announced...`);
     const productIds = products.map(p => p.id);
-    await productService.markProductsAsAnnounced(productIds);
+    console.log(`📌 [ANNOUNCE ENDPOINT] Product IDs to mark:`, productIds);
+    const markResult = await productService.markProductsAsAnnounced(productIds);
+    console.log(`✅ [ANNOUNCE ENDPOINT] Mark result:`, markResult);
+  } else {
+    console.log(`❌ [ANNOUNCE ENDPOINT] Condition NOT met (success=${result.success}, sent=${result.sent}), NOT marking products as announced!`);
   }
 
+  console.log(`📤 [ANNOUNCE ENDPOINT] Sending response with success=${result.success}`);
   res.json({
     success: result.success,
     message: `Product announcement sent to ${result.sent} members`,
@@ -282,6 +293,20 @@ router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manag
       total_members: result.members,
       errors: result.errors
     }
+  });
+}));
+
+/**
+ * GET /api/products/featured
+ * Get featured products
+ */
+router.get('/featured', asyncHandler(async (req, res) => {
+  const limit = req.query.limit || 6;
+  const products = await productService.getFeaturedProducts(limit);
+
+  res.json({
+    success: true,
+    data: products
   });
 }));
 

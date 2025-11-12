@@ -78,6 +78,42 @@ router.get('/:id', verifyJWT, requireAdmin, requirePermission('manage_customers'
 }));
 
 /**
+ * GET /api/customers/members/list
+ * List all members (admin only)
+ */
+router.get('/members/list', verifyJWT, requireAdmin, requirePermission('manage_customers'), asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const offset = (page - 1) * limit;
+
+  let query = supabase
+    .from('members')
+    .select('*', { count: 'exact' });
+
+  if (req.query.subscribed !== undefined) {
+    query = query.eq('is_subscribed', req.query.subscribed === 'true');
+  }
+
+  query = query.order('subscribed_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
+
+  if (error) throw error;
+
+  res.json({
+    success: true,
+    data: data || [],
+    pagination: {
+      page,
+      limit,
+      total: count || 0,
+      pages: Math.ceil((count || 0) / limit)
+    }
+  });
+}));
+
+/**
  * GET /api/customers
  * List all customers (admin only)
  */
@@ -230,42 +266,6 @@ router.post('/members/subscribe', validationChains.subscribeMember, handleValida
     data: {
       id: member.id,
       email: member.email
-    }
-  });
-}));
-
-/**
- * GET /api/customers/members/list
- * List all members (admin only)
- */
-router.get('/members/list', verifyJWT, requireAdmin, requirePermission('manage_customers'), asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
-  const offset = (page - 1) * limit;
-
-  let query = supabase
-    .from('members')
-    .select('*', { count: 'exact' });
-
-  if (req.query.subscribed !== undefined) {
-    query = query.eq('is_subscribed', req.query.subscribed === 'true');
-  }
-
-  query = query.order('subscribed_at', { ascending: false })
-    .range(offset, offset + limit - 1);
-
-  const { data, error, count } = await query;
-
-  if (error) throw error;
-
-  res.json({
-    success: true,
-    data: data || [],
-    pagination: {
-      page,
-      limit,
-      total: count || 0,
-      pages: Math.ceil((count || 0) / limit)
     }
   });
 }));
