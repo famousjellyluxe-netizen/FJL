@@ -331,6 +331,7 @@ class AdminDataService {
                 // Map API field names to form field names
                 quantity: apiProduct.total_stock,
                 inStock: apiProduct.is_active,
+                isFeatured: apiProduct.is_featured,
                 sleeve: apiProduct.sleeve_type || '', // Use actual sleeve_type value for dropdown
                 sizes: apiProduct.available_sizes || [],
                 colors: apiProduct.available_colors || [],
@@ -357,6 +358,7 @@ class AdminDataService {
                 // Map API field names to form field names
                 quantity: apiProduct.total_stock,
                 inStock: apiProduct.is_active,
+                isFeatured: apiProduct.is_featured,
                 sleeve: apiProduct.sleeve_type || '', // Use actual sleeve_type value for dropdown
                 sizes: apiProduct.available_sizes || [],
                 colors: apiProduct.available_colors || [],
@@ -364,6 +366,7 @@ class AdminDataService {
                 // Keep original API fields for reference if needed
                 total_stock: apiProduct.total_stock,
                 is_active: apiProduct.is_active,
+                is_featured: apiProduct.is_featured,
                 sleeve_type: apiProduct.sleeve_type,
                 available_sizes: apiProduct.available_sizes,
                 available_colors: apiProduct.available_colors,
@@ -512,7 +515,7 @@ class AdminDataService {
             if (updates.sku) apiUpdates.sku = updates.sku;
             if (updates.price) apiUpdates.price = updates.price;
             if (updates.originalPrice !== undefined) apiUpdates.original_price = updates.originalPrice;
-            if (updates.description) apiUpdates.description = updates.description;
+            if (updates.description !== undefined) apiUpdates.description = updates.description;
             if (updates.category_id !== undefined) apiUpdates.category_id = updates.category_id;
             if (updates.sleeve) apiUpdates.sleeve_type = updates.sleeve;
             if (updates.colors) apiUpdates.available_colors = updates.colors;
@@ -523,6 +526,8 @@ class AdminDataService {
             // FIXED: Use inStock from form, not is_active
             if (updates.inStock !== undefined) apiUpdates.is_active = updates.inStock;
             else if (updates.is_active !== undefined) apiUpdates.is_active = updates.is_active;
+            // Add support for is_featured
+            if (updates.is_featured !== undefined) apiUpdates.is_featured = updates.is_featured;
 
             const response = await fetch(`http://localhost:5001/api/products/${id}`, {
                 method: 'PUT',

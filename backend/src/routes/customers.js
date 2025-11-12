@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import { supabase } from '../config/database.js';
 import { verifyJWT, requireAdmin, requirePermission } from '../middleware/auth.js';
 import { validationChains, handleValidationErrors } from '../middleware/validation.js';
@@ -199,7 +200,6 @@ router.post('/members/subscribe', validationChains.subscribeMember, handleValida
   }
 
   // Generate unique unsubscribe token
-  const crypto = require('crypto');
   const unsubscribe_token = crypto.randomBytes(32).toString('hex');
 
   // Create member
