@@ -1037,41 +1037,75 @@
                     document.getElementById('featuredLoading').style.display = 'none';
                     document.getElementById('featuredGrid').style.display = 'grid';
 
-                    // Render products
+                    // Render products with same structure as shop page
                     const grid = document.getElementById('featuredGrid');
-                    grid.innerHTML = products.map(product => {
-                        const imageUrl = product.image_url || 'images/placeholder.png';
-                        const price = parseFloat(product.price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-                        const isOutOfStock = product.total_stock === 0;
+                    let htmlContent = '';
 
-                        return `
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group">
-                                <!-- Product Image -->
-                                <div class="relative overflow-hidden aspect-square">
-                                    ${isOutOfStock ? '<div class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded z-10">Out of Stock</div>' : ''}
-                                    <img src="${imageUrl}"
-                                         alt="${product.name}"
-                                         class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-                                         onerror="this.src='images/placeholder.png'">
-                                </div>
+                    products.forEach(product => {
+                        const imageUrl = product.image_url || product.image || 'images/placeholder.png';
+                        const isAllOutOfStock = product.total_stock === 0;
 
-                                <!-- Product Info -->
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">${product.name}</h3>
-                                    <div class="flex items-center justify-between mb-3">
-                                        <p class="text-2xl font-bold text-gray-900">₦${price}</p>
+                        htmlContent += `
+                            <div class="product-card hover-lift ${isAllOutOfStock ? 'out-of-stock-card' : ''}">
+                                ${isAllOutOfStock ? '<div class="stock-badge out-of-stock-badge">Out of Stock</div>' : ''}
+                                <a href="product.html?id=${product.id}" class="text-decoration-none">
+                                    <div class="product-image-wrapper">
+                                        <div class="product-image ${isAllOutOfStock ? 'out-of-stock-image' : ''}">
+                                            <img src="${imageUrl}" alt="${product.name}" onerror="this.src='images/placeholder.png'">
+                                        </div>
                                     </div>
-
-                                    ${product.description ? `<p class="text-sm text-gray-600 mb-4 line-clamp-2">${product.description}</p>` : ''}
-
-                                    <a href="product.html?id=${product.id}"
-                                       class="block w-full text-center bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition font-medium">
-                                        View Product
+                                </a>
+                                <div class="product-info-header">
+                                    <button class="cart-icon-btn ${isAllOutOfStock ? 'disabled' : ''}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-image-url="${imageUrl}" data-out-of-stock="${isAllOutOfStock}" title="${isAllOutOfStock ? 'Out of stock' : 'Add to cart'}" type="button" ${isAllOutOfStock ? 'disabled' : ''}>
+                                        <i data-lucide="shopping-bag"></i>
+                                        <span>${isAllOutOfStock ? 'Sold Out' : 'Add'}</span>
+                                    </button>
+                                    <div class="add-to-cart-success" id="success-${product.id}">✓ Added</div>
+                                </div>
+                                <div class="p-3">
+                                    <a href="product.html?id=${product.id}" class="text-decoration-none hover:text-gray-700">
+                                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wide">${product.name}</h3>
+                                        <p class="text-gray-600 text-xs mt-2">₦${product.price.toLocaleString('en-NG')}</p>
                                     </a>
                                 </div>
                             </div>
                         `;
-                    }).join('');
+                    });
+
+                    grid.innerHTML = htmlContent;
+
+                    // Prevent link navigation when clicking on add button
+                    grid.querySelectorAll('a').forEach(link => {
+                        const button = link.querySelector('button.cart-icon-btn');
+                        if (button) {
+                            link.addEventListener('click', (e) => {
+                                if (e.target.closest('button.cart-icon-btn') || e.target.closest('[data-lucide]')) {
+                                    e.preventDefault();
+                                }
+                            });
+                        }
+                    });
+
+                    // Re-initialize Lucide icons for the new buttons
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+
+                    // Attach add to cart event listeners
+                    grid.querySelectorAll('.cart-icon-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (!this.classList.contains('disabled')) {
+                                const productId = this.dataset.productId;
+                                const productName = this.dataset.productName;
+                                const productPrice = parseFloat(this.dataset.productPrice);
+                                const imageUrl = this.dataset.imageUrl;
+
+                                // Open product modal (same as shop page)
+                                window.openProductModal(productId, productName, productPrice, imageUrl);
+                            }
+                        });
+                    });
 
                 } else {
                     // No featured products
