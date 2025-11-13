@@ -347,10 +347,13 @@ export async function createProduct(productData) {
       console.log(`📊 Manual stock distribution validated: ${assignedTotal} units across ${variants.length} variants`);
     }
 
+    // Remove the 'key' field before inserting into database (it's only for internal tracking)
+    const variantsToInsert = distributedVariants.map(({ key, ...rest }) => rest);
+
     // Create all variants
     const { data: createdVariants, error: variantError } = await supabaseService
       .from('product_variants')
-      .insert(distributedVariants)
+      .insert(variantsToInsert)
       .select();
 
     if (variantError) {
