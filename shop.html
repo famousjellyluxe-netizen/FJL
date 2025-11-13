@@ -747,11 +747,9 @@
                         <option>Out of Stock</option>
                     </select>
 
-                    <label class="text-sm font-medium text-gray-700">SLEEVE</label>
-                    <select class="filter-dropdown" id="sleeveFilter">
-                        <option value="All">All</option>
-                        <option value="sleeve">Sleeve</option>
-                        <option value="sleeveless">Sleeveless</option>
+                    <label class="text-sm font-medium text-gray-700">CATEGORY</label>
+                    <select class="filter-dropdown" id="categoryFilter">
+                        <option value="All">All Categories</option>
                     </select>
                 </div>
 
@@ -941,7 +939,7 @@
         let currentFilters = {
             availability: 'All Items',
             sort: 'Newest', // Default to showing newest first
-            sleeve: 'All'
+            category: 'All'
         };
 
         // Pagination state
@@ -956,8 +954,8 @@
                 if (currentFilters.availability === 'In Stock' && !product.inStock) return false;
                 if (currentFilters.availability === 'Out of Stock' && product.inStock) return false;
 
-                // Sleeve filter
-                if (currentFilters.sleeve !== 'All' && product.sleeve !== currentFilters.sleeve) return false;
+                // Category filter (by category_id or slug)
+                if (currentFilters.category !== 'All' && product.category_slug !== currentFilters.category) return false;
 
                 return true;
             });
@@ -987,7 +985,7 @@
         // Handle filter changes
         function handleFilterChange() {
             const availabilitySelect = document.querySelector('select.filter-dropdown');
-            const sleeveSelect = document.getElementById('sleeveFilter');
+            const categorySelect = document.getElementById('categoryFilter');
             const sortSelects = document.querySelectorAll('select.filter-dropdown');
             const sortSelect = sortSelects[sortSelects.length - 1]; // Last dropdown is sort
 
@@ -998,9 +996,9 @@
                 });
             }
 
-            if (sleeveSelect) {
-                sleeveSelect.addEventListener('change', (e) => {
-                    currentFilters.sleeve = e.target.value;
+            if (categorySelect) {
+                categorySelect.addEventListener('change', (e) => {
+                    currentFilters.category = e.target.value;
                     applyFiltersAndSort();
                 });
             }
@@ -1236,7 +1234,7 @@
                     currentPage = 1;
                     currentFilters.availability = 'All Items';
                     currentFilters.sort = 'Newest';
-                    currentFilters.sleeve = 'All';
+                    currentFilters.category = 'All';
                     applyFiltersAndSort();
 
                     // Show notification that products were updated
@@ -1258,6 +1256,35 @@
 
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // ===== CATEGORY FILTER INITIALIZATION =====
+        // Load and populate categories from API
+        async function loadCategories() {
+            try {
+                const response = await fetch('http://localhost:5001/api/categories');
+                if (!response.ok) throw new Error('Failed to fetch categories');
+                const data = await response.json();
+                const categories = data.data || [];
+
+                const categorySelect = document.getElementById('categoryFilter');
+                if (!categorySelect) return;
+
+                // Clear existing options (keep the first "All Categories" option)
+                categorySelect.innerHTML = '<option value="All">All Categories</option>';
+
+                // Add each category as an option
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.slug;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+
+                console.log(`✅ Loaded ${categories.length} categories`);
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
 
         // ===== BACKEND API INTEGRATION =====
         // Load products from API instead of localStorage
@@ -1302,8 +1329,22 @@
             }
         }
 
-        // Call after a small delay to ensure scripts are loaded
-        setTimeout(initializeProducts, 100);
+        // Load categories and products when page is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCategories();
+            setTimeout(initializeProducts, 100);
+        });
+
+        // Also call immediately in case DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', async () => {
+                await loadCategories();
+                setTimeout(initializeProducts, 100);
+            });
+        } else {
+            loadCategories();
+            setTimeout(initializeProducts, 100);
+        }
 
         // Handle product refresh when coming back online
         window.refreshShopProducts = function(newProducts) {
