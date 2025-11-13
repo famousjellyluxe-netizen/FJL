@@ -387,9 +387,9 @@ class AdminDataService {
                 name: product.name,
                 sku: product.sku,
                 price: product.price,
-                sleeve_type: product.sleeve, // Map sleeve to sleeve_type
-                total_stock: product.quantity || 0,
-                is_active: product.inStock !== false // FIXED: Use inStock from form, not is_active
+                sleeve_type: product.sleeve_type || product.sleeve, // Map to sleeve_type
+                total_stock: product.total_stock || product.quantity || 0,
+                is_active: product.is_active !== undefined ? product.is_active : (product.inStock !== false)
             };
 
             // Only include fields with actual values
@@ -397,22 +397,37 @@ class AdminDataService {
                 apiProduct.description = product.description.trim();
             }
 
-            // Only include colors/sizes if they have values
-            if (product.colors && product.colors.length > 0) {
-                apiProduct.available_colors = product.colors;
+            // Handle both old field names (colors/sizes) and new (available_colors/available_sizes)
+            const colors = product.available_colors || product.colors || [];
+            const sizes = product.available_sizes || product.sizes || [];
+
+            if (colors && colors.length > 0) {
+                apiProduct.available_colors = colors;
             }
-            if (product.sizes && product.sizes.length > 0) {
-                apiProduct.available_sizes = product.sizes;
+            if (sizes && sizes.length > 0) {
+                apiProduct.available_sizes = sizes;
+            }
+
+            // Stock distribution fields (new)
+            if (product.distribution_mode) {
+                apiProduct.distribution_mode = product.distribution_mode;
+            }
+            if (product.variant_stock && Object.keys(product.variant_stock).length > 0) {
+                apiProduct.variant_stock = product.variant_stock;
             }
 
             // Optional fields
-            if (product.originalPrice) {
+            if (product.original_price !== undefined) {
+                apiProduct.original_price = product.original_price;
+            } else if (product.originalPrice) {
                 apiProduct.original_price = product.originalPrice;
             }
             if (product.category_id) {
                 apiProduct.category_id = product.category_id;
             }
-            if (product.image) {
+            if (product.image_url) {
+                apiProduct.image_url = product.image_url;
+            } else if (product.image) {
                 apiProduct.image_url = product.image;
             }
             if (product.images && product.images.length > 0) {
@@ -514,18 +529,49 @@ class AdminDataService {
             if (updates.name) apiUpdates.name = updates.name;
             if (updates.sku) apiUpdates.sku = updates.sku;
             if (updates.price) apiUpdates.price = updates.price;
-            if (updates.originalPrice !== undefined) apiUpdates.original_price = updates.originalPrice;
+
+            // Handle both old and new field names for prices
+            if (updates.original_price !== undefined) {
+                apiUpdates.original_price = updates.original_price;
+            } else if (updates.originalPrice !== undefined) {
+                apiUpdates.original_price = updates.originalPrice;
+            }
+
             if (updates.description !== undefined) apiUpdates.description = updates.description;
             if (updates.category_id !== undefined) apiUpdates.category_id = updates.category_id;
-            if (updates.sleeve) apiUpdates.sleeve_type = updates.sleeve;
-            if (updates.colors) apiUpdates.available_colors = updates.colors;
-            if (updates.sizes) apiUpdates.available_sizes = updates.sizes;
-            if (updates.image) apiUpdates.image_url = updates.image;
+
+            // Handle sleeve type
+            if (updates.sleeve_type) apiUpdates.sleeve_type = updates.sleeve_type;
+            else if (updates.sleeve) apiUpdates.sleeve_type = updates.sleeve;
+
+            // Handle colors and sizes (both old and new field names)
+            const colors = updates.available_colors || updates.colors;
+            const sizes = updates.available_sizes || updates.sizes;
+            if (colors) apiUpdates.available_colors = colors;
+            if (sizes) apiUpdates.available_sizes = sizes;
+
+            if (updates.image_url) apiUpdates.image_url = updates.image_url;
+            else if (updates.image) apiUpdates.image_url = updates.image;
             if (updates.images) apiUpdates.images = updates.images;
-            if (updates.quantity !== undefined) apiUpdates.total_stock = updates.quantity;
-            // FIXED: Use inStock from form, not is_active
-            if (updates.inStock !== undefined) apiUpdates.is_active = updates.inStock;
-            else if (updates.is_active !== undefined) apiUpdates.is_active = updates.is_active;
+
+            // Handle stock
+            if (updates.total_stock !== undefined) {
+                apiUpdates.total_stock = updates.total_stock;
+            } else if (updates.quantity !== undefined) {
+                apiUpdates.total_stock = updates.quantity;
+            }
+
+            // Handle active status
+            if (updates.is_active !== undefined) {
+                apiUpdates.is_active = updates.is_active;
+            } else if (updates.inStock !== undefined) {
+                apiUpdates.is_active = updates.inStock;
+            }
+
+            // Stock distribution fields
+            if (updates.distribution_mode) apiUpdates.distribution_mode = updates.distribution_mode;
+            if (updates.variant_stock) apiUpdates.variant_stock = updates.variant_stock;
+
             // Add support for is_featured
             if (updates.is_featured !== undefined) apiUpdates.is_featured = updates.is_featured;
 

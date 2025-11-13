@@ -253,6 +253,15 @@ export async function createProduct(productData) {
       throw new AppError('Distribution mode must be "equal" or "manual"', 400);
     }
 
+    // Validate sizes and colors BEFORE creating product
+    if (!available_sizes || available_sizes.length === 0) {
+      throw new AppError('Product must have at least one size', 400);
+    }
+
+    if (!available_colors || available_colors.length === 0) {
+      throw new AppError('Product must have at least one color', 400);
+    }
+
     // Create product
     const { data: productArray, error: createError } = await supabaseService
       .from('products')
