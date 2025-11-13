@@ -352,6 +352,15 @@ class AdminDataService {
             const data = await response.json();
             const apiProduct = data.data;
 
+            // Convert variants array to variant_stock object for form population
+            const variant_stock = {};
+            if (apiProduct.variants && Array.isArray(apiProduct.variants)) {
+                apiProduct.variants.forEach(variant => {
+                    const key = `${variant.color}-${variant.size}`;
+                    variant_stock[key] = variant.stock_quantity;
+                });
+            }
+
             // Transform API response to form-friendly format
             const transformedProduct = {
                 ...apiProduct,
@@ -370,7 +379,9 @@ class AdminDataService {
                 sleeve_type: apiProduct.sleeve_type,
                 available_sizes: apiProduct.available_sizes,
                 available_colors: apiProduct.available_colors,
-                image_url: apiProduct.image_url
+                image_url: apiProduct.image_url,
+                // Add reconstructed variant_stock for form population
+                variant_stock: variant_stock
             };
 
             return transformedProduct;

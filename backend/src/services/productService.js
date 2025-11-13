@@ -248,9 +248,9 @@ export async function createProduct(productData) {
       throw new AppError('Total stock cannot be negative', 400);
     }
 
-    // Validate distribution mode
-    if (!['equal', 'manual'].includes(distribution_mode)) {
-      throw new AppError('Distribution mode must be "equal" or "manual"', 400);
+    // Only manual distribution is supported
+    if (distribution_mode && distribution_mode !== 'manual') {
+      throw new AppError('Only manual stock distribution is supported', 400);
     }
 
     // Validate sizes and colors BEFORE creating product
@@ -312,40 +312,25 @@ export async function createProduct(productData) {
 
     console.log(`📦 Creating ${variants.length} variants for product ${product.id}`);
 
-    // Distribute stock to variants
-    let distributedVariants;
-    if (distribution_mode === 'equal') {
-      // Auto-distribute equally
-      const baseStock = Math.floor(total_stock / variants.length);
-      const remainder = total_stock % variants.length;
-
-      distributedVariants = variants.map((variant, index) => ({
-        ...variant,
-        stock_quantity: baseStock + (index < remainder ? 1 : 0)
-      }));
-
-      console.log(`📊 Auto-distributed ${total_stock} units equally: ${distributedVariants.map(v => v.stock_quantity).join(', ')}`);
-    } else {
-      // Manual distribution
-      let assignedTotal = 0;
-      distributedVariants = variants.map(variant => {
-        const assigned = variant_stock[variant.key] || 0;
-        if (assigned < 0) {
-          throw new AppError(`Stock for ${variant.key} cannot be negative`, 400);
-        }
-        assignedTotal += assigned;
-        return {
-          ...variant,
-          stock_quantity: assigned
-        };
-      });
-
-      if (assignedTotal !== total_stock) {
-        throw new AppError(`Sum of variant stocks (${assignedTotal}) doesn't match total stock (${total_stock})`, 400);
+    // Manual distribution is required
+    let assignedTotal = 0;
+    const distributedVariants = variants.map(variant => {
+      const assigned = variant_stock[variant.key] || 0;
+      if (assigned < 0) {
+        throw new AppError(`Stock for ${variant.key} cannot be negative`, 400);
       }
+      assignedTotal += assigned;
+      return {
+        ...variant,
+        stock_quantity: assigned
+      };
+    });
 
-      console.log(`📊 Manual stock distribution validated: ${assignedTotal} units across ${variants.length} variants`);
+    if (assignedTotal !== total_stock) {
+      throw new AppError(`Sum of variant stocks (${assignedTotal}) doesn't match total stock (${total_stock})`, 400);
     }
+
+    console.log(`📊 Manual stock distribution validated: ${assignedTotal} units across ${variants.length} variants`);
 
     // Remove the 'key' field before inserting into database (it's only for internal tracking)
     const variantsToInsert = distributedVariants.map(({ key, ...rest }) => rest);
@@ -466,47 +451,39 @@ export async function updateProduct(id, updateData) {
         throw new AppError('Product must have at least one size and one color', 400);
       }
 
-      // Distribute stock
-      let distributedVariants;
+      // Manual distribution is required
       const finalTotal = total_stock !== undefined ? total_stock : currentProduct.total_stock || 0;
 
-      if (distribution_mode === 'equal' || (!distribution_mode && total_stock !== undefined)) {
-        // Auto-distribute equally
-        const baseStock = Math.floor(finalTotal / variants.length);
-        const remainder = finalTotal % variants.length;
-
-        distributedVariants = variants.map((variant, index) => ({
-          ...variant,
-          stock_quantity: baseStock + (index < remainder ? 1 : 0)
-        }));
-
-        console.log(`📊 Auto-distributed ${finalTotal} units equally: ${distributedVariants.map(v => v.stock_quantity).join(', ')}`);
-      } else if (distribution_mode === 'manual') {
-        // Manual distribution
-        let assignedTotal = 0;
-        distributedVariants = variants.map(variant => {
-          const assigned = variant_stock[variant.key] || 0;
-          if (assigned < 0) {
-            throw new AppError(`Stock for ${variant.key} cannot be negative`, 400);
-          }
-          assignedTotal += assigned;
-          return {
-            ...variant,
-            stock_quantity: assigned
-          };
-        });
-
-        if (assignedTotal !== finalTotal) {
-          throw new AppError(`Sum of variant stocks (${assignedTotal}) doesn't match total stock (${finalTotal})`, 400);
-        }
-
-        console.log(`📊 Manual stock distribution validated: ${assignedTotal} units`);
+      if (distribution_mode && distribution_mode !== 'manual') {
+        throw new AppError('Only manual stock distribution is supported', 400);
       }
+
+      let assignedTotal = 0;
+      const distributedVariants = variants.map(variant => {
+        const assigned = variant_stock[variant.key] || 0;
+        if (assigned < 0) {
+          throw new AppError(`Stock for ${variant.key} cannot be negative`, 400);
+        }
+        assignedTotal += assigned;
+        return {
+          ...variant,
+          stock_quantity: assigned
+        };
+      });
+
+      if (assignedTotal !== finalTotal) {
+        throw new AppError(`Sum of variant stocks (${assignedTotal}) doesn't match total stock (${finalTotal})`, 400);
+      }
+
+      console.log(`📊 Manual stock distribution validated: ${assignedTotal} units`);
+
+      // Remove the 'key' field before inserting into database (it's only for internal tracking)
+      const variantsToInsert = distributedVariants.map(({ key, ...rest }) => rest);
 
       // Create new variants
       const { data: createdVariants, error: variantError } = await supabaseService
         .from('product_variants')
-        .insert(distributedVariants)
+        .insert(variantsToInsert)
         .select();
 
       if (variantError) {

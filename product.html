@@ -1600,6 +1600,15 @@
                     addBtn.textContent = 'Add to Cart';
                 }
             }
+
+            // Initialize quantity warning display when product loads
+            // This will show stock info for the currently selected size (if any)
+            setTimeout(() => {
+                const activeSizeBtn = document.querySelector('.size-btn.active');
+                if (activeSizeBtn) {
+                    updateQuantityWarning();
+                }
+            }, 100);
         }
 
         // Call on page load
@@ -1655,16 +1664,107 @@
             }
         });
 
-        // Quantity selector functions
+        // Quantity selector functions with stock validation
         function increaseQty() {
             const display = document.getElementById('quantityDisplay');
-            display.value = parseInt(display.value) + 1;
+            const currentQty = parseInt(display.value);
+
+            // Get selected size to check stock for that specific size
+            const selectedSizeBtn = document.querySelector('.size-btn.active');
+            if (!selectedSizeBtn) {
+                if (notifications) {
+                    notifications.warning('Please select a size first');
+                }
+                return;
+            }
+
+            const selectedSize = selectedSizeBtn.textContent.replace(/\s*\(Out\)/, '').trim();
+            const selectedColor = window.selectedColor || '';
+
+            // Find the specific variant stock for this size+color combination
+            let availableStock = 0;
+            if (window.currentProduct?.variants && Array.isArray(window.currentProduct.variants)) {
+                const variant = window.currentProduct.variants.find(v =>
+                    v.size === selectedSize && v.color === selectedColor
+                );
+                availableStock = variant?.stock_quantity || 0;
+            } else {
+                // Fallback to size-only inventory if variants not available
+                const sizeInventory = window.currentProduct?.sizeInventory || {};
+                availableStock = sizeInventory[selectedSize] || 0;
+            }
+
+            // Check if incrementing would exceed available stock
+            if (currentQty + 1 > availableStock) {
+                if (notifications) {
+                    notifications.warning(`Only ${availableStock} units of ${selectedSize} ${selectedColor} available in stock`);
+                }
+                console.log(`⚠️  Cannot increase quantity: Current=${currentQty}, Max Available=${availableStock}`);
+                return;
+            }
+
+            display.value = currentQty + 1;
+            updateQuantityWarning();
         }
 
         function decreaseQty() {
             const display = document.getElementById('quantityDisplay');
             if (parseInt(display.value) > 1) {
                 display.value = parseInt(display.value) - 1;
+                updateQuantityWarning();
+            }
+        }
+
+        // Helper function to update quantity warning/info display
+        function updateQuantityWarning() {
+            const display = document.getElementById('quantityDisplay');
+            const currentQty = parseInt(display.value);
+            const selectedSizeBtn = document.querySelector('.size-btn.active');
+
+            if (!selectedSizeBtn) return;
+
+            const selectedSize = selectedSizeBtn.textContent.replace(/\s*\(Out\)/, '').trim();
+            const selectedColor = window.selectedColor || '';
+
+            // Find the specific variant stock for this size+color combination
+            let availableStock = 0;
+            if (window.currentProduct?.variants && Array.isArray(window.currentProduct.variants)) {
+                const variant = window.currentProduct.variants.find(v =>
+                    v.size === selectedSize && v.color === selectedColor
+                );
+                availableStock = variant?.stock_quantity || 0;
+            } else {
+                // Fallback to size-only inventory if variants not available
+                const sizeInventory = window.currentProduct?.sizeInventory || {};
+                availableStock = sizeInventory[selectedSize] || 0;
+            }
+
+            // Update visual indicator
+            let warningElement = document.getElementById('quantityWarning');
+            if (!warningElement) {
+                warningElement = document.createElement('div');
+                warningElement.id = 'quantityWarning';
+                warningElement.style.cssText = 'font-size: 12px; margin-top: 8px; padding: 8px; border-radius: 4px; text-align: center;';
+                display.parentElement.appendChild(warningElement);
+            }
+
+            // Show appropriate message
+            if (currentQty === availableStock) {
+                warningElement.style.backgroundColor = '#fff3cd';
+                warningElement.style.color = '#856404';
+                warningElement.textContent = `⚠️ You've selected the maximum available (${availableStock})`;
+            } else if (currentQty > availableStock) {
+                warningElement.style.backgroundColor = '#f8d7da';
+                warningElement.style.color = '#721c24';
+                warningElement.textContent = `❌ Exceeds available stock (${availableStock} max)`;
+                display.value = availableStock; // Force to max
+            } else if (availableStock - currentQty <= 2) {
+                warningElement.style.backgroundColor = '#ffeaa7';
+                warningElement.style.color = '#d63031';
+                warningElement.textContent = `⚠️ Only ${availableStock - currentQty} units left in this size`;
+            } else {
+                warningElement.textContent = '';
+                warningElement.style.backgroundColor = 'transparent';
             }
         }
 
@@ -1682,6 +1782,10 @@
             btn.classList.add('active');
             // Store selected size globally for add to cart
             window.selectedSize = btn.textContent.replace(/\s*\(Out\)/, '').trim();
+
+            // Reset quantity to 1 when size changes, then show updated warning
+            document.getElementById('quantityDisplay').value = '1';
+            updateQuantityWarning();
         }
 
         function selectColor(btn) {
@@ -1770,6 +1874,12 @@
                 }
             }
 
+            // Get maxQuantity from sizeInventory for stock validation
+            let maxQuantity = 0;
+            if (window.currentProduct && window.currentProduct.sizeInventory) {
+                maxQuantity = window.currentProduct.sizeInventory[size] || 0;
+            }
+
             const cartItem = {
                 id: window.currentProductId || 'ftg-tracksuit',
                 name: window.currentProductName || 'FTG Tracksuit',
@@ -1777,7 +1887,8 @@
                 color: color, // Include color if available
                 quantity: quantity,
                 price: window.currentProductPrice || 75000,
-                image: window.currentProductImage || '' // Include product image in cart
+                image: window.currentProductImage || '', // Include product image in cart
+                maxQuantity: maxQuantity // CRITICAL: Include available stock for validation
             };
 
             // FIX #3: Add item to cart using proper cart API
