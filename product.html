@@ -1877,10 +1877,19 @@
                 }
             }
 
-            // Get maxQuantity from sizeInventory for stock validation
+            // Get maxQuantity from sizeInventory for stock validation (size-only, for backward compatibility)
             let maxQuantity = 0;
             if (window.currentProduct && window.currentProduct.sizeInventory) {
                 maxQuantity = window.currentProduct.sizeInventory[size] || 0;
+            }
+
+            // NEW: Get variant-specific stock for this size+color combination
+            let variantStock = 0;
+            if (window.currentProduct && window.currentProduct.variants && Array.isArray(window.currentProduct.variants)) {
+                const variant = window.currentProduct.variants.find(v =>
+                    v.size === size && v.color === color
+                );
+                variantStock = variant?.stock_quantity || 0;
             }
 
             const cartItem = {
@@ -1891,7 +1900,8 @@
                 quantity: quantity,
                 price: window.currentProductPrice || 75000,
                 image: window.currentProductImage || '', // Include product image in cart
-                maxQuantity: maxQuantity // CRITICAL: Include available stock for validation
+                maxQuantity: maxQuantity, // CRITICAL: Include available stock for validation (size-only, backward compat)
+                variantStock: variantStock // NEW: Variant-specific stock for size+color combination
             };
 
             // FIX #3: Add item to cart using proper cart API

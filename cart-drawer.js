@@ -272,50 +272,55 @@ class CartDrawer {
                 if (btn.hasAttribute('data-decrease')) {
                     const productId = btn.getAttribute('data-product-id');
                     const size = btn.getAttribute('data-size');
+                    const color = btn.getAttribute('data-color'); // NEW: Get color
                     const currentQty = parseInt(btn.getAttribute('data-qty'));
-                    console.log('Decrease clicked:', productId, size, currentQty);
-                    this.updateQuantity(productId, size, currentQty - 1);
+                    console.log('Decrease clicked:', productId, size, color, currentQty);
+                    this.updateQuantity(productId, size, currentQty - 1, color); // NEW: Pass color parameter
                 }
 
                 if (btn.hasAttribute('data-increase')) {
                     const productId = btn.getAttribute('data-product-id');
                     const size = btn.getAttribute('data-size');
+                    const color = btn.getAttribute('data-color'); // NEW: Get color
                     const currentQty = parseInt(btn.getAttribute('data-qty'));
-                    console.log('Increase clicked:', productId, size, currentQty);
+                    console.log('Increase clicked:', productId, size, color, currentQty);
 
                     // Get the cart item to check max available stock
-                    const cartItem = cart.items.find(item => item.id === productId && item.size === size);
+                    const cartItem = cart.items.find(item =>
+                        item.id === productId && item.size === size && item.color === color
+                    );
                     if (!cartItem) {
                         console.warn('Cart item not found');
                         return;
                     }
 
-                    // Check if we can increase quantity beyond available stock
-                    let maxAvailable = cartItem.maxQuantity;
+                    // NEW: Use variant-specific stock if available, fallback to size-only
+                    let maxAvailable = cartItem.variantStock || cartItem.maxQuantity;
 
-                    // Defensive: Handle missing maxQuantity with conservative fallback
+                    // Defensive: Handle missing stock data with conservative fallback
                     if (typeof maxAvailable === 'undefined' || maxAvailable === null) {
-                        console.warn(`⚠️  Cart item "${cartItem.name}" missing maxQuantity - using conservative fallback (current qty)`);
+                        console.warn(`⚠️  Cart item "${cartItem.name}" missing stock data - using conservative fallback (current qty)`);
                         maxAvailable = cartItem.quantity;
                     }
 
                     // Validate before allowing increase
                     if (typeof maxAvailable === 'number' && maxAvailable > 0 && currentQty + 1 > maxAvailable) {
                         if (typeof notifications !== 'undefined' && notifications) {
-                            notifications.warning(`Only ${maxAvailable} units of ${cartItem.name} (${size}) available in stock`);
+                            notifications.warning(`Only ${maxAvailable} units of ${size} ${color} available in stock`);
                         }
-                        console.log(`⚠️ Cannot increase quantity: Only ${maxAvailable} available, requested ${currentQty + 1}`);
+                        console.log(`⚠️ Cannot increase quantity: Only ${maxAvailable} available for ${size} ${color}, requested ${currentQty + 1}`);
                         return;
                     }
 
-                    this.updateQuantity(productId, size, currentQty + 1);
+                    this.updateQuantity(productId, size, currentQty + 1, color); // NEW: Pass color parameter
                 }
 
                 if (btn.hasAttribute('data-remove')) {
                     const productId = btn.getAttribute('data-product-id');
                     const size = btn.getAttribute('data-size');
-                    console.log('Remove clicked:', productId, size);
-                    this.removeItem(productId, size);
+                    const color = btn.getAttribute('data-color'); // NEW: Get color
+                    console.log('Remove clicked:', productId, size, color);
+                    this.removeItem(productId, size, color); // NEW: Pass color parameter
                 }
             });
         }
@@ -395,24 +400,27 @@ class CartDrawer {
                                 font-size: 11px;
                                 color: #666;
                                 margin: 0 0 8px 0;
-                            ">Size: ${item.size}</p>
+                            ">Size: ${item.size} | Color: ${item.color}</p>
                             <p style="
                                 font-size: 13px;
                                 font-weight: 600;
                                 margin: 0;
                             ">₦${item.price.toLocaleString('en-NG')}</p>
 
-                            <!-- Stock Info -->
-                            ${item.maxQuantity ? `
-                                <p style="
-                                    font-size: 11px;
-                                    color: ${item.quantity === item.maxQuantity ? '#e74c3c' : '#27ae60'};
-                                    margin: 4px 0 0 0;
-                                    font-weight: 600;
-                                ">
-                                    ${item.maxQuantity && item.quantity === item.maxQuantity ? '⚠️ Max available (' + item.maxQuantity + ')' : item.maxQuantity + ' in stock'}
-                                </p>
-                            ` : ''}
+                            <!-- Stock Info - Uses variant stock if available, falls back to size-only -->
+                            ${(() => {
+                                const availableStock = item.variantStock || item.maxQuantity;
+                                return availableStock ? `
+                                    <p style="
+                                        font-size: 11px;
+                                        color: ${item.quantity === availableStock ? '#e74c3c' : '#27ae60'};
+                                        margin: 4px 0 0 0;
+                                        font-weight: 600;
+                                    ">
+                                        ${item.quantity === availableStock ? '⚠️ Max available (' + availableStock + ')' : availableStock + ' in stock'}
+                                    </p>
+                                ` : '';
+                            })()}
 
                             <!-- Quantity Controls -->
                             <div style="
@@ -421,7 +429,7 @@ class CartDrawer {
                                 gap: 8px;
                                 margin-top: 8px;
                             ">
-                                <button data-decrease data-product-id="${item.id}" data-size="${item.size}" data-qty="${item.quantity}" style="
+                                <button data-decrease data-product-id="${item.id}" data-size="${item.size}" data-color="${item.color}" data-qty="${item.quantity}" style="
                                     width: 24px;
                                     height: 24px;
                                     border: 1px solid #e5e5e5;
@@ -436,7 +444,7 @@ class CartDrawer {
                                     font-size: 12px;
                                     font-weight: 600;
                                 ">${item.quantity}</span>
-                                <button data-increase data-product-id="${item.id}" data-size="${item.size}" data-qty="${item.quantity}" style="
+                                <button data-increase data-product-id="${item.id}" data-size="${item.size}" data-color="${item.color}" data-qty="${item.quantity}" style="
                                     width: 24px;
                                     height: 24px;
                                     border: 1px solid #e5e5e5;
@@ -445,7 +453,7 @@ class CartDrawer {
                                     font-size: 12px;
                                     border-radius: 2px;
                                 ">+</button>
-                                <button data-remove data-product-id="${item.id}" data-size="${item.size}" style="
+                                <button data-remove data-product-id="${item.id}" data-size="${item.size}" data-color="${item.color}" style="
                                     margin-left: auto;
                                     background: none;
                                     border: none;
@@ -467,20 +475,20 @@ class CartDrawer {
         }
     }
 
-    updateQuantity(productId, size, newQuantity) {
-        console.log('updateQuantity called with:', productId, size, newQuantity);
+    updateQuantity(productId, size, newQuantity, color) { // NEW: Add color parameter
+        console.log('updateQuantity called with:', productId, size, newQuantity, color);
         if (newQuantity > 0) {
-            console.log('Updating quantity for:', productId, size, 'to:', newQuantity);
-            cart.updateQuantity(productId, size, newQuantity);
+            console.log('Updating quantity for:', productId, size, color, 'to:', newQuantity);
+            cart.updateQuantity(productId, size, newQuantity, color); // NEW: Pass color to cart method
             this.render();
             updateCartBadge();
             // Notification is shown by cartUpdated event
         }
     }
 
-    removeItem(productId, size) {
-        console.log('removeItem called with:', productId, size);
-        cart.removeItem(productId, size);
+    removeItem(productId, size, color) { // NEW: Add color parameter
+        console.log('removeItem called with:', productId, size, color);
+        cart.removeItem(productId, size, color); // NEW: Pass color to cart method
         this.render();
         updateCartBadge();
 

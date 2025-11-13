@@ -740,11 +740,11 @@
         function openEditModal(index) {
             currentEditingIndex = index;
             const item = cart.items[index];
-            // Get max available - if undefined, warn and default to current quantity (fail-safe)
-            let maxAvailable = item.maxQuantity;
+            // NEW: Use variant-specific stock if available, fallback to size-only stock
+            let maxAvailable = item.variantStock || item.maxQuantity;
 
             if (!maxAvailable) {
-                console.warn(`⚠️  Cart item "${item.name}" missing maxQuantity. This indicates a data integrity issue.`);
+                console.warn(`⚠️  Cart item "${item.name}" missing stock data. This indicates a data integrity issue.`);
                 // Fail-safe: only allow current quantity if stock info is missing
                 maxAvailable = item.quantity;
             }
@@ -753,13 +753,13 @@
             document.getElementById('quantityInput').value = item.quantity;
             document.getElementById('quantityInput').max = maxAvailable.toString();
 
-            // Display stock information
+            // Display stock information - shows variant-specific stock
             const stockInfo = document.getElementById('editModalStockInfo');
             if (maxAvailable && maxAvailable < 99) {
-                stockInfo.textContent = `${maxAvailable} available in stock`;
+                stockInfo.textContent = `${maxAvailable} available in stock (${item.color})`;
                 if (maxAvailable < 5) {
                     stockInfo.style.color = '#e74c3c';
-                    stockInfo.innerHTML = `⚠️ Only <strong>${maxAvailable}</strong> available in stock`;
+                    stockInfo.innerHTML = `⚠️ Only <strong>${maxAvailable}</strong> available in stock for ${item.color}`;
                 }
             } else {
                 stockInfo.textContent = 'Stock info unavailable';
@@ -901,17 +901,18 @@
             const quantity = parseInt(document.getElementById('quantityInput').value);
             const colorBtn = document.querySelector('.color-option.active');
             const item = cart.items[currentEditingIndex];
-            const maxAvailable = item.maxQuantity || 99;
+            // NEW: Use variant-specific stock if available, fallback to size-only stock
+            const maxAvailable = item.variantStock || item.maxQuantity || 99;
 
             // Get color from button's title attribute (works with both hardcoded and dynamic colors)
             const color = colorBtn ? colorBtn.title : 'Black';
 
-            // Validate quantity against available stock
+            // Validate quantity against available stock (using variant-specific stock)
             if (quantity > maxAvailable) {
                 if (notifications) {
                     notifications.error(`Cannot set quantity to ${quantity}. Only ${maxAvailable} ${item.name} (${color}-${size}) available in stock`);
                 }
-                console.log(`❌ Validation failed: Requested quantity (${quantity}) exceeds available stock (${maxAvailable})`);
+                console.log(`❌ Validation failed: Requested quantity (${quantity}) exceeds available variant stock (${maxAvailable})`);
                 return;
             }
 
@@ -960,12 +961,12 @@
             const item = cart.items[index];
             const newQty = item.quantity + delta;
 
-            // Get max available stock
-            let maxAvailable = item.maxQuantity;
+            // NEW: Use variant-specific stock if available, fallback to size-only stock
+            let maxAvailable = item.variantStock || item.maxQuantity;
 
-            // Defensive: Handle missing maxQuantity with explicit type checking
+            // Defensive: Handle missing stock data with explicit type checking
             if (typeof maxAvailable === 'undefined' || maxAvailable === null) {
-                console.warn(`⚠️  Cart item "${item.name}" missing maxQuantity. Using conservative fallback (current qty).`);
+                console.warn(`⚠️  Cart item "${item.name}" missing stock data. Using conservative fallback (current qty).`);
                 // Only allow current quantity (fail-safe) when stock info is missing
                 maxAvailable = item.quantity;
             }

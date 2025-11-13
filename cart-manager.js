@@ -56,14 +56,14 @@
                 return true;
             }
 
-            removeItem(productIdOrIndex, size) {
-                // Support both: removeItem(productId, size) and removeItem(index)
+            removeItem(productIdOrIndex, size, color) { // NEW: Add color parameter
+                // Support both: removeItem(productId, size, color) and removeItem(index)
                 if (typeof productIdOrIndex === 'number') {
                     // Removing by index
                     this.items.splice(productIdOrIndex, 1);
                 } else {
-                    // Removing by productId and size
-                    this.items = this.items.filter(item => !(item.id === productIdOrIndex && item.size === size));
+                    // Removing by productId, size, and color (for variant-specific matching)
+                    this.items = this.items.filter(item => !(item.id === productIdOrIndex && item.size === size && item.color === color));
                 }
                 this.save();
                 this.dispatchChange();
@@ -78,8 +78,9 @@
                 }
             }
 
-            updateQuantity(productId, size, quantity) {
-                const item = this.items.find(item => item.id === productId && item.size === size);
+            updateQuantity(productId, size, quantity, color) { // NEW: Add color parameter
+                // Find cart item by productId, size, AND color (for variant-specific matching)
+                const item = this.items.find(item => item.id === productId && item.size === size && item.color === color);
                 if (item) {
                     item.quantity = Math.max(1, quantity);
                     this.save();
