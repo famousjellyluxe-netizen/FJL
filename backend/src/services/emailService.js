@@ -9,6 +9,16 @@ import * as settingsService from './settingsService.js';
  */
 function isValidEmail(email) {
   if (!email || typeof email !== 'string') return false;
+
+  // Handle format: "Display Name <email@domain.com>" (Resend format)
+  if (email.includes('<') && email.includes('>')) {
+    // Extract email from angle brackets
+    const match = email.match(/<([^>]+)>/);
+    if (!match) return false;
+    email = match[1];
+  }
+
+  // Simple email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim());
 }
