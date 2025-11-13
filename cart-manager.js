@@ -8,6 +8,25 @@
         window.Cart = class {
             constructor() {
                 this.items = JSON.parse(localStorage.getItem('fjl_cart')) || [];
+                // Normalize all items to ensure they have maxQuantity field
+                this.normalizeItems();
+            }
+
+            normalizeItems() {
+                // Ensure all cart items have maxQuantity field
+                // This handles legacy items that were added before the maxQuantity fix
+                this.items = this.items.map(item => {
+                    if (typeof item.maxQuantity === 'undefined') {
+                        console.warn(`⚠️  Normalizing cart item "${item.name}" - missing maxQuantity field`);
+                        // Default to current quantity as conservative fallback
+                        // This prevents unlimited quantity increases while preserving what they had
+                        return {
+                            ...item,
+                            maxQuantity: item.quantity || 0
+                        };
+                    }
+                    return item;
+                });
             }
 
             addItem(product, skipInventoryCheck = false) {

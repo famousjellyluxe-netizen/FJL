@@ -1224,6 +1224,11 @@
                     btn.classList.add('active');
                 }
             });
+
+            // Reset quantity to 1 when size changes and show updated warning
+            modalState.quantity = 1;
+            document.getElementById('modalQuantity').textContent = '1';
+            updateModalQuantityWarning();
         }
 
         // Select color
@@ -1245,13 +1250,72 @@
             if (modalState.quantity > 1) {
                 modalState.quantity--;
                 document.getElementById('modalQuantity').textContent = modalState.quantity;
+                updateModalQuantityWarning();
             }
         }
 
-        // Increase quantity
+        // Increase quantity with stock validation
         function increaseQuantity() {
+            if (!modalState.selectedSize) {
+                if (notifications) {
+                    notifications.warning('Please select a size first');
+                }
+                return;
+            }
+
+            // Get max available stock for selected size
+            const maxAvailable = modalState.sizeInventory[modalState.selectedSize] || 0;
+
+            // Prevent increasing beyond available stock
+            if (modalState.quantity + 1 > maxAvailable) {
+                if (notifications) {
+                    notifications.warning(`Only ${maxAvailable} units of ${modalState.selectedSize} size available in stock`);
+                }
+                console.log(`⚠️  Cannot increase quantity: Current=${modalState.quantity}, Max Available=${maxAvailable}`);
+                return;
+            }
+
             modalState.quantity++;
             document.getElementById('modalQuantity').textContent = modalState.quantity;
+            updateModalQuantityWarning();
+        }
+
+        // Helper function to update quantity warning in featured product modal
+        function updateModalQuantityWarning() {
+            const warningContainer = document.getElementById('modalQuantityWarning') || createModalWarningElement();
+            const maxAvailable = modalState.sizeInventory[modalState.selectedSize] || 0;
+            const currentQty = modalState.quantity;
+
+            if (currentQty === maxAvailable && maxAvailable > 0) {
+                warningContainer.style.backgroundColor = '#fff3cd';
+                warningContainer.style.color = '#856404';
+                warningContainer.textContent = `⚠️ You've selected the maximum available (${maxAvailable})`;
+                warningContainer.style.display = 'block';
+            } else if (maxAvailable - currentQty <= 2 && maxAvailable > 0) {
+                warningContainer.style.backgroundColor = '#ffeaa7';
+                warningContainer.style.color = '#d63031';
+                warningContainer.textContent = `⚠️ Only ${maxAvailable - currentQty} units left in this size`;
+                warningContainer.style.display = 'block';
+            } else {
+                warningContainer.style.display = 'none';
+            }
+        }
+
+        // Create warning element if it doesn't exist
+        function createModalWarningElement() {
+            const existingWarning = document.getElementById('modalQuantityWarning');
+            if (existingWarning) return existingWarning;
+
+            const warningEl = document.createElement('div');
+            warningEl.id = 'modalQuantityWarning';
+            warningEl.style.cssText = 'font-size: 12px; margin-top: 8px; padding: 8px; border-radius: 4px; text-align: center; display: none;';
+
+            const quantityDisplay = document.getElementById('modalQuantity');
+            if (quantityDisplay && quantityDisplay.parentElement) {
+                quantityDisplay.parentElement.appendChild(warningEl);
+            }
+
+            return warningEl;
         }
 
         // Confirm and add to cart
@@ -1279,6 +1343,12 @@
                 return;
             }
 
+            // Get maxQuantity from sizeInventory for stock validation
+            let maxQuantity = 0;
+            if (modalState.sizeInventory && modalState.selectedSize) {
+                maxQuantity = modalState.sizeInventory[modalState.selectedSize] || 0;
+            }
+
             // Create cart item
             const cartItem = {
                 id: modalState.productId,
@@ -1286,7 +1356,8 @@
                 price: modalState.productPrice,
                 size: modalState.selectedSize,
                 quantity: modalState.quantity,
-                image: modalState.imageUrl
+                image: modalState.imageUrl,
+                maxQuantity: maxQuantity  // CRITICAL: Include available stock for validation
             };
 
             // Add to cart

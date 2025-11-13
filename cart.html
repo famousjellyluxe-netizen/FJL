@@ -740,7 +740,14 @@
         function openEditModal(index) {
             currentEditingIndex = index;
             const item = cart.items[index];
-            const maxAvailable = item.maxQuantity || 99;
+            // Get max available - if undefined, warn and default to current quantity (fail-safe)
+            let maxAvailable = item.maxQuantity;
+
+            if (!maxAvailable) {
+                console.warn(`⚠️  Cart item "${item.name}" missing maxQuantity. This indicates a data integrity issue.`);
+                // Fail-safe: only allow current quantity if stock info is missing
+                maxAvailable = item.quantity;
+            }
 
             document.getElementById('sizeSelect').value = item.size || 'M';
             document.getElementById('quantityInput').value = item.quantity;
@@ -952,16 +959,28 @@
         function updateQuantity(index, delta) {
             const item = cart.items[index];
             const newQty = item.quantity + delta;
-            const maxAvailable = item.maxQuantity || 99;
+
+            // Get max available stock
+            let maxAvailable = item.maxQuantity;
+
+            // Defensive: Handle missing maxQuantity with explicit type checking
+            if (typeof maxAvailable === 'undefined' || maxAvailable === null) {
+                console.warn(`⚠️  Cart item "${item.name}" missing maxQuantity. Using conservative fallback (current qty).`);
+                // Only allow current quantity (fail-safe) when stock info is missing
+                maxAvailable = item.quantity;
+            }
+
+            // Ensure effectiveMax is a valid number
+            const effectiveMax = typeof maxAvailable === 'number' ? maxAvailable : item.quantity;
 
             // Validate quantity against available stock
             if (newQty > 0 && newQty <= 99) {
-                if (newQty > maxAvailable) {
+                if (newQty > effectiveMax) {
                     // Show warning if exceeding available stock
-                    if (notifications) {
-                        notifications.warning(`Only ${maxAvailable} ${item.name} (${item.color}-${item.size}) available in stock`);
+                    if (typeof notifications !== 'undefined' && notifications) {
+                        notifications.warning(`Only ${effectiveMax} ${item.name} (${item.color}-${item.size}) available in stock`);
                     }
-                    console.log(`⚠️ Cannot increase quantity: Only ${maxAvailable} available, requested ${newQty}`);
+                    console.log(`⚠️ Cannot increase quantity: Only ${effectiveMax} available, requested ${newQty}`);
                     return;
                 }
 

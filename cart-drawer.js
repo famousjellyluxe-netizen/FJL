@@ -282,6 +282,32 @@ class CartDrawer {
                     const size = btn.getAttribute('data-size');
                     const currentQty = parseInt(btn.getAttribute('data-qty'));
                     console.log('Increase clicked:', productId, size, currentQty);
+
+                    // Get the cart item to check max available stock
+                    const cartItem = cart.items.find(item => item.id === productId && item.size === size);
+                    if (!cartItem) {
+                        console.warn('Cart item not found');
+                        return;
+                    }
+
+                    // Check if we can increase quantity beyond available stock
+                    let maxAvailable = cartItem.maxQuantity;
+
+                    // Defensive: Handle missing maxQuantity with conservative fallback
+                    if (typeof maxAvailable === 'undefined' || maxAvailable === null) {
+                        console.warn(`⚠️  Cart item "${cartItem.name}" missing maxQuantity - using conservative fallback (current qty)`);
+                        maxAvailable = cartItem.quantity;
+                    }
+
+                    // Validate before allowing increase
+                    if (typeof maxAvailable === 'number' && maxAvailable > 0 && currentQty + 1 > maxAvailable) {
+                        if (typeof notifications !== 'undefined' && notifications) {
+                            notifications.warning(`Only ${maxAvailable} units of ${cartItem.name} (${size}) available in stock`);
+                        }
+                        console.log(`⚠️ Cannot increase quantity: Only ${maxAvailable} available, requested ${currentQty + 1}`);
+                        return;
+                    }
+
                     this.updateQuantity(productId, size, currentQty + 1);
                 }
 
@@ -375,6 +401,18 @@ class CartDrawer {
                                 font-weight: 600;
                                 margin: 0;
                             ">₦${item.price.toLocaleString('en-NG')}</p>
+
+                            <!-- Stock Info -->
+                            ${item.maxQuantity ? `
+                                <p style="
+                                    font-size: 11px;
+                                    color: ${item.quantity === item.maxQuantity ? '#e74c3c' : '#27ae60'};
+                                    margin: 4px 0 0 0;
+                                    font-weight: 600;
+                                ">
+                                    ${item.maxQuantity && item.quantity === item.maxQuantity ? '⚠️ Max available (' + item.maxQuantity + ')' : item.maxQuantity + ' in stock'}
+                                </p>
+                            ` : ''}
 
                             <!-- Quantity Controls -->
                             <div style="

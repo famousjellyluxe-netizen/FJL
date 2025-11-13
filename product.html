@@ -1739,30 +1739,29 @@
                 availableStock = sizeInventory[selectedSize] || 0;
             }
 
-            // Update visual indicator
+            // Get or create warning element
             let warningElement = document.getElementById('quantityWarning');
             if (!warningElement) {
                 warningElement = document.createElement('div');
                 warningElement.id = 'quantityWarning';
-                warningElement.style.cssText = 'font-size: 12px; margin-top: 8px; padding: 8px; border-radius: 4px; text-align: center;';
+                warningElement.style.cssText = 'font-size: 12px; margin-top: 4px; padding: 6px 8px; border-radius: 4px; text-align: center;';
                 display.parentElement.appendChild(warningElement);
             }
 
-            // Show appropriate message
-            if (currentQty === availableStock) {
+            // ONLY show notification when at maximum available stock (not for low stock)
+            if (currentQty === availableStock && availableStock > 0) {
+                // User has selected the maximum available
                 warningElement.style.backgroundColor = '#fff3cd';
                 warningElement.style.color = '#856404';
                 warningElement.textContent = `⚠️ You've selected the maximum available (${availableStock})`;
             } else if (currentQty > availableStock) {
+                // User tried to select more than available - force to max and show error
                 warningElement.style.backgroundColor = '#f8d7da';
                 warningElement.style.color = '#721c24';
                 warningElement.textContent = `❌ Exceeds available stock (${availableStock} max)`;
                 display.value = availableStock; // Force to max
-            } else if (availableStock - currentQty <= 2) {
-                warningElement.style.backgroundColor = '#ffeaa7';
-                warningElement.style.color = '#d63031';
-                warningElement.textContent = `⚠️ Only ${availableStock - currentQty} units left in this size`;
             } else {
+                // No notification for normal quantities or low stock situations
                 warningElement.textContent = '';
                 warningElement.style.backgroundColor = 'transparent';
             }
@@ -1795,6 +1794,10 @@
             btn.classList.add('active');
             // Store selected color globally for add to cart
             window.selectedColor = btn.textContent;
+
+            // Reset quantity to 1 when color changes, then show updated warning
+            document.getElementById('quantityDisplay').value = '1';
+            updateQuantityWarning();
         }
 
         // Image gallery
