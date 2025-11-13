@@ -55,11 +55,9 @@
                                 <input type="text" id="searchInput" class="form-control" placeholder="Search by name or SKU...">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Sleeve Type</label>
+                                <label class="form-label">Category</label>
                                 <select id="categoryFilter" class="form-select">
-                                    <option value="">All Types</option>
-                                    <option value="sleeveless">Sleeveless</option>
-                                    <option value="short-sleeve">Short-Sleeve</option>
+                                    <option value="">All Categories</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -88,7 +86,7 @@
                                 <tr>
                                     <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
                                     <th>Product Name</th>
-                                    <th>Sleeve Type</th>
+                                    <th>Category</th>
                                     <th>SKU</th>
                                     <th>Price</th>
                                     <th>Stock</th>
@@ -133,11 +131,9 @@
 
                 <div class="form-group-row">
                     <div class="form-group">
-                        <label class="form-label">Sleeve Type *</label>
+                        <label class="form-label">Category *</label>
                         <select id="productCategory" class="form-select" required>
-                            <option value="">Select Sleeve Type</option>
-                            <option value="sleeveless">Sleeveless</option>
-                            <option value="short-sleeve">Short-Sleeve</option>
+                            <option value="">Select a Category</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -237,10 +233,44 @@
             initializePage();
         }
 
-        function initializePage() {
+        async function initializePage() {
             const adminInfo = adminDataService.getAdminInfo();
             document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            await loadCategories();
             loadProducts();
+        }
+
+        async function loadCategories() {
+            try {
+                const categories = await adminDataService.getCategories();
+                populateCategoryDropdowns(categories);
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        function populateCategoryDropdowns(categories) {
+            const filterSelect = document.getElementById('categoryFilter');
+            const formSelect = document.getElementById('productCategory');
+
+            // Clear existing options (keep the first placeholder option)
+            filterSelect.innerHTML = '<option value="">All Categories</option>';
+            formSelect.innerHTML = '<option value="">Select a Category</option>';
+
+            // Populate both dropdowns
+            categories.forEach(category => {
+                // Filter dropdown
+                const filterOption = document.createElement('option');
+                filterOption.value = category.slug;
+                filterOption.textContent = category.name;
+                filterSelect.appendChild(filterOption);
+
+                // Form dropdown
+                const formOption = document.createElement('option');
+                formOption.value = category.id;
+                formOption.textContent = category.name;
+                formSelect.appendChild(formOption);
+            });
         }
 
         async function loadProducts() {
@@ -273,7 +303,7 @@
                 <tr>
                     <td><input type="checkbox" class="product-checkbox" value="${product.id}" onchange="updateSelection()"></td>
                     <td><strong>${product.name}</strong></td>
-                    <td>${product.sleeve === 'sleeve' ? 'Sleeve' : 'Sleeveless'}</td>
+                    <td>${product.category_name || product.sleeve_type || 'Uncategorized'}</td>
                     <td>${product.sku}</td>
                     <td>${formatCurrency(product.price)}</td>
                     <td>${stockQuantity !== undefined ? stockQuantity : 'N/A'} units</td>
@@ -347,7 +377,7 @@
 
             document.getElementById('modalTitle').textContent = 'Edit Product';
             document.getElementById('productName').value = currentEditingProduct.name || currentEditingProduct.sku || '';
-            document.getElementById('productCategory').value = currentEditingProduct.sleeve_type || currentEditingProduct.sleeve || '';
+            document.getElementById('productCategory').value = currentEditingProduct.category_id || '';
             document.getElementById('productSku').value = currentEditingProduct.sku;
             document.getElementById('productPrice').value = currentEditingProduct.price;
             document.getElementById('productOriginalPrice').value = currentEditingProduct.original_price || currentEditingProduct.originalPrice || '';
@@ -648,7 +678,7 @@
 
             const productData = {
                 name: document.getElementById('productName').value,
-                sleeve_type: document.getElementById('productCategory').value,
+                category_id: document.getElementById('productCategory').value,
                 sku: document.getElementById('productSku').value,
                 price: parseInt(document.getElementById('productPrice').value),
                 original_price: parseInt(document.getElementById('productOriginalPrice').value) || 0,

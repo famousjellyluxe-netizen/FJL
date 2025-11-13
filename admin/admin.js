@@ -325,6 +325,13 @@ class AdminDataService {
             if (!response.ok) throw new Error('Failed to fetch products');
             const data = await response.json();
 
+            // Load categories for name mapping
+            const categories = await this.getCategories();
+            const categoryMap = {};
+            categories.forEach(cat => {
+                categoryMap[cat.id] = cat.name;
+            });
+
             // Transform API response to form-friendly format
             const products = (data.data || []).map(apiProduct => ({
                 ...apiProduct,
@@ -335,7 +342,9 @@ class AdminDataService {
                 sleeve: apiProduct.sleeve_type || '', // Use actual sleeve_type value for dropdown
                 sizes: apiProduct.available_sizes || [],
                 colors: apiProduct.available_colors || [],
-                image: apiProduct.image_url
+                image: apiProduct.image_url,
+                // Add category name for display
+                category_name: apiProduct.category_id ? categoryMap[apiProduct.category_id] : null
             }));
 
             return products;
@@ -1219,6 +1228,18 @@ class AdminDataService {
         });
 
         return csv.join('\n');
+    }
+
+    async getCategories() {
+        try {
+            const response = await fetch('http://localhost:5001/api/categories?include_archived=true');
+            if (!response.ok) throw new Error('Failed to fetch categories');
+            const data = await response.json();
+            return data.data || [];
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            return [];
+        }
     }
 }
 
