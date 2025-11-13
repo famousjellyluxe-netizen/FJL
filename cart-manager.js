@@ -43,7 +43,7 @@
                     }
                 }
 
-                const existingItem = this.items.find(item => item.id === product.id && item.size === product.size);
+                const existingItem = this.items.find(item => item.id === product.id && item.size === product.size && item.color === product.color);
 
                 if (existingItem) {
                     existingItem.quantity += product.quantity;
