@@ -1337,6 +1337,8 @@
                                 <span id="modalQuantity" class="quantity-display">1</span>
                                 <button class="quantity-btn" onclick="increaseQuantity()">+</button>
                             </div>
+                            <p id="modalStockDisplay" style="color: #27ae60; font-size: 12px; margin-top: 8px; display: none;"><strong id="modalAvailableStock">0</strong> in stock</p>
+                            <p id="modalLowStockWarning" style="color: #e74c3c; font-size: 12px; margin-top: 8px; display: none;">⚠️ Only <strong id="modalLowStockCount">0</strong> available - quantity limited</p>
                         </div>
 
                         <button id="modalAddButton" class="modal-add-to-cart" onclick="confirmAddToCart()">Add to Cart</button>
@@ -1369,7 +1371,10 @@
             imageUrl: null,
             sizes: [],
             selectedSize: null,
-            quantity: 1
+            selectedColor: null,
+            quantity: 1,
+            maxQuantity: 999, // Max available stock for selected variant
+            variantStock: {} // Map of variant keys to stock quantity
         };
 
         // Open product modal
@@ -1503,6 +1508,19 @@
                 colorSection.style.display = 'none';
             }
 
+            // Build variant stock map for quick lookups
+            modalState.variantStock = {};
+            if (modalState.variants && Array.isArray(modalState.variants)) {
+                modalState.variants.forEach(variant => {
+                    const key = `${variant.color}-${variant.size}`;
+                    modalState.variantStock[key] = variant.stock_quantity || 0;
+                });
+            }
+
+            // Initialize stock display
+            modalState.quantity = 1;
+            updateStockDisplay();
+
             // Show modal
             document.getElementById('productModalOverlay').classList.add('active');
         }
@@ -1526,6 +1544,9 @@
                     btn.classList.add('active');
                 }
             });
+
+            // Update stock display for selected size+color combination
+            updateStockDisplay();
         }
 
         // Select color in modal
@@ -1542,9 +1563,73 @@
                     }
                 });
             }
+
+            // Update stock display for selected size+color combination
+            updateStockDisplay();
         }
 
         // Decrease quantity
+        // Get variant stock for specific size and color
+        function getVariantStock() {
+            if (!modalState.selectedSize) return 0;
+
+            // If both size and color are selected, find the exact variant
+            if (modalState.selectedColor) {
+                const variantKey = `${modalState.selectedColor}-${modalState.selectedSize}`;
+                if (modalState.variantStock[variantKey]) {
+                    return modalState.variantStock[variantKey];
+                }
+                // Try to find variant in the variants array
+                const variant = modalState.variants.find(v => v.size === modalState.selectedSize && v.color === modalState.selectedColor);
+                if (variant) {
+                    return variant.stock_quantity || 0;
+                }
+            } else {
+                // If only size selected, sum all colors for that size
+                let totalStock = 0;
+                modalState.variants.forEach(v => {
+                    if (v.size === modalState.selectedSize) {
+                        totalStock += (v.stock_quantity || 0);
+                    }
+                });
+                return totalStock;
+            }
+
+            return modalState.sizeInventory[modalState.selectedSize] || 0;
+        }
+
+        // Update stock display
+        function updateStockDisplay() {
+            const availableStock = getVariantStock();
+            modalState.maxQuantity = availableStock;
+
+            const stockDisplay = document.getElementById('modalStockDisplay');
+            const lowStockWarning = document.getElementById('modalLowStockWarning');
+            const availableStockEl = document.getElementById('modalAvailableStock');
+            const lowStockCountEl = document.getElementById('modalLowStockCount');
+
+            if (availableStock > 0) {
+                availableStockEl.textContent = availableStock;
+                stockDisplay.style.display = 'block';
+
+                if (availableStock < 5) {
+                    lowStockCountEl.textContent = availableStock;
+                    lowStockWarning.style.display = 'block';
+                } else {
+                    lowStockWarning.style.display = 'none';
+                }
+            } else {
+                stockDisplay.style.display = 'none';
+                lowStockWarning.style.display = 'none';
+            }
+
+            // Reset quantity if it exceeds available stock
+            if (modalState.quantity > availableStock) {
+                modalState.quantity = Math.max(1, availableStock);
+                document.getElementById('modalQuantity').textContent = modalState.quantity;
+            }
+        }
+
         function decreaseQuantity() {
             if (modalState.quantity > 1) {
                 modalState.quantity--;
@@ -1554,8 +1639,11 @@
 
         // Increase quantity
         function increaseQuantity() {
-            modalState.quantity++;
-            document.getElementById('modalQuantity').textContent = modalState.quantity;
+            // Respect max available stock
+            if (modalState.quantity < modalState.maxQuantity) {
+                modalState.quantity++;
+                document.getElementById('modalQuantity').textContent = modalState.quantity;
+            }
         }
 
         // Confirm and add to cart

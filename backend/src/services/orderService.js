@@ -59,6 +59,43 @@ export async function createOrder(orderData) {
       }
     }
 
+    // VALIDATION: Check stock availability for all items before creating order
+    if (!orderData.items || orderData.items.length === 0) {
+      throw new AppError('Order must contain at least one item', 400);
+    }
+
+    for (const item of orderData.items) {
+      // Get current variant stock
+      const { data: variant, error: variantError } = await supabase
+        .from('product_variants')
+        .select('stock_quantity, size, color')
+        .eq('id', item.variant_id)
+        .single();
+
+      if (variantError || !variant) {
+        throw new AppError(
+          `Variant not found for item: ${item.product_name}`,
+          400
+        );
+      }
+
+      // Check if requested quantity exceeds available stock
+      if (item.quantity > variant.stock_quantity) {
+        throw new AppError(
+          `Insufficient stock for ${item.product_name} (${variant.color} - ${variant.size}). ` +
+          `Requested: ${item.quantity}, Available: ${variant.stock_quantity}`,
+          400
+        );
+      }
+
+      // Warn if stock is getting low (less than 3 units after this order)
+      if (variant.stock_quantity - item.quantity < 3 && variant.stock_quantity - item.quantity >= 0) {
+        console.log(`⚠️  Low stock warning: ${item.product_name} (${variant.color} - ${variant.size}) will have only ${variant.stock_quantity - item.quantity} units left after this order`);
+      }
+    }
+
+    console.log(`✅ Stock validation passed for all ${orderData.items.length} items`);
+
     // Create order
     const orderNumber = generateOrderNumber();
     const { data: order, error: orderError } = await supabase
