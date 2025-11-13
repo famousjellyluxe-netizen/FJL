@@ -307,6 +307,9 @@ export async function updateOrderStatus(id, status) {
       throw new AppError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`, 400);
     }
 
+    // Fetch order to check current state (needed for cancellation logic)
+    const order = await getOrderById(id);
+
     const updateData = {
       order_status: status,
       updated_at: new Date()
@@ -322,6 +325,48 @@ export async function updateOrderStatus(id, status) {
       updateData.delivered_at = new Date();
     }
 
+    // Handle cancellation - restore stock if it was deducted
+    if (status === 'cancelled' && order.stock_deducted) {
+      console.log(`🔄 Cancelling order ${id} via status update, restoring stock...`);
+
+      try {
+        // Restore stock for each item
+        const productService = await import('./productService.js');
+        const { restoreStock, checkAndMarkOutOfStock } = productService.default;
+
+        for (const item of order.order_items) {
+          if (item.variant_id) {
+            try {
+              await restoreStock(item.variant_id, item.quantity);
+              console.log(`✓ Restored stock for variant ${item.variant_id} by ${item.quantity}`);
+            } catch (error) {
+              console.error(`Error restoring stock for variant ${item.variant_id}:`, error);
+              throw error;
+            }
+          }
+        }
+
+        // Check if products should be marked as in stock
+        const productIds = [...new Set(order.order_items.map(item => item.product_id))];
+        for (const productId of productIds) {
+          try {
+            await checkAndMarkOutOfStock(productId);
+          } catch (error) {
+            console.error(`Error checking stock status for product ${productId}:`, error);
+          }
+        }
+
+        // Reset stock deduction flags
+        updateData.stock_deducted = false;
+        updateData.stock_deducted_at = null;
+
+        console.log(`✓ Stock restored and flags reset for order ${id}`);
+      } catch (error) {
+        console.error(`❌ Failed to restore stock for order ${id}:`, error.message);
+        throw error;
+      }
+    }
+
     const { data, error } = await supabase
       .from('orders')
       .update(updateData)
@@ -333,6 +378,7 @@ export async function updateOrderStatus(id, status) {
       throw new NotFoundError('Order');
     }
 
+    console.log(`✓ Order ${id} status updated to '${status}'`);
     return data;
   } catch (error) {
     if (error instanceof NotFoundError || error instanceof AppError) throw error;
