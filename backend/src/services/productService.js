@@ -410,6 +410,7 @@ export async function updateProduct(id, updateData) {
       ...(updateData.images && { images: updateData.images }),
       ...(updateData.is_active !== undefined && { is_active: updateData.is_active }),
       ...(updateData.is_featured !== undefined && { is_featured: updateData.is_featured }),
+      ...(updateData.category_id !== undefined && { category_id: updateData.category_id }),
       ...(updateData.sleeve_type && { sleeve_type: updateData.sleeve_type }),
       ...(available_sizes && { available_sizes }),
       ...(available_colors && { available_colors }),

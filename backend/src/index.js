@@ -65,6 +65,9 @@ const settingsRouter = settingsRouterModule.default;
 const contactRouterModule = await import('./routes/contact.js');
 const contactRouter = contactRouterModule.default;
 
+const categoriesRouterModule = await import('./routes/categories.js');
+const categoriesRouter = categoriesRouterModule.default;
+
 // Initialize Express app
 const app = express();
 const port = process.env.PORT || 3000;
@@ -130,6 +133,7 @@ app.get('/health', (req, res) => {
 // ============================================================================
 
 app.use('/api/auth', authRouter);
+app.use('/api/categories', categoriesRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/customers', customersRouter);
