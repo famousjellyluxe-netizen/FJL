@@ -417,7 +417,7 @@ class CartDrawer {
                                         margin: 4px 0 0 0;
                                         font-weight: 600;
                                     ">
-                                        ${item.quantity === availableStock ? '⚠️ Max available (' + availableStock + ')' : availableStock + ' in stock'}
+                                        ${item.quantity === availableStock ? '⚠️ Max available (' + availableStock + ' of ' + item.color + ')' : availableStock + ' in stock (' + item.color + ')'}
                                     </p>
                                 ` : '';
                             })()}
