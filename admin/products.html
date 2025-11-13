@@ -178,6 +178,54 @@
                     <input type="text" id="productColors" class="form-control" placeholder="Black, White, Navy">
                 </div>
 
+                <!-- Stock Distribution Section -->
+                <div class="form-group" style="border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg); margin-top: var(--spacing-lg);">
+                    <label class="form-label" style="margin-bottom: var(--spacing-md); display: block;">Stock Distribution Mode</label>
+
+                    <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <label style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; flex: 1;">
+                            <input type="radio" name="distributionMode" value="equal" checked onchange="updateDistributionMode()">
+                            <span style="font-size: 14px;">
+                                <strong>Auto-Distribute Equally</strong>
+                                <div style="font-size: 12px; color: var(--color-gray); margin-top: 4px;">System will divide total stock equally among all variants</div>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <label style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; flex: 1;">
+                            <input type="radio" name="distributionMode" value="manual" onchange="updateDistributionMode()">
+                            <span style="font-size: 14px;">
+                                <strong>Manual Assignment</strong>
+                                <div style="font-size: 12px; color: var(--color-gray); margin-top: 4px;">Specify exactly how many units for each size/color combination</div>
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Manual Distribution Grid -->
+                    <div id="manualDistributionSection" style="display: none; margin-top: var(--spacing-lg);">
+                        <p style="font-size: 12px; color: var(--color-gray); margin-bottom: var(--spacing-md);">Enter stock quantity for each variant. Total must equal the Stock Quantity above.</p>
+                        <div id="variantGridContainer" style="border: 1px solid var(--color-border); border-radius: var(--border-radius); padding: var(--spacing-md); max-height: 400px; overflow-y: auto; background-color: var(--color-bg-light);">
+                            <p style="text-align: center; color: var(--color-gray); padding: var(--spacing-lg);">First, select sizes and colors to generate variant grid</p>
+                        </div>
+                        <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background-color: #f0f9ff; border-left: 4px solid #0284c7; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 600;">Total Assigned:</span>
+                                <span style="font-size: 18px; font-weight: 700; color: #0284c7;" id="totalAssigned">0</span>
+                                <span style="font-weight: 600;" id="totalRequired">/ 0</span>
+                            </div>
+                            <div id="variantValidationMsg" style="font-size: 12px; margin-top: var(--spacing-sm);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Auto-distribute preview -->
+                    <div id="autoDistributePreview" style="margin-top: var(--spacing-md); padding: var(--spacing-md); background-color: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 4px;">
+                        <p style="font-size: 12px; margin-bottom: var(--spacing-sm);">
+                            <strong>Preview:</strong> <span id="previewText">Enter sizes, colors and quantity to see distribution</span>
+                        </p>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Product Images</label>
                     <div style="margin-bottom: var(--spacing-md);">
@@ -307,6 +355,13 @@
             document.getElementById('productForm').reset();
             document.getElementById('imagesContainer').innerHTML = '';
             addImageUploadField(); // Add one empty image upload field by default
+
+            // Initialize stock distribution mode
+            document.querySelector('input[name="distributionMode"][value="equal"]').checked = true;
+            document.getElementById('manualDistributionSection').style.display = 'none';
+            document.getElementById('autoDistributePreview').style.display = 'block';
+            document.getElementById('previewText').textContent = 'Enter sizes, colors and quantity to see distribution';
+
             document.getElementById('productModal').classList.add('active');
         }
 
@@ -321,16 +376,25 @@
                 document.getElementById('imagesContainer').innerHTML = '';
 
             document.getElementById('modalTitle').textContent = 'Edit Product';
-            document.getElementById('productName').value = currentEditingProduct.name;
-            document.getElementById('productCategory').value = currentEditingProduct.sleeve || '';
+            document.getElementById('productName').value = currentEditingProduct.name || currentEditingProduct.sku || '';
+            document.getElementById('productCategory').value = currentEditingProduct.sleeve_type || currentEditingProduct.sleeve || '';
             document.getElementById('productSku').value = currentEditingProduct.sku;
             document.getElementById('productPrice').value = currentEditingProduct.price;
-            document.getElementById('productOriginalPrice').value = currentEditingProduct.originalPrice || '';
+            document.getElementById('productOriginalPrice').value = currentEditingProduct.original_price || currentEditingProduct.originalPrice || '';
             document.getElementById('productDescription').value = currentEditingProduct.description || '';
-            document.getElementById('productQuantity').value = currentEditingProduct.quantity;
-            document.getElementById('productSizes').value = currentEditingProduct.sizes ? currentEditingProduct.sizes.join(', ') : '';
-            document.getElementById('productColors').value = currentEditingProduct.colors ? currentEditingProduct.colors.join(', ') : '';
-            document.getElementById('productInStock').checked = currentEditingProduct.inStock;
+            document.getElementById('productQuantity').value = currentEditingProduct.total_stock || currentEditingProduct.quantity || 0;
+
+            // Handle both old and new API field names for sizes/colors
+            const sizes = currentEditingProduct.available_sizes || currentEditingProduct.sizes || [];
+            const colors = currentEditingProduct.available_colors || currentEditingProduct.colors || [];
+            document.getElementById('productSizes').value = Array.isArray(sizes) ? sizes.join(', ') : sizes;
+            document.getElementById('productColors').value = Array.isArray(colors) ? colors.join(', ') : colors;
+
+            document.getElementById('productInStock').checked = currentEditingProduct.is_active !== undefined ? currentEditingProduct.is_active : currentEditingProduct.inStock;
+
+            // Set distribution mode (default to equal for edit)
+            document.querySelector('input[name="distributionMode"][value="equal"]').checked = true;
+            updateDistributionMode();
 
             // Load existing images
             document.getElementById('imagesContainer').innerHTML = '';
@@ -421,6 +485,150 @@
             reader.readAsDataURL(file);
         }
 
+        // Stock Distribution Functions
+        function updateDistributionMode() {
+            const mode = document.querySelector('input[name="distributionMode"]:checked').value;
+            const manualSection = document.getElementById('manualDistributionSection');
+            const autoPreview = document.getElementById('autoDistributePreview');
+
+            if (mode === 'manual') {
+                manualSection.style.display = 'block';
+                autoPreview.style.display = 'none';
+                generateVariantGrid();
+            } else {
+                manualSection.style.display = 'none';
+                autoPreview.style.display = 'block';
+                updateAutoDistributePreview();
+            }
+        }
+
+        function generateVariantGrid() {
+            const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+            const colors = document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c);
+            const totalStock = parseInt(document.getElementById('productQuantity').value) || 0;
+
+            if (sizes.length === 0 || colors.length === 0) {
+                document.getElementById('variantGridContainer').innerHTML =
+                    '<p style="text-align: center; color: var(--color-gray); padding: var(--spacing-lg);">Please enter sizes and colors above to generate variant grid</p>';
+                return;
+            }
+
+            let html = '<table style="width: 100%; border-collapse: collapse;">';
+            html += '<thead><tr style="background-color: var(--color-bg-medium); font-weight: 600;">';
+            html += '<th style="padding: 8px; text-align: left; border-bottom: 2px solid var(--color-border);">Size / Color</th>';
+            colors.forEach(color => {
+                html += `<th style="padding: 8px; text-align: center; border-bottom: 2px solid var(--color-border);">${color}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            sizes.forEach(size => {
+                html += `<tr style="border-bottom: 1px solid var(--color-border);">`;
+                html += `<td style="padding: 8px; font-weight: 600;">${size}</td>`;
+                colors.forEach(color => {
+                    const variantKey = `${color}-${size}`;
+                    html += `
+                        <td style="padding: 8px; text-align: center;">
+                            <input type="number"
+                                class="variant-stock-input"
+                                data-variant-key="${variantKey}"
+                                min="0"
+                                value="0"
+                                onchange="updateVariantTotal()"
+                                style="width: 80px; padding: 6px; border: 1px solid var(--color-border); border-radius: 4px; text-align: center;">
+                        </td>
+                    `;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('variantGridContainer').innerHTML = html;
+            updateVariantTotal();
+        }
+
+        function updateVariantTotal() {
+            const inputs = document.querySelectorAll('.variant-stock-input');
+            let total = 0;
+            inputs.forEach(input => {
+                total += parseInt(input.value) || 0;
+            });
+
+            const required = parseInt(document.getElementById('productQuantity').value) || 0;
+            document.getElementById('totalAssigned').textContent = total;
+            document.getElementById('totalRequired').textContent = `/ ${required}`;
+
+            const msgDiv = document.getElementById('variantValidationMsg');
+            if (total === required) {
+                msgDiv.innerHTML = '<span style="color: #16a34a; font-weight: 600;">✓ Total matches required stock</span>';
+            } else if (total < required) {
+                msgDiv.innerHTML = `<span style="color: #f59e0b; font-weight: 600;">⚠ ${required - total} more units to assign</span>`;
+            } else {
+                msgDiv.innerHTML = `<span style="color: #dc2626; font-weight: 600;">✗ ${total - required} too many units assigned</span>`;
+            }
+        }
+
+        function updateAutoDistributePreview() {
+            const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+            const colors = document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c);
+            const totalStock = parseInt(document.getElementById('productQuantity').value) || 0;
+
+            if (sizes.length === 0 || colors.length === 0) {
+                document.getElementById('previewText').textContent = 'Enter sizes, colors and quantity to see distribution';
+                return;
+            }
+
+            const variants = sizes.length * colors.length;
+            const baseStock = Math.floor(totalStock / variants);
+            const remainder = totalStock % variants;
+
+            let preview = `${totalStock} units ÷ ${variants} variants = ${baseStock}-${baseStock + 1} units per variant`;
+            if (baseStock === 0 && remainder > 0) {
+                preview = `${totalStock} units ÷ ${variants} variants = First ${remainder} variants get 1 unit each`;
+            }
+
+            document.getElementById('previewText').textContent = preview;
+        }
+
+        // Listen for changes in sizes, colors, and quantity
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.getElementById('productQuantity');
+            const sizesInput = document.getElementById('productSizes');
+            const colorsInput = document.getElementById('productColors');
+
+            if (quantityInput) {
+                quantityInput.addEventListener('change', function() {
+                    const mode = document.querySelector('input[name="distributionMode"]:checked').value;
+                    if (mode === 'manual') {
+                        generateVariantGrid();
+                    } else {
+                        updateAutoDistributePreview();
+                    }
+                });
+            }
+
+            if (sizesInput) {
+                sizesInput.addEventListener('change', function() {
+                    const mode = document.querySelector('input[name="distributionMode"]:checked').value;
+                    if (mode === 'manual') {
+                        generateVariantGrid();
+                    } else {
+                        updateAutoDistributePreview();
+                    }
+                });
+            }
+
+            if (colorsInput) {
+                colorsInput.addEventListener('change', function() {
+                    const mode = document.querySelector('input[name="distributionMode"]:checked').value;
+                    if (mode === 'manual') {
+                        generateVariantGrid();
+                    } else {
+                        updateAutoDistributePreview();
+                    }
+                });
+            }
+        });
+
         function saveProduct(event) {
             event.preventDefault();
 
@@ -481,43 +689,62 @@
         }
 
         async function saveProductData(images) {
-            const quantity = parseInt(document.getElementById('productQuantity').value);
+            const totalStock = parseInt(document.getElementById('productQuantity').value);
             const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+            const colors = document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c);
             const inStock = document.getElementById('productInStock').checked;
+            const distributionMode = document.querySelector('input[name="distributionMode"]:checked').value;
 
-            // Generate sizeInventory by distributing total quantity evenly across sizes
-            const sizeInventory = {};
-            if (inStock && sizes.length > 0 && quantity > 0) {
-                const qtyPerSize = Math.floor(quantity / sizes.length);
-                const remainder = quantity % sizes.length;
-                sizes.forEach((size, index) => {
-                    sizeInventory[size] = qtyPerSize + (index < remainder ? 1 : 0);
-                });
-            } else {
-                // If out of stock or no sizes, set all to 0
-                sizes.forEach(size => {
-                    sizeInventory[size] = 0;
-                });
+            // Validate sizes and colors
+            if (sizes.length === 0 || colors.length === 0) {
+                notifications.error('Product must have at least one size and one color');
+                return;
             }
 
-            // Process images: images array contains either new uploads or existing preview URLs
+            // Validate stock
+            if (totalStock < 0) {
+                notifications.error('Stock quantity cannot be negative');
+                return;
+            }
+
+            // Prepare variant stock based on distribution mode
+            let variant_stock = {};
+            if (distributionMode === 'manual') {
+                // Collect manual inputs
+                const inputs = document.querySelectorAll('.variant-stock-input');
+                inputs.forEach(input => {
+                    const variantKey = input.getAttribute('data-variant-key');
+                    const qty = parseInt(input.value) || 0;
+                    variant_stock[variantKey] = qty;
+                });
+
+                // Validate manual distribution
+                const assigned = Object.values(variant_stock).reduce((a, b) => a + b, 0);
+                if (assigned !== totalStock) {
+                    notifications.error(`Sum of variant stocks (${assigned}) doesn't match total stock (${totalStock})`);
+                    return;
+                }
+            }
+
+            // Process images
             const primaryImage = images && images.length > 0 ? images[0] : '';
             const additionalImages = images && images.length > 1 ? images.slice(1) : [];
 
             const productData = {
                 name: document.getElementById('productName').value,
-                sleeve: document.getElementById('productCategory').value,
+                sleeve_type: document.getElementById('productCategory').value,
                 sku: document.getElementById('productSku').value,
                 price: parseInt(document.getElementById('productPrice').value),
-                originalPrice: parseInt(document.getElementById('productOriginalPrice').value) || 0,
+                original_price: parseInt(document.getElementById('productOriginalPrice').value) || 0,
                 description: document.getElementById('productDescription').value,
-                quantity: quantity,
-                sizes: sizes,
-                colors: document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c),
-                image: primaryImage,
+                total_stock: totalStock,
+                available_sizes: sizes,
+                available_colors: colors,
+                image_url: primaryImage,
                 images: additionalImages,
-                inStock: inStock,
-                sizeInventory: sizeInventory
+                is_active: inStock,
+                distribution_mode: distributionMode,
+                variant_stock: variant_stock
             };
 
             try {
@@ -526,55 +753,6 @@
                     await adminDataService.updateProduct(currentEditingProduct.id, productData);
                     productId = currentEditingProduct.id;
                     notifications.success('Product updated successfully!');
-
-                    // Create variants for updated product if sizeInventory is provided
-                    if (productData.sizeInventory && Object.keys(productData.sizeInventory).length > 0) {
-                        console.log('📦 Creating variants for updated product:', productData.sizeInventory);
-                        try {
-                            let variantsCreated = 0;
-                            for (const [size, quantity] of Object.entries(productData.sizeInventory)) {
-                                if (quantity > 0) {
-                                    // Create a variant for EACH color
-                                    const colorsToUse = productData.colors && productData.colors.length > 0 ? productData.colors : [null];
-
-                                    for (const color of colorsToUse) {
-                                        const variantData = {
-                                            size: size,
-                                            stock_quantity: parseInt(quantity)
-                                        };
-
-                                        // Add color if available
-                                        if (color) {
-                                            variantData.color = color;
-                                        }
-
-                                        console.log(`Creating variant: ${size} with ${quantity} units and color ${color || 'N/A'}`, variantData);
-
-                                        const variantResponse = await fetch(`http://localhost:5001/api/products/${productId}/variants`, {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
-                                            },
-                                            body: JSON.stringify(variantData)
-                                        });
-
-                                        if (!variantResponse.ok) {
-                                            const errorData = await variantResponse.json();
-                                            console.error(`❌ Failed to create variant for size ${size} color ${color || 'N/A'}:`, variantResponse.status, errorData);
-                                        } else {
-                                            variantsCreated++;
-                                            console.log(`✅ Created variant for size ${size} color ${color || 'N/A'}`);
-                                        }
-                                    }
-                                }
-                            }
-                            console.log(`✅ Product variants created: ${variantsCreated} variants`);
-                        } catch (variantError) {
-                            console.error('❌ Error creating product variants:', variantError);
-                            // Don't fail the whole operation if variants fail
-                        }
-                    }
                 } else {
                     const createdProduct = await adminDataService.createProduct(productData);
                     productId = createdProduct.id;
