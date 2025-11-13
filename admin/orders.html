@@ -323,6 +323,19 @@
                     notifications.success('Order status updated successfully!');
                     closeOrderModal();
                     await loadOrders();
+
+                    // Refresh product cache if order was cancelled (stock may have been restored)
+                    if (newStatus === 'cancelled') {
+                        console.log('🔄 Refreshing product cache after order cancellation...');
+                        try {
+                            // Force fresh fetch of products from backend
+                            const freshProducts = await adminDataService.getProducts();
+                            console.log('✓ Product cache refreshed');
+                        } catch (error) {
+                            console.warn('⚠️ Warning: Could not refresh product cache:', error.message);
+                            // Don't show error to user - order update succeeded
+                        }
+                    }
                 } else {
                     notifications.error('Failed to update order status. Please try again.');
                 }
@@ -341,6 +354,19 @@
                     notifications.success('Payment status updated successfully!');
                     closeOrderModal();
                     await loadOrders();
+
+                    // Refresh product cache if payment was verified (stock has been reduced)
+                    if (newPaymentStatus === 'verified') {
+                        console.log('🔄 Refreshing product cache after payment verification...');
+                        try {
+                            // Force fresh fetch of products from backend
+                            const freshProducts = await adminDataService.getProducts();
+                            console.log('✓ Product cache refreshed');
+                        } catch (error) {
+                            console.warn('⚠️ Warning: Could not refresh product cache:', error.message);
+                            // Don't show error to user - payment update succeeded
+                        }
+                    }
                 } else {
                     notifications.error('Failed to update payment status. Please try again.');
                 }

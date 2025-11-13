@@ -802,6 +802,20 @@ export async function reduceOrderStockAtomic(orderId) {
     console.log(`✓ Atomically reduced stock for order ${orderId}: ${result.reduced_items} items processed`);
     console.log(`  Affected products: ${result.product_ids.join(', ')}`);
 
+    // Ensure product totals are recalculated (failsafe - RPC should handle this)
+    if (result.product_ids && result.product_ids.length > 0) {
+      console.log(`🔄 Recalculating product totals for ${result.product_ids.length} products...`);
+      for (const productId of result.product_ids) {
+        try {
+          await updateProductTotalStock(productId);
+          console.log(`✓ Recalculated totals for product ${productId}`);
+        } catch (error) {
+          console.error(`⚠️  Warning: Failed to recalculate totals for product ${productId}:`, error.message);
+          // Don't fail the order - RPC should have already updated it
+        }
+      }
+    }
+
     return {
       success: true,
       reducedItems: result.reduced_items,
