@@ -276,6 +276,7 @@ export async function createProduct(productData) {
         images: productData.images || [],
         total_stock: 0, // Will be updated after variants are created
         is_active: productData.is_active !== false,
+        // DEPRECATED: sleeve_type is deprecated. Use category_id instead. Keeping for backward compatibility.
         sleeve_type: productData.sleeve_type,
         available_colors: available_colors,
         available_sizes: available_sizes
@@ -411,6 +412,7 @@ export async function updateProduct(id, updateData) {
       ...(updateData.is_active !== undefined && { is_active: updateData.is_active }),
       ...(updateData.is_featured !== undefined && { is_featured: updateData.is_featured }),
       ...(updateData.category_id !== undefined && { category_id: updateData.category_id }),
+      // DEPRECATED: sleeve_type is deprecated. Use category_id instead. Keeping for backward compatibility.
       ...(updateData.sleeve_type && { sleeve_type: updateData.sleeve_type }),
       ...(available_sizes && { available_sizes }),
       ...(available_colors && { available_colors }),
