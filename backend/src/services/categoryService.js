@@ -5,7 +5,7 @@
  */
 
 import { supabase } from '../config/database.js';
-import { NotFoundError, AppError, ValidationError } from '../utils/errors.js';
+import { NotFoundError, AppError } from '../middleware/errorHandler.js';
 
 /**
  * Generate URL-friendly slug from category name
@@ -26,16 +26,16 @@ export function generateSlug(name) {
 /**
  * Validate category name
  * @param {string} name - Category name
- * @throws {ValidationError}
+ * @throws {AppError}
  */
 function validateCategoryName(name) {
   if (!name || typeof name !== 'string') {
-    throw new ValidationError('Category name is required and must be a string');
+    throw new AppError('Category name is required and must be a string');
   }
 
   const trimmed = name.trim();
   if (trimmed.length < 1 || trimmed.length > 100) {
-    throw new ValidationError('Category name must be between 1 and 100 characters');
+    throw new AppError('Category name must be between 1 and 100 characters');
   }
 
   return trimmed;
@@ -44,21 +44,21 @@ function validateCategoryName(name) {
 /**
  * Validate category slug
  * @param {string} slug - Category slug
- * @throws {ValidationError}
+ * @throws {AppError}
  */
 function validateCategorySlug(slug) {
   if (!slug || typeof slug !== 'string') {
-    throw new ValidationError('Category slug is required and must be a string');
+    throw new AppError('Category slug is required and must be a string');
   }
 
   const trimmed = slug.trim();
   if (trimmed.length < 1 || trimmed.length > 100) {
-    throw new ValidationError('Category slug must be between 1 and 100 characters');
+    throw new AppError('Category slug must be between 1 and 100 characters');
   }
 
   // Check slug format: lowercase alphanumeric and hyphens only
   if (!/^[a-z0-9-]+$/.test(trimmed)) {
-    throw new ValidationError('Category slug must contain only lowercase letters, numbers, and hyphens');
+    throw new AppError('Category slug must contain only lowercase letters, numbers, and hyphens');
   }
 
   return trimmed;
@@ -103,7 +103,7 @@ export async function getAllCategories(options = {}) {
 
     return data || [];
   } catch (error) {
-    if (error instanceof AppError || error instanceof ValidationError) throw error;
+    if (error instanceof AppError || error instanceof AppError) throw error;
     console.error('Error in getAllCategories:', error);
     throw new AppError('Failed to fetch categories', 500);
   }
@@ -117,7 +117,7 @@ export async function getAllCategories(options = {}) {
 export async function getCategoryById(id) {
   try {
     if (!id) {
-      throw new ValidationError('Category ID is required');
+      throw new AppError('Category ID is required');
     }
 
     const { data, error } = await supabase
@@ -132,7 +132,7 @@ export async function getCategoryById(id) {
 
     return data;
   } catch (error) {
-    if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
+    if (error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error fetching category by ID:', error);
     throw new AppError('Failed to fetch category', 500);
   }
@@ -146,7 +146,7 @@ export async function getCategoryById(id) {
 export async function getCategoryBySlug(slug) {
   try {
     if (!slug) {
-      throw new ValidationError('Category slug is required');
+      throw new AppError('Category slug is required');
     }
 
     const { data, error } = await supabase
@@ -162,7 +162,7 @@ export async function getCategoryBySlug(slug) {
 
     return data;
   } catch (error) {
-    if (error instanceof NotFoundError || error instanceof ValidationError) throw error;
+    if (error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error fetching category by slug:', error);
     throw new AppError('Failed to fetch category', 500);
   }
@@ -199,7 +199,7 @@ export async function createCategory(data) {
     }
 
     if (existing && existing.length > 0) {
-      throw new ValidationError(`Category with slug "${slug}" already exists`);
+      throw new AppError(`Category with slug "${slug}" already exists`);
     }
 
     // Prepare insert data
@@ -231,7 +231,7 @@ export async function createCategory(data) {
     console.log(`✓ Created category: ${created.name} (${created.slug})`);
     return created;
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof AppError) throw error;
+    if (error instanceof AppError || error instanceof AppError) throw error;
     console.error('Error in createCategory:', error);
     throw new AppError('Failed to create category', 500);
   }
@@ -246,7 +246,7 @@ export async function createCategory(data) {
 export async function updateCategory(id, updates) {
   try {
     if (!id) {
-      throw new ValidationError('Category ID is required');
+      throw new AppError('Category ID is required');
     }
 
     // Verify category exists
@@ -274,7 +274,7 @@ export async function updateCategory(id, updates) {
           .limit(1);
 
         if (slugExists && slugExists.length > 0) {
-          throw new ValidationError(`Category with slug "${updateData.slug}" already exists`);
+          throw new AppError(`Category with slug "${updateData.slug}" already exists`);
         }
       }
     }
@@ -311,7 +311,7 @@ export async function updateCategory(id, updates) {
     console.log(`✓ Updated category: ${updated.name}`);
     return updated;
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof AppError) throw error;
+    if (error instanceof AppError || error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error in updateCategory:', error);
     throw new AppError('Failed to update category', 500);
   }
@@ -325,7 +325,7 @@ export async function updateCategory(id, updates) {
 export async function archiveCategory(id) {
   try {
     if (!id) {
-      throw new ValidationError('Category ID is required');
+      throw new AppError('Category ID is required');
     }
 
     // Get category with product count
@@ -350,7 +350,7 @@ export async function archiveCategory(id) {
     console.log(`✓ Archived category: ${archived.name}`);
     return archived;
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof AppError) throw error;
+    if (error instanceof AppError || error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error in archiveCategory:', error);
     throw new AppError('Failed to archive category', 500);
   }
@@ -365,7 +365,7 @@ export async function archiveCategory(id) {
 export async function getProductsByCategory(categoryId, options = {}) {
   try {
     if (!categoryId) {
-      throw new ValidationError('Category ID is required');
+      throw new AppError('Category ID is required');
     }
 
     const { limit = 100, offset = 0 } = options;
@@ -388,7 +388,7 @@ export async function getProductsByCategory(categoryId, options = {}) {
       total: count || 0
     };
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof AppError) throw error;
+    if (error instanceof AppError || error instanceof AppError) throw error;
     console.error('Error in getProductsByCategory:', error);
     throw new AppError('Failed to fetch products', 500);
   }
@@ -405,7 +405,7 @@ export async function getProductsByCategory(categoryId, options = {}) {
 export async function deleteCategory(id, options = {}) {
   try {
     if (!id) {
-      throw new ValidationError('Category ID is required');
+      throw new AppError('Category ID is required');
     }
 
     // Get category with product count
@@ -437,7 +437,7 @@ export async function deleteCategory(id, options = {}) {
       // Verify target category exists
       const targetCategory = await getCategoryById(options.reassignToCategoryId);
       if (!targetCategory) {
-        throw new ValidationError('Target category for reassignment does not exist');
+        throw new AppError('Target category for reassignment does not exist');
       }
 
       const { error: updateError } = await supabase
@@ -488,7 +488,7 @@ export async function deleteCategory(id, options = {}) {
       action_taken: options.reassignToCategoryId ? 'reassigned' : (options.deleteOrphans ? 'deleted' : 'none')
     };
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof AppError) throw error;
+    if (error instanceof AppError || error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error in deleteCategory:', error);
     throw new AppError('Failed to delete category', 500);
   }
@@ -502,7 +502,7 @@ export async function deleteCategory(id, options = {}) {
 export async function updateCategoryOrder(categoryIds) {
   try {
     if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
-      throw new ValidationError('Category IDs array is required');
+      throw new AppError('Category IDs array is required');
     }
 
     // Update sort_order for each category
@@ -527,7 +527,7 @@ export async function updateCategoryOrder(categoryIds) {
     console.log(`✓ Updated sort order for ${updates.length} categories`);
     return { success: true, categories_updated: updates.length };
   } catch (error) {
-    if (error instanceof ValidationError || error instanceof AppError) throw error;
+    if (error instanceof AppError || error instanceof AppError) throw error;
     console.error('Error in updateCategoryOrder:', error);
     throw new AppError('Failed to update category order', 500);
   }

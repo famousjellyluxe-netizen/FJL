@@ -8,14 +8,14 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import * as categoryService from '../services/categoryService.js';
 import { verifyJWT, requireAdmin, requirePermission } from '../middleware/auth.js';
-import { asyncHandler } from '../utils/asyncHandler.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
 const router = express.Router();
 
 /**
  * ERROR HANDLER HELPER
  */
-function handleValidationErrors(req, res) {
+function handleAppErrors(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
