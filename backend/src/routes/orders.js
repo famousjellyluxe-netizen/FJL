@@ -105,8 +105,8 @@ router.put('/:id/status', verifyJWT, requireAdmin, requirePermission('manage_ord
 
   const order = await orderService.updateOrderStatus(req.params.id, status);
 
-  // Send shipping notification if status is shipped
-  if (status === 'shipped') {
+  // Send notifications based on status
+  if (status === 'shipped' || status === 'cancelled' || status === 'delivered') {
     try {
       // Fetch complete order with items for email service
       const fullOrder = await orderService.getOrderById(req.params.id);
@@ -116,10 +116,19 @@ router.put('/:id/status', verifyJWT, requireAdmin, requirePermission('manage_ord
         first_name: order.shipping_first_name,
         last_name: order.shipping_last_name
       };
-      console.log(`📧 Sending shipping notification for order ${fullOrder.order_number}...`);
-      await emailService.sendShippingNotification(fullOrder, customer);
+
+      if (status === 'shipped') {
+        console.log(`📧 Sending shipping notification for order ${fullOrder.order_number}...`);
+        await emailService.sendShippingNotification(fullOrder, customer);
+      } else if (status === 'cancelled') {
+        console.log(`📧 Sending cancellation notification for order ${fullOrder.order_number}...`);
+        await emailService.sendOrderCancelled(fullOrder, customer);
+      } else if (status === 'delivered') {
+        console.log(`📧 Sending delivery confirmation for order ${fullOrder.order_number}...`);
+        await emailService.sendOrderDelivered(fullOrder, customer);
+      }
     } catch (emailError) {
-      console.error('❌ Error sending shipping notification:', emailError);
+      console.error('❌ Error sending status notification:', emailError);
     }
   }
 

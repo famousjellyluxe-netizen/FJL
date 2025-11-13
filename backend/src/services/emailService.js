@@ -903,10 +903,290 @@ export async function sendContactEmail(contactData) {
   }
 }
 
+/**
+ * Send order cancelled notification to customer
+ */
+export async function sendOrderCancelled(order, customer) {
+  try {
+    if (!isValidEmail(customer.email)) {
+      console.warn(`⚠️ Invalid customer email: ${customer.email}`);
+      return { id: 'mock-id', success: false };
+    }
+
+    const settings = await settingsService.getSettings();
+    const orderDate = new Date(order.created_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Calculate total
+    let total = 0;
+    let itemsText = '';
+    if (order.order_items && order.order_items.length > 0) {
+      order.order_items.forEach(item => {
+        total += parseFloat(item.total_price || 0);
+        itemsText += `- ${item.product_name} (${item.color} - ${item.size}) × ${item.quantity}: ${settings.currency_symbol}${item.total_price}\n`;
+      });
+    }
+
+    const htmlContent = `
+      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi ${customer.first_name},
+
+We're writing to confirm that your order has been cancelled.
+
+───────────────────────────────
+❌ Order Cancellation Details
+
+Order Number: ${order.order_number}
+Date: ${orderDate}
+Status: Cancelled
+
+───────────────────────────────
+📦 Items (Cancellation)
+
+${itemsText}───────────────────────────────
+Subtotal: ${settings.currency_symbol}${(total - (order.tax || 0)).toFixed(2)}
+Tax: ${settings.currency_symbol}${(order.tax || 0).toFixed(2)}
+Shipping: ${settings.currency_symbol}${(order.shipping_cost || 0).toFixed(2)}
+Total: ${settings.currency_symbol}${total.toFixed(2)}
+
+───────────────────────────────
+💰 Refund Information
+
+Your payment of ${settings.currency_symbol}${total.toFixed(2)} will be refunded to your original payment method.
+Please allow 5-7 business days for the refund to appear in your account.
+
+───────────────────────────────
+📞 Questions?
+
+If you have any questions about this cancellation or would like to place a new order, please contact us:
+Email: ${settings.store_email || 'hello@fjlclothing.shop'}
+
+Thank you for your understanding!
+
+Famous Jelly Luxe
+© 2025 Famous Jelly Luxe. All Rights Reserved.</pre>
+    `;
+
+    const response = await sendEmailWithRetry({
+      from: process.env.STORE_EMAIL,
+      to: customer.email,
+      subject: `Your Order #${order.order_number} Has Been Cancelled`,
+      html: htmlContent
+    });
+
+    // Log email
+    await logEmail({
+      campaign_id: null,
+      recipient_id: customer.id,
+      recipient_email: customer.email,
+      email_type: 'order_cancelled',
+      resend_message_id: response.id,
+      user_id: customer.id
+    });
+
+    console.log(`✅ Order cancellation email sent to customer: ${customer.email}`);
+    return response;
+  } catch (error) {
+    console.error('Error sending order cancellation email:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send order shipped notification to customer
+ */
+export async function sendOrderShipped(order, customer) {
+  try {
+    if (!isValidEmail(customer.email)) {
+      console.warn(`⚠️ Invalid customer email: ${customer.email}`);
+      return { id: 'mock-id', success: false };
+    }
+
+    const settings = await settingsService.getSettings();
+    const shippedDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Build items list
+    let itemsText = '';
+    if (order.order_items && order.order_items.length > 0) {
+      order.order_items.forEach(item => {
+        itemsText += `- ${item.product_name} (${item.color} - ${item.size}) × ${item.quantity}\n`;
+      });
+    }
+
+    const htmlContent = `
+      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi ${customer.first_name},
+
+Great news! Your order is on its way! 🚚
+
+───────────────────────────────
+✅ Shipment Details
+
+Order Number: ${order.order_number}
+Shipped Date: ${shippedDate}
+Status: Shipped
+
+───────────────────────────────
+📦 Items Shipped
+
+${itemsText}───────────────────────────────
+🚚 Delivery Information
+
+Your package is on its way to:
+${order.shipping_address}
+${order.shipping_city}, ${order.shipping_state} ${order.shipping_postal_code}
+${order.shipping_country}
+
+Expected Delivery: 5-10 business days
+
+───────────────────────────────
+📍 Track Your Order
+
+Please keep an eye on your email for tracking updates.
+If you have any tracking information, it will be sent separately.
+
+───────────────────────────────
+❓ Need Help?
+
+If you have any questions about your shipment, please contact us:
+Email: ${settings.store_email || 'hello@fjlclothing.shop'}
+
+Thank you for your order!
+
+Famous Jelly Luxe
+© 2025 Famous Jelly Luxe. All Rights Reserved.</pre>
+    `;
+
+    const response = await sendEmailWithRetry({
+      from: process.env.STORE_EMAIL,
+      to: customer.email,
+      subject: `Your Order #${order.order_number} Has Shipped! 🚚`,
+      html: htmlContent
+    });
+
+    // Log email
+    await logEmail({
+      campaign_id: null,
+      recipient_id: customer.id,
+      recipient_email: customer.email,
+      email_type: 'order_shipped',
+      resend_message_id: response.id,
+      user_id: customer.id
+    });
+
+    console.log(`✅ Order shipped email sent to customer: ${customer.email}`);
+    return response;
+  } catch (error) {
+    console.error('Error sending order shipped email:', error);
+    throw error;
+  }
+}
+
+/**
+ * Send order delivered notification to customer
+ */
+export async function sendOrderDelivered(order, customer) {
+  try {
+    if (!isValidEmail(customer.email)) {
+      console.warn(`⚠️ Invalid customer email: ${customer.email}`);
+      return { id: 'mock-id', success: false };
+    }
+
+    const settings = await settingsService.getSettings();
+    const deliveredDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Build items list
+    let itemsText = '';
+    if (order.order_items && order.order_items.length > 0) {
+      order.order_items.forEach(item => {
+        itemsText += `- ${item.product_name} (${item.color} - ${item.size}) × ${item.quantity}\n`;
+      });
+    }
+
+    const htmlContent = `
+      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi ${customer.first_name},
+
+Your order has been delivered! We hope you enjoy your purchase! 📦✨
+
+───────────────────────────────
+✅ Delivery Confirmation
+
+Order Number: ${order.order_number}
+Delivered: ${deliveredDate}
+Status: Delivered
+
+───────────────────────────────
+📦 Items Delivered
+
+${itemsText}───────────────────────────────
+💬 We'd Love Your Feedback!
+
+Your satisfaction is important to us. If you have a moment, please share your experience:
+- How was the quality of your order?
+- Was the delivery smooth?
+- Would you shop with us again?
+
+Your feedback helps us improve!
+
+───────────────────────────────
+🎁 Next Time
+
+Check out our latest collections and exclusive deals for returning customers.
+Use code WELCOME10 for 10% off your next purchase!
+
+───────────────────────────────
+❓ Questions or Issues?
+
+If there's anything wrong with your order or if you have any concerns, please reach out:
+Email: ${settings.store_email || 'hello@fjlclothing.shop'}
+
+Thank you for shopping with Famous Jelly Luxe!
+
+Famous Jelly Luxe
+© 2025 Famous Jelly Luxe. All Rights Reserved.</pre>
+    `;
+
+    const response = await sendEmailWithRetry({
+      from: process.env.STORE_EMAIL,
+      to: customer.email,
+      subject: `Your Order #${order.order_number} Has Been Delivered! 📦`,
+      html: htmlContent
+    });
+
+    // Log email
+    await logEmail({
+      campaign_id: null,
+      recipient_id: customer.id,
+      recipient_email: customer.email,
+      email_type: 'order_delivered',
+      resend_message_id: response.id,
+      user_id: customer.id
+    });
+
+    console.log(`✅ Order delivered email sent to customer: ${customer.email}`);
+    return response;
+  } catch (error) {
+    console.error('Error sending order delivered email:', error);
+    throw error;
+  }
+}
+
 export default {
   sendOrderConfirmation,
   sendPaymentVerified,
   sendShippingNotification,
+  sendOrderCancelled,
+  sendOrderShipped,
+  sendOrderDelivered,
   sendMemberWelcome,
   sendProductAnnouncement,
   sendContactEmail,

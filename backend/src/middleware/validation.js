@@ -177,7 +177,7 @@ export const validators = {
 
   // Status validators
   orderStatus: body('status')
-    .isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled'])
+    .isIn(['pending', 'shipped', 'delivered', 'cancelled'])
     .withMessage('Invalid order status'),
 
   paymentStatus: body('payment_status')

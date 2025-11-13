@@ -58,7 +58,6 @@
                                 <select id="statusFilter" class="form-select">
                                     <option value="">All Status</option>
                                     <option value="Pending">Pending</option>
-                                    <option value="Processing">Processing</option>
                                     <option value="Shipped">Shipped</option>
                                     <option value="Delivered">Delivered</option>
                                     <option value="Cancelled">Cancelled</option>
@@ -288,7 +287,6 @@
                         <div style="display: flex; gap: var(--spacing-md);">
                             <select id="statusSelect" class="form-select">
                                 <option value="pending" ${currentOrder.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="processing" ${currentOrder.status === 'processing' ? 'selected' : ''}>Processing</option>
                                 <option value="shipped" ${currentOrder.status === 'shipped' ? 'selected' : ''}>Shipped</option>
                                 <option value="delivered" ${currentOrder.status === 'delivered' ? 'selected' : ''}>Delivered</option>
                                 <option value="cancelled" ${currentOrder.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>

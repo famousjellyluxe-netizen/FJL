@@ -301,7 +301,7 @@ export async function listOrders(filters = {}) {
  */
 export async function updateOrderStatus(id, status) {
   try {
-    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
 
     if (!validStatuses.includes(status)) {
       throw new AppError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`, 400);
