@@ -218,11 +218,43 @@ export async function getProductById(id) {
 }
 
 /**
- * Create new product
+ * Create new product with variant stock distribution
+ * Accepts:
+ *   - distribution_mode: 'equal' (auto-distribute) or 'manual' (pre-assigned)
+ *   - total_stock: total units to distribute
+ *   - variant_stock: (manual mode only) { 'size-color': quantity }
+ *   - available_sizes, available_colors: arrays for creating variants
  */
 export async function createProduct(productData) {
   try {
-    const { data, error } = await supabaseService
+    const {
+      distribution_mode = 'equal',
+      total_stock = 0,
+      variant_stock = {},
+      available_sizes = [],
+      available_colors = []
+    } = productData;
+
+    // Validate inputs
+    if (!productData.name) {
+      throw new AppError('Product name is required', 400);
+    }
+
+    if (!productData.sku) {
+      throw new AppError('Product SKU is required', 400);
+    }
+
+    if (total_stock < 0) {
+      throw new AppError('Total stock cannot be negative', 400);
+    }
+
+    // Validate distribution mode
+    if (!['equal', 'manual'].includes(distribution_mode)) {
+      throw new AppError('Distribution mode must be "equal" or "manual"', 400);
+    }
+
+    // Create product
+    const { data: productArray, error: createError } = await supabaseService
       .from('products')
       .insert([{
         sku: productData.sku,
@@ -233,19 +265,107 @@ export async function createProduct(productData) {
         original_price: productData.original_price,
         image_url: productData.image_url,
         images: productData.images || [],
-        total_stock: productData.total_stock || 0,
+        total_stock: 0, // Will be updated after variants are created
         is_active: productData.is_active !== false,
         sleeve_type: productData.sleeve_type,
-        available_colors: productData.available_colors || [],
-        available_sizes: productData.available_sizes || []
+        available_colors: available_colors,
+        available_sizes: available_sizes
       }])
       .select();
 
-    if (error) throw error;
+    if (createError) throw createError;
 
-    return data?.[0];
+    const product = productArray?.[0];
+    if (!product) {
+      throw new AppError('Failed to create product', 500);
+    }
+
+    console.log(`✅ Created product: ${product.id}`);
+
+    // Generate all variant combinations
+    const variants = [];
+    for (const size of available_sizes) {
+      for (const color of available_colors) {
+        const variantKey = `${color}-${size}`;
+        variants.push({
+          product_id: product.id,
+          size,
+          color,
+          key: variantKey,
+          stock_quantity: 0 // Will be set by distribution
+        });
+      }
+    }
+
+    if (variants.length === 0) {
+      throw new AppError('Product must have at least one size and one color', 400);
+    }
+
+    console.log(`📦 Creating ${variants.length} variants for product ${product.id}`);
+
+    // Distribute stock to variants
+    let distributedVariants;
+    if (distribution_mode === 'equal') {
+      // Auto-distribute equally
+      const baseStock = Math.floor(total_stock / variants.length);
+      const remainder = total_stock % variants.length;
+
+      distributedVariants = variants.map((variant, index) => ({
+        ...variant,
+        stock_quantity: baseStock + (index < remainder ? 1 : 0)
+      }));
+
+      console.log(`📊 Auto-distributed ${total_stock} units equally: ${distributedVariants.map(v => v.stock_quantity).join(', ')}`);
+    } else {
+      // Manual distribution
+      let assignedTotal = 0;
+      distributedVariants = variants.map(variant => {
+        const assigned = variant_stock[variant.key] || 0;
+        if (assigned < 0) {
+          throw new AppError(`Stock for ${variant.key} cannot be negative`, 400);
+        }
+        assignedTotal += assigned;
+        return {
+          ...variant,
+          stock_quantity: assigned
+        };
+      });
+
+      if (assignedTotal !== total_stock) {
+        throw new AppError(`Sum of variant stocks (${assignedTotal}) doesn't match total stock (${total_stock})`, 400);
+      }
+
+      console.log(`📊 Manual stock distribution validated: ${assignedTotal} units across ${variants.length} variants`);
+    }
+
+    // Create all variants
+    const { data: createdVariants, error: variantError } = await supabaseService
+      .from('product_variants')
+      .insert(distributedVariants)
+      .select();
+
+    if (variantError) {
+      // Rollback: delete product if variant creation fails
+      await supabaseService.from('products').delete().eq('id', product.id);
+      throw new AppError(`Failed to create variants: ${variantError.message}`, 500);
+    }
+
+    console.log(`✅ Created ${createdVariants?.length || 0} variants`);
+
+    // Update product total_stock to match sum of variants
+    const { data: updatedProduct, error: updateError } = await supabaseService
+      .from('products')
+      .update({ total_stock })
+      .eq('id', product.id)
+      .select();
+
+    if (updateError) throw updateError;
+
+    console.log(`✅ Product created successfully with ${total_stock} total stock distributed across ${variants.length} variants`);
+    return updatedProduct?.[0];
   } catch (error) {
     console.error('Error creating product:', error);
+    if (error instanceof AppError) throw error;
     if (error.code === '23505') {
       throw new AppError('SKU already exists', 409);
     }
@@ -254,12 +374,36 @@ export async function createProduct(productData) {
 }
 
 /**
- * Update product
+ * Update product with optional stock redistribution
+ * Handles:
+ *   - Basic product fields (name, price, etc)
+ *   - Variant changes (add/remove sizes or colors)
+ *   - Stock redistribution (equal or manual)
  */
 export async function updateProduct(id, updateData) {
   try {
     console.log('🔧 updateProduct called with:', { id, updateData });
 
+    // Get current product to compare variants
+    const { data: currentProduct, error: fetchError } = await supabaseService
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !currentProduct) {
+      throw new NotFoundError('Product');
+    }
+
+    const {
+      distribution_mode,
+      total_stock,
+      variant_stock = {},
+      available_sizes = currentProduct.available_sizes || [],
+      available_colors = currentProduct.available_colors || []
+    } = updateData;
+
+    // Update basic product fields
     const updateObject = {
       ...(updateData.name && { name: updateData.name }),
       ...(updateData.description !== undefined && { description: updateData.description }),
@@ -270,13 +414,98 @@ export async function updateProduct(id, updateData) {
       ...(updateData.is_active !== undefined && { is_active: updateData.is_active }),
       ...(updateData.is_featured !== undefined && { is_featured: updateData.is_featured }),
       ...(updateData.sleeve_type && { sleeve_type: updateData.sleeve_type }),
-      ...(updateData.available_colors && { available_colors: updateData.available_colors }),
-      ...(updateData.available_sizes && { available_sizes: updateData.available_sizes }),
+      ...(available_sizes && { available_sizes }),
+      ...(available_colors && { available_colors }),
       updated_at: new Date()
     };
 
-    console.log('📦 Sending to Supabase:', updateObject);
+    // Check if variants or stock distribution is being updated
+    const isRedistributingStock = distribution_mode || total_stock !== undefined;
 
+    if (isRedistributingStock) {
+      console.log(`📊 Redistributing stock: mode=${distribution_mode}, total=${total_stock}`);
+
+      // Delete old variants
+      const { error: deleteError } = await supabaseService
+        .from('product_variants')
+        .delete()
+        .eq('product_id', id);
+
+      if (deleteError) {
+        throw new AppError(`Failed to delete old variants: ${deleteError.message}`, 500);
+      }
+
+      // Generate new variant combinations
+      const variants = [];
+      for (const size of available_sizes) {
+        for (const color of available_colors) {
+          const variantKey = `${color}-${size}`;
+          variants.push({
+            product_id: id,
+            size,
+            color,
+            key: variantKey,
+            stock_quantity: 0
+          });
+        }
+      }
+
+      if (variants.length === 0) {
+        throw new AppError('Product must have at least one size and one color', 400);
+      }
+
+      // Distribute stock
+      let distributedVariants;
+      const finalTotal = total_stock !== undefined ? total_stock : currentProduct.total_stock || 0;
+
+      if (distribution_mode === 'equal' || (!distribution_mode && total_stock !== undefined)) {
+        // Auto-distribute equally
+        const baseStock = Math.floor(finalTotal / variants.length);
+        const remainder = finalTotal % variants.length;
+
+        distributedVariants = variants.map((variant, index) => ({
+          ...variant,
+          stock_quantity: baseStock + (index < remainder ? 1 : 0)
+        }));
+
+        console.log(`📊 Auto-distributed ${finalTotal} units equally: ${distributedVariants.map(v => v.stock_quantity).join(', ')}`);
+      } else if (distribution_mode === 'manual') {
+        // Manual distribution
+        let assignedTotal = 0;
+        distributedVariants = variants.map(variant => {
+          const assigned = variant_stock[variant.key] || 0;
+          if (assigned < 0) {
+            throw new AppError(`Stock for ${variant.key} cannot be negative`, 400);
+          }
+          assignedTotal += assigned;
+          return {
+            ...variant,
+            stock_quantity: assigned
+          };
+        });
+
+        if (assignedTotal !== finalTotal) {
+          throw new AppError(`Sum of variant stocks (${assignedTotal}) doesn't match total stock (${finalTotal})`, 400);
+        }
+
+        console.log(`📊 Manual stock distribution validated: ${assignedTotal} units`);
+      }
+
+      // Create new variants
+      const { data: createdVariants, error: variantError } = await supabaseService
+        .from('product_variants')
+        .insert(distributedVariants)
+        .select();
+
+      if (variantError) {
+        throw new AppError(`Failed to create variants: ${variantError.message}`, 500);
+      }
+
+      console.log(`✅ Created ${createdVariants?.length || 0} new variants`);
+      updateObject.total_stock = finalTotal;
+    }
+
+    // Update product
     const { data, error } = await supabaseService
       .from('products')
       .update(updateObject)
@@ -291,10 +520,10 @@ export async function updateProduct(id, updateData) {
       throw new NotFoundError('Product');
     }
 
-    console.log('✅ Supabase returned:', data[0]);
+    console.log('✅ Product updated successfully');
     return data[0];
   } catch (error) {
-    if (error instanceof NotFoundError) throw error;
+    if (error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error updating product:', error);
     throw error;
   }
@@ -556,6 +785,48 @@ export async function checkAndMarkOutOfStock(productId) {
 }
 
 /**
+ * Atomically reduce stock for all items in an order (prevents race conditions)
+ * Uses database transaction to ensure consistency across multiple items
+ */
+export async function reduceOrderStockAtomic(orderId) {
+  try {
+    const { data, error } = await supabase.rpc('reduce_order_stock', {
+      p_order_id: orderId
+    });
+
+    if (error) {
+      console.error('Database RPC error:', error);
+      throw new AppError(error.message || 'Failed to reduce stock', 400);
+    }
+
+    if (!data || data.length === 0) {
+      throw new AppError('No response from stock reduction', 500);
+    }
+
+    const result = data[0];
+
+    if (!result.success) {
+      console.error('Stock reduction failed:', result.message);
+      throw new AppError(result.message || 'Failed to reduce stock', 400);
+    }
+
+    console.log(`✓ Atomically reduced stock for order ${orderId}: ${result.reduced_items} items processed`);
+    console.log(`  Affected products: ${result.product_ids.join(', ')}`);
+
+    return {
+      success: true,
+      reducedItems: result.reduced_items,
+      productIds: result.product_ids,
+      message: result.message
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    console.error('Error reducing order stock atomically:', error);
+    throw new AppError('Failed to process stock reduction', 500);
+  }
+}
+
+/**
  * Create product variant
  */
 export async function createVariant(productId, variantData) {
@@ -754,6 +1025,147 @@ export async function markProductsAsAnnounced(productIds) {
   }
 }
 
+/**
+ * Distribute total product stock across variants
+ * Supports two modes: 'equal' (auto-distribute) or 'manual' (pre-assigned)
+ */
+export async function distributeStockToVariants(variants, totalStock, distributionMode = 'equal') {
+  try {
+    if (!variants || variants.length === 0) {
+      throw new AppError('At least one variant is required', 400);
+    }
+
+    if (totalStock < 0) {
+      throw new AppError('Total stock cannot be negative', 400);
+    }
+
+    let variantStocks = [];
+
+    if (distributionMode === 'equal') {
+      // Auto-distribute equally across all variants
+      const baseStock = Math.floor(totalStock / variants.length);
+      const remainder = totalStock % variants.length;
+
+      variantStocks = variants.map((variant, index) => ({
+        ...variant,
+        stock_quantity: baseStock + (index < remainder ? 1 : 0)
+      }));
+
+      console.log(`📊 Auto-distributed ${totalStock} units equally across ${variants.length} variants: ${variantStocks.map(v => v.stock_quantity).join(', ')}`);
+    } else if (distributionMode === 'manual') {
+      // Validate manual assignment: each variant must have stock_quantity
+      const missingStock = variants.filter(v => v.stock_quantity === undefined || v.stock_quantity === null);
+      if (missingStock.length > 0) {
+        throw new AppError('All variants must have stock_quantity assigned in manual mode', 400);
+      }
+
+      // Validate sum matches total
+      const assignedTotal = variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+      if (assignedTotal !== totalStock) {
+        throw new AppError(`Sum of variant stocks (${assignedTotal}) doesn't match total stock (${totalStock})`, 400);
+      }
+
+      variantStocks = variants;
+      console.log(`📊 Manual stock distribution validated: ${assignedTotal} units across ${variants.length} variants`);
+    } else {
+      throw new AppError(`Invalid distribution mode: ${distributionMode}. Use 'equal' or 'manual'`, 400);
+    }
+
+    return variantStocks;
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    console.error('Error distributing stock to variants:', error);
+    throw error;
+  }
+}
+
+/**
+ * Validate that all variants have stock assigned and sum matches total
+ */
+export async function validateVariantStockAssignment(variants, expectedTotal) {
+  try {
+    if (!variants || variants.length === 0) {
+      throw new AppError('No variants provided for validation', 400);
+    }
+
+    // Check all variants have stock_quantity
+    const missingStock = variants.filter(v => v.stock_quantity === undefined || v.stock_quantity === null);
+    if (missingStock.length > 0) {
+      throw new AppError(`${missingStock.length} variant(s) missing stock assignment`, 400);
+    }
+
+    // Check no negative stock
+    const negativeStock = variants.filter(v => v.stock_quantity < 0);
+    if (negativeStock.length > 0) {
+      throw new AppError('Variant stock cannot be negative', 400);
+    }
+
+    // Check sum matches expected total
+    const actualTotal = variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+    if (actualTotal !== expectedTotal) {
+      throw new AppError(`Sum of variant stocks (${actualTotal}) doesn't match total stock (${expectedTotal})`, 400);
+    }
+
+    console.log(`✓ Variant stock validation passed: ${actualTotal} units across ${variants.length} variants`);
+    return true;
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    console.error('Error validating variant stock:', error);
+    throw error;
+  }
+}
+
+/**
+ * Recalculate product total_stock as sum of all variant stocks
+ * Called after variant stock changes to keep totals in sync
+ */
+export async function recalculateProductTotalStock(productId) {
+  try {
+    // Get all variants for this product
+    const { data: variants, error: variantError } = await supabase
+      .from('product_variants')
+      .select('stock_quantity')
+      .eq('product_id', productId);
+
+    if (variantError) throw variantError;
+
+    if (!variants || variants.length === 0) {
+      // No variants means total stock is 0
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({
+          total_stock: 0,
+          updated_at: new Date()
+        })
+        .eq('id', productId);
+
+      if (updateError) throw updateError;
+      return 0;
+    }
+
+    // Calculate total from variant stocks
+    const totalStock = variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+
+    // Update product total_stock
+    const { data, error } = await supabase
+      .from('products')
+      .update({
+        total_stock: totalStock,
+        updated_at: new Date()
+      })
+      .eq('id', productId)
+      .select();
+
+    if (error) throw error;
+
+    console.log(`📦 Recalculated product ${productId} total_stock: ${totalStock} units from ${variants.length} variants`);
+    return totalStock;
+  } catch (error) {
+    console.error('Error recalculating product total stock:', error);
+    throw error;
+  }
+}
+
 export default {
   getAllProducts,
   getProductById,
@@ -764,6 +1176,9 @@ export default {
   checkStockAvailability,
   updateVariantStock,
   reduceStock,
+  restoreStock,
+  updateProductTotalStock,
+  checkAndMarkOutOfStock,
   createVariant,
   getFeaturedProducts,
   getLowStockProducts,
@@ -771,5 +1186,8 @@ export default {
   deleteProductImage,
   validateProductImage,
   getUnannouncedProducts,
-  markProductsAsAnnounced
+  markProductsAsAnnounced,
+  distributeStockToVariants,
+  validateVariantStockAssignment,
+  recalculateProductTotalStock
 };

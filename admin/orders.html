@@ -304,7 +304,6 @@
                                 <option value="pending" ${currentOrder.paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
                                 <option value="verified" ${currentOrder.paymentStatus === 'verified' ? 'selected' : ''}>Verified</option>
                                 <option value="failed" ${currentOrder.paymentStatus === 'failed' ? 'selected' : ''}>Failed</option>
-                                <option value="refunded" ${currentOrder.paymentStatus === 'refunded' ? 'selected' : ''}>Refunded</option>
                             </select>
                             <button class="btn btn-primary" onclick="savePaymentStatus()">Save</button>
                         </div>

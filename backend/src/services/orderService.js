@@ -323,39 +323,26 @@ export async function updatePaymentStatus(id, paymentStatus) {
       updated_at: new Date()
     };
 
-    // Handle payment verification - REDUCE STOCK
+    // Handle payment verification - REDUCE STOCK ATOMICALLY
     if (paymentStatus === 'verified' && order.payment_status !== 'verified') {
-      console.log(`💳 Payment verified for order ${id}, reducing stock...`);
+      console.log(`💳 Payment verified for order ${id}, reducing stock atomically...`);
 
-      // Import stock functions
-      const { reduceStock, checkAndMarkOutOfStock } = await import('./productService.js');
+      try {
+        // Import atomic stock function
+        const { reduceOrderStockAtomic } = await import('./productService.js');
 
-      // Reduce stock for each order item
-      for (const item of order.order_items) {
-        if (item.variant_id) {
-          try {
-            await reduceStock(item.variant_id, item.quantity);
-            console.log(`✓ Reduced stock for variant ${item.variant_id} by ${item.quantity}`);
-          } catch (error) {
-            console.error(`Error reducing stock for variant ${item.variant_id}:`, error);
-            throw error;
-          }
-        }
+        // Atomically reduce stock for ALL items in a single transaction
+        // This prevents race conditions that occur with multi-item orders
+        const stockResult = await reduceOrderStockAtomic(id);
+        console.log(`✓ Atomically reduced stock for order ${id}: ${stockResult.reducedItems} items, ${stockResult.productIds.length} products affected`);
+
+        updateData.paid_at = new Date();
+        updateData.stock_deducted = true;
+        updateData.stock_deducted_at = new Date();
+      } catch (error) {
+        console.error(`❌ Failed to reduce stock for order ${id}:`, error.message);
+        throw error;
       }
-
-      // Mark products as out of stock if needed
-      const productIds = [...new Set(order.order_items.map(item => item.product_id))];
-      for (const productId of productIds) {
-        try {
-          await checkAndMarkOutOfStock(productId);
-        } catch (error) {
-          console.error(`Error checking stock status for product ${productId}:`, error);
-        }
-      }
-
-      updateData.paid_at = new Date();
-      updateData.stock_deducted = true;
-      updateData.stock_deducted_at = new Date();
     }
 
     // Handle payment failure - ENSURE NO STOCK CHANGES
@@ -363,7 +350,8 @@ export async function updatePaymentStatus(id, paymentStatus) {
       console.log(`❌ Payment failed for order ${id}, restoring stock...`);
 
       // Import stock functions
-      const { restoreStock, checkAndMarkOutOfStock } = await import('./productService.js');
+      const productService = await import('./productService.js');
+      const { restoreStock, checkAndMarkOutOfStock } = productService.default;
 
       // Restore stock if it was deducted
       for (const item of order.order_items) {
@@ -429,7 +417,8 @@ export async function cancelOrder(id) {
       console.log(`📦 Restoring stock for cancelled order ${id}...`);
 
       // Import stock functions
-      const { restoreStock, checkAndMarkOutOfStock } = await import('./productService.js');
+      const productService = await import('./productService.js');
+      const { restoreStock, checkAndMarkOutOfStock } = productService.default;
 
       // Restore stock for each item
       for (const item of order.order_items) {
