@@ -1699,7 +1699,12 @@
                 }
             }
 
-            // Create cart item
+            // Find the variant for this size/color combination to get variant_id and stock
+            const selectedVariant = modalState.variants && modalState.variants.length > 0
+                ? modalState.variants.find(v => v.size === modalState.selectedSize && v.color === modalState.selectedColor)
+                : null;
+
+            // Create cart item with variant information for stock validation
             const cartItem = {
                 id: modalState.productId,
                 name: modalState.productName,
@@ -1707,7 +1712,9 @@
                 size: modalState.selectedSize,
                 color: modalState.selectedColor, // Include color if available
                 quantity: modalState.quantity,
-                image: modalState.imageUrl
+                image: modalState.imageUrl,
+                variant_id: selectedVariant?.id || null,
+                maxQuantity: selectedVariant?.stock_quantity || modalState.variantStock[`${modalState.selectedColor}-${modalState.selectedSize}`] || 0
             };
 
             // Add to cart

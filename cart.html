@@ -648,6 +648,7 @@
 
                 <div class="form-group">
                     <label for="quantityInput">Quantity</label>
+                    <div id="editModalStockInfo" style="font-size: 12px; color: #666; margin-bottom: 8px;"></div>
                     <input type="number" id="quantityInput" min="1" max="99" required>
                 </div>
 
@@ -739,9 +740,23 @@
         function openEditModal(index) {
             currentEditingIndex = index;
             const item = cart.items[index];
+            const maxAvailable = item.maxQuantity || 99;
 
             document.getElementById('sizeSelect').value = item.size || 'M';
             document.getElementById('quantityInput').value = item.quantity;
+            document.getElementById('quantityInput').max = maxAvailable.toString();
+
+            // Display stock information
+            const stockInfo = document.getElementById('editModalStockInfo');
+            if (maxAvailable && maxAvailable < 99) {
+                stockInfo.textContent = `${maxAvailable} available in stock`;
+                if (maxAvailable < 5) {
+                    stockInfo.style.color = '#e74c3c';
+                    stockInfo.innerHTML = `⚠️ Only <strong>${maxAvailable}</strong> available in stock`;
+                }
+            } else {
+                stockInfo.textContent = 'Stock info unavailable';
+            }
 
             // Fetch actual product data to get correct sizes and colors
             let product = null;
@@ -878,14 +893,28 @@
             const size = document.getElementById('sizeSelect').value;
             const quantity = parseInt(document.getElementById('quantityInput').value);
             const colorBtn = document.querySelector('.color-option.active');
+            const item = cart.items[currentEditingIndex];
+            const maxAvailable = item.maxQuantity || 99;
 
             // Get color from button's title attribute (works with both hardcoded and dynamic colors)
             const color = colorBtn ? colorBtn.title : 'Black';
+
+            // Validate quantity against available stock
+            if (quantity > maxAvailable) {
+                if (notifications) {
+                    notifications.error(`Cannot set quantity to ${quantity}. Only ${maxAvailable} ${item.name} (${color}-${size}) available in stock`);
+                }
+                console.log(`❌ Validation failed: Requested quantity (${quantity}) exceeds available stock (${maxAvailable})`);
+                return;
+            }
 
             cart.updateItem(currentEditingIndex, { size, quantity, color });
             renderSummary();
             updateCartBadge();
             closeEditModal();
+            if (notifications) {
+                notifications.success('Item updated successfully');
+            }
         });
 
         function removeItem(index) {
@@ -921,11 +950,27 @@
         }
 
         function updateQuantity(index, delta) {
-            const newQty = cart.items[index].quantity + delta;
+            const item = cart.items[index];
+            const newQty = item.quantity + delta;
+            const maxAvailable = item.maxQuantity || 99;
+
+            // Validate quantity against available stock
             if (newQty > 0 && newQty <= 99) {
+                if (newQty > maxAvailable) {
+                    // Show warning if exceeding available stock
+                    if (notifications) {
+                        notifications.warning(`Only ${maxAvailable} ${item.name} (${item.color}-${item.size}) available in stock`);
+                    }
+                    console.log(`⚠️ Cannot increase quantity: Only ${maxAvailable} available, requested ${newQty}`);
+                    return;
+                }
+
                 cart.updateItem(index, { quantity: newQty });
                 renderSummary();
                 updateCartBadge();
+            } else if (newQty === 0) {
+                // Prevent going below 1, but allow removal via remove button
+                console.log('Quantity cannot be less than 1');
             }
         }
 
@@ -966,6 +1011,10 @@
                                     <div class="item-name">${item.name}</div>
                                     <div class="item-meta">Size: ${item.size}</div>
                                     <div class="item-meta">Color: ${item.color || 'Not specified'}</div>
+                                    <div class="item-meta" style="color: #27ae60; font-weight: 600; margin-top: 4px;" id="stock-${index}">
+                                        ${item.maxQuantity ? `${item.maxQuantity} in stock` : 'Stock info unavailable'}
+                                    </div>
+                                    ${item.maxQuantity && item.maxQuantity < 5 ? `<div class="item-meta" style="color: #e74c3c; font-weight: 600;">⚠️ Only ${item.maxQuantity} available!</div>` : ''}
                                 </div>
                             </div>
                             <div class="item-price">₦${itemTotal.toLocaleString('en-NG')}</div>
