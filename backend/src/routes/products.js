@@ -280,7 +280,8 @@ router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manag
 
   console.log(`📢 [ANNOUNCE ENDPOINT] Sending announcement for ${products.length} products to ${members.length} members...`);
 
-  // Send emails
+  // Send emails (AWAIT required here: Admin is actively waiting for announcement completion)
+  // This is acceptable to block on since it's an intentional admin action that needs completion status
   const result = await emailService.sendProductAnnouncement(products, members);
 
   console.log(`📧 [ANNOUNCE ENDPOINT] Email service returned:`, {

@@ -14,21 +14,24 @@ const router = express.Router();
 router.post('/', validationChains.createOrder, handleValidationErrors, asyncHandler(async (req, res) => {
   const order = await orderService.createOrder(req.body);
 
-  // Send confirmation email
-  try {
-    const customer = {
-      id: order.users.id,
-      email: order.users.email,
-      first_name: order.users.first_name,
-      last_name: order.users.last_name
-    };
-    console.log(`📧 Sending order confirmation email for order ${order.order_number} to ${customer.email}...`);
-    await emailService.sendOrderConfirmation(order, customer);
-    console.log(`✅ Order confirmation email sent successfully for order ${order.order_number}`);
-  } catch (emailError) {
-    console.error(`❌ Error sending confirmation email for order ${order.order_number}:`, emailError);
-    // Don't fail the order creation if email fails
-  }
+  // Send confirmation email asynchronously (fire-and-forget)
+  // Don't await or block the response on email sending
+  (async () => {
+    try {
+      const customer = {
+        id: order.users.id,
+        email: order.users.email,
+        first_name: order.users.first_name,
+        last_name: order.users.last_name
+      };
+      console.log(`📧 Sending order confirmation email for order ${order.order_number} to ${customer.email}...`);
+      await emailService.sendOrderConfirmation(order, customer);
+      console.log(`✅ Order confirmation email sent successfully for order ${order.order_number}`);
+    } catch (emailError) {
+      console.error(`❌ Error sending confirmation email for order ${order.order_number}:`, emailError);
+      // Log error but don't fail - email delivery is not critical to order creation
+    }
+  })();
 
   res.status(201).json({
     success: true,
@@ -124,30 +127,34 @@ router.put('/:id/status', verifyJWT, requireAdmin, requirePermission('manage_ord
   const order = await orderService.updateOrderStatus(req.params.id, status);
 
   // Send notifications based on status
+  // Send status notification email asynchronously (fire-and-forget)
   if (status === 'shipped' || status === 'cancelled' || status === 'delivered') {
-    try {
-      // Fetch complete order with items for email service
-      const fullOrder = await orderService.getOrderById(req.params.id);
-      const customer = {
-        id: order.user_id,
-        email: order.shipping_email,
-        first_name: order.shipping_first_name,
-        last_name: order.shipping_last_name
-      };
+    (async () => {
+      try {
+        // Fetch complete order with items for email service
+        const fullOrder = await orderService.getOrderById(req.params.id);
+        const customer = {
+          id: order.user_id,
+          email: order.shipping_email,
+          first_name: order.shipping_first_name,
+          last_name: order.shipping_last_name
+        };
 
-      if (status === 'shipped') {
-        console.log(`📧 Sending shipping notification for order ${fullOrder.order_number}...`);
-        await emailService.sendShippingNotification(fullOrder, customer);
-      } else if (status === 'cancelled') {
-        console.log(`📧 Sending cancellation notification for order ${fullOrder.order_number}...`);
-        await emailService.sendOrderCancelled(fullOrder, customer);
-      } else if (status === 'delivered') {
-        console.log(`📧 Sending delivery confirmation for order ${fullOrder.order_number}...`);
-        await emailService.sendOrderDelivered(fullOrder, customer);
+        if (status === 'shipped') {
+          console.log(`📧 Sending shipping notification for order ${fullOrder.order_number}...`);
+          await emailService.sendShippingNotification(fullOrder, customer);
+        } else if (status === 'cancelled') {
+          console.log(`📧 Sending cancellation notification for order ${fullOrder.order_number}...`);
+          await emailService.sendOrderCancelled(fullOrder, customer);
+        } else if (status === 'delivered') {
+          console.log(`📧 Sending delivery confirmation for order ${fullOrder.order_number}...`);
+          await emailService.sendOrderDelivered(fullOrder, customer);
+        }
+      } catch (emailError) {
+        console.error('❌ Error sending status notification:', emailError);
+        // Log error but continue - email delivery is not critical
       }
-    } catch (emailError) {
-      console.error('❌ Error sending status notification:', emailError);
-    }
+    })();
   }
 
   // Return full order with items for consistency
@@ -177,22 +184,25 @@ router.put('/:id/payment-status', verifyJWT, requireAdmin, requirePermission('ma
 
   const order = await orderService.updatePaymentStatus(req.params.id, payment_status);
 
-  // Send payment verified email if status is verified
+  // Send payment verified email asynchronously (fire-and-forget)
   if (payment_status === 'verified') {
-    try {
-      // Fetch complete order with items for email service
-      const fullOrder = await orderService.getOrderById(req.params.id);
-      const customer = {
-        id: order.user_id,
-        email: order.shipping_email,
-        first_name: order.shipping_first_name,
-        last_name: order.shipping_last_name
-      };
-      console.log(`📧 Sending payment verified email for order ${fullOrder.order_number}...`);
-      await emailService.sendPaymentVerified(fullOrder, customer);
-    } catch (emailError) {
-      console.error('❌ Error sending payment verified email:', emailError);
-    }
+    (async () => {
+      try {
+        // Fetch complete order with items for email service
+        const fullOrder = await orderService.getOrderById(req.params.id);
+        const customer = {
+          id: order.user_id,
+          email: order.shipping_email,
+          first_name: order.shipping_first_name,
+          last_name: order.shipping_last_name
+        };
+        console.log(`📧 Sending payment verified email for order ${fullOrder.order_number}...`);
+        await emailService.sendPaymentVerified(fullOrder, customer);
+      } catch (emailError) {
+        console.error('❌ Error sending payment verified email:', emailError);
+        // Log error but continue - email delivery is not critical
+      }
+    })();
   }
 
   // Return full order with items for consistency
