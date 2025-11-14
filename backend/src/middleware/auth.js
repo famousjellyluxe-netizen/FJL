@@ -92,6 +92,7 @@ export function requirePermission(permission) {
     const adminPermissions = {
       owner: [
         'manage_products',
+        'manage_categories',
         'manage_orders',
         'manage_customers',
         'manage_admins',
@@ -99,12 +100,14 @@ export function requirePermission(permission) {
       ],
       manager: [
         'manage_products',
+        'manage_categories',
         'manage_orders',
         'manage_customers',
         'view_analytics'
       ],
       staff: [
         'manage_products',
+        'manage_categories',
         'manage_orders',
         'view_analytics'
       ]

@@ -25,22 +25,24 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================================
 
 function checkAdminAuth() {
-  const token = localStorage.getItem('adminToken');
-  const adminEmail = localStorage.getItem('adminEmail');
+  const token = localStorage.getItem('fjl_admin_token');
+  const adminData = localStorage.getItem('fjl_admin');
 
   if (!token) {
     window.location.href = 'index.html';
     return;
   }
 
-  if (adminEmail) {
-    document.getElementById('adminName').textContent = adminEmail.split('@')[0];
+  if (adminData) {
+    const admin = JSON.parse(adminData);
+    document.getElementById('adminName').textContent = admin.email.split('@')[0];
   }
 }
 
 function logoutAdmin() {
-  localStorage.removeItem('adminToken');
-  localStorage.removeItem('adminEmail');
+  localStorage.removeItem('fjl_admin_token');
+  localStorage.removeItem('fjl_admin');
+  sessionStorage.removeItem('fjl_admin_authenticated');
   window.location.href = 'index.html';
 }
 
@@ -50,11 +52,19 @@ function logoutAdmin() {
 
 async function loadCategories() {
   try {
-    const response = await fetch(`${API_BASE}/categories?include_archived=true`);
+    const token = localStorage.getItem('fjl_admin_token');
+
+    const response = await fetch(`${API_BASE}/categories?include_archived=true`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    });
+
     const data = await response.json();
 
     if (!response.ok) {
-      showError('Failed to load categories');
+      showError('Failed to load categories: ' + (data.error || response.statusText));
       return;
     }
 
@@ -100,7 +110,7 @@ async function saveCategory(event) {
   try {
     showLoadingState(true);
 
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('fjl_admin_token');
     const payload = {
       name,
       description: description || null
@@ -156,7 +166,7 @@ async function deleteCategory(id) {
   try {
     showLoadingState(true);
 
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('fjl_admin_token');
     const reassignCheckbox = document.getElementById('reassignCheckbox');
     const reassignTarget = document.getElementById('reassignTarget');
 
@@ -192,7 +202,7 @@ async function deleteCategory(id) {
 
 async function updateCategoryOrder(categoryIds) {
   try {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('fjl_admin_token');
 
     const response = await fetch(`${API_BASE}/categories/reorder`, {
       method: 'PATCH',
@@ -428,12 +438,20 @@ function showError(message, fieldId = null) {
       if (input) input.classList.add('error');
     }
   } else {
-    showNotification(message, 'error');
+    if (window.notifications) {
+      notifications.error(message);
+    } else {
+      alert(message);
+    }
   }
 }
 
 function showSuccess(message) {
-  showNotification(message, 'success');
+  if (window.notifications) {
+    notifications.success(message);
+  } else {
+    alert(message);
+  }
 }
 
 function escapeHtml(text) {
