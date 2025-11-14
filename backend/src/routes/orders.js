@@ -4,6 +4,7 @@ import { validationChains, handleValidationErrors } from '../middleware/validati
 import { asyncHandler } from '../middleware/errorHandler.js';
 import * as orderService from '../services/orderService.js';
 import * as emailService from '../services/emailService.js';
+import * as auditService from '../services/auditService.js';
 
 const router = express.Router();
 
@@ -126,6 +127,9 @@ router.put('/:id/status', verifyJWT, requireAdmin, requirePermission('manage_ord
 
   const order = await orderService.updateOrderStatus(req.params.id, status);
 
+  // Log audit trail for status change
+  auditService.logOrderStatusChanged(req.params.id, req.user.id, order.order_status, status);
+
   // Send notifications based on status
   // Send status notification email asynchronously (fire-and-forget)
   if (status === 'shipped' || status === 'cancelled' || status === 'delivered') {
@@ -183,6 +187,11 @@ router.put('/:id/payment-status', verifyJWT, requireAdmin, requirePermission('ma
   }
 
   const order = await orderService.updatePaymentStatus(req.params.id, payment_status);
+
+  // Log audit trail for payment status change
+  if (payment_status === 'verified') {
+    auditService.logPaymentVerified(req.params.id, req.user.id);
+  }
 
   // Send payment verified email asynchronously (fire-and-forget)
   if (payment_status === 'verified') {
@@ -247,6 +256,28 @@ router.get('/customer/:userId', verifyJWT, requireAdmin, requirePermission('view
     success: true,
     data: result.data,
     pagination: result.pagination
+  });
+}));
+
+/**
+ * GET /api/orders/:id/audit
+ * Get audit logs for an order (admin only)
+ */
+router.get('/:id/audit', verifyJWT, requireAdmin, requirePermission('manage_orders'), asyncHandler(async (req, res) => {
+  const { limit = 100, offset = 0 } = req.query;
+
+  const result = await auditService.getOrderAuditLogs(req.params.id, { limit, offset });
+
+  res.json({
+    success: true,
+    data: result.logs,
+    pagination: {
+      total: result.total,
+      limit: result.limit,
+      offset: result.offset,
+      page: result.page,
+      pages: result.pages
+    }
   });
 }));
 
