@@ -96,6 +96,7 @@ export function requirePermission(permission) {
         'manage_orders',
         'manage_customers',
         'manage_admins',
+        'manage_settings',
         'view_analytics'
       ],
       manager: [
@@ -103,6 +104,7 @@ export function requirePermission(permission) {
         'manage_categories',
         'manage_orders',
         'manage_customers',
+        'manage_settings',
         'view_analytics'
       ],
       staff: [

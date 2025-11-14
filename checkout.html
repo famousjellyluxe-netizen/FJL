@@ -580,7 +580,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="checkout-btn">Complete Order</button>
+                    <button type="submit" id="completeOrderBtn" class="checkout-btn">Complete Order</button>
                 </form>
 
                 <!-- Order Summary -->
@@ -872,5 +872,121 @@
     <!-- Backend API Integration Scripts -->
     <script src="js/api-integration.js"></script>
     <script src="js/checkout-integration.js"></script>
+    <!-- Async Button Handler for loading states -->
+    <script src="js/async-button-handler.js"></script>
+    <script>
+        // Initialize async button handler for checkout
+        const completeOrderHandler = new AsyncButtonHandler('completeOrderBtn', {
+            loadingText: 'Creating Order...',
+            timeout: 30000,  // 30 second timeout
+            onStart: () => {
+                // Optional: Disable form while submitting
+                const form = document.getElementById('checkoutForm');
+                if (form) {
+                    form.style.opacity = '0.6';
+                    form.style.pointerEvents = 'none';
+                }
+            },
+            onSuccess: (result) => {
+                // Order created successfully
+                if (result && result.success) {
+                    // Success message already handled in submit event
+                }
+            },
+            onError: (error) => {
+                // Error notification already handled
+            },
+            onFinally: () => {
+                // Re-enable form
+                const form = document.getElementById('checkoutForm');
+                if (form) {
+                    form.style.opacity = '1';
+                    form.style.pointerEvents = 'auto';
+                }
+            }
+        });
+
+        // Override the form submit handler to use async button handler
+        const originalForm = document.getElementById('checkoutForm');
+        if (originalForm) {
+            // Remove the old listener by cloning the element
+            const newForm = originalForm.cloneNode(true);
+            originalForm.parentNode.replaceChild(newForm, originalForm);
+
+            // Add new async handler
+            newForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Prevent double submission
+                if (completeOrderHandler.isLoading) return;
+
+                // Get form data
+                const subtotal = cart.getTotal();
+                const tax = subtotal * 0.075;
+                const total = subtotal + tax;
+
+                const formData = {
+                    shipping_first_name: this.firstName.value,
+                    shipping_last_name: this.lastName.value,
+                    shipping_email: this.email.value,
+                    shipping_phone: this.phone.value,
+                    shipping_address: this.address.value,
+                    shipping_city: this.city.value,
+                    shipping_state: this.state.value,
+                    shipping_postal_code: this.postalCode.value,
+                    shipping_country: this.country.value,
+                    buyer_name: this.buyerName.value,
+                    subtotal: subtotal,
+                    tax: tax,
+                    shipping_cost: 0,
+                    total_amount: total
+                };
+
+                // Validate form data
+                if (!window.validateOrderData(formData, { items: cart.items })) {
+                    if (notifications) {
+                        notifications.error('Please fill in all required fields');
+                    }
+                    return;
+                }
+
+                // Show loading state
+                completeOrderHandler.setLoading(true);
+
+                try {
+                    // Create order via API
+                    const result = await window.createOrderWithAPI(formData, { items: cart.items });
+
+                    if (result.success) {
+                        // Show success message
+                        document.getElementById('successMessage').classList.add('show');
+
+                        // Reset form
+                        this.reset();
+
+                        // Clear cart
+                        cart.clear();
+                        updateCartBadge();
+
+                        // Redirect after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = `/order-confirmation.html?order=${result.orderNumber}`;
+                        }, 2000);
+                    } else {
+                        if (notifications) {
+                            notifications.error('Failed to create order. Please try again.');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Order creation error:', error);
+                    if (notifications) {
+                        notifications.error('An error occurred while creating your order. Please try again.');
+                    }
+                } finally {
+                    completeOrderHandler.setLoading(false);
+                }
+            });
+        }
+    </script>
 </body>
 </html>

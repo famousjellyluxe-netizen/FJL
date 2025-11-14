@@ -39,11 +39,20 @@ router.post('/', validationChains.createOrder, handleValidationErrors, asyncHand
 
 /**
  * GET /api/orders/number/:orderNumber
- * Get order by order number (public)
+ * Get order by order number (authenticated - verify ownership)
  * NOTE: This must come before /:id to prevent /:id from catching /number/:orderNumber
  */
-router.get('/number/:orderNumber', asyncHandler(async (req, res) => {
+router.get('/number/:orderNumber', verifyJWT, asyncHandler(async (req, res) => {
   const order = await orderService.getOrderByNumber(req.params.orderNumber);
+
+  // Verify ownership: customer can only see own orders, admin can see all
+  if (order.user_id !== req.user.id && req.user.role !== 'owner' && req.user.role !== 'manager' && req.user.role !== 'staff') {
+    return res.status(403).json({
+      success: false,
+      error: 'Forbidden',
+      details: [{ message: 'You do not have permission to view this order' }]
+    });
+  }
 
   res.json({
     success: true,
@@ -53,10 +62,19 @@ router.get('/number/:orderNumber', asyncHandler(async (req, res) => {
 
 /**
  * GET /api/orders/:id
- * Get order by ID (public - can access own order)
+ * Get order by ID (authenticated - verify ownership)
  */
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', verifyJWT, asyncHandler(async (req, res) => {
   const order = await orderService.getOrderById(req.params.id);
+
+  // Verify ownership: customer can only see own orders, admin can see all
+  if (order.user_id !== req.user.id && req.user.role !== 'owner' && req.user.role !== 'manager' && req.user.role !== 'staff') {
+    return res.status(403).json({
+      success: false,
+      error: 'Forbidden',
+      details: [{ message: 'You do not have permission to view this order' }]
+    });
+  }
 
   res.json({
     success: true,
