@@ -5,6 +5,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import * as orderService from '../services/orderService.js';
 import * as emailService from '../services/emailService.js';
 import * as auditService from '../services/auditService.js';
+import * as orderNotesService from '../services/orderNotesService.js';
 
 const router = express.Router();
 
@@ -278,6 +279,97 @@ router.get('/:id/audit', verifyJWT, requireAdmin, requirePermission('manage_orde
       page: result.page,
       pages: result.pages
     }
+  });
+}));
+
+/**
+ * POST /api/orders/:id/notes
+ * Add a note to an order (customer or admin)
+ */
+router.post('/:id/notes', verifyJWT, asyncHandler(async (req, res) => {
+  const { note, isInternal } = req.body;
+
+  if (!note || note.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'Note content is required',
+      details: [{ field: 'note', message: 'Note cannot be empty' }]
+    });
+  }
+
+  // Get order to verify user has access
+  const order = await orderService.getOrderById(req.params.id);
+
+  // Verify ownership: customer can only note on own orders
+  if (order.user_id !== req.user.id && req.user.role !== 'owner' && req.user.role !== 'manager') {
+    return res.status(403).json({ success: false, error: 'Forbidden' });
+  }
+
+  // Determine author type
+  const authorType = (req.user.role === 'owner' || req.user.role === 'manager') ? 'admin' : 'customer';
+
+  // Customers cannot create internal notes
+  if (isInternal && authorType !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Only admins can create internal notes' });
+  }
+
+  const createdNote = await orderNotesService.addOrderNote(
+    req.params.id,
+    req.user.id,
+    authorType,
+    note,
+    { isInternal: isInternal || false }
+  );
+
+  res.status(201).json({
+    success: true,
+    message: 'Note added successfully',
+    data: createdNote
+  });
+}));
+
+/**
+ * GET /api/orders/:id/notes
+ * Get notes for an order (visible to customer or admin)
+ */
+router.get('/:id/notes', verifyJWT, asyncHandler(async (req, res) => {
+  const { page = 1, limit = 50 } = req.query;
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+
+  // Verify user has access to order
+  const order = await orderService.getOrderById(req.params.id);
+  if (order.user_id !== req.user.id && req.user.role !== 'owner' && req.user.role !== 'manager') {
+    return res.status(403).json({ success: false, error: 'Forbidden' });
+  }
+
+  const result = await orderNotesService.getOrderNotes(
+    req.params.id,
+    { userId: req.user.id, userRole: req.user.role },
+    { limit: parseInt(limit), offset }
+  );
+
+  res.json({
+    success: true,
+    data: result.notes,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      pages: Math.ceil(result.total / result.limit)
+    }
+  });
+}));
+
+/**
+ * DELETE /api/orders/:id/notes/:noteId
+ * Delete a note (admin only)
+ */
+router.delete('/:id/notes/:noteId', verifyJWT, requireAdmin, requirePermission('manage_orders'), asyncHandler(async (req, res) => {
+  await orderNotesService.deleteOrderNote(req.params.noteId, req.user.id);
+
+  res.json({
+    success: true,
+    message: 'Note deleted successfully'
   });
 }));
 
