@@ -6,6 +6,7 @@ import { asyncHandler, NotFoundError } from '../middleware/errorHandler.js';
 import { uploadSingle } from '../middleware/upload.js';
 import * as productService from '../services/productService.js';
 import * as emailService from '../services/emailService.js';
+import * as stockUpdateService from '../services/stockUpdateService.js';
 import { supabase } from '../config/database.js';
 
 const router = express.Router();
@@ -314,6 +315,126 @@ router.post('/admin/announce', verifyJWT, requireAdmin, requirePermission('manag
       total_members: result.members,
       errors: result.errors
     }
+  });
+}));
+
+/**
+ * GET /api/products/stock/subscribe
+ * Subscribe to real-time stock updates using Server-Sent Events (SSE)
+ * Query params:
+ *   - productIds: Comma-separated list of product IDs to monitor (optional)
+ *
+ * Response: Streaming SSE events
+ *   event: stock_update
+ *   data: { type, productId, variantId, newQuantity, oldQuantity, timestamp, lowStock }
+ *
+ * Example:
+ *   const eventSource = new EventSource('/api/products/stock/subscribe?productIds=id1,id2,id3');
+ *   eventSource.addEventListener('stock_update', (e) => {
+ *     const data = JSON.parse(e.data);
+ *     console.log(`Stock updated: ${data.productId} now has ${data.newQuantity} units`);
+ *   });
+ */
+router.get('/stock/subscribe', asyncHandler(async (req, res) => {
+  // Parse product IDs from query params
+  const productIdsParam = req.query.productIds || '';
+  const productIds = productIdsParam
+    ? productIdsParam.split(',').filter(id => id.trim())
+    : [];
+
+  console.log(`🔌 Stock update subscription: ${productIds.length} products monitored`);
+
+  // Register this client for stock updates
+  const clientId = stockUpdateService.registerStockUpdateClient(res, productIds);
+
+  // Send initial stock data for all subscribed products
+  if (productIds.length > 0) {
+    try {
+      const stockData = await stockUpdateService.getMultipleProductsStock(productIds);
+
+      for (const [productId, variants] of Object.entries(stockData)) {
+        const message = JSON.stringify({
+          type: 'initial_stock',
+          productId,
+          variants,
+          timestamp: Date.now(),
+        });
+
+        res.write(`event: initial_stock\n`);
+        res.write(`data: ${message}\n\n`);
+      }
+    } catch (error) {
+      console.error('Error sending initial stock data:', error);
+      // Continue anyway - client will request data if needed
+    }
+  }
+}));
+
+/**
+ * POST /api/products/stock/subscribe
+ * Update subscribed products for existing connection
+ * Body: { clientId, productIds: [...] }
+ */
+router.post('/stock/subscribe', asyncHandler(async (req, res) => {
+  const { clientId, productIds = [] } = req.body;
+
+  if (!clientId) {
+    return res.status(400).json({
+      success: false,
+      error: 'clientId required',
+      details: [{ field: 'clientId', message: 'Client ID is required' }]
+    });
+  }
+
+  stockUpdateService.updateSubscribedProducts(clientId, productIds);
+
+  res.json({
+    success: true,
+    message: `Updated subscription to ${productIds.length} products`,
+    clientId,
+  });
+}));
+
+/**
+ * GET /api/products/stock/status
+ * Get real-time stock status for a product
+ * Query params:
+ *   - productId: Product UUID (required)
+ */
+router.get('/stock/status', asyncHandler(async (req, res) => {
+  const { productId } = req.query;
+
+  if (!productId) {
+    return res.status(400).json({
+      success: false,
+      error: 'productId required',
+      details: [{ field: 'productId', message: 'Product ID is required' }]
+    });
+  }
+
+  const stock = await stockUpdateService.getProductStock(productId);
+
+  res.json({
+    success: true,
+    data: {
+      productId,
+      variants: stock,
+      totalStock: stock.reduce((sum, v) => sum + v.stock_quantity, 0),
+      timestamp: Date.now(),
+    }
+  });
+}));
+
+/**
+ * GET /api/products/stock/stats
+ * Get connection statistics (admin only)
+ */
+router.get('/stock/stats', verifyJWT, requireAdmin, asyncHandler(async (req, res) => {
+  const stats = stockUpdateService.getConnectionStats();
+
+  res.json({
+    success: true,
+    data: stats
   });
 }));
 
