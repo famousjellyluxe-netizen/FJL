@@ -284,6 +284,53 @@ export const validationChains = {
       .trim()
       .isLength({ max: 255 })
       .withMessage('Name must not exceed 255 characters')
+  ],
+
+  // Settings
+  updateSettings: [
+    body('store_name')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 255 })
+      .withMessage('Store name must be between 1 and 255 characters'),
+    body('tax_rate')
+      .optional()
+      .isFloat({ min: 0, max: 100 })
+      .withMessage('Tax rate must be between 0 and 100'),
+    body('shipping_cost')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Shipping cost cannot be negative'),
+    body('currency')
+      .optional()
+      .trim()
+      .isLength({ exactly: 3 })
+      .matches(/^[A-Z]{3}$/)
+      .withMessage('Currency must be a 3-letter code (e.g., USD, GBP)'),
+    body('bank_account_name')
+      .optional()
+      .trim()
+      .isLength({ max: 255 })
+      .withMessage('Bank account name must not exceed 255 characters'),
+    body('bank_account_number')
+      .optional()
+      .trim()
+      .matches(/^[A-Z0-9]{8,34}$/)
+      .withMessage('Invalid bank account number'),
+    body('bank_code')
+      .optional()
+      .trim()
+      .isLength({ max: 50 })
+      .withMessage('Bank code must not exceed 50 characters'),
+    body('contact_email')
+      .optional()
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Invalid contact email address'),
+    body('contact_phone')
+      .optional()
+      .matches(/^\+?[0-9]{10,}$/)
+      .withMessage('Invalid contact phone number')
   ]
 };
 

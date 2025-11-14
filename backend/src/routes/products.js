@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import { verifyJWT, requireAdmin, requirePermission } from '../middleware/auth.js';
 import { validationChains, handleValidationErrors } from '../middleware/validation.js';
 import { asyncHandler, NotFoundError } from '../middleware/errorHandler.js';
@@ -62,7 +63,10 @@ router.post('/:id/upload', verifyJWT, requireAdmin, requirePermission('manage_pr
   }
 
   // Upload file to Supabase Storage
-  const filename = `${req.params.id}/${Date.now()}-${req.file.originalname}`;
+  // SECURITY: Use path.basename() to prevent path traversal attacks
+  // This strips any directory components from the filename (e.g., "../../evil.jpg" → "evil.jpg")
+  const safeFilename = path.basename(req.file.originalname);
+  const filename = `${req.params.id}/${Date.now()}-${safeFilename}`;
   const imageUrl = await productService.uploadProductImage(
     req.file.buffer,
     filename,
@@ -138,9 +142,10 @@ router.delete('/:id', verifyJWT, requireAdmin, requirePermission('manage_product
 
 /**
  * GET /api/products/:id/variants
- * Get product variants/inventory
+ * Get product variants/inventory (admin only)
+ * NOTE: This endpoint is sensitive - real-time stock levels should not be exposed to public/competitors
  */
-router.get('/:id/variants', asyncHandler(async (req, res) => {
+router.get('/:id/variants', verifyJWT, requireAdmin, asyncHandler(async (req, res) => {
   const variants = await productService.getProductInventory(req.params.id);
 
   res.json({

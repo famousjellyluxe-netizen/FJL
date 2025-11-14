@@ -1,13 +1,18 @@
 import { supabase } from '../config/database.js';
 import { AppError, NotFoundError } from '../middleware/errorHandler.js';
+import { randomBytes } from 'crypto';
+import * as productService from './productService.js';
 
 /**
- * Generate unique order number (ORD-XXXXXXX)
+ * Generate cryptographically secure unique order number (ORD-XXXXXXXX)
+ * Uses crypto.randomBytes for better security than Math.random()
+ * Format: ORD-[8 hex chars] = ORD-XXXXXXXX
+ * Example: ORD-A7C3E2B9
  */
 function generateOrderNumber() {
-  const timestamp = Date.now().toString().slice(-7);
-  const random = Math.random().toString(36).substring(2, 5).toUpperCase();
-  return `ORD-${timestamp}${random}`;
+  // Generate 4 random bytes (32 bits) and convert to 8 hex characters
+  const randomPart = randomBytes(4).toString('hex').toUpperCase().substring(0, 8);
+  return `ORD-${randomPart}`;
 }
 
 /**
@@ -331,13 +336,12 @@ export async function updateOrderStatus(id, status) {
 
       try {
         // Restore stock for each item
-        const productService = await import('./productService.js');
-        const { restoreStock, checkAndMarkOutOfStock } = productService.default;
+        const { restoreStock, checkAndMarkOutOfStock } = productService;
 
         for (const item of order.order_items) {
           if (item.variant_id) {
             try {
-              await restoreStock(item.variant_id, item.quantity);
+              await productService.restoreStock(item.variant_id, item.quantity);
               console.log(`✓ Restored stock for variant ${item.variant_id} by ${item.quantity}`);
             } catch (error) {
               console.error(`Error restoring stock for variant ${item.variant_id}:`, error);
@@ -411,12 +415,9 @@ export async function updatePaymentStatus(id, paymentStatus) {
       console.log(`💳 Payment verified for order ${id}, reducing stock atomically...`);
 
       try {
-        // Import atomic stock function
-        const { reduceOrderStockAtomic } = await import('./productService.js');
-
         // Atomically reduce stock for ALL items in a single transaction
         // This prevents race conditions that occur with multi-item orders
-        const stockResult = await reduceOrderStockAtomic(id);
+        const stockResult = await productService.reduceOrderStockAtomic(id);
         console.log(`✓ Atomically reduced stock for order ${id}: ${stockResult.reducedItems} items, ${stockResult.productIds.length} products affected`);
 
         updateData.paid_at = new Date();
@@ -432,15 +433,11 @@ export async function updatePaymentStatus(id, paymentStatus) {
     if (paymentStatus === 'failed' && order.stock_deducted) {
       console.log(`❌ Payment failed for order ${id}, restoring stock...`);
 
-      // Import stock functions
-      const productService = await import('./productService.js');
-      const { restoreStock, checkAndMarkOutOfStock } = productService.default;
-
       // Restore stock if it was deducted
       for (const item of order.order_items) {
         if (item.variant_id) {
           try {
-            await restoreStock(item.variant_id, item.quantity);
+            await productService.restoreStock(item.variant_id, item.quantity);
             console.log(`✓ Restored stock for variant ${item.variant_id} by ${item.quantity}`);
           } catch (error) {
             console.error(`Error restoring stock for variant ${item.variant_id}:`, error);
@@ -452,7 +449,7 @@ export async function updatePaymentStatus(id, paymentStatus) {
       const productIds = [...new Set(order.order_items.map(item => item.product_id))];
       for (const productId of productIds) {
         try {
-          await checkAndMarkOutOfStock(productId);
+          await productService.checkAndMarkOutOfStock(productId);
         } catch (error) {
           console.error(`Error checking stock status for product ${productId}:`, error);
         }
@@ -499,15 +496,11 @@ export async function cancelOrder(id) {
     if (order.stock_deducted) {
       console.log(`📦 Restoring stock for cancelled order ${id}...`);
 
-      // Import stock functions
-      const productService = await import('./productService.js');
-      const { restoreStock, checkAndMarkOutOfStock } = productService.default;
-
       // Restore stock for each item
       for (const item of order.order_items) {
         if (item.variant_id) {
           try {
-            await restoreStock(item.variant_id, item.quantity);
+            await productService.restoreStock(item.variant_id, item.quantity);
             console.log(`✓ Restored stock for variant ${item.variant_id} by ${item.quantity}`);
           } catch (error) {
             console.error(`Error restoring stock for variant ${item.variant_id}:`, error);
@@ -520,7 +513,7 @@ export async function cancelOrder(id) {
       const productIds = [...new Set(order.order_items.map(item => item.product_id))];
       for (const productId of productIds) {
         try {
-          await checkAndMarkOutOfStock(productId);
+          await productService.checkAndMarkOutOfStock(productId);
         } catch (error) {
           console.error(`Error checking stock status for product ${productId}:`, error);
         }

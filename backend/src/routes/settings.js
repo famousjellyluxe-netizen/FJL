@@ -1,6 +1,7 @@
 import express from 'express';
 import { verifyJWT, requireAdmin, requirePermission } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { validationChains, handleValidationErrors } from '../middleware/validation.js';
 import * as settingsService from '../services/settingsService.js';
 
 const router = express.Router();
@@ -22,7 +23,7 @@ router.get('/', asyncHandler(async (req, res) => {
  * PUT /api/settings
  * Update business settings (admin only)
  */
-router.put('/', verifyJWT, requireAdmin, requirePermission('manage_settings'), asyncHandler(async (req, res) => {
+router.put('/', verifyJWT, requireAdmin, requirePermission('manage_settings'), validationChains.updateSettings, handleValidationErrors, asyncHandler(async (req, res) => {
   const settings = await settingsService.updateSettings(req.body);
 
   res.json({

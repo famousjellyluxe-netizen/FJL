@@ -1,21 +1,25 @@
 import jwt from 'jsonwebtoken';
 
-let JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '24h';
 const ADMIN_JWT_EXPIRY = process.env.ADMIN_JWT_EXPIRY || '7d';
 
-// Use default for development if not set, throw error for production
+// Require JWT_SECRET to be set - NEVER use hardcoded secret in production
 if (!JWT_SECRET) {
   const nodeEnv = process.env.NODE_ENV || 'development';
-  if (nodeEnv === 'production') {
-    throw new Error('JWT_SECRET must be set in environment variables for production');
-  }
-  // Default for development
-  JWT_SECRET = 'dev-jwt-secret-key-at-least-32-chars-long-for-testing';
-  console.warn('⚠️  Using default JWT_SECRET for development - set JWT_SECRET in .env for production');
-} else if (JWT_SECRET.length < 32) {
-  throw new Error('JWT_SECRET must be at least 32 characters long');
+  const errorMsg = 'FATAL: JWT_SECRET environment variable not set. Set JWT_SECRET in your .env or environment configuration.';
+  console.error('❌ ' + errorMsg);
+  throw new Error(errorMsg);
 }
+
+// Validate JWT_SECRET length - must be at least 32 characters for security
+if (JWT_SECRET.length < 32) {
+  const errorMsg = `FATAL: JWT_SECRET must be at least 32 characters for security. Current length: ${JWT_SECRET.length}`;
+  console.error('❌ ' + errorMsg);
+  throw new Error(errorMsg);
+}
+
+console.log('✓ JWT_SECRET is configured (length: ' + JWT_SECRET.length + ' chars)');
 
 /**
  * Sign a JWT token for admin authentication
