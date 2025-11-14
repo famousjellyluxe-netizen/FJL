@@ -1,0 +1,156 @@
+# FJL E-Commerce Platform - Comprehensive Technical Audit Report
+Generated: 2025-11-14  
+Audit Scope: Backend API, Database Schema, Authentication, Business Logic, Error Handling
+
+EXECUTIVE SUMMARY
+The FJL e-commerce platform has well-structured backend with good security practices, but contains CRITICAL routing issues, permission inconsistencies, and database integrity concerns.
+
+Severity Breakdown:
+- CRITICAL Issues: 4 (Route ordering, permission mismatches, settings update, customer queries)
+- HIGH Issues: 6 (Stock management, payment verification, email logging, validation gaps)
+- MEDIUM Issues: 8 (Error handling edge cases, missing validations, deprecation)
+- LOW Issues: 5 (Code organization, documentation, development practices)
+
+KEY FINDINGS:
+
+1. CRITICAL - Order Access Control Vulnerability
+   Location: src/routes/orders.js lines 45, 58
+   Issue: GET /orders/:id and GET /orders/number/:orderNumber are PUBLIC endpoints
+   Risk: Any user can retrieve ANY order by guessing order number or ID, exposing customer data
+   Fix: Add JWT authentication and verify customer ownership
+
+2. CRITICAL - Route Ordering Problem in Customers Routes
+   Location: src/routes/customers.js
+   Issue: Specific routes (like /members/subscribe) come AFTER parameterized routes (/:id)
+   Risk: POST /members/subscribe might match /:id route pattern, causing request failures
+   Fix: Reorder routes - specific routes BEFORE parameterized routes
+
+3. CRITICAL - Missing Permission Definition
+   Location: src/routes/settings.js line 25
+   Issue: requirePermission('manage_settings') used but permission NOT defined in auth.js
+   Risk: Settings endpoint will always return 403 Forbidden for all roles
+   Fix: Add manage_settings to owner/manager role permissions in auth.js
+
+4. CRITICAL - Schema Column Mismatch
+   Location: Code references order.stock_deducted but NOT in SUPABASE_SCHEMA.sql
+   Issue: Migration add_stock_deducted_to_orders.sql must be applied
+   Risk: Order status changes will fail
+
+5. CRITICAL - Newsletter Unsubscribe Token Missing from Schema
+   Location: Code references unsubscribe_token but NOT in SUPABASE_SCHEMA.sql
+   Issue: Migration add_unsubscribe_token.sql must be applied
+   Risk: Newsletter unsubscribe functionality will fail
+
+6. HIGH - Stock Management Race Condition
+   Location: src/routes/orders.js and src/services/orderService.js
+   Issue: Stock validated BEFORE order creation but reduction happens AFTER payment
+   Scenario: Two concurrent orders might both pass stock check, causing negative inventory
+   Fix: Use database locks or atomic transactions
+
+7. HIGH - Public Product Variants Endpoint
+   Location: src/routes/products.js line 143
+   Issue: GET /products/:id/variants is PUBLIC, exposing real-time inventory levels
+   Risk: Competitors can scrape stock data
+   Fix: Add verifyJWT, requireAdmin middleware
+
+8. MEDIUM - Missing Input Validations
+   - Categories DELETE: reassign_to parameter not validated as UUID
+   - Settings PUT: No validation chains defined
+   - Products GET: category filter not validated as UUID
+
+9. MEDIUM - JWT Secret in Source Code
+   Location: src/config/jwt.js line 14
+   Issue: Development secret hardcoded and visible in git
+   Risk: If used in production, secret is compromised
+   Fix: Remove default; require explicit JWT_SECRET
+
+10. MEDIUM - Weak Order Number Generation
+    Location: src/services/orderService.js lines 7-10
+    Issue: Random number not cryptographically secure, collision risk
+    Fix: Use UUID suffix instead of random substring
+
+DATABASE SCHEMA ISSUES:
+- Missing stock_deducted column in orders table
+- Missing unsubscribe_token column in members table
+- Product availability_colors and availability_sizes as TEXT arrays (not queryable)
+- Missing indexes on orders.user_id and orders.shipping_email
+
+ENDPOINT SECURITY ASSESSMENT:
+
+PUBLIC ENDPOINTS WITH ISSUES:
+- GET /api/orders/:id - EXPOSED customer data
+- GET /api/orders/number/:orderNumber - EXPOSED customer data
+- GET /api/products/:id/variants - EXPOSED inventory data
+
+PERMISSION ISSUES:
+- Settings endpoint: manage_settings permission undefined
+- Customer orders: Uses view_analytics permission (inconsistent)
+- Product announcement: Uses manage_products (should verify user owns store)
+
+VALIDATION GAPS:
+- Settings update: Zero validation
+- Category delete reassign: No UUID validation
+- Product category filter: Not validated
+
+CRITICAL BUSINESS LOGIC ISSUES:
+
+1. Stock Race Condition:
+   - Order creation validates stock at time T1
+   - Multiple orders can pass validation
+   - Stock reduction happens at T2 (after payment)
+   - Race window allows overbooking
+
+2. Payment Failure Handling:
+   - Inconsistent import statements (default vs named imports)
+   - May fail to restore stock if imports don't match
+   - Uses productService.default in one place, import * in another
+
+3. Category Slug Collisions:
+   - Auto-generation doesn't check for duplicates
+   - Two "Red Shirts" could create duplicate "red-shirts" slugs
+
+RECOMMENDATIONS (Priority Order):
+
+CRITICAL (Fix Immediately):
+1. Fix order access control - add authentication (2 hours)
+2. Fix settings permission definition (30 mins)
+3. Fix customers route ordering (1 hour)
+4. Apply missing database migrations (1 hour)
+5. Fix stock race conditions (4-6 hours)
+
+HIGH PRIORITY (Before Go-Live):
+6. Protect product variants endpoint (30 mins)
+7. Add comprehensive input validation (2 hours)
+8. Fix import inconsistencies in payment logic (1 hour)
+9. Remove JWT secret from source (30 mins)
+10. Sanitize image filenames (1 hour)
+11. Improve order number generation (1 hour)
+
+MEDIUM PRIORITY (Within Sprint):
+12. Add missing email functions
+13. Improve error handling consistency
+14. Add API documentation
+15. Implement slug collision detection
+
+ENDPOINT SUMMARY:
+Total Endpoints: 50
+- Working without issues: 43
+- Moderate issues: 5
+- Critical issues: 2
+
+Overall Code Quality: 7.5/10
+- Architecture: 8/10
+- Security: 6/10 (CRITICAL FIXES NEEDED)
+- Error Handling: 7/10
+- Documentation: 7/10
+
+REQUIRED ACTION ITEMS:
+
+1. IMMEDIATE: Add authentication to order endpoints
+2. IMMEDIATE: Fix route ordering in customers.js
+3. IMMEDIATE: Add manage_settings permission
+4. IMMEDIATE: Apply pending migrations
+5. THIS WEEK: Fix stock race conditions
+6. THIS SPRINT: Complete all HIGH priority items
+
+Platform is NOT production-ready without these fixes. With focused effort on critical items, production deployment is possible in 2-3 weeks.

@@ -24,6 +24,85 @@ export function generateSlug(name) {
 }
 
 /**
+ * Generate unique slug by checking for collisions and appending counter if needed
+ * This prevents slug collisions like "red-shirt" and "red-shirt-2"
+ * @param {string} name - Category name
+ * @param {string} excludeId - Category ID to exclude from collision check (for updates)
+ * @returns {Promise<string>} Unique URL-friendly slug
+ */
+export async function generateUniqueSlug(name, excludeId = null) {
+  try {
+    const baseSlug = generateSlug(name);
+    if (!baseSlug) {
+      throw new AppError('Category name must generate a valid slug');
+    }
+
+    // Check if base slug already exists
+    let query = supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', baseSlug);
+
+    // If updating, exclude the current category from the collision check
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
+
+    const { data: existing, error } = await query.limit(1);
+
+    if (error) {
+      console.error('Error checking slug uniqueness:', error);
+      throw new AppError('Failed to verify slug uniqueness', 500);
+    }
+
+    // If no collision, return base slug
+    if (!existing || existing.length === 0) {
+      return baseSlug;
+    }
+
+    // If collision exists, try appending incrementing numbers
+    let counter = 2;
+    const maxAttempts = 100;
+
+    while (counter <= maxAttempts) {
+      const candidateSlug = `${baseSlug}-${counter}`;
+
+      let collisionQuery = supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', candidateSlug);
+
+      if (excludeId) {
+        collisionQuery = collisionQuery.neq('id', excludeId);
+      }
+
+      const { data: collision, error: collisionError } = await collisionQuery.limit(1);
+
+      if (collisionError) {
+        console.error(`Error checking slug ${candidateSlug}:`, collisionError);
+        throw new AppError('Failed to verify slug uniqueness', 500);
+      }
+
+      // Found unique slug
+      if (!collision || collision.length === 0) {
+        return candidateSlug;
+      }
+
+      counter++;
+    }
+
+    throw new AppError(
+      `Unable to generate unique slug for "${name}". Too many collisions (>${maxAttempts}).`,
+      409
+    );
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    console.error('Error in generateUniqueSlug:', error);
+    throw new AppError('Failed to generate unique slug', 500);
+  }
+}
+
+/**
  * Validate category name
  * @param {string} name - Category name
  * @throws {AppError}
@@ -226,8 +305,25 @@ export async function createCategory(data) {
     const name = validateCategoryName(data.name);
 
     // Generate or validate slug
-    let slug = data.slug || generateSlug(name);
-    slug = validateCategorySlug(slug);
+    // If slug provided, validate it; otherwise generate unique slug
+    let slug;
+    if (data.slug) {
+      slug = validateCategorySlug(data.slug);
+
+      // Check uniqueness of provided slug
+      const { data: existing } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', slug)
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        throw new AppError(`Category with slug "${slug}" already exists`, 409);
+      }
+    } else {
+      // Auto-generate unique slug from name
+      slug = await generateUniqueSlug(name);
+    }
 
     // Prepare insert data
     const insertData = {
@@ -243,18 +339,18 @@ export async function createCategory(data) {
     if (data.description) insertData.description = String(data.description).substring(0, 1000);
     if (data.image_url) insertData.image_url = String(data.image_url);
 
-    // Insert - Rely on database UNIQUE constraint for slug validation
-    // This avoids race condition that could occur with check-then-insert pattern
+    // Insert
     const { data: created, error } = await supabase
       .from('categories')
       .insert([insertData])
       .select()
       .single();
 
-    // Handle database-level constraint violations
+    // Handle database-level errors
     if (error) {
       if (error.code === '23505' || error.message?.includes('duplicate key')) {
         // Unique constraint violation (PostgreSQL error code 23505)
+        // This should not happen now with generateUniqueSlug, but keep as safety check
         throw new AppError(`Category with slug "${slug}" already exists`, 409);
       }
       console.error('Error creating category:', error);
@@ -298,6 +394,11 @@ export async function updateCategory(id, updates) {
 
     if (updates.name !== undefined) {
       updateData.name = validateCategoryName(updates.name);
+
+      // If name changed but slug not provided, auto-generate unique slug from new name
+      if (updates.slug === undefined) {
+        updateData.slug = await generateUniqueSlug(updateData.name, id);
+      }
     }
 
     if (updates.slug !== undefined) {
@@ -607,6 +708,7 @@ export async function updateCategoryOrder(categoryIds) {
 
 export default {
   generateSlug,
+  generateUniqueSlug,
   getAllCategories,
   getCategoryById,
   getCategoryBySlug,
