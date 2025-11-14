@@ -28,22 +28,36 @@ function handleAppErrors(req, res) {
 
 /**
  * GET /api/categories
- * Get all active categories with product counts
+ * Get all active categories with product counts and pagination
  * Public endpoint - no authentication required
+ * Query params:
+ *   - include_archived: Set to 'true' to include archived categories
+ *   - sort_by: Sort field ('name', 'sort_order', 'created_at')
+ *   - order: Sort direction ('asc', 'desc')
+ *   - limit: Max results per page (default: 100, max: 1000)
+ *   - offset: Number of results to skip (default: 0)
  */
 router.get('/', asyncHandler(async (req, res) => {
-  const { include_archived, sort_by, order } = req.query;
+  const { include_archived, sort_by, order, limit, offset } = req.query;
 
-  const categories = await categoryService.getAllCategories({
+  const result = await categoryService.getAllCategories({
     includeArchived: include_archived === 'true',
     sortBy: sort_by || 'sort_order',
-    order: order || 'asc'
+    order: order || 'asc',
+    limit: limit ? parseInt(limit) : undefined,
+    offset: offset ? parseInt(offset) : undefined
   });
 
   res.json({
     success: true,
-    data: categories,
-    count: categories.length
+    data: result.data,
+    pagination: {
+      total: result.total,
+      limit: result.limit,
+      offset: result.offset,
+      page: result.page,
+      pages: result.pages
+    }
   });
 }));
 
@@ -246,6 +260,51 @@ router.put(
 );
 
 /**
+ * PATCH /api/categories/reorder
+ * Update category sort order
+ * Admin endpoint - requires JWT and admin permission
+ * Body: { ids: ['category-id-1', 'category-id-2', ...] }
+ * NOTE: This must be defined BEFORE the /:id routes to prevent route matching conflicts
+ */
+router.patch(
+  '/reorder',
+  verifyJWT,
+  requireAdmin,
+  requirePermission('manage_categories'),
+  [
+    body('ids')
+      .isArray()
+      .withMessage('ids must be an array of category IDs'),
+    body('ids.*')
+      .isUUID()
+      .withMessage('Each id must be a valid UUID')
+  ],
+  asyncHandler(async (req, res) => {
+    // Check validation errors
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: validationErrors.array()
+      });
+    }
+
+    const { ids } = req.body;
+
+    console.log(`🔄 Reordering ${ids.length} categories`);
+
+    const result = await categoryService.updateCategoryOrder(ids);
+
+    res.json({
+      success: true,
+      message: 'Category order updated successfully',
+      data: result
+    });
+  })
+);
+
+/**
  * PATCH /api/categories/:id/archive
  * Archive category (soft delete)
  * Admin endpoint - requires JWT and admin permission
@@ -281,6 +340,7 @@ router.patch(
  * Query params:
  *   - reassign_to: Category ID to reassign products to
  *   - delete_orphans: If true, delete products with no new category
+ * Validation: Either reassign_to OR delete_orphans must be specified if products exist, but NOT both
  */
 router.delete(
   '/:id',
@@ -292,6 +352,16 @@ router.delete(
     const { reassign_to, delete_orphans } = req.query;
 
     console.log(`🗑️ Deleting category: ${id}`);
+
+    // Validate that both reassign_to and delete_orphans are not specified together
+    if (reassign_to && delete_orphans === 'true') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid delete parameters',
+        message: 'Cannot specify both reassign_to and delete_orphans. Choose one action: reassign products OR delete them.',
+        details: 'reassign_to and delete_orphans are mutually exclusive'
+      });
+    }
 
     // Get category info for response
     const category = await categoryService.getCategoryById(id);
@@ -316,50 +386,6 @@ router.delete(
     res.json({
       success: true,
       message: 'Category deleted successfully',
-      data: result
-    });
-  })
-);
-
-/**
- * PATCH /api/categories/reorder
- * Update category sort order
- * Admin endpoint - requires JWT and admin permission
- * Body: { ids: ['category-id-1', 'category-id-2', ...] }
- */
-router.patch(
-  '/reorder',
-  verifyJWT,
-  requireAdmin,
-  requirePermission('manage_categories'),
-  [
-    body('ids')
-      .isArray()
-      .withMessage('ids must be an array of category IDs'),
-    body('ids.*')
-      .isUUID()
-      .withMessage('Each id must be a valid UUID')
-  ],
-  asyncHandler(async (req, res) => {
-    // Check validation errors
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation failed',
-        details: validationErrors.array()
-      });
-    }
-
-    const { ids } = req.body;
-
-    console.log(`🔄 Reordering ${ids.length} categories`);
-
-    const result = await categoryService.updateCategoryOrder(ids);
-
-    res.json({
-      success: true,
-      message: 'Category order updated successfully',
       data: result
     });
   })

@@ -65,24 +65,53 @@ function validateCategorySlug(slug) {
 }
 
 /**
- * Get all active categories with optional filters
+ * Transform category data - normalize product count from array to number
+ * Supabase aggregations return arrays, but we want simple number format
+ * @param {object|array} data - Category data from database
+ * @returns {object|array} Transformed data with product_count as number
+ */
+function normalizeProductCount(data) {
+  if (Array.isArray(data)) {
+    return data.map(item => normalizeProductCount(item));
+  }
+
+  if (!data || typeof data !== 'object') return data;
+
+  return {
+    ...data,
+    product_count: data.product_count && Array.isArray(data.product_count)
+      ? (data.product_count[0]?.count || 0)
+      : (data.product_count || 0)
+  };
+}
+
+/**
+ * Get all active categories with optional filters and pagination
  * @param {object} options - Query options
  * @param {boolean} options.includeArchived - Include archived categories
  * @param {string} options.sortBy - Sort field: 'name', 'sort_order', 'created_at'
  * @param {string} options.order - Sort direction: 'asc', 'desc'
- * @returns {Promise<array>} Categories array
+ * @param {number} options.limit - Max number of results (default: 100, max: 1000)
+ * @param {number} options.offset - Number of results to skip (default: 0)
+ * @returns {Promise<object>} Object with data array, total count, and pagination info
  */
 export async function getAllCategories(options = {}) {
   try {
     const {
       includeArchived = false,
       sortBy = 'sort_order',
-      order = 'asc'
+      order = 'asc',
+      limit = 100,
+      offset = 0
     } = options;
+
+    // Validate and sanitize pagination params
+    const validLimit = Math.min(Math.max(parseInt(limit) || 100, 1), 1000);
+    const validOffset = Math.max(parseInt(offset) || 0, 0);
 
     let query = supabase
       .from('categories')
-      .select('*, product_count:products(count)');
+      .select('*, product_count:products(count)', { count: 'exact' });
 
     // Filter active/inactive
     if (!includeArchived) {
@@ -94,16 +123,29 @@ export async function getAllCategories(options = {}) {
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'sort_order';
     const sortOrder = order.toLowerCase() === 'desc' ? 'desc' : 'asc';
 
-    const { data, error } = await query.order(sortField, { ascending: sortOrder === 'asc' });
+    // Apply pagination and sorting
+    const { data, error, count } = await query
+      .order(sortField, { ascending: sortOrder === 'asc' })
+      .range(validOffset, validOffset + validLimit - 1);
 
     if (error) {
       console.error('Error fetching categories:', error);
       throw new AppError('Failed to fetch categories', 500);
     }
 
-    return data || [];
+    // Normalize product counts from array to number format
+    const normalizedData = normalizeProductCount(data) || [];
+
+    return {
+      data: normalizedData,
+      total: count || 0,
+      limit: validLimit,
+      offset: validOffset,
+      page: Math.floor(validOffset / validLimit) + 1,
+      pages: Math.ceil((count || 0) / validLimit)
+    };
   } catch (error) {
-    if (error instanceof AppError || error instanceof AppError) throw error;
+    if (error instanceof AppError) throw error;
     console.error('Error in getAllCategories:', error);
     throw new AppError('Failed to fetch categories', 500);
   }
@@ -130,7 +172,8 @@ export async function getCategoryById(id) {
       throw new NotFoundError('Category');
     }
 
-    return data;
+    // Normalize product count from array to number format
+    return normalizeProductCount(data);
   } catch (error) {
     if (error instanceof NotFoundError || error instanceof AppError) throw error;
     console.error('Error fetching category by ID:', error);
@@ -186,52 +229,48 @@ export async function createCategory(data) {
     let slug = data.slug || generateSlug(name);
     slug = validateCategorySlug(slug);
 
-    // Check for slug uniqueness
-    const { data: existing, error: checkError } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('slug', slug)
-      .limit(1);
-
-    if (checkError) {
-      console.error('Error checking slug uniqueness:', checkError);
-      throw new AppError('Failed to validate slug uniqueness', 500);
-    }
-
-    if (existing && existing.length > 0) {
-      throw new AppError(`Category with slug "${slug}" already exists`);
-    }
-
     // Prepare insert data
     const insertData = {
       name,
       slug,
       is_active: true,
       sort_order: data.sort_order || 0,
-      created_at: new Date(),
-      updated_at: new Date()
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
     // Optional fields
     if (data.description) insertData.description = String(data.description).substring(0, 1000);
     if (data.image_url) insertData.image_url = String(data.image_url);
 
-    // Insert
+    // Insert - Rely on database UNIQUE constraint for slug validation
+    // This avoids race condition that could occur with check-then-insert pattern
     const { data: created, error } = await supabase
       .from('categories')
       .insert([insertData])
       .select()
       .single();
 
-    if (error || !created) {
+    // Handle database-level constraint violations
+    if (error) {
+      if (error.code === '23505' || error.message?.includes('duplicate key')) {
+        // Unique constraint violation (PostgreSQL error code 23505)
+        throw new AppError(`Category with slug "${slug}" already exists`, 409);
+      }
       console.error('Error creating category:', error);
       throw new AppError('Failed to create category', 500);
     }
 
+    if (!created) {
+      throw new AppError('Failed to create category', 500);
+    }
+
     console.log(`✓ Created category: ${created.name} (${created.slug})`);
-    return created;
+
+    // Normalize product count in response
+    return normalizeProductCount(created);
   } catch (error) {
-    if (error instanceof AppError || error instanceof AppError) throw error;
+    if (error instanceof AppError) throw error;
     console.error('Error in createCategory:', error);
     throw new AppError('Failed to create category', 500);
   }
@@ -388,7 +427,7 @@ export async function getProductsByCategory(categoryId, options = {}) {
       total: count || 0
     };
   } catch (error) {
-    if (error instanceof AppError || error instanceof AppError) throw error;
+    if (error instanceof AppError) throw error;
     console.error('Error in getProductsByCategory:', error);
     throw new AppError('Failed to fetch products', 500);
   }
@@ -396,6 +435,10 @@ export async function getProductsByCategory(categoryId, options = {}) {
 
 /**
  * Delete category and optionally reassign products to another category
+ * NOTE: Supabase JS client doesn't support ACID transactions natively.
+ * This function performs operations sequentially with error handling.
+ * If reassignment or deletion fails, the category will not be deleted.
+ *
  * @param {string} id - Category ID to delete
  * @param {object} options - Delete options
  * @param {string} options.reassignToCategoryId - Category ID to reassign products to
@@ -432,6 +475,9 @@ export async function deleteCategory(id, options = {}) {
       );
     }
 
+    // Perform product handling operations BEFORE deleting the category
+    // This ensures that if product operations fail, the category won't be deleted
+
     // Reassign products if specified
     if (options.reassignToCategoryId && productCount > 0) {
       // Verify target category exists
@@ -442,7 +488,10 @@ export async function deleteCategory(id, options = {}) {
 
       const { error: updateError } = await supabase
         .from('products')
-        .update({ category_id: options.reassignToCategoryId, updated_at: new Date() })
+        .update({
+          category_id: options.reassignToCategoryId,
+          updated_at: new Date().toISOString()
+        })
         .eq('category_id', id);
 
       if (updateError) {
@@ -455,27 +504,27 @@ export async function deleteCategory(id, options = {}) {
 
     // Delete products if requested and no reassignment happened
     if (options.deleteOrphans && productCount > 0 && !options.reassignToCategoryId) {
-      const { error: deleteError } = await supabase
+      const { error: deleteProductsError } = await supabase
         .from('products')
         .delete()
         .eq('category_id', id);
 
-      if (deleteError) {
-        console.error('Error deleting products:', deleteError);
+      if (deleteProductsError) {
+        console.error('Error deleting products:', deleteProductsError);
         throw new AppError('Failed to delete products', 500);
       }
 
       console.log(`✓ Deleted ${productCount} products`);
     }
 
-    // Delete category
-    const { error: deleteError } = await supabase
+    // Finally, delete the category (only if product operations succeeded)
+    const { error: deleteCategoryError } = await supabase
       .from('categories')
       .delete()
       .eq('id', id);
 
-    if (deleteError) {
-      console.error('Error deleting category:', deleteError);
+    if (deleteCategoryError) {
+      console.error('Error deleting category:', deleteCategoryError);
       throw new AppError('Failed to delete category', 500);
     }
 
@@ -488,7 +537,7 @@ export async function deleteCategory(id, options = {}) {
       action_taken: options.reassignToCategoryId ? 'reassigned' : (options.deleteOrphans ? 'deleted' : 'none')
     };
   } catch (error) {
-    if (error instanceof AppError || error instanceof NotFoundError || error instanceof AppError) throw error;
+    if (error instanceof AppError || error instanceof NotFoundError) throw error;
     console.error('Error in deleteCategory:', error);
     throw new AppError('Failed to delete category', 500);
   }
@@ -505,29 +554,52 @@ export async function updateCategoryOrder(categoryIds) {
       throw new AppError('Category IDs array is required');
     }
 
-    // Update sort_order for each category
-    const updates = categoryIds.map((id, index) => ({
-      id,
-      sort_order: index,
-      updated_at: new Date()
-    }));
+    // Create a mapping of category IDs to their new sort order
+    const categoryOrderMap = Object.fromEntries(
+      categoryIds.map((id, index) => [id, index])
+    );
 
-    for (const update of updates) {
-      const { error } = await supabase
-        .from('categories')
-        .update({ sort_order: update.sort_order, updated_at: update.updated_at })
-        .eq('id', update.id);
+    // Get all categories to update
+    const { data: categoriesToUpdate, error: fetchError } = await supabase
+      .from('categories')
+      .select('id')
+      .in('id', categoryIds);
 
-      if (error) {
-        console.error(`Error updating sort order for category ${update.id}:`, error);
-        throw new AppError('Failed to update category order', 500);
-      }
+    if (fetchError) {
+      console.error('Error fetching categories for reordering:', fetchError);
+      throw new AppError('Failed to fetch categories for reordering', 500);
     }
 
-    console.log(`✓ Updated sort order for ${updates.length} categories`);
-    return { success: true, categories_updated: updates.length };
+    if (!categoriesToUpdate || categoriesToUpdate.length === 0) {
+      throw new AppError('No categories found to update', 404);
+    }
+
+    // Batch update all categories in a single operation
+    // Note: Since Supabase doesn't support true batch updates with conditional values,
+    // we perform individual updates but in parallel to minimize latency
+    const updatePromises = categoryIds.map(id =>
+      supabase
+        .from('categories')
+        .update({
+          sort_order: categoryOrderMap[id],
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+    );
+
+    const updateResults = await Promise.all(updatePromises);
+
+    // Check for any errors in the batch update
+    const failedUpdates = updateResults.filter(result => result.error);
+    if (failedUpdates.length > 0) {
+      console.error('Errors during category reordering:', failedUpdates);
+      throw new AppError('Failed to update one or more categories', 500);
+    }
+
+    console.log(`✓ Updated sort order for ${categoryIds.length} categories`);
+    return { success: true, categories_updated: categoryIds.length };
   } catch (error) {
-    if (error instanceof AppError || error instanceof AppError) throw error;
+    if (error instanceof AppError) throw error;
     console.error('Error in updateCategoryOrder:', error);
     throw new AppError('Failed to update category order', 500);
   }

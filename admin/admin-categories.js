@@ -54,7 +54,8 @@ async function loadCategories() {
   try {
     const token = localStorage.getItem('fjl_admin_token');
 
-    const response = await fetch(`${API_BASE}/categories?include_archived=true`, {
+    // Request all categories with pagination (limit 1000 to get all in one request)
+    const response = await fetch(`${API_BASE}/categories?include_archived=true&limit=1000`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json'
@@ -68,6 +69,7 @@ async function loadCategories() {
       return;
     }
 
+    // Handle new pagination response format
     allCategories = data.data || [];
     renderCategories();
   } catch (error) {
@@ -259,7 +261,7 @@ function renderCategories() {
           <div class="category-name">${escapeHtml(category.name)}</div>
           <div class="category-slug">/${category.slug}</div>
           <div class="category-meta">
-            <span>${category.product_count?.[0]?.count || 0} product(s)</span>
+            <span>${category.product_count || 0} product(s)</span>
             <span>${category.is_active ? '✓ Active' : '✗ Inactive'}</span>
           </div>
         </div>
@@ -353,7 +355,7 @@ function openDeleteModal(id) {
     return;
   }
 
-  const productCount = category.product_count?.[0]?.count || 0;
+  const productCount = category.product_count || 0;
   const warning = document.getElementById('deleteWarning');
 
   if (productCount > 0) {
