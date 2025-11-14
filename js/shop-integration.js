@@ -92,6 +92,7 @@
           sku: product.sku,
           description: product.description,
           category: product.categories?.name,
+          category_slug: product.categories?.slug,
           variants: product.variants || []
         }));
 
@@ -177,6 +178,7 @@
       sku: product.sku || '',
       description: product.description || '',
       category: product.category || '',
+      category_slug: product.category_slug || '',
       variants: Array.isArray(product.variants) ? product.variants : []
     };
   }
