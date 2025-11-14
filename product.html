@@ -1036,15 +1036,7 @@
                             <span id="toggleIcon">▼</span>
                         </div>
                         <div class="description-content">
-                            <ul class="description-list">
-                                <li>Pure polyamide for lightweight stretch and durability</li>
-                                <li>Custom oversized silhouette with relaxed fit</li>
-                                <li>Ribbed crew neck with tonal embroidery</li>
-                                <li>Matching zip-up jacket and sweatpants set</li>
-                                <li>Elastic waistband and cuffs for all-day comfort</li>
-                                <li>Minimal FTG logo detailing on chest and thigh</li>
-                                <li>250 GSM</li>
-                            </ul>
+                            <ul class="description-list" id="productDescriptionList"></ul>
 
                             <!-- Model Details -->
                             <div class="model-details">
@@ -1434,9 +1426,21 @@
             }
 
             // Update product description if available
-            const descriptionElement = document.querySelector('.product-description');
-            if (descriptionElement && product.description) {
-                descriptionElement.textContent = product.description;
+            const descriptionListElement = document.querySelector('#productDescriptionList');
+            if (descriptionListElement) {
+                if (product.description) {
+                    // Split description by newlines and create list items
+                    const descriptionItems = product.description
+                        .split('\n')
+                        .map(item => item.trim())
+                        .filter(item => item.length > 0)
+                        .map(item => `<li>${item}</li>`)
+                        .join('');
+                    descriptionListElement.innerHTML = descriptionItems;
+                } else {
+                    // Show a placeholder message if no description is available
+                    descriptionListElement.innerHTML = '<li><em>No description provided</em></li>';
+                }
             }
 
             // If product doesn't have sizeChart, try to get it from the stored products
