@@ -1,0 +1,67 @@
+services:
+  # Backend API Service
+  - type: web
+    name: fjl-backend
+    runtime: node
+    region: ohio
+    plan: starter
+
+    # Source
+    repo: https://github.com/your-username/fjl  # Update with your repo URL
+    branch: main
+
+    # Build Configuration
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+
+    # Environment Variables (set in Render dashboard)
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+      - key: SUPABASE_URL
+        sync: false  # Set in Render dashboard
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRY
+        value: 24h
+      - key: ADMIN_JWT_EXPIRY
+        value: 7d
+      - key: RESEND_API_KEY
+        sync: false
+      - key: STORE_NAME
+        value: Famous Jelly Luxe
+      - key: STORE_EMAIL
+        value: hello@fjlclothing.shop
+      - key: ALLOWED_ORIGINS
+        value: https://fjl.com,https://www.fjl.com  # Update with your domain
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 15000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+
+    # Health Check
+    healthCheckPath: /health
+
+    # Logging
+    docker:
+      preDeployCommand: cd backend && npm run migrate || true
+
+  # Frontend Static Site
+  - type: static_site
+    name: fjl-frontend
+    staticPublishPath: dist
+    buildCommand: npm install && npm run build
+    routes:
+      - path: /*
+        destination: /index.html
+
+    # Environment Variables for Frontend
+    envVars:
+      - key: VITE_API_URL
+        value: https://fjl-backend.onrender.com/api  # Update with your backend URL
