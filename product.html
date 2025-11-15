@@ -1256,9 +1256,16 @@
         }
 
         // Load product based on URL parameter
-        function loadProduct() {
+        async function loadProduct() {
             const params = new URLSearchParams(window.location.search);
-            const productId = params.get('id') || 'ftg-tracksuit';
+            const productId = params.get('id');
+
+            // If no product ID provided, redirect to shop
+            if (!productId) {
+                console.warn('No product ID provided in URL. Redirecting to shop...');
+                window.location.href = 'shop.html';
+                return;
+            }
 
             // ALWAYS load from localStorage first (live data from admin/Supabase)
             let product = null;
@@ -1273,11 +1280,36 @@
                 }
             }
 
-            // Only fallback to default database if product truly doesn't exist in localStorage
-            // This preserves the full product data (sizeChart, etc.) from defaults if localStorage is empty
+            // If not found in localStorage and localStorage is empty, attempt to fetch from API
+            // This ensures we get fresh data after cache clear instead of showing defaults
+            if (!product && !storedProducts && typeof initializeShopProducts === 'function') {
+                console.log('localStorage is empty. Attempting to fetch products from API...');
+                try {
+                    await initializeShopProducts(); // Properly wait for API fetch to complete
+                    // After API fetch, check localStorage again
+                    const newStoredProducts = localStorage.getItem('fjl_products');
+                    if (newStoredProducts) {
+                        const allProducts = JSON.parse(newStoredProducts);
+                        product = allProducts.find(p => p.id === productId);
+                        console.log('✓ Reloaded product from API:', productId);
+                    }
+                } catch (e) {
+                    console.warn('Failed to fetch products from API:', e);
+                }
+            }
+
+            // Fallback to default database ONLY if still not found
+            // Do NOT default to another product - only use defaults if the requested product exists
             if (!product) {
                 const defaultDB = getDefaultProductDatabase();
-                product = defaultDB[productId] || defaultDB['ftg-tracksuit'];
+                product = defaultDB[productId];  // Removed the || defaultDB['ftg-tracksuit'] fallback
+            }
+
+            // If product still not found, immediately redirect to shop (no error message)
+            if (!product) {
+                console.error(`Product "${productId}" not found. Redirecting to shop...`);
+                window.location.href = 'shop.html';
+                return;
             }
 
             // CRITICAL: If product was loaded from defaults, ensure we get the REAL inventory from localStorage
@@ -1288,9 +1320,25 @@
                     const liveProduct = allProducts.find(p => p.id === productId);
                     if (liveProduct) {
                         // Use live data from localStorage, including inventory and sizes
-                        if (liveProduct.sizeInventory) {
+                        // IMPORTANT: Recalculate sizeInventory from variants to avoid stale cache
+                        // This ensures size buttons reflect actual stock across all colors
+                        if (liveProduct.variants && Array.isArray(liveProduct.variants)) {
+                            const inventory = {};
+                            liveProduct.variants.forEach(variant => {
+                                const key = variant.size;
+                                if (!inventory[key]) {
+                                    inventory[key] = 0;
+                                }
+                                // Sum stock across all colors for this size
+                                inventory[key] += (variant.stock_quantity || 0);
+                            });
+                            product.sizeInventory = inventory;
+                            console.log('✓ Recalculated sizeInventory from variants:', inventory);
+                        } else if (liveProduct.sizeInventory) {
+                            // Fallback to cached sizeInventory if variants not available
                             product.sizeInventory = liveProduct.sizeInventory;
                         }
+
                         if (liveProduct.sizes && Array.isArray(liveProduct.sizes)) {
                             product.sizes = liveProduct.sizes;
                         }
@@ -1405,6 +1453,11 @@
             window.currentProduct = product; // Store full product object for inventory checks
 
             // Update stock status based on inventory
+            // CRITICAL: This sizeInventory sum is used by:
+            // 1. cart.addItem() via adminDataService.checkInventory()
+            // 2. Size button enable/disable logic below
+            // 3. Real-time stock updater (product-stock-updates.js)
+            // All three use this same calculation method for consistency
             const sizeInventory = product.sizeInventory || {};
             const totalStock = Object.values(sizeInventory).reduce((sum, stock) => sum + stock, 0);
             // Fallback to checking overall total_stock or inStock flag if sizeInventory is empty
@@ -1629,8 +1682,8 @@
         }
 
         // Call on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProduct();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadProduct();
             updateCartBadge();
 
             // Load related products after a short delay to ensure product data is loaded
@@ -1665,7 +1718,7 @@
 
                     if (updatedProduct) {
                         // Reload the product details
-                        loadProduct();
+                        await loadProduct();
 
                         // Reload related products
                         const currentCategory = updatedProduct.category_slug || null;
@@ -1955,10 +2008,9 @@
                     const success = cart.addItem(item);
                     if (success) {
                         addedCount++;
-                        // Deduct inventory when item is successfully added
-                        if (typeof adminDataService !== 'undefined') {
-                            adminDataService.deductInventory(window.currentProductId, size, 1, color);
-                        }
+                        // NOTE: Stock is NOT deducted here
+                        // Stock will only be deducted when admin verifies payment
+                        // This prevents false "out of stock" messages during checkout
                     }
                 }
 
@@ -2221,5 +2273,7 @@
         <script src="js/api-integration.js"></script>
         <script src="js/shop-integration.js"></script>
         <script src="js/newsletter-integration.js"></script>
+        <!-- Real-time Stock Updates via SSE -->
+        <script src="js/product-stock-updates.js"></script>
 </body>
 </html>
