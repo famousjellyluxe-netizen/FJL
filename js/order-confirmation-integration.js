@@ -6,6 +6,9 @@
 (function() {
   'use strict';
 
+  // Get reference to global apiManager from api-integration.js
+  const apiManager = window.apiManager;
+
   /**
    * Get order from API or localStorage
    */
