@@ -15,6 +15,34 @@ class ProductStockUpdater {
     this.currentProductId = null;
     this.updateCallbacks = [];
     this.initialized = false;
+    this.dataSyncBusUnsubscribe = null;
+
+    // Listen for storage events from other tabs
+    this._setupStorageListener();
+  }
+
+  /**
+   * Listen for storage events from other pages/tabs
+   * @private
+   */
+  _setupStorageListener() {
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'fjl_products' && event.newValue) {
+        try {
+          const products = JSON.parse(event.newValue);
+          const updatedProduct = products.find(p => p.id === this.currentProductId);
+          if (updatedProduct && window.currentProduct) {
+            console.log(`📡 Storage event: Product ${this.currentProductId} updated from another tab`);
+            // Merge the updated product data
+            Object.assign(window.currentProduct, updatedProduct);
+            // Refresh UI
+            this.updateProductUI();
+          }
+        } catch (error) {
+          console.error('Error parsing products from storage event:', error);
+        }
+      }
+    });
   }
 
   /**
@@ -30,7 +58,7 @@ class ProductStockUpdater {
       // Using dynamic import for better code splitting
       const { StockUpdateClient } = await import('./lib/StockUpdateClient.js');
 
-      this.stockClient = new StockUpdateClient('/api');
+      this.stockClient = new StockUpdateClient();
 
       // Register callback for stock updates
       this.stockClient.onStockUpdate((data) => {
@@ -44,6 +72,20 @@ class ProductStockUpdater {
 
       // Subscribe to current product
       await this.stockClient.subscribe([this.currentProductId]);
+
+      // Also subscribe to DataSyncBus if available (for cross-tab sync)
+      if (window.dataSyncBus) {
+        this.dataSyncBusUnsubscribe = window.dataSyncBus.onProductUpdate(
+          this.currentProductId,
+          (data) => {
+            console.log(`📡 DataSyncBus update for product ${this.currentProductId}:`, data);
+            // Only update if not coming from same source
+            if (data && data.productId === this.currentProductId) {
+              this._syncToLocalStorage(data);
+            }
+          }
+        );
+      }
 
       this.initialized = true;
       console.log(`✓ Stock updater initialized for product: ${this.currentProductId}`);
@@ -65,19 +107,37 @@ class ProductStockUpdater {
       if (window.currentProduct.variants) {
         const variant = window.currentProduct.variants.find(v => v.id === data.variantId);
         if (variant) {
+          const oldQuantity = variant.stock_quantity;
           variant.stock_quantity = data.newQuantity;
+          console.log(`  ✓ Updated variant ${data.variantId}: ${oldQuantity} → ${data.newQuantity}`);
         }
       }
 
-      // Update size inventory if available
-      if (data.size && window.currentProduct.sizeInventory) {
-        window.currentProduct.sizeInventory[data.size] = data.newQuantity;
+      // CRITICAL FIX: Recalculate sizeInventory from ALL variants
+      // This ensures stale cache is fixed by aggregating correct values
+      if (window.currentProduct.variants && Array.isArray(window.currentProduct.variants)) {
+        const inventory = {};
+        window.currentProduct.variants.forEach(v => {
+          const sizeKey = v.size;
+          if (!inventory[sizeKey]) {
+            inventory[sizeKey] = 0;
+          }
+          // Sum stock across all colors for this size
+          inventory[sizeKey] += (v.stock_quantity || 0);
+        });
+        window.currentProduct.sizeInventory = inventory;
+        console.log(`  ✓ Recalculated sizeInventory:`, inventory);
       }
 
-      // Update total stock
-      if (window.currentProduct.total_stock !== undefined) {
-        window.currentProduct.total_stock = data.newQuantity;
+      // Recalculate total stock from all variants
+      if (window.currentProduct.variants && Array.isArray(window.currentProduct.variants)) {
+        const totalStock = window.currentProduct.variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+        window.currentProduct.total_stock = totalStock;
+        console.log(`  ✓ Recalculated total_stock: ${totalStock} units`);
       }
+
+      // CRITICAL: Sync to localStorage so other pages get notified
+      this._syncToLocalStorage(data);
 
       // Refresh UI
       this.updateProductUI();
@@ -86,6 +146,53 @@ class ProductStockUpdater {
       window.dispatchEvent(new CustomEvent('productStockUpdated', {
         detail: data
       }));
+    }
+  }
+
+  /**
+   * Sync product stock update to localStorage and notify other pages
+   * @private
+   */
+  _syncToLocalStorage(data) {
+    try {
+      // Update the products list in localStorage
+      const products = JSON.parse(localStorage.getItem('fjl_products') || '[]');
+      const productIndex = products.findIndex(p => p.id === this.currentProductId);
+
+      if (productIndex >= 0) {
+        const product = products[productIndex];
+
+        // Update variants with new stock
+        if (product.variants && Array.isArray(product.variants)) {
+          const variant = product.variants.find(v => v.id === data.variantId);
+          if (variant) {
+            variant.stock_quantity = data.newQuantity;
+          }
+        }
+
+        // Recalculate total_stock
+        if (product.variants && Array.isArray(product.variants)) {
+          product.total_stock = product.variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+        }
+
+        // Save back to localStorage
+        localStorage.setItem('fjl_products', JSON.stringify(products));
+
+        console.log(`✅ Updated localStorage for product ${this.currentProductId}`);
+
+        // Dispatch storage event to notify other tabs
+        // Create a synthetic storage event for same-origin communication
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'fjl_products',
+          newValue: JSON.stringify(products),
+          oldValue: null,
+          storageArea: localStorage
+        }));
+
+        console.log(`📡 Dispatched storage event for product ${this.currentProductId}`);
+      }
+    } catch (error) {
+      console.error('Error syncing to localStorage:', error);
     }
   }
 
@@ -189,12 +296,18 @@ class ProductStockUpdater {
   }
 
   /**
-   * Disconnect from SSE
+   * Disconnect from SSE and cleanup
    */
   disconnect() {
     if (this.stockClient) {
       this.stockClient.disconnect();
       console.log('✓ Stock updater disconnected');
+    }
+
+    // Unsubscribe from DataSyncBus
+    if (this.dataSyncBusUnsubscribe) {
+      this.dataSyncBusUnsubscribe();
+      this.dataSyncBusUnsubscribe = null;
     }
   }
 

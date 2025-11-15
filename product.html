@@ -2230,7 +2230,37 @@
         <script src="js/api-integration.js"></script>
         <script src="js/shop-integration.js"></script>
         <script src="js/newsletter-integration.js"></script>
+        <!-- Global Data Sync Bus (must load before stock updates) -->
+        <script type="module">
+          import { DataSyncBus } from './frontend/js/lib/DataSyncBus.js';
+        </script>
         <!-- Real-time Stock Updates via SSE -->
         <script src="js/product-stock-updates.js"></script>
+        <!-- SSE Status Indicator -->
+        <script>
+          (function() {
+            function addStatusIndicator() {
+              const header = document.querySelector('nav');
+              if (!header) return;
+              const statusDiv = document.createElement('div');
+              statusDiv.id = 'sseStatusIndicator';
+              statusDiv.style.cssText = 'position: fixed; top: 70px; right: 20px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; z-index: 999; display: none;';
+              header.parentElement.insertBefore(statusDiv, header.nextSibling);
+              if (window.dataSyncBus) {
+                window.dataSyncBus.onStatusChange((status) => {
+                  const el = document.getElementById('sseStatusIndicator');
+                  if (!el) return;
+                  const map = {'connected': { bg: '#d4edda', color: '#155724', text: '✅ Live' }, 'connecting': { bg: '#fff3cd', color: '#856404', text: '🔄 Connecting' }, 'polling': { bg: '#cce5ff', color: '#004085', text: '📡 Polling' }, 'reconnecting': { bg: '#fff3cd', color: '#856404', text: '🔄 Reconnecting' }, 'idle': { bg: '#f8d7da', color: '#721c24', text: '⚠️ Offline' }};
+                  const cfg = map[status] || map['idle'];
+                  el.textContent = cfg.text;
+                  el.style.backgroundColor = cfg.bg;
+                  el.style.color = cfg.color;
+                  el.style.display = status === 'idle' ? 'none' : 'block';
+                });
+              }
+            }
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', addStatusIndicator); } else { addStatusIndicator(); }
+          })();
+        </script>
 </body>
 </html>

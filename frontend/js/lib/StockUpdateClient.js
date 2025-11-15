@@ -1,6 +1,14 @@
 /**
  * Stock Update Client
  * Real-time stock updates using Server-Sent Events (SSE)
+ * with fallback to polling if SSE fails
+ *
+ * Features:
+ * - SSE for real-time updates
+ * - Automatic reconnection with exponential backoff
+ * - Fallback to polling if SSE fails multiple times
+ * - DataSyncBus integration for cross-page synchronization
+ * - Cross-tab synchronization via storage events
  *
  * Usage:
  *   const client = new StockUpdateClient();
@@ -23,8 +31,9 @@
  */
 
 export class StockUpdateClient {
-  constructor(baseUrl = '/api') {
+  constructor(baseUrl = import.meta.env.VITE_API_URL || '/api') {
     this.baseUrl = baseUrl;
+    console.log(`📡 StockUpdateClient using API URL: ${this.baseUrl}`);
     this.eventSource = null;
     this.clientId = null;
     this.subscribedProducts = new Set();
@@ -34,6 +43,9 @@ export class StockUpdateClient {
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000; // ms
+    this.mode = 'idle'; // 'idle', 'sse', 'polling'
+    this.pollingInterval = null;
+    this.pollingDelay = 10000; // 10 seconds - poll slower than SSE
   }
 
   /**
@@ -120,6 +132,12 @@ export class StockUpdateClient {
 
     console.log(`🔌 Connecting to stock updates: ${url}`);
 
+    // Update connection status
+    this.mode = 'sse';
+    if (window.dataSyncBus) {
+      window.dataSyncBus.setConnectionStatus('connecting');
+    }
+
     try {
       this.eventSource = new EventSource(url);
 
@@ -129,6 +147,19 @@ export class StockUpdateClient {
           const data = JSON.parse(event.data);
           console.log(`📦 Initial stock received for ${data.productId}:`, data.variants);
           this.stockCache.set(data.productId, data.variants);
+
+          // Emit to DataSyncBus
+          if (window.dataSyncBus) {
+            window.dataSyncBus.emitProductUpdate(data.productId, {
+              variants: data.variants,
+              isInitial: true
+            });
+            // Broadcast to other tabs
+            window.dataSyncBus.broadcastToAllTabs(data.productId, {
+              variants: data.variants,
+              isInitial: true
+            });
+          }
 
           // Call callbacks
           this.initialStockCallbacks.forEach(cb => {
@@ -152,6 +183,13 @@ export class StockUpdateClient {
           // Update cache
           this.updateCache(data.productId, data);
 
+          // Emit to DataSyncBus
+          if (window.dataSyncBus) {
+            window.dataSyncBus.emitProductUpdate(data.productId, data);
+            // Broadcast to other tabs
+            window.dataSyncBus.broadcastToAllTabs(data.productId, data);
+          }
+
           // Call callbacks
           this.updateCallbacks.forEach(cb => {
             try {
@@ -173,7 +211,17 @@ export class StockUpdateClient {
 
       // Reset reconnect attempts on successful connection
       this.reconnectAttempts = 0;
-      console.log('✅ Connected to stock updates');
+      this.mode = 'sse';
+      console.log('✅ Connected to stock updates via SSE');
+
+      // Update connection status
+      if (window.dataSyncBus) {
+        window.dataSyncBus.setConnectionStatus('connected');
+        window.dataSyncBus.broadcastStatusToAllTabs('connected');
+      }
+
+      // Stop polling if it was active
+      this._stopPolling();
     } catch (error) {
       console.error('Error establishing stock update connection:', error);
       this.reconnect();
@@ -181,12 +229,13 @@ export class StockUpdateClient {
   }
 
   /**
-   * Reconnect with exponential backoff
+   * Reconnect with exponential backoff, fallback to polling
    * @private
    */
   reconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('❌ Max reconnection attempts reached');
+      console.warn('⚠️  Max SSE reconnection attempts reached. Falling back to polling...');
+      this._switchToPolling();
       return;
     }
 
@@ -198,6 +247,53 @@ export class StockUpdateClient {
     setTimeout(() => {
       this.connect();
     }, delay);
+  }
+
+  /**
+   * Switch to polling mode when SSE fails
+   * @private
+   */
+  _switchToPolling() {
+    console.log('📡 Switching to polling mode (every ' + (this.pollingDelay / 1000) + 's)');
+    this.mode = 'polling';
+
+    // Update DataSyncBus status
+    if (window.dataSyncBus) {
+      window.dataSyncBus.setConnectionStatus('polling');
+      window.dataSyncBus.broadcastStatusToAllTabs('polling');
+    }
+
+    // Start polling
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
+
+    // Poll each subscribed product
+    const pollProducts = async () => {
+      for (const productId of this.subscribedProducts) {
+        try {
+          await this.getProductStock(productId);
+        } catch (error) {
+          console.error(`Polling error for ${productId}:`, error);
+        }
+      }
+    };
+
+    // Poll immediately, then at intervals
+    pollProducts();
+    this.pollingInterval = setInterval(pollProducts, this.pollingDelay);
+  }
+
+  /**
+   * Stop polling mode and try SSE again
+   * @private
+   */
+  _stopPolling() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+      console.log('⏸️  Stopped polling');
+    }
   }
 
   /**
@@ -285,7 +381,16 @@ export class StockUpdateClient {
       this.eventSource.close();
       this.eventSource = null;
       this.clientId = null;
-      console.log('🔌 Disconnected from stock updates');
+      console.log('🔌 Disconnected from SSE');
+    }
+
+    // Stop polling if active
+    this._stopPolling();
+
+    // Update status
+    this.mode = 'idle';
+    if (window.dataSyncBus) {
+      window.dataSyncBus.setConnectionStatus('idle');
     }
   }
 

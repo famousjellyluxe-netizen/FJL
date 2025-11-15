@@ -1311,7 +1311,7 @@ async function initializeAdminStockUpdates() {
         const { StockUpdateClient } = await import('../frontend/js/lib/StockUpdateClient.js');
 
         // Initialize SSE client
-        stockUpdateClient = new StockUpdateClient('/api');
+        stockUpdateClient = new StockUpdateClient();
 
         // Register callback for initial stock data
         stockUpdateClient.onInitialStock((data) => {
