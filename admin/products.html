@@ -578,6 +578,20 @@
                     generateVariantGrid();
                 });
             }
+
+            // SYNC: Listen for category cache updates from other admin pages
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'fjl_categories_cache') {
+                    console.log('📡 Categories updated in another tab, reloading...');
+                    loadCategories();
+                }
+            });
+
+            // SYNC: Refresh categories when returning to this page
+            window.addEventListener('focus', () => {
+                console.log('🔄 Page focused, refreshing categories...');
+                loadCategories();
+            });
         });
 
         function saveProduct(event) {

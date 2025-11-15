@@ -375,7 +375,7 @@ class AdminDataService {
                 apiProduct.images = product.images;
             }
 
-            const response = await fetch('${getAPIBase()}/products', {
+            const response = await fetch(`${getAPIBase()}/products`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1191,12 +1191,26 @@ class AdminDataService {
 
     async getCategories() {
         try {
-            const response = await fetch('${getAPIBase()}/categories?include_archived=true');
+            const response = await fetch(`${getAPIBase()}/categories?include_archived=true`);
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
-            return data.data || [];
+            const categories = data.data || [];
+
+            // Cache categories in localStorage for sync between pages and offline fallback
+            localStorage.setItem('fjl_categories_cache', JSON.stringify(categories));
+            localStorage.setItem('fjl_categories_cache_time', Date.now().toString());
+
+            return categories;
         } catch (error) {
             console.error('Error fetching categories:', error);
+
+            // Fallback to cached categories if API fails
+            const cached = localStorage.getItem('fjl_categories_cache');
+            if (cached) {
+                console.log('⚠️  Using cached categories due to API error');
+                return JSON.parse(cached);
+            }
+
             return [];
         }
     }
@@ -1210,7 +1224,7 @@ class AdminDataService {
         try {
             console.log('🔄 Refreshing fjl_products cache from API...');
 
-            const response = await fetch('${getAPIBase()}/products', {
+            const response = await fetch(`${getAPIBase()}/products`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
                 }

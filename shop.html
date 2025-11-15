@@ -922,6 +922,24 @@
     <script src="notifications.js"></script>
 
     <script>
+        // Determine API URL based on environment
+        function getAPIBase() {
+            const hostname = window.location.hostname;
+
+            // For local development
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+                return 'http://localhost:5001/api';
+            }
+
+            // For production on Render
+            if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+                return 'https://fjl-backend.onrender.com/api';
+            }
+
+            // Fallback to localhost
+            return 'http://localhost:5001/api';
+        }
+
         // Cart Management Class
         // Cart class is loaded from cart-manager.js
         // Initialize cart instance (global from cart-manager.js)
@@ -1312,10 +1330,13 @@
         // Load and populate categories from API
         async function loadCategories() {
             try {
-                const response = await fetch('http://localhost:5001/api/categories');
+                const response = await fetch(`${getAPIBase()}/categories`);
                 if (!response.ok) throw new Error('Failed to fetch categories');
                 const data = await response.json();
                 const categories = data.data || [];
+
+                // Cache categories for sync between pages
+                localStorage.setItem('fjl_shop_categories_cache', JSON.stringify(categories));
 
                 const categorySelect = document.getElementById('categoryFilter');
                 if (!categorySelect) return;
