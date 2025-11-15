@@ -2,6 +2,7 @@
  * FJL Admin Panel - Core Utilities
  * Handles authentication, data management, and API integration
  * Ready for backend migration
+ * PRODUCTION: API endpoints configured for Render deployment
  */
 
 // Determine API URL based on environment
