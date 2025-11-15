@@ -57,9 +57,6 @@ services:
     name: fjl-frontend
     staticPublishPath: dist
     buildCommand: npm install && npm run build
-    routes:
-      - path: /*
-        destination: /index.html
 
     # Environment Variables for Frontend
     envVars:
