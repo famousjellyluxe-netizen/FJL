@@ -4,6 +4,24 @@
  * Ready for backend migration
  */
 
+// Determine API URL based on environment
+function getAPIBase() {
+  const hostname = window.location.hostname;
+
+  // For local development
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+    return 'http://localhost:5001/api';
+  }
+
+  // For production on Render
+  if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+    return 'https://fjl-backend.onrender.com/api';
+  }
+
+  // Fallback to localhost
+  return 'http://localhost:5001/api';
+}
+
 class AdminDataService {
     constructor() {
         // Initialize admin authentication data (required for login to work)
@@ -160,7 +178,7 @@ class AdminDataService {
     // Authentication Methods
     async loginAdmin(email, password) {
         try {
-            const response = await fetch('http://localhost:5001/api/auth/login', {
+            const response = await fetch(`${getAPIBase()}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -223,7 +241,7 @@ class AdminDataService {
             if (filters.page) params.append('page', filters.page);
             if (filters.limit) params.append('limit', filters.limit);
 
-            const response = await fetch(`http://localhost:5001/api/products?${params}`);
+            const response = await fetch(`${getAPIBase()}/products?${params}`);
             if (!response.ok) throw new Error('Failed to fetch products');
             const data = await response.json();
 
@@ -258,7 +276,7 @@ class AdminDataService {
 
     async getProductById(id) {
         try {
-            const response = await fetch(`http://localhost:5001/api/products/${id}`);
+            const response = await fetch(`${getAPIBase()}/products/${id}`);
             if (!response.ok) throw new Error('Failed to fetch product');
             const data = await response.json();
             const apiProduct = data.data;
@@ -356,7 +374,7 @@ class AdminDataService {
                 apiProduct.images = product.images;
             }
 
-            const response = await fetch('http://localhost:5001/api/products', {
+            const response = await fetch('${getAPIBase()}/products', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -405,7 +423,7 @@ class AdminDataService {
 
                                 console.log(`Creating variant: ${size} with ${quantity} units and color ${color || 'N/A'}`, variantData);
 
-                                const variantResponse = await fetch(`http://localhost:5001/api/products/${createdProduct.id}/variants`, {
+                                const variantResponse = await fetch(`${getAPIBase()}/products/${createdProduct.id}/variants`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -497,7 +515,7 @@ class AdminDataService {
             // Add support for is_featured
             if (updates.is_featured !== undefined) apiUpdates.is_featured = updates.is_featured;
 
-            const response = await fetch(`http://localhost:5001/api/products/${id}`, {
+            const response = await fetch(`${getAPIBase()}/products/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -530,7 +548,7 @@ class AdminDataService {
 
     async deleteProduct(id) {
         try {
-            const response = await fetch(`http://localhost:5001/api/products/${id}`, {
+            const response = await fetch(`${getAPIBase()}/products/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
@@ -549,7 +567,7 @@ class AdminDataService {
             const formData = new FormData();
             formData.append('image', file);
 
-            const response = await fetch(`http://localhost:5001/api/products/${productId}/upload`, {
+            const response = await fetch(`${getAPIBase()}/products/${productId}/upload`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
@@ -752,7 +770,7 @@ class AdminDataService {
             if (filters.page) params.append('page', filters.page);
             if (filters.limit) params.append('limit', filters.limit);
 
-            const response = await fetch(`http://localhost:5001/api/orders?${params}`, {
+            const response = await fetch(`${getAPIBase()}/orders?${params}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -838,7 +856,7 @@ class AdminDataService {
                 return null;
             }
 
-            const response = await fetch(`http://localhost:5001/api/orders/${id}`, {
+            const response = await fetch(`${getAPIBase()}/orders/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -908,7 +926,7 @@ class AdminDataService {
             // Convert status to lowercase for backend compatibility
             const statusValue = newStatus.toLowerCase();
 
-            const response = await fetch(`http://localhost:5001/api/orders/${orderId}/status`, {
+            const response = await fetch(`${getAPIBase()}/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -979,7 +997,7 @@ class AdminDataService {
             // Convert status to lowercase for backend compatibility
             const statusValue = paymentStatus.toLowerCase();
 
-            const response = await fetch(`http://localhost:5001/api/orders/${orderId}/payment-status`, {
+            const response = await fetch(`${getAPIBase()}/orders/${orderId}/payment-status`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -1172,7 +1190,7 @@ class AdminDataService {
 
     async getCategories() {
         try {
-            const response = await fetch('http://localhost:5001/api/categories?include_archived=true');
+            const response = await fetch('${getAPIBase()}/categories?include_archived=true');
             if (!response.ok) throw new Error('Failed to fetch categories');
             const data = await response.json();
             return data.data || [];
@@ -1191,7 +1209,7 @@ class AdminDataService {
         try {
             console.log('🔄 Refreshing fjl_products cache from API...');
 
-            const response = await fetch('http://localhost:5001/api/products', {
+            const response = await fetch('${getAPIBase()}/products', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
                 }

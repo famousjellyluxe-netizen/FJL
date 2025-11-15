@@ -995,7 +995,7 @@
                 <div class="product-gallery">
                     <!-- Main Image -->
                     <div class="main-image" onclick="openImageModal()">
-                        <img id="mainImage" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'><rect fill='%23f5f5f5' width='600' height='600'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='32'>Product Image</text></svg>" alt="FTG Tracksuit">
+                        <img id="mainImage" src="images/placeholder.png" alt="FTG Tracksuit" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 600 600%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22600%22 height=%22600%22/%3E%3C/svg%3E'">
                         <div class="zoom-icon">
                             <i data-lucide="zoom-in" class="w-6 h-6"></i>
                         </div>
@@ -1395,7 +1395,7 @@
                     const placeholderThumb = document.createElement('div');
                     placeholderThumb.className = 'thumbnail active';
                     placeholderThumb.onclick = function() { changeImage(this); };
-                    placeholderThumb.innerHTML = '<img src="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'><rect fill=\'%23f5f5f5\' width=\'200\' height=\'200\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'16\'>No Image</text></svg>" alt="No Image">';
+                    placeholderThumb.innerHTML = '<img src="images/placeholder.png" alt="No Image" onerror="this.src=\'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22200%22 height=%22200%22/%3E%3C/svg%3E\'">';
                     thumbnailsContainer.appendChild(placeholderThumb);
                 } else {
                     // Create thumbnails for each product image

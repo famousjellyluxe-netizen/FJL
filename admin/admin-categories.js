@@ -3,7 +3,25 @@
  * Handles all category operations from the admin panel
  */
 
-const API_BASE = 'http://localhost:5001/api';
+// Determine API URL based on environment
+function getAPIBase() {
+  const hostname = window.location.hostname;
+
+  // For local development
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+    return 'http://localhost:5001/api';
+  }
+
+  // For production on Render
+  if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+    return 'https://fjl-backend.onrender.com/api';
+  }
+
+  // Fallback to localhost
+  return 'http://localhost:5001/api';
+}
+
+const API_BASE = getAPIBase();
 
 let currentEditingId = null;
 let currentDeleteId = null;

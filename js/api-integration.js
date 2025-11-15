@@ -10,7 +10,8 @@
 
 class APIIntegrationManager {
   constructor() {
-    this.API_URL = 'http://localhost:5001/api';
+    // Determine API URL based on environment
+    this.API_URL = this._getAPIUrl();
     this.CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
     this.RETRY_ATTEMPTS = 3;
     this.RETRY_DELAY = 1000; // ms
@@ -18,6 +19,27 @@ class APIIntegrationManager {
     this.pendingRequests = new Map();
     this.isOnline = navigator.onLine;
     this.requestQueue = [];
+  }
+
+  /**
+   * Determine API URL based on current hostname
+   */
+  _getAPIUrl() {
+    const hostname = window.location.hostname;
+
+    // For local development
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+      return 'http://localhost:5001/api';
+    }
+
+    // For production on Render
+    if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+      return 'https://fjl-backend.onrender.com/api';
+    }
+
+    // Fallback to localhost
+    return 'http://localhost:5001/api';
+  }
 
     // Listen for online/offline events
     window.addEventListener('online', () => this._handleOnline());
