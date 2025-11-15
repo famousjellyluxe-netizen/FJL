@@ -1707,7 +1707,7 @@
         });
 
         // Listen for storage changes from admin panel (real-time product updates)
-        window.addEventListener('storage', (event) => {
+        window.addEventListener('storage', async (event) => {
             if (event.key === 'fjl_products') {
                 // Products were updated in admin panel, reload the current product
                 try {
