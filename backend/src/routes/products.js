@@ -93,6 +93,9 @@ router.post('/:id/upload', verifyJWT, requireAdmin, requirePermission('manage_pr
 router.get('/:id', asyncHandler(async (req, res) => {
   const product = await productService.getProductById(req.params.id);
 
+  // Prevent caching to ensure fresh stock data
+  res.set('Cache-Control', 'no-cache, max-age=0');
+
   res.json({
     success: true,
     data: product
@@ -413,6 +416,9 @@ router.get('/stock/status', asyncHandler(async (req, res) => {
   }
 
   const stock = await stockUpdateService.getProductStock(productId);
+
+  // Prevent caching to ensure fresh stock data
+  res.set('Cache-Control', 'no-cache, max-age=0');
 
   res.json({
     success: true,

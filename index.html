@@ -1368,10 +1368,9 @@
                     const success = cart.addItem(item);
                     if (success) {
                         addedCount++;
-                        // Deduct inventory when item is successfully added
-                        if (typeof adminDataService !== 'undefined') {
-                            adminDataService.deductInventory(modalState.productId, modalState.selectedSize, 1);
-                        }
+                        // NOTE: Stock is NOT deducted here
+                        // Stock will only be deducted when admin verifies payment
+                        // This prevents false "out of stock" messages during checkout
                     }
                 }
                 updateCartBadge();

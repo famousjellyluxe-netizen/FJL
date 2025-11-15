@@ -1,5 +1,6 @@
 import { supabase, supabaseService } from '../config/database.js';
 import { AppError, NotFoundError } from '../middleware/errorHandler.js';
+import * as stockUpdateService from './stockUpdateService.js';
 
 // Storage configuration
 const STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'product-images';
@@ -816,6 +817,50 @@ export async function reduceOrderStockAtomic(orderId) {
           console.error(`⚠️  Warning: Failed to recalculate totals for product ${productId}:`, error.message);
           // Don't fail the order - RPC should have already updated it
         }
+      }
+
+      // Broadcast stock updates to all connected clients via SSE
+      console.log(`📡 Broadcasting stock updates to connected clients...`);
+      try {
+        // Fetch order items to get variant information
+        const { data: orderItems, error: itemsError } = await supabase
+          .from('order_items')
+          .select('variant_id, product_id, quantity')
+          .eq('order_id', orderId);
+
+        if (itemsError) {
+          console.error('⚠️  Warning: Failed to fetch order items for broadcasting:', itemsError.message);
+        } else if (orderItems && orderItems.length > 0) {
+          // Get unique variants and their current stock
+          const variantIds = [...new Set(orderItems.map(item => item.variant_id))];
+          const { data: variants, error: variantsError } = await supabase
+            .from('product_variants')
+            .select('id, product_id, size, stock_quantity')
+            .in('id', variantIds);
+
+          if (variantsError) {
+            console.error('⚠️  Warning: Failed to fetch variants for broadcasting:', variantsError.message);
+          } else if (variants && variants.length > 0) {
+            // Broadcast each variant's updated stock
+            for (const variant of variants) {
+              try {
+                await stockUpdateService.broadcastStockUpdate(variant.product_id, {
+                  productId: variant.product_id,
+                  variantId: variant.id,
+                  size: variant.size,
+                  newQuantity: variant.stock_quantity
+                });
+                console.log(`  ✓ Broadcasted update for variant ${variant.id}: ${variant.stock_quantity} units`);
+              } catch (broadcastError) {
+                console.error(`⚠️  Warning: Failed to broadcast update for variant ${variant.id}:`, broadcastError.message);
+                // Don't fail the order - stock is already reduced in DB
+              }
+            }
+          }
+        }
+      } catch (broadcastError) {
+        console.error('⚠️  Warning: Error during stock broadcast:', broadcastError.message);
+        // Don't fail the order - stock is already reduced in DB
       }
     }
 

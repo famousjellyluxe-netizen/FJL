@@ -1207,52 +1207,9 @@
             }
         }
 
-        // Default product database (fallback if localStorage is empty)
+        // Default product database (removed - all products must come from API/localStorage)
         function getDefaultProductDatabase() {
-            return {
-                'ftg-checkered-jersey': {
-                    id: 'ftg-checkered-jersey',
-                    name: 'FTG Checkered Jersey',
-                    price: 75300,
-                    description: 'Premium quality checkered jersey with custom FJL branding'
-                },
-                'ftg-rugby-polo': {
-                    id: 'ftg-rugby-polo',
-                    name: 'FTG Rugby Polo',
-                    price: 67000,
-                    description: 'Classic rugby polo with embroidered FJL logo'
-                },
-                'ftg-tracksuit': {
-                    id: 'ftg-tracksuit',
-                    name: 'FTG Tracksuit',
-                    price: 75000,
-                    description: 'Complete tracksuit set with custom oversized silhouette'
-                },
-                'soccer-baby-tee': {
-                    id: 'soccer-baby-tee',
-                    name: 'Soccer Baby Tee',
-                    price: 7700,
-                    description: 'Lightweight baby tee with soccer-inspired design'
-                },
-                'soccer-baby-crop-top': {
-                    id: 'soccer-baby-crop-top',
-                    name: 'Soccer Baby Crop Top',
-                    price: 6500,
-                    description: 'Stylish crop top with soccer aesthetic'
-                },
-                'ftg-logo-tshirt': {
-                    id: 'ftg-logo-tshirt',
-                    name: 'FTG Logo T-Shirt',
-                    price: 4100,
-                    description: 'Classic FTG logo t-shirt in premium cotton'
-                },
-                'urban-varsity-jacket': {
-                    id: 'urban-varsity-jacket',
-                    name: 'Urban Varsity Jacket',
-                    price: 70000,
-                    description: 'Sleek varsity jacket with urban street style'
-                }
-            };
+            return {};
         }
 
         // Load product based on URL parameter
@@ -1689,7 +1646,7 @@
             // Load related products after a short delay to ensure product data is loaded
             setTimeout(() => {
                 const params = new URLSearchParams(window.location.search);
-                const productId = params.get('id') || 'ftg-tracksuit';
+                const productId = params.get('id');
 
                 // Get the current product's category
                 const storedProducts = localStorage.getItem('fjl_products');
@@ -1713,7 +1670,7 @@
                 try {
                     const newProducts = JSON.parse(event.newValue);
                     const params = new URLSearchParams(window.location.search);
-                    const productId = params.get('id') || 'ftg-tracksuit';
+                    const productId = params.get('id');
                     const updatedProduct = newProducts.find(p => p.id === productId);
 
                     if (updatedProduct) {
@@ -1986,13 +1943,13 @@
             }
 
             const cartItem = {
-                id: window.currentProductId || 'ftg-tracksuit',
-                name: window.currentProductName || 'FTG Tracksuit',
+                id: window.currentProductId,
+                name: window.currentProductName,
                 size: size,
                 color: color, // Include color if available
                 quantity: quantity,
-                price: window.currentProductPrice || 75000,
-                image: window.currentProductImage || '', // Include product image in cart
+                price: window.currentProductPrice,
+                image: window.currentProductImage, // Include product image in cart
                 maxQuantity: maxQuantity, // CRITICAL: Include available stock for validation (size-only, backward compat)
                 variantStock: variantStock // NEW: Variant-specific stock for size+color combination
             };

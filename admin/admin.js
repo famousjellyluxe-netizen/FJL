@@ -67,80 +67,6 @@ class AdminDataService {
         if (!localStorage.getItem('fjl_products')) {
             localStorage.setItem('fjl_products', JSON.stringify([
                 {
-                    id: 'ftg-checkered-jersey',
-                    name: 'FTG Checkered Jersey',
-                    sleeve: 'sleeveless',
-                    price: 75300,
-                    originalPrice: 85000,
-                    sku: 'FCJ-001',
-                    image: 'placeholder',
-                    description: 'Premium quality checkered jersey with custom FJL branding',
-                    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-                    colors: ['Black', 'Navy', 'Gold'],
-                    quantity: 50,
-                    sizeInventory: { 'XS': 8, 'S': 12, 'M': 15, 'L': 10, 'XL': 3, 'XXL': 2 },
-                    inStock: true,
-                    sizeChart: {
-                        'XS': { chest: '32"(81cm)', length: '24"(61cm)', sleeve: '6"(15cm)', shoulder: '13"(33cm)' },
-                        'S': { chest: '34"(86cm)', length: '25"(64cm)', sleeve: '6.5"(17cm)', shoulder: '14"(36cm)' },
-                        'M': { chest: '36"(91cm)', length: '26"(66cm)', sleeve: '7"(18cm)', shoulder: '15"(38cm)' },
-                        'L': { chest: '38"(97cm)', length: '27"(69cm)', sleeve: '7.5"(19cm)', shoulder: '16"(41cm)' },
-                        'XL': { chest: '40"(102cm)', length: '28"(71cm)', sleeve: '8"(20cm)', shoulder: '17"(43cm)' },
-                        'XXL': { chest: '42"(107cm)', length: '29"(74cm)', sleeve: '8.5"(22cm)', shoulder: '18"(46cm)' }
-                    },
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
-                    id: 'ftg-rugby-polo',
-                    name: 'FTG Rugby Polo',
-                    sleeve: 'sleeve',
-                    price: 67000,
-                    originalPrice: 75000,
-                    sku: 'FRP-001',
-                    image: 'placeholder',
-                    description: 'Classic rugby polo shirt with embroidered FJL logo',
-                    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-                    colors: ['Black', 'White', 'Navy'],
-                    quantity: 45,
-                    sizeInventory: { 'S': 12, 'M': 15, 'L': 10, 'XL': 5, 'XXL': 3 },
-                    inStock: true,
-                    sizeChart: {
-                        'S': { chest: '34"(86cm)', length: '26"(66cm)', sleeve: '9"(23cm)', shoulder: '14"(36cm)' },
-                        'M': { chest: '36"(91cm)', length: '27"(69cm)', sleeve: '9.5"(24cm)', shoulder: '15"(38cm)' },
-                        'L': { chest: '38"(97cm)', length: '28"(71cm)', sleeve: '10"(25cm)', shoulder: '16"(41cm)' },
-                        'XL': { chest: '40"(102cm)', length: '29"(74cm)', sleeve: '10.5"(27cm)', shoulder: '17"(43cm)' },
-                        'XXL': { chest: '42"(107cm)', length: '30"(76cm)', sleeve: '11"(28cm)', shoulder: '18"(46cm)' }
-                    },
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
-                    id: 'ftg-tracksuit',
-                    name: 'FTG Tracksuit',
-                    sleeve: 'sleeve',
-                    price: 75000,
-                    originalPrice: 90000,
-                    sku: 'FTS-001',
-                    image: 'placeholder',
-                    description: 'Luxurious tracksuit set perfect for streetwear enthusiasts',
-                    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-                    colors: ['Black', 'Gold', 'Navy'],
-                    quantity: 30,
-                    sizeInventory: { 'XS': 0, 'S': 5, 'M': 8, 'L': 10, 'XL': 5, 'XXL': 2 },
-                    inStock: true,
-                    sizeChart: {
-                        'XS': { chest: '32"(81cm)', length: '24"(61cm)', inseam: '28"(71cm)', shoulder: '13"(33cm)' },
-                        'S': { chest: '34"(86cm)', length: '25"(64cm)', inseam: '29"(74cm)', shoulder: '14"(36cm)' },
-                        'M': { chest: '36"(91cm)', length: '26"(66cm)', inseam: '30"(76cm)', shoulder: '15"(38cm)' },
-                        'L': { chest: '38"(97cm)', length: '27"(69cm)', inseam: '31"(79cm)', shoulder: '16"(41cm)' },
-                        'XL': { chest: '40"(102cm)', length: '28"(71cm)', inseam: '32"(81cm)', shoulder: '17"(43cm)' },
-                        'XXL': { chest: '42"(107cm)', length: '29"(74cm)', inseam: '33"(84cm)', shoulder: '18"(46cm)' }
-                    },
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
                     id: 'soccer-baby-tee',
                     name: 'Soccer Baby Tee',
                     sleeve: 'sleeveless',
@@ -181,30 +107,6 @@ class AdminDataService {
                         'S': { chest: '30"(76cm)', length: '15"(38cm)', shoulder: '12"(30cm)' },
                         'M': { chest: '32"(81cm)', length: '16"(41cm)', shoulder: '13"(33cm)' },
                         'L': { chest: '34"(86cm)', length: '17"(43cm)', shoulder: '14"(36cm)' }
-                    },
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
-                    id: 'ftg-logo-tshirt',
-                    name: 'FTG Logo T-Shirt',
-                    sleeve: 'sleeveless',
-                    price: 4100,
-                    originalPrice: 5500,
-                    sku: 'FLT-001',
-                    image: 'placeholder',
-                    description: 'Classic t-shirt with minimalist FJL logo',
-                    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-                    colors: ['Black', 'White', 'Navy'],
-                    quantity: 150,
-                    sizeInventory: { 'S': 40, 'M': 50, 'L': 35, 'XL': 15, 'XXL': 10 },
-                    inStock: true,
-                    sizeChart: {
-                        'S': { chest: '34"(86cm)', length: '25"(64cm)', shoulder: '14"(36cm)' },
-                        'M': { chest: '36"(91cm)', length: '26"(66cm)', shoulder: '15"(38cm)' },
-                        'L': { chest: '38"(97cm)', length: '27"(69cm)', shoulder: '16"(41cm)' },
-                        'XL': { chest: '40"(102cm)', length: '28"(71cm)', shoulder: '17"(43cm)' },
-                        'XXL': { chest: '42"(107cm)', length: '29"(74cm)', shoulder: '18"(46cm)' }
                     },
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
@@ -611,6 +513,14 @@ class AdminDataService {
             }
 
             const data = await response.json();
+
+            // CRITICAL FIX: After successful update, refresh fjl_products cache
+            // This ensures customers see updated stock immediately, not stale cached data
+            if (data.success && data.data) {
+                console.log('✓ Product updated in backend, refreshing client cache...');
+                await this.refreshProductsCacheFromAPI();
+            }
+
             return data.data;
         } catch (error) {
             console.error('Error updating product:', error);
@@ -676,7 +586,37 @@ class AdminDataService {
 
     // Inventory Management Methods
     checkInventory(productId, size, quantity = 1, color = null) {
-        // First try to get product from localStorage (faster and more reliable)
+        // PRIORITY 1: Check in-memory product if currently viewing it
+        // This ensures fresh stock data even after cache clear
+        if (window.currentProduct && window.currentProduct.id === productId) {
+            const product = window.currentProduct;
+            let sizeInventory = product.sizeInventory || {};
+
+            // Recalculate if needed
+            if (Object.keys(sizeInventory).length === 0 && product.variants && Array.isArray(product.variants)) {
+                sizeInventory = {};
+                product.variants.forEach(variant => {
+                    if (variant.size) {
+                        if (!sizeInventory[variant.size]) {
+                            sizeInventory[variant.size] = 0;
+                        }
+                        sizeInventory[variant.size] += (variant.stock_quantity || 0);
+                    }
+                });
+            }
+
+            const availableQuantity = sizeInventory[size] || 0;
+
+            if (availableQuantity <= 0) {
+                return { available: false, message: `${size} size is out of stock`, stock: 0 };
+            }
+            if (availableQuantity < quantity) {
+                return { available: false, message: `Only ${availableQuantity} ${size} items available`, stock: availableQuantity };
+            }
+            return { available: true, stock: availableQuantity };
+        }
+
+        // PRIORITY 2: Fallback to localStorage if not currently viewing product
         let product = null;
         const storedProducts = localStorage.getItem('fjl_products');
         if (storedProducts) {
@@ -1241,38 +1181,252 @@ class AdminDataService {
             return [];
         }
     }
+
+    /**
+     * CRITICAL FIX: Refresh fjl_products cache from latest API data
+     * Called after admin updates products to ensure customers see fresh data
+     * Prevents stale cache issues where customers see old stock values
+     */
+    async refreshProductsCacheFromAPI() {
+        try {
+            console.log('🔄 Refreshing fjl_products cache from API...');
+
+            const response = await fetch('http://localhost:5001/api/products', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('fjl_admin_token') || ''}`
+                }
+            });
+
+            if (!response.ok) {
+                console.warn('⚠️  Could not refresh products from API');
+                return;
+            }
+
+            const result = await response.json();
+
+            // Handle both nested and flat response formats
+            let productsArray = null;
+            if (result.success && result.data) {
+                if (Array.isArray(result.data.data)) {
+                    productsArray = result.data.data;
+                } else if (Array.isArray(result.data)) {
+                    productsArray = result.data;
+                }
+            }
+
+            if (productsArray && Array.isArray(productsArray)) {
+                // Transform API products to match frontend format (same as shop-integration.js)
+                const transformedProducts = productsArray.map(product => ({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image_url || product.images?.[0],
+                    images: product.images || [],
+                    inStock: product.total_stock > 0,
+                    stock: product.total_stock,
+                    sizes: this.extractUniqueSizes(product.variants),
+                    sizeInventory: this.calculateSizeInventory(product.variants),
+                    sku: product.sku,
+                    description: product.description,
+                    category: product.categories?.name,
+                    category_slug: product.categories?.slug,
+                    variants: product.variants || [],
+                    total_stock: product.total_stock,
+                    is_featured: product.is_featured
+                }));
+
+                // Update localStorage with fresh data
+                localStorage.setItem('fjl_products', JSON.stringify(transformedProducts));
+                console.log('✓ Updated fjl_products cache with fresh data from API');
+
+                // Notify all other tabs/windows via BroadcastChannel
+                if (window.BroadcastChannel) {
+                    try {
+                        const bc = new BroadcastChannel('fjl_products');
+                        bc.postMessage({ type: 'refresh', source: 'admin', timestamp: Date.now() });
+                        bc.close();
+                    } catch (e) {
+                        // BroadcastChannel not supported, silent fail
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error refreshing products cache:', error);
+            // Don't throw - this is a non-critical operation
+        }
+    }
+
+    /**
+     * Extract unique sizes from product variants
+     * Helper for sizeInventory calculation
+     */
+    extractUniqueSizes(variants) {
+        if (!variants || !Array.isArray(variants)) {
+            return [];
+        }
+
+        const sizes = new Set();
+        variants.forEach(v => {
+            if (v.size) {
+                sizes.add(v.size);
+            }
+        });
+
+        return Array.from(sizes);
+    }
+
+    /**
+     * Calculate size inventory by summing stock across all colors
+     * Helper for sizeInventory calculation
+     */
+    calculateSizeInventory(variants) {
+        if (!variants || !Array.isArray(variants)) {
+            return {};
+        }
+
+        const inventory = {};
+        variants.forEach(variant => {
+            if (variant.size) {
+                if (!inventory[variant.size]) {
+                    inventory[variant.size] = 0;
+                }
+                // Sum stock across all colors for each size
+                inventory[variant.size] += (variant.stock_quantity || 0);
+            }
+        });
+
+        return inventory;
+    }
 }
 
 // Global instance
 const adminDataService = new AdminDataService();
 
+// Real-time Stock Updates via SSE
+let stockUpdateClient = null;
+
+async function initializeAdminStockUpdates() {
+    try {
+        // Dynamically import StockUpdateClient
+        const { StockUpdateClient } = await import('../frontend/js/lib/StockUpdateClient.js');
+
+        // Initialize SSE client
+        stockUpdateClient = new StockUpdateClient('/api');
+
+        // Register callback for initial stock data
+        stockUpdateClient.onInitialStock((data) => {
+            console.log(`📡 Received initial stock for product ${data.productId}:`, data.variants);
+            updateAdminProductStockUI(data.productId, data.variants);
+        });
+
+        // Register callback for stock updates
+        stockUpdateClient.onStockUpdate((data) => {
+            console.log(`✨ Stock updated for product ${data.productId}:`, data);
+            updateAdminProductStockUI(data.productId, data.variants);
+        });
+
+        // Get all product IDs from localStorage
+        const products = JSON.parse(localStorage.getItem('fjl_products') || '[]');
+        const productIds = products.map(p => p.id).filter(id => id);
+
+        if (productIds.length > 0) {
+            // Subscribe to all products
+            console.log(`📡 Subscribing to stock updates for ${productIds.length} products...`);
+            await stockUpdateClient.subscribe(productIds);
+        } else {
+            console.warn('No products found to subscribe to stock updates');
+        }
+    } catch (error) {
+        console.warn('⚠️  Failed to initialize admin stock updates:', error.message);
+        // Non-fatal error - admin can still work without SSE, just with manual refresh
+    }
+}
+
+function updateAdminProductStockUI(productId, variants) {
+    try {
+        // Update the in-memory products data
+        const products = JSON.parse(localStorage.getItem('fjl_products') || '[]');
+        const product = products.find(p => p.id === productId);
+
+        if (!product) {
+            console.warn(`Product ${productId} not found in localStorage`);
+            return;
+        }
+
+        // Update variants with new stock quantities
+        if (variants && Array.isArray(variants)) {
+            variants.forEach(updatedVariant => {
+                const existingVariant = product.variants?.find(v => v.id === updatedVariant.id);
+                if (existingVariant) {
+                    existingVariant.stock_quantity = updatedVariant.stock_quantity;
+                    console.log(`  ✓ Updated variant ${updatedVariant.id}: ${updatedVariant.stock_quantity} units`);
+                }
+            });
+        }
+
+        // Recalculate total_stock
+        if (product.variants && Array.isArray(product.variants)) {
+            product.total_stock = product.variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+        }
+
+        // Save updated products back to localStorage
+        localStorage.setItem('fjl_products', JSON.stringify(products));
+
+        // Update UI if visible (check if products table is displayed)
+        updateProductTableRow(productId);
+
+        console.log(`✅ Updated product ${productId} in admin panel. Total stock: ${product.total_stock}`);
+    } catch (error) {
+        console.error('Error updating admin stock UI:', error);
+    }
+}
+
+function updateProductTableRow(productId) {
+    try {
+        // Find and update the product row in the table if it's visible
+        const tableRow = document.querySelector(`tr[data-product-id="${productId}"]`);
+        if (!tableRow) {
+            console.log(`Product row for ${productId} not visible in table (this is normal if filtering)`);
+            return;
+        }
+
+        // Get updated product data
+        const products = JSON.parse(localStorage.getItem('fjl_products') || '[]');
+        const product = products.find(p => p.id === productId);
+
+        if (!product) return;
+
+        // Update stock cell in the table
+        const stockCell = tableRow.querySelector('[data-column="stock"]');
+        if (stockCell) {
+            const oldValue = stockCell.textContent;
+            stockCell.textContent = product.total_stock || 0;
+            console.log(`  📊 Updated table: ${oldValue} → ${product.total_stock}`);
+
+            // Highlight the change with a brief animation
+            stockCell.style.backgroundColor = '#d4edda';
+            setTimeout(() => {
+                stockCell.style.backgroundColor = '';
+            }, 1000);
+        }
+    } catch (error) {
+        console.warn('Could not update product table row:', error.message);
+        // This is non-fatal - the data is updated in localStorage
+    }
+}
+
+// Initialize SSE updates when page is fully loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAdminStockUpdates);
+} else {
+    // Page already loaded
+    initializeAdminStockUpdates();
+}
+
 // Data migration function to add sizeChart to existing products
 function migrateSizeChartData() {
     const products = JSON.parse(localStorage.getItem('fjl_products') || '[]');
     const defaultSizeCharts = {
-        'ftg-checkered-jersey': {
-            'XS': { chest: '32"(81cm)', length: '24"(61cm)', sleeve: '6"(15cm)', shoulder: '13"(33cm)' },
-            'S': { chest: '34"(86cm)', length: '25"(64cm)', sleeve: '6.5"(17cm)', shoulder: '14"(36cm)' },
-            'M': { chest: '36"(91cm)', length: '26"(66cm)', sleeve: '7"(18cm)', shoulder: '15"(38cm)' },
-            'L': { chest: '38"(97cm)', length: '27"(69cm)', sleeve: '7.5"(19cm)', shoulder: '16"(41cm)' },
-            'XL': { chest: '40"(102cm)', length: '28"(71cm)', sleeve: '8"(20cm)', shoulder: '17"(43cm)' },
-            'XXL': { chest: '42"(107cm)', length: '29"(74cm)', sleeve: '8.5"(22cm)', shoulder: '18"(46cm)' }
-        },
-        'ftg-rugby-polo': {
-            'S': { chest: '34"(86cm)', length: '26"(66cm)', sleeve: '9"(23cm)', shoulder: '14"(36cm)' },
-            'M': { chest: '36"(91cm)', length: '27"(69cm)', sleeve: '9.5"(24cm)', shoulder: '15"(38cm)' },
-            'L': { chest: '38"(97cm)', length: '28"(71cm)', sleeve: '10"(25cm)', shoulder: '16"(41cm)' },
-            'XL': { chest: '40"(102cm)', length: '29"(74cm)', sleeve: '10.5"(27cm)', shoulder: '17"(43cm)' },
-            'XXL': { chest: '42"(107cm)', length: '30"(76cm)', sleeve: '11"(28cm)', shoulder: '18"(46cm)' }
-        },
-        'ftg-tracksuit': {
-            'XS': { chest: '32"(81cm)', length: '24"(61cm)', inseam: '28"(71cm)', shoulder: '13"(33cm)' },
-            'S': { chest: '34"(86cm)', length: '25"(64cm)', inseam: '29"(74cm)', shoulder: '14"(36cm)' },
-            'M': { chest: '36"(91cm)', length: '26"(66cm)', inseam: '30"(76cm)', shoulder: '15"(38cm)' },
-            'L': { chest: '38"(97cm)', length: '27"(69cm)', inseam: '31"(79cm)', shoulder: '16"(41cm)' },
-            'XL': { chest: '40"(102cm)', length: '28"(71cm)', inseam: '32"(81cm)', shoulder: '17"(43cm)' },
-            'XXL': { chest: '42"(107cm)', length: '29"(74cm)', inseam: '33"(84cm)', shoulder: '18"(46cm)' }
-        },
         'soccer-baby-tee': {
             'XS': { chest: '28"(71cm)', length: '20"(51cm)', shoulder: '11"(28cm)' },
             'S': { chest: '30"(76cm)', length: '21"(53cm)', shoulder: '12"(30cm)' },
@@ -1283,13 +1437,6 @@ function migrateSizeChartData() {
             'S': { chest: '30"(76cm)', length: '15"(38cm)', shoulder: '12"(30cm)' },
             'M': { chest: '32"(81cm)', length: '16"(41cm)', shoulder: '13"(33cm)' },
             'L': { chest: '34"(86cm)', length: '17"(43cm)', shoulder: '14"(36cm)' }
-        },
-        'ftg-logo-tshirt': {
-            'S': { chest: '34"(86cm)', length: '25"(64cm)', shoulder: '14"(36cm)' },
-            'M': { chest: '36"(91cm)', length: '26"(66cm)', shoulder: '15"(38cm)' },
-            'L': { chest: '38"(97cm)', length: '27"(69cm)', shoulder: '16"(41cm)' },
-            'XL': { chest: '40"(102cm)', length: '28"(71cm)', shoulder: '17"(43cm)' },
-            'XXL': { chest: '42"(107cm)', length: '29"(74cm)', shoulder: '18"(46cm)' }
         },
         'urban-varsity-jacket': {
             'S': { chest: '36"(91cm)', length: '26"(66cm)', sleeve: '10"(25cm)', shoulder: '15"(38cm)' },
