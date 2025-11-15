@@ -39,7 +39,7 @@ services:
       - key: STORE_EMAIL
         value: hello@fjlclothing.shop
       - key: ALLOWED_ORIGINS
-        value: https://fjl-frontend.onrender.com,https://fjl.com,https://www.fjl.com  # Render URLs + custom domain
+        value: https://fjl-frontend.onrender.com,https://fjlclothing.shop,https://www.fjlclothing.shop  # Render URLs + custom domain
       - key: RATE_LIMIT_WINDOW_MS
         value: 15000
       - key: RATE_LIMIT_MAX_REQUESTS
