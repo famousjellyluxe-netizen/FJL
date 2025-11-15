@@ -32,26 +32,33 @@ export default defineConfig({
           });
         });
 
+        // Helper function to recursively copy directories
+        const copyDir = (dir, prefix = '') => {
+          const files = fs.readdirSync(dir);
+          files.forEach(file => {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+            if (stat.isFile()) {
+              const content = fs.readFileSync(filePath, 'utf-8');
+              this.emitFile({
+                type: 'asset',
+                fileName: path.join(prefix, file),
+                source: content
+              });
+            } else if (stat.isDirectory()) {
+              copyDir(filePath, path.join(prefix, file));
+            }
+          });
+        };
+
         // Copy js/ directory to dist/js/
         if (fs.existsSync('./js')) {
-          const copyDir = (dir, prefix = '') => {
-            const files = fs.readdirSync(dir);
-            files.forEach(file => {
-              const filePath = path.join(dir, file);
-              const stat = fs.statSync(filePath);
-              if (stat.isFile()) {
-                const content = fs.readFileSync(filePath, 'utf-8');
-                this.emitFile({
-                  type: 'asset',
-                  fileName: path.join(prefix, file),
-                  source: content
-                });
-              } else if (stat.isDirectory()) {
-                copyDir(filePath, path.join(prefix, file));
-              }
-            });
-          };
           copyDir('./js', 'js');
+        }
+
+        // Copy admin/ directory to dist/admin/
+        if (fs.existsSync('./admin')) {
+          copyDir('./admin', 'admin');
         }
       }
     }
