@@ -1259,7 +1259,7 @@
             // Do NOT default to another product - only use defaults if the requested product exists
             if (!product) {
                 const defaultDB = getDefaultProductDatabase();
-                product = defaultDB[productId];  // Removed the || defaultDB['ftg-tracksuit'] fallback
+                product = defaultDB[productId];
             }
 
             // If product still not found, immediately redirect to shop (no error message)
