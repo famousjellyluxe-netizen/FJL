@@ -869,6 +869,62 @@
             .size-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
+
+            /* Mobile-specific form styling */
+            input[type="text"], input[type="email"], input[type="tel"], input[type="number"],
+            textarea, select, .email-input {
+                font-size: 16px !important;
+                min-height: 44px;
+                padding: 12px 14px;
+            }
+
+            .quantity-btn {
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            .size-btn, .color-btn {
+                min-height: 44px;
+                min-width: 44px;
+                padding: 12px 16px !important;
+            }
+
+            .add-to-cart-btn, .submit-btn {
+                min-height: 44px;
+                font-size: 14px;
+            }
+
+            /* Modal responsive sizing */
+            .size-chart-container {
+                padding: 24px !important;
+                width: 95vw !important;
+            }
+
+            /* Product gallery responsive */
+            .product-gallery {
+                gap: 12px;
+            }
+
+            .main-image {
+                max-height: 300px;
+            }
+
+            .gallery-thumbnails {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            /* Product details responsive */
+            .product-details {
+                padding-top: 12px;
+            }
+
+            .description-title {
+                font-size: 13px;
+            }
+
+            .quantity-section {
+                gap: 12px;
+            }
         }
     </style>
     <script src="notifications.js"></script>

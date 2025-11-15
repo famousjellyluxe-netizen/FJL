@@ -674,6 +674,15 @@
             background: #ccc;
             cursor: not-allowed;
         }
+
+        /* MOBILE RESPONSIVE FIXES */
+        @media (max-width: 767px) {
+            .hero-banner { min-height: 50vh !important; }
+            .footer-content { display: grid; grid-template-columns: 1fr; }
+            .footer-copyright { display: flex; flex-direction: column; gap: 8px; }
+            .footer-copyright span { display: none; }
+            .modal-content { padding: 24px !important; max-width: 95vw; }
+        }
     </style>
     <script src="notifications.js"></script>
     <script src="cart-manager.js"></script>

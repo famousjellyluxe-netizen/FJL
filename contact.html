@@ -369,6 +369,69 @@
                 transform: translateY(0);
             }
         }
+
+        /* Mobile Responsive for Contact Page */
+        @media (max-width: 767px) {
+            .hero-banner {
+                min-height: 50vh !important;
+                padding: 40px 20px !important;
+            }
+
+            .hero-banner h1 {
+                font-size: 28px;
+            }
+
+            .contact-container {
+                padding: 30px 20px !important;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr !important;
+                gap: 30px;
+            }
+
+            .contact-info {
+                padding: 24px !important;
+            }
+
+            .contact-form {
+                padding: 24px !important;
+            }
+
+            input[type="text"], input[type="email"], input[type="tel"],
+            textarea, select {
+                font-size: 16px !important;
+                min-height: 44px;
+                padding: 12px 14px;
+            }
+
+            textarea {
+                min-height: 120px;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .submit-btn, button[type="submit"] {
+                width: 100%;
+                min-height: 44px;
+                font-size: 16px;
+                padding: 12px 14px !important;
+            }
+
+            .info-item {
+                padding: 16px 0;
+            }
+
+            .info-item h3 {
+                font-size: 14px;
+            }
+
+            .info-item p {
+                font-size: 13px;
+            }
+        }
     </style>
     <script src="notifications.js"></script>
     </head>
