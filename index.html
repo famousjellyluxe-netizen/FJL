@@ -1386,13 +1386,31 @@
 
     <!-- Featured Products Script -->
     <script>
+        // Determine API URL based on environment
+        function getAPIBase() {
+            const hostname = window.location.hostname;
+
+            // For local development
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+                return 'http://localhost:5001/api';
+            }
+
+            // For production on Render
+            if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+                return 'https://fjl-backend.onrender.com/api';
+            }
+
+            // Fallback to localhost
+            return 'http://localhost:5001/api';
+        }
+
         // Global variable to store featured products for modal access
         let allFeaturedProducts = [];
 
         // Load and display featured products
         async function loadFeaturedProducts() {
             try {
-                const response = await fetch('http://localhost:5001/api/products/featured');
+                const response = await fetch(`${getAPIBase()}/products/featured`);
                 const data = await response.json();
 
                 if (data.success && data.data && data.data.length > 0) {

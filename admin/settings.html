@@ -196,6 +196,24 @@
 
     <script src="admin.js"></script>
     <script>
+        // Determine API URL based on environment
+        function getAPIBase() {
+            const hostname = window.location.hostname;
+
+            // For local development
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+                return 'http://localhost:5001/api';
+            }
+
+            // For production on Render
+            if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+                return 'https://fjl-backend.onrender.com/api';
+            }
+
+            // Fallback to localhost
+            return 'http://localhost:5001/api';
+        }
+
         if (!checkAdminAuth()) {
             window.location.href = '/admin/index.html';
         } else {
@@ -236,7 +254,7 @@
                 console.log('Loading store settings from API...');
 
                 // Construct the full API URL
-                const apiUrl = 'http://localhost:5001/api/settings';
+                const apiUrl = `${getAPIBase()}/settings`;
                 console.log('Fetching from:', apiUrl);
 
                 const response = await fetch(apiUrl, {
@@ -288,7 +306,7 @@
                 console.log('Loading bank settings from API...');
 
                 // Construct the full API URL
-                const apiUrl = 'http://localhost:5001/api/settings';
+                const apiUrl = `${getAPIBase()}/settings`;
                 console.log('Fetching from:', apiUrl);
 
                 const response = await fetch(apiUrl, {
@@ -364,7 +382,7 @@
                     shipping_cost: parseFloat(document.getElementById('shippingCost').value)
                 };
 
-                const response = await fetch('http://localhost:5001/api/settings', {
+                const response = await fetch(`${getAPIBase()}/settings`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -410,7 +428,7 @@
                     currency_symbol: document.getElementById('currencySymbol').value
                 };
 
-                const response = await fetch('http://localhost:5001/api/settings', {
+                const response = await fetch(`${getAPIBase()}/settings`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -472,7 +490,7 @@
             try {
                 const token = localStorage.getItem('fjl_token') || '';
 
-                const response = await fetch('http://localhost:5001/api/auth/change-password', {
+                const response = await fetch(`${getAPIBase()}/auth/change-password`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

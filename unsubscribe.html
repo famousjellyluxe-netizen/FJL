@@ -180,6 +180,24 @@
     </footer>
 
     <script>
+        // Determine API URL based on environment
+        function getAPIBase() {
+            const hostname = window.location.hostname;
+
+            // For local development
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+                return 'http://localhost:5001/api';
+            }
+
+            // For production on Render
+            if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+                return 'https://fjl-backend.onrender.com/api';
+            }
+
+            // Fallback to localhost
+            return 'http://localhost:5001/api';
+        }
+
         // Initialize Lucide icons
         lucide.createIcons();
 
@@ -199,7 +217,7 @@
 
             try {
                 // Call unsubscribe API
-                const response = await fetch(`http://localhost:5001/api/customers/members/unsubscribe?token=${encodeURIComponent(token)}`);
+                const response = await fetch(`${getAPIBase()}/customers/members/unsubscribe?token=${encodeURIComponent(token)}`);
                 const data = await response.json();
 
                 // Hide loading

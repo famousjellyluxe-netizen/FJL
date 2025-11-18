@@ -122,6 +122,24 @@
     <script src="admin.js"></script>
 
     <script>
+        // Determine API URL based on environment
+        function getAPIBase() {
+            const hostname = window.location.hostname;
+
+            // For local development
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
+                return 'http://localhost:5001/api';
+            }
+
+            // For production on Render
+            if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
+                return 'https://fjl-backend.onrender.com/api';
+            }
+
+            // Fallback to localhost
+            return 'http://localhost:5001/api';
+        }
+
         // Animation for sending state
         const style = document.createElement('style');
         style.textContent = `
@@ -144,7 +162,7 @@
         async function loadUnannouncedProducts() {
             try {
                 const token = localStorage.getItem('fjl_admin_token') || '';
-                const response = await fetch('http://localhost:5001/api/products/admin/unannounced', {
+                const response = await fetch(`${getAPIBase()}/products/admin/unannounced`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -177,7 +195,7 @@
         async function loadSubscriberCount() {
             try {
                 const token = localStorage.getItem('fjl_admin_token') || '';
-                const response = await fetch('http://localhost:5001/api/customers/members/list?page=1&limit=1&subscribed=true', {
+                const response = await fetch(`${getAPIBase()}/customers/members/list?page=1&limit=1&subscribed=true`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -276,7 +294,7 @@
             try {
                 console.log('📤 [FRONTEND] Sending POST request to /api/products/admin/announce');
                 const token = localStorage.getItem('fjl_admin_token') || '';
-                const response = await fetch('http://localhost:5001/api/products/admin/announce', {
+                const response = await fetch(`${getAPIBase()}/products/admin/announce`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
