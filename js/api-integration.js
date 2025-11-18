@@ -19,6 +19,10 @@ class APIIntegrationManager {
     this.pendingRequests = new Map();
     this.isOnline = navigator.onLine;
     this.requestQueue = [];
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => this._handleOnline());
+    window.addEventListener('offline', () => this._handleOffline());
   }
 
   /**
@@ -39,11 +43,6 @@ class APIIntegrationManager {
 
     // Fallback to localhost
     return 'http://localhost:5001/api';
-  }
-
-    // Listen for online/offline events
-    window.addEventListener('online', () => this._handleOnline());
-    window.addEventListener('offline', () => this._handleOffline());
   }
 
   /**
