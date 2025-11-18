@@ -32,6 +32,17 @@ export default defineConfig({
           });
         });
 
+        // Copy all root-level SVG files to dist
+        const rootSvgFiles = fs.readdirSync('.').filter(f => f.endsWith('.svg'));
+        rootSvgFiles.forEach(file => {
+          const content = fs.readFileSync(file, 'utf-8');
+          this.emitFile({
+            type: 'asset',
+            fileName: file,
+            source: content
+          });
+        });
+
         // Helper function to recursively copy directories
         const copyDir = (dir, prefix = '') => {
           const files = fs.readdirSync(dir);
