@@ -149,6 +149,16 @@
             color: #E09F3E;
         }
 
+        /* Hide header when mobile menu is open */
+        @media (max-width: 768px) {
+            body.menu-open {
+                overflow: hidden;
+            }
+            body.menu-open .sticky-header {
+                display: none;
+            }
+        }
+
         .mobile-menu-image {
             margin-top: auto;
             padding: 16px 0 0 0;
@@ -665,9 +675,11 @@
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const body = document.body;
 
             mobileMenu.classList.toggle('active');
             mobileMenuBtn.classList.toggle('active');
+            body.classList.toggle('menu-open');
         }
 
         // Close mobile menu when clicking outside

@@ -140,6 +140,49 @@
             padding: 16px 0;
         }
 
+        .mobile-menu-content {
+            flex: 1;
+            padding: 20px 16px;
+        }
+
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu-links li {
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .mobile-menu-links a {
+            display: block;
+            padding: 16px 0;
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-menu-links a:hover {
+            color: #E09F3E;
+        }
+
+        /* Hide header when mobile menu is open */
+        @media (max-width: 768px) {
+            body.menu-open {
+                overflow: hidden;
+            }
+            body.menu-open .sticky-header {
+                display: none;
+            }
+        }
+
         .policy-container {
             max-width: 4xl;
             margin: 0 auto;
@@ -247,53 +290,59 @@
         <nav class="bg-white border-b border-gray-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
+                    <!-- Mobile Menu Button (Left) -->
+                    <button class="mobile-menu-btn md:hidden" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+                        <span></span>
+                        <span></span>
+                    </button>
+
+                    <!-- Left nav items -->
+                    <div class="hidden md:flex gap-8">
+                        <a href="index.html" class="text-gray-700 text-sm font-medium hover:text-black transition">HOME</a>
+                        <a href="about.html" class="text-gray-700 text-sm font-medium hover:text-black transition">ABOUT US</a>
+                        <a href="shop.html" class="text-gray-700 text-sm font-medium hover:text-black transition">SHOP</a>
+                        <a href="contact.html" class="text-gray-700 text-sm font-medium hover:text-black transition">CONTACT US</a>
+                    </div>
+
                     <!-- Logo -->
-                    <div class="flex-shrink-0">
+                    <div class="absolute left-1/2 transform -translate-x-1/2">
                         <a href="index.html" style="display: inline-block; text-decoration: none;">
-                            <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto;" class="logo-image">
+                            <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto; cursor: pointer;">
                         </a>
                     </div>
 
-                    <!-- Desktop Navigation -->
-                    <div class="hidden md:flex space-x-8">
-                        <a href="index.html" class="text-black hover:text-gray-600 font-medium">Home</a>
-                        <a href="shop.html" class="text-black hover:text-gray-600 font-medium">Shop</a>
-                        <a href="about.html" class="text-black hover:text-gray-600 font-medium">About</a>
-                        <a href="contact.html" class="text-black hover:text-gray-600 font-medium">Contact</a>
-                    </div>
-
-                    <!-- Cart & Mobile Menu Button -->
-                    <div class="flex items-center space-x-4">
-                        <a href="cart.html" class="text-black hover:text-gray-600">
-                            <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
+                    <!-- Right icons -->
+                    <div class="flex gap-6 items-center">
+                        <a href="cart.html" class="text-gray-700 hover:text-[#E09F3E] transition flex relative" aria-label="Shopping cart">
+                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
                         </a>
-                        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
-                            <span></span>
-                            <span></span>
-                            <span></span>
+                        <button class="text-gray-700 hover:text-[#E09F3E] transition hidden md:flex" aria-label="Search">
+                            <i data-lucide="search" class="w-5 h-5"></i>
                         </button>
                     </div>
                 </div>
             </div>
         </nav>
-
-        <!-- Mobile Menu -->
-        <div class="mobile-menu" id="mobileMenu">
-            <div class="mobile-menu-header">
-                <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 32px; width: auto;">
-                <span class="mobile-menu-close" id="mobileMenuClose">×</span>
-            </div>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="shop.html">Shop</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-            <div class="mobile-menu-footer">
-                <a href="cart.html">Cart</a>
-            </div>
-        </div>
     </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="index.html" style="display: inline-block; text-decoration: none;" onclick="toggleMobileMenu()">
+                <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 32px; width: auto; cursor: pointer;">
+            </a>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
+        </div>
+        <div class="mobile-menu-content">
+            <ul class="mobile-menu-links">
+                <li><a href="index.html" onclick="toggleMobileMenu()">HOME</a></li>
+                <li><a href="about.html" onclick="toggleMobileMenu()">ABOUT US</a></li>
+                <li><a href="shop.html" onclick="toggleMobileMenu()">SHOP</a></li>
+                <li><a href="contact.html" onclick="toggleMobileMenu()">CONTACT US</a></li>
+            </ul>
+        </div>
+    </div>
 
     <!-- Refund Policy Content -->
     <div class="policy-container">
@@ -455,25 +504,27 @@
     </footer>
 
     <script>
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const body = document.body;
 
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenuBtn.classList.toggle('active');
             mobileMenu.classList.toggle('active');
-        });
+            mobileMenuBtn.classList.toggle('active');
+            body.classList.toggle('menu-open');
+        }
 
-        mobileMenuClose.addEventListener('click', () => {
-            mobileMenuBtn.classList.remove('active');
-            mobileMenu.classList.remove('active');
-        });
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 
-        mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
+            if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
                 mobileMenuBtn.classList.remove('active');
                 mobileMenu.classList.remove('active');
-            });
+                document.body.classList.remove('menu-open');
+            }
         });
 
         lucide.createIcons();
