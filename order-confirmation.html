@@ -22,15 +22,19 @@
         :root {
             --color-primary: #000;
             --color-secondary: #fff;
-            --color-accent: #E09F3E;
+            --color-accent: #00FF00;
+            --color-accent-hover: #0AFF00;
             --color-gray: #8b8b8b;
+            --color-bg-page: #000000;
+            --color-bg-card: #FFFFFF;
         }
 
         .sticky-header {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: white;
+            background: var(--color-primary);
+            border-bottom: 2px solid var(--color-accent);
         }
 
         /* Mobile Menu Styles */
@@ -47,7 +51,7 @@
         .mobile-menu-btn span {
             width: 24px;
             height: 3px;
-            background: black;
+            background: var(--color-accent);
             transition: all 0.3s ease;
         }
 
@@ -71,7 +75,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: white;
+            background: var(--color-bg-page);
             z-index: 40;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -89,10 +93,10 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px;
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: 1px solid #2A2A2A;
             position: sticky;
             top: 0;
-            background: white;
+            background: var(--color-bg-page);
             z-index: 41;
         }
 
@@ -101,7 +105,7 @@
             cursor: pointer;
             background: none;
             border: none;
-            color: black;
+            color: var(--color-secondary);
         }
 
         .mobile-menu-content {
@@ -119,14 +123,14 @@
         }
 
         .mobile-menu-links li {
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: 1px solid #2A2A2A;
         }
 
         .mobile-menu-links a {
             display: block;
             padding: 16px 0;
             text-decoration: none;
-            color: #333;
+            color: var(--color-secondary);
             font-size: 16px;
             font-weight: 500;
             text-transform: uppercase;
@@ -134,7 +138,7 @@
         }
 
         .mobile-menu-links a:hover {
-            color: #E09F3E;
+            color: var(--color-accent);
         }
 
         /* Hide header when mobile menu is open */
@@ -150,7 +154,7 @@
         .mobile-menu-image {
             margin-top: auto;
             padding: 16px 0 0 0;
-            border-top: 1px solid #e5e5e5;
+            border-top: 1px solid #2A2A2A;
         }
 
         .mobile-menu-image img {
@@ -409,7 +413,7 @@
         }
 
         .btn-secondary {
-            background: white;
+            background: var(--color-bg-card);
             color: #000;
             border: 2px solid #000;
         }
@@ -419,7 +423,7 @@
         }
 
         .print-btn {
-            background: white;
+            background: var(--color-bg-card);
             color: #000;
             border: 2px solid #e5e5e5;
         }
@@ -440,11 +444,11 @@
         .email-input:focus {
             outline: none;
             background: #eee;
-            box-shadow: inset 0 0 0 1px #E09F3E;
+            box-shadow: inset 0 0 0 1px var(--color-accent);
         }
 
         .submit-btn {
-            background: white;
+            background: var(--color-bg-card);
             color: black;
             border: none;
             cursor: pointer;
@@ -516,7 +520,7 @@
 
             /* Adjust main content for printing */
             main {
-                background: white;
+                background: var(--color-bg-card);
                 padding: 0;
             }
 
@@ -647,11 +651,11 @@
 
                     <!-- Right icons -->
                     <div class="flex gap-6 items-center">
-                        <a href="cart.html" class="text-gray-700 hover:text-[#E09F3E] transition flex relative" aria-label="Shopping cart">
+                        <a href="cart.html" class="text-gray-700 transition flex relative" aria-label="Shopping cart" style="color: var(--color-secondary);">
                             <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                             <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
                         </a>
-                        <button class="text-gray-700 hover:text-[#E09F3E] transition hidden md:flex" aria-label="Search">
+                        <button class="text-gray-700 transition hidden md:flex" aria-label="Search" style="color: var(--color-secondary);">
                             <i data-lucide="search" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -682,14 +686,14 @@
     </div>
 
     <!-- Confirmation Content -->
-    <main class="bg-white">
+    <main style="background: var(--color-bg-card);">
         <div class="confirmation-container">
             <!-- Success Header -->
             <div class="confirmation-header">
                 <h1>Order Received!</h1>
                 <p>Thank you, <span id="firstName">Guest</span>.</p>
                 <p id="orderStatus">Your order has been received successfully.</p>
-                <p style="color: #E09F3E; font-weight: 600; margin-top: 12px;">Please complete your payment to confirm your order.</p>
+                <p style="color: var(--color-accent); font-weight: 600; margin-top: 12px;">Please complete your payment to confirm your order.</p>
                 <p style="font-size: 13px; color: #8b8b8b; margin-top: 8px;">
                     🕒 Order Date: <span id="orderDate">-</span> | 📋 Order ID: <span id="orderNumber" style="font-weight: 600; color: #333;">-</span>
                 </p>
@@ -785,10 +789,10 @@
             </div>
 
             <!-- Need Help Section -->
-            <div class="section" style="background: #f9f9f9; padding: 16px; border-radius: 4px; border-left: 4px solid #E09F3E;">
+            <div class="section" style="background: #f9f9f9; padding: 16px; border-radius: 4px; border-left: 4px solid var(--color-accent);">
                 <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">📧 Need Help?</h3>
                 <p style="font-size: 13px; color: #333; margin: 0;">If you've already made payment or have any issues, reply directly to this email or contact:</p>
-                <p style="font-size: 13px; font-weight: 600; color: #E09F3E; margin: 6px 0 0 0;">hello@fjlclothing.com</p>
+                <p style="font-size: 13px; font-weight: 600; color: var(--color-accent); margin: 6px 0 0 0;">hello@fjlclothing.com</p>
             </div>
 
             <!-- Action Buttons -->
@@ -833,7 +837,7 @@
                         <input type="text" name="full_name" placeholder="Full name" class="email-input w-full" required aria-label="Full name">
                         <div class="flex gap-2">
                             <input type="email" name="email" placeholder="Email address" class="email-input flex-1" required aria-label="Email address">
-                            <button type="submit" class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">Join</button>
+                            <button type="submit" class="submit-btn px-6" style="background-color: var(--color-accent); color: black; font-weight: 700;" aria-label="Subscribe">Join</button>
                         </div>
                     </form>
                 </div>
@@ -842,7 +846,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200">
+    <footer class="border-t border-gray-200" style="background: var(--color-bg-card);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <!-- Logo/Brand -->
@@ -867,16 +871,16 @@
 
                 <!-- Social Icons -->
                 <div class="flex gap-6 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Facebook">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="Facebook">
                         <i data-lucide="facebook" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="YouTube">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="YouTube">
                         <i data-lucide="youtube" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="LinkedIn">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="LinkedIn">
                         <i data-lucide="linkedin" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Twitter">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="Twitter">
                         <i data-lucide="twitter" class="w-5 h-5"></i>
                     </a>
                 </div>

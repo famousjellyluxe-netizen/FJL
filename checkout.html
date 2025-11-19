@@ -22,15 +22,24 @@
         :root {
             --color-primary: #000;
             --color-secondary: #fff;
-            --color-accent: #E09F3E;
+            --color-accent: #00FF00;
+            --color-accent-hover: #0AFF00;
             --color-gray: #8b8b8b;
+            --color-bg-page: #FFFFFF;
+            --color-bg-card: #FFFFFF;
+        }
+
+        body {
+            background: var(--color-bg-page);
+            color: #333;
         }
 
         .sticky-header {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: white;
+            background: #FFFFFF;
+            border-bottom: 2px solid var(--color-accent);
         }
 
         .top-banner {
@@ -59,7 +68,7 @@
         .mobile-menu-btn span {
             width: 24px;
             height: 3px;
-            background: black;
+            background: var(--color-accent);
             transition: all 0.3s ease;
         }
 
@@ -83,7 +92,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: white;
+            background: #FFFFFF;
             z-index: 40;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -104,7 +113,7 @@
             border-bottom: 1px solid #e5e5e5;
             position: sticky;
             top: 0;
-            background: white;
+            background: #FFFFFF;
             z-index: 41;
         }
 
@@ -113,7 +122,7 @@
             cursor: pointer;
             background: none;
             border: none;
-            color: black;
+            color: #333;
         }
 
         .mobile-menu-content {
@@ -146,7 +155,7 @@
         }
 
         .mobile-menu-links a:hover {
-            color: #E09F3E;
+            color: var(--color-accent);
         }
 
         /* Hide header when mobile menu is open */
@@ -162,7 +171,7 @@
         .mobile-menu-image {
             margin-top: auto;
             padding: 16px 0 0 0;
-            border-top: 1px solid #e5e5e5;
+            border-top: 1px solid #2A2A2A;
         }
 
         .mobile-menu-image img {
@@ -192,7 +201,7 @@
             margin-bottom: 24px;
             margin-top: 32px;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid #E09F3E;
+            border-bottom: 2px solid var(--color-accent);
             padding-bottom: 12px;
         }
 
@@ -242,7 +251,7 @@
         .form-group select:focus {
             outline: none;
             border-color: #000;
-            box-shadow: 0 0 0 3px rgba(224, 159, 62, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1);
         }
 
         .form-group input::placeholder {
@@ -292,7 +301,7 @@
         }
 
         .summary-item.total span:last-child {
-            color: #E09F3E;
+            color: var(--color-accent);
         }
 
         .checkout-btn {
@@ -347,11 +356,11 @@
         .email-input:focus {
             outline: none;
             background: #eee;
-            box-shadow: inset 0 0 0 1px #E09F3E;
+            box-shadow: inset 0 0 0 1px var(--color-accent);
         }
 
         .submit-btn {
-            background: white;
+            background: var(--color-bg-card);
             color: black;
             border: none;
             cursor: pointer;
@@ -420,11 +429,11 @@
 
                     <!-- Right icons -->
                     <div class="flex gap-6 items-center">
-                        <a href="cart.html" class="text-gray-700 hover:text-[#E09F3E] transition relative" aria-label="Shopping cart">
+                        <a href="cart.html" class="text-gray-700 transition relative" aria-label="Shopping cart" style="color: var(--color-secondary);">
                             <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                             <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
                         </a>
-                        <button class="text-gray-700 hover:text-[#E09F3E] transition hidden md:flex" aria-label="Search">
+                        <button class="text-gray-700 transition hidden md:flex" aria-label="Search" style="color: var(--color-secondary);">
                             <i data-lucide="search" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -455,7 +464,7 @@
     </div>
 
     <!-- Checkout Section -->
-    <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+    <section class="py-12 px-4 sm:px-6 lg:px-8" style="background: var(--color-bg-card);">
         <div class="max-w-7xl mx-auto">
             <!-- Breadcrumb -->
             <div class="text-xs text-gray-600 mb-8">
@@ -628,7 +637,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200">
+    <footer class="border-t border-gray-200" style="background: var(--color-bg-card);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <!-- Logo/Brand -->
@@ -653,16 +662,16 @@
 
                 <!-- Social Icons -->
                 <div class="flex gap-6 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Facebook">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="Facebook">
                         <i data-lucide="facebook" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="YouTube">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="YouTube">
                         <i data-lucide="youtube" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="LinkedIn">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="LinkedIn">
                         <i data-lucide="linkedin" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Twitter">
+                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="Twitter">
                         <i data-lucide="twitter" class="w-5 h-5"></i>
                     </a>
                 </div>
