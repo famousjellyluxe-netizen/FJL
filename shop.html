@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop - Famous Jelly Luxe (FJL)</title>
+    <title>Shop - SNUG WORLD</title>
     <link rel="icon" type="image/svg+xml" href="/ftg-logo-favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -21,15 +21,24 @@
         :root {
             --color-primary: #000;
             --color-secondary: #fff;
-            --color-accent: #E09F3E;
+            --color-accent: #00ff00;
+            --color-accent-hover: #0aff00;
             --color-gray: #8b8b8b;
+            --color-gray-light: #f5f5f5;
+            --color-gray-dark: #333;
+        }
+
+        body {
+            background: var(--color-primary);
+            color: var(--color-secondary);
         }
 
         .sticky-header {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: white;
+            background: var(--color-primary);
+            border-bottom: 2px solid var(--color-accent);
         }
 
         /* Mobile Menu Styles */
@@ -41,12 +50,13 @@
             background: none;
             border: none;
             padding: 8px;
+            z-index: 10;
         }
 
         .mobile-menu-btn span {
             width: 24px;
-            height: 3px;
-            background: black;
+            height: 2px;
+            background: var(--color-accent);
             transition: all 0.3s ease;
         }
 
@@ -70,7 +80,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: white;
+            background: var(--color-primary);
             z-index: 40;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -87,11 +97,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid #e5e5e5;
+            padding: 16px 20px;
+            border-bottom: 2px solid var(--color-accent);
             position: sticky;
             top: 0;
-            background: white;
+            background: var(--color-primary);
             z-index: 41;
         }
 
@@ -100,7 +110,7 @@
             cursor: pointer;
             background: none;
             border: none;
-            color: black;
+            color: var(--color-accent);
         }
 
         .mobile-menu-content {
@@ -118,22 +128,23 @@
         }
 
         .mobile-menu-links li {
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: 1px solid #333;
         }
 
         .mobile-menu-links a {
             display: block;
             padding: 16px 0;
             text-decoration: none;
-            color: #333;
-            font-size: 16px;
-            font-weight: 500;
+            color: var(--color-accent);
+            font-size: 14px;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: color 0.3s ease;
         }
 
         .mobile-menu-links a:hover {
-            color: #E09F3E;
+            color: var(--color-accent-hover);
         }
 
         /* Hide header when mobile menu is open */
@@ -146,37 +157,26 @@
             }
         }
 
-        .top-banner {
-            background: black;
-            color: white;
-            padding: 8px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
-            font-style: italic;
-        }
-
         .product-card {
             position: relative;
             overflow: hidden;
-            background: white;
+            background: #2a2a2a;
             transition: all 0.3s ease;
         }
 
         .product-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 24px rgba(0, 255, 0, 0.2);
+            transform: translateY(-4px);
         }
 
         .product-image {
-            background: #f5f5f5;
-            aspect-ratio: 0.8;
+            background: #1a1a1a;
+            aspect-ratio: 0.75;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #999;
-            font-size: 14px;
+            color: var(--color-gray);
+            font-size: 12px;
             overflow: hidden;
         }
 
@@ -223,8 +223,9 @@
         }
 
         .filter-dropdown {
-            background: white;
-            border: 1px solid #e5e5e5;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: var(--color-secondary);
             padding: 8px 12px;
             font-size: clamp(12px, 2.5vw, 14px);
             cursor: pointer;
@@ -232,7 +233,13 @@
         }
 
         .filter-dropdown:hover {
-            border-color: #000;
+            border-color: var(--color-accent);
+        }
+
+        .filter-dropdown:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1);
         }
 
         /* Filter row container - horizontal layout */
@@ -247,8 +254,10 @@
         /* Filter label styling */
         .filter-label {
             font-size: clamp(12px, 2.5vw, 14px);
-            font-weight: 500;
-            color: #374151;
+            font-weight: 600;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             min-width: clamp(70px, 18vw, 120px);
             flex-shrink: 0;
         }
@@ -256,21 +265,28 @@
         /* Items count specific styling */
         .items-count {
             font-size: clamp(12px, 2.5vw, 14px);
-            color: #6b7280;
+            color: var(--color-gray);
             font-weight: 400;
         }
 
         .view-toggle-btn {
             padding: 8px 12px;
-            border: 1px solid #e5e5e5;
-            background: white;
+            border: 1px solid #333;
+            background: transparent;
+            color: var(--color-gray);
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
+        .view-toggle-btn:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
         .view-toggle-btn.active {
-            border-color: #000;
-            background: #f5f5f5;
+            border-color: var(--color-accent);
+            background: var(--color-accent);
+            color: #000;
         }
 
         /* Hover Overlay Styles */
@@ -298,21 +314,21 @@
         }
 
         .cart-icon-btn {
-            background: #E09F3E;
+            background: var(--color-accent);
             border: none;
+            color: #000;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            font-size: 12px;
-            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 255, 0, 0.3);
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            color: white;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
@@ -324,21 +340,21 @@
         }
 
         .cart-icon-btn:hover {
-            background: #d08a2f;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            background: var(--color-accent-hover);
+            box-shadow: 0 6px 16px rgba(0, 255, 0, 0.4);
         }
 
         /* Out of Stock Styles */
         .cart-icon-btn.disabled {
-            background: #ccc;
+            background: #666;
             cursor: not-allowed;
             opacity: 1 !important;
             box-shadow: none;
-            color: #666;
+            color: #ccc;
         }
 
         .cart-icon-btn.disabled:hover {
-            background: #ccc;
+            background: #666;
             box-shadow: none;
             transform: none;
         }
@@ -495,7 +511,7 @@
         .modal-product-price {
             font-size: clamp(16px, 4vw, 20px);
             font-weight: 600;
-            color: #E09F3E;
+            color: var(--color-accent);
             margin-bottom: 24px;
         }
 
@@ -820,14 +836,9 @@
     </style>
     </head>
 <body>
-    <!-- Top banner -->
-    <div class="top-banner">
-        Stay fresh. Stay fearless. Stay FJL.
-    </div>
-
     <!-- Header & Navigation -->
     <header class="sticky-header">
-        <nav class="bg-white border-b border-gray-200">
+        <nav style="background: var(--color-primary); border-bottom: 2px solid var(--color-accent);">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     <!-- Mobile Menu Button (Left) -->
@@ -838,28 +849,28 @@
 
                     <!-- Left nav items -->
                     <div class="hidden md:flex gap-8">
-                        <a href="index.html" class="text-gray-700 text-sm font-medium hover:text-black transition">HOME</a>
-                        <a href="about.html" class="text-gray-700 text-sm font-medium hover:text-black transition">ABOUT US</a>
-                        <a href="shop.html" class="text-gray-700 text-sm font-medium hover:text-black transition">SHOP</a>
-                        <a href="contact.html" class="text-gray-700 text-sm font-medium hover:text-black transition">CONTACT US</a>
+                        <a href="index.html" style="color: var(--color-accent); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; transition: color 0.3s ease;">SNG WRLD</a>
+                        <a href="shop.html" style="color: var(--color-accent); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; transition: color 0.3s ease;">COLLECTION</a>
+                        <a href="shop.html" style="color: var(--color-accent); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; transition: color 0.3s ease;">TEES</a>
+                        <a href="shop.html" style="color: var(--color-accent); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; transition: color 0.3s ease;">SLEEVELESS</a>
                     </div>
 
                     <!-- Logo -->
                     <div class="absolute left-1/2 transform -translate-x-1/2">
                         <a href="index.html" style="display: inline-block; text-decoration: none;">
-                            <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto; cursor: pointer;">
+                            <img src="/ftg-logo.svg" alt="SNUG WORLD Logo" style="height: 40px; width: auto; cursor: pointer;">
                         </a>
                     </div>
 
                     <!-- Right icons -->
                     <div class="flex gap-6 items-center">
-                        <a href="cart.html" class="text-gray-700 hover:text-[#E09F3E] transition flex relative" aria-label="Shopping cart">
+                        <a href="cart.html" style="color: var(--color-accent); text-decoration: none; display: flex; align-items: center; position: relative; transition: color 0.3s ease;" aria-label="Shopping cart">
                             <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+                            <span id="cartBadge" style="position: absolute; top: -8px; right: -8px; background: #ff0000; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 20px; text-align: center; display: none;">0</span>
                         </a>
-                        <button class="text-gray-700 hover:text-[#E09F3E] transition hidden md:flex" aria-label="Search">
-                            <i data-lucide="search" class="w-5 h-5"></i>
-                        </button>
+                        <a href="/login/" style="color: var(--color-accent); text-decoration: none; display: flex; align-items: center; transition: color 0.3s ease;" aria-label="Account">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -885,7 +896,7 @@
     </div>
 
     <!-- Shop Filter & Controls Section -->
-    <section class="py-6 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200">
+    <section class="py-6 px-4 sm:px-6 lg:px-8" style="background: #1a1a1a; border-bottom: 1px solid #333;">
         <div class="max-w-7xl mx-auto">
             <!-- Filter Rows Container -->
             <div class="flex flex-col gap-4">
@@ -924,7 +935,7 @@
     </section>
 
     <!-- Products Grid Section -->
-    <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+    <section class="py-12 px-4 sm:px-6 lg:px-8" style="background: #1a1a1a;">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-6 grid-view" id="productsGrid">
                 <!-- Products will be rendered here by JavaScript -->
@@ -932,88 +943,62 @@
         </div>
     </section>
 
-    <!-- Join the Geng Section -->
-    <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <!-- Quick Links -->
+    <!-- Footer -->
+    <footer style="background: #000; border-top: 2px solid var(--color-accent); padding: 60px 20px 30px;">
+        <div class="max-width-container" style="max-width: 1200px; margin: 0 auto;">
+            <!-- Footer Content Grid -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 40px;">
+                <!-- Left Column - Logo & About -->
                 <div>
-                    <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">Quick Links</h3>
-                    <ul class="space-y-3">
-                        <li><a href="index.html" class="text-gray-600 text-sm hover:text-black transition">Home</a></li>
-                        <li><a href="about.html" class="text-gray-600 text-sm hover:text-black transition">About Us</a></li>
-                        <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Shop</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Campaigns</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Order Lookup</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
-                    </ul>
+                    <a href="index.html" style="display: inline-block; text-decoration: none;">
+                        <img src="/ftg-logo.svg" alt="SNUG WORLD Logo" style="height: 36px; width: auto;">
+                    </a>
+                    <p style="font-size: 13px; line-height: 1.6; color: #aaa; margin: 16px 0;">
+                        SNUG WORLD showcases how streetwear can be designed in a luxurious way, offering high-quality pieces curated for ultimate comfort. True to its name, 'snug' embodies the perfect fit.
+                    </p>
+                    <div style="display: flex; gap: 16px; margin-top: 20px;">
+                        <a href="https://www.instagram.com/snug_worldd" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 1px solid #333; border-radius: 50%; color: var(--color-accent); text-decoration: none; transition: all 0.3s ease;">
+                            <i data-lucide="instagram" class="w-4 h-4"></i>
+                        </a>
+                        <a href="https://wa.me/2347078939461" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 1px solid #333; border-radius: 50%; color: var(--color-accent); text-decoration: none; transition: all 0.3s ease;">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Policies -->
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">Policies</h3>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Search</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Terms of Service</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Refund policy</a></li>
-                    </ul>
-                </div>
+                <!-- Middle/Right Column - Links & Newsletter -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                    <div>
+                        <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-accent); margin: 0 0 16px 0;">Quick Links</h3>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 12px;"><a href="index.html" style="text-decoration: none; color: #aaa; font-size: 13px; transition: color 0.3s ease;">Home</a></li>
+                            <li style="margin-bottom: 12px;"><a href="shop.html" style="text-decoration: none; color: #aaa; font-size: 13px; transition: color 0.3s ease;">Shop</a></li>
+                            <li style="margin-bottom: 12px;"><a href="shop.html" style="text-decoration: none; color: #aaa; font-size: 13px; transition: color 0.3s ease;">Collection</a></li>
+                            <li style="margin-bottom: 12px;"><a href="#" style="text-decoration: none; color: #aaa; font-size: 13px; transition: color 0.3s ease;">About</a></li>
+                        </ul>
+                    </div>
 
-                <!-- Email Signup -->
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">BECOME A MEMBER</h3>
-                    <p class="text-gray-600 text-sm mb-4">Join the FJL family and stay ahead of every drop.</p>
-                    <form data-newsletter-form data-newsletter-source="footer" class="space-y-2">
-                        <input type="text" name="full_name" placeholder="Full name" class="email-input w-full" required aria-label="Full name">
-                        <div class="flex gap-2">
-                            <input type="email" name="email" placeholder="Email address" class="email-input flex-1" required aria-label="Email address">
-                            <button type="submit" class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">Join</button>
-                        </div>
-                    </form>
+                    <div>
+                        <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-accent); margin: 0 0 16px 0;">Members Only</h3>
+                        <p style="font-size: 13px; line-height: 1.6; color: #aaa; margin: 0 0 20px 0;">Sign up for our membership to be the first to get updates about SNUG WORLD.</p>
+                        <form style="display: flex; flex-direction: column; gap: 12px;">
+                            <input type="email" placeholder="Email address" style="padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; color: var(--color-secondary); font-size: 13px; transition: all 0.3s ease;" required>
+                            <input type="text" placeholder="Full name" style="padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; color: var(--color-secondary); font-size: 13px; transition: all 0.3s ease;" required>
+                            <button type="submit" style="padding: 12px 24px; background: var(--color-accent); color: #000; border: none; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;">Join Us</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <!-- Logo/Brand -->
-                <div class="text-center md:text-left mb-4 md:mb-0">
-                    <a href="index.html" style="display: inline-block; text-decoration: none;">
-                        <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 36px; width: auto; cursor: pointer;">
-                    </a>
-                </div>
-
-                <!-- Copyright & Links -->
-                <div class="text-center text-xs text-gray-600 space-x-2">
-                    <span>© 2025 Famous Jelly Luxe . All Rights Reserved</span>
-                    <span>|</span>
-                    <a href="/refund-policy.html" class="hover:text-black transition">Refund policy</a>
-                    <span>|</span>
-                    <a href="/privacy-policy.html" class="hover:text-black transition">Privacy policy</a>
-                    <span>|</span>
-                    <a href="/terms-of-service.html" class="hover:text-black transition">Terms of service</a>
-                    <span>|</span>
-                    <a href="/shipping-policy.html" class="hover:text-black transition">Shipping policy</a>
-                </div>
-
-                <!-- Social Icons -->
-                <div class="flex gap-6 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Facebook">
-                        <i data-lucide="facebook" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="YouTube">
-                        <i data-lucide="youtube" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="LinkedIn">
-                        <i data-lucide="linkedin" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Twitter">
-                        <i data-lucide="twitter" class="w-5 h-5"></i>
-                    </a>
-                </div>
+            <!-- Footer Bottom -->
+            <div style="border-top: 1px solid #333; padding-top: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center; font-size: 12px; color: #666;">
+                <p style="margin: 0;">© 2025 SNUG WORLD. All rights reserved.</p>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                    <li><a href="#" style="color: #666; text-decoration: none; transition: color 0.3s ease;">Customer Service</a></li>
+                    <li><a href="#" style="color: #666; text-decoration: none; transition: color 0.3s ease;">Privacy Policy</a></li>
+                    <li><a href="#" style="color: #666; text-decoration: none; transition: color 0.3s ease;">Refund and Returns Policy</a></li>
+                    <li><a href="#" style="color: #666; text-decoration: none; transition: color 0.3s ease;">FAQs</a></li>
+                </ul>
             </div>
         </div>
     </footer>
