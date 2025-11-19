@@ -354,8 +354,8 @@ COMMENT ON COLUMN store_settings.setting_type IS 'Data type for value parsing (s
 -- ============================================================================
 INSERT INTO store_settings (setting_key, setting_value, setting_type) VALUES
   ('store_name', 'Famous Jelly Luxe', 'string'),
-  ('store_currency', 'NGN', 'string'),
-  ('currency_symbol', '₦', 'string'),
+  ('store_currency', 'CAD', 'string'),
+  ('currency_symbol', '$', 'string'),
   ('tax_rate', '0.075', 'number'),
   ('shipping_cost', '0', 'number'),
   ('featured_products_limit', '6', 'number'),

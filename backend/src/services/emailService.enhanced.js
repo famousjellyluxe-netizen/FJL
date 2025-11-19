@@ -138,16 +138,16 @@ export async function sendOrderConfirmation(order, customer) {
     const itemsText = order.items
       .map(item => {
         const sizeColor = `Size: ${item.size}${item.color ? ` | Color: ${item.color}` : ''}`;
-        const subtotal = parseFloat(item.total_price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+        const subtotal = parseFloat(item.total_price).toLocaleString('en-CA', { minimumFractionDigits: 2 });
         return `${item.product_name}\n${sizeColor} | Qty: ${item.quantity}\nSubtotal: ${settings.currency_symbol}${subtotal}`;
       })
       .join('\n\n');
 
-    const subtotal = parseFloat(order.subtotal).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const tax = parseFloat(order.tax).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const shipping = parseFloat(order.shipping_cost || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const total = parseFloat(order.total_amount).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const orderDate = new Date(order.created_at).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+    const subtotal = parseFloat(order.subtotal).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const tax = parseFloat(order.tax).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const shipping = parseFloat(order.shipping_cost || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const total = parseFloat(order.total_amount).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const orderDate = new Date(order.created_at).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
 
     // CUSTOMER EMAIL
     const customerHtmlContent = `
@@ -348,23 +348,23 @@ export async function sendPaymentVerified(order, customer) {
     const itemsText = order.items
       .map(item => {
         const sizeColor = `Size: ${item.size}${item.color ? ` | Color: ${item.color}` : ''}`;
-        const itemPrice = parseFloat(item.unit_price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-        const itemTotal = parseFloat(item.total_price).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+        const itemPrice = parseFloat(item.unit_price).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+        const itemTotal = parseFloat(item.total_price).toLocaleString('en-CA', { minimumFractionDigits: 2 });
         return `${item.product_name}\n${sizeColor} | Qty: ${item.quantity}\nPrice: ${settings.currency_symbol}${itemPrice} x ${item.quantity} = ${settings.currency_symbol}${itemTotal}`;
       })
       .join('\n\n');
 
-    const subtotal = parseFloat(order.subtotal).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const tax = parseFloat(order.tax).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const shipping = parseFloat(order.shipping_cost || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const total = parseFloat(order.total_amount).toLocaleString('en-NG', { minimumFractionDigits: 2 });
-    const orderDate = new Date(order.created_at).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+    const subtotal = parseFloat(order.subtotal).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const tax = parseFloat(order.tax).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const shipping = parseFloat(order.shipping_cost || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const total = parseFloat(order.total_amount).toLocaleString('en-CA', { minimumFractionDigits: 2 });
+    const orderDate = new Date(order.created_at).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
 
     // Calculate expected delivery date
     const deliveryDays = settings.delivery_days || 5;
     const expectedDeliveryDate = new Date(order.created_at);
     expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + deliveryDays);
-    const deliveryDateStr = expectedDeliveryDate.toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+    const deliveryDateStr = expectedDeliveryDate.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
 
     // CUSTOMER EMAIL
     const customerHtmlContent = `

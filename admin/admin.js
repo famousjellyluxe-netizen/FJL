@@ -1498,12 +1498,12 @@ migrateSizeChartData();
 
 // Utility Functions
 function formatCurrency(amount) {
-    return '₦' + amount.toLocaleString('en-NG');
+    return '$' + amount.toLocaleString('en-CA');
 }
 
 function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-NG', {
+    return date.toLocaleDateString('en-CA', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
@@ -1512,7 +1512,7 @@ function formatDate(dateString) {
 
 function formatTime(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-NG', {
+    return date.toLocaleTimeString('en-CA', {
         hour: '2-digit',
         minute: '2-digit'
     });

@@ -22,7 +22,7 @@ import { AppError } from '../middleware/errorHandler.js';
  * @param {string} shipmentData.carrier_service - Service type
  * @param {object} shipmentData.destination_address - Delivery address
  * @param {number} shipmentData.cost_amount - Shipping cost in cents
- * @param {string} shipmentData.cost_currency - Currency code (NGN, USD, etc)
+ * @param {string} shipmentData.cost_currency - Currency code (CAD, USD, etc)
  * @param {date} shipmentData.estimated_delivery_date - Expected delivery
  * @returns {Promise<object>} Created shipment
  */
@@ -74,7 +74,7 @@ export async function createShipment(orderId, shipmentData = {}) {
         dimensions: JSON.stringify(shipmentData.dimensions || {}),
         contents: shipmentData.contents || null,
         cost_amount: shipmentData.cost_amount || null,
-        cost_currency: shipmentData.cost_currency || 'NGN',
+        cost_currency: shipmentData.cost_currency || 'CAD',
         signature_required: shipmentData.signature_required || false,
         insurance_amount: shipmentData.insurance_amount || null,
         metadata: shipmentData.metadata ? JSON.stringify(shipmentData.metadata) : null

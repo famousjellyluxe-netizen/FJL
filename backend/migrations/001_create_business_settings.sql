@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS public.business_settings (
   store_email VARCHAR(255) NOT NULL DEFAULT 'hello@fjlclothing.shop',
   tax_rate DECIMAL(5,2) NOT NULL DEFAULT 7.5,
   shipping_cost DECIMAL(10,2) NOT NULL DEFAULT 0,`
-  currency VARCHAR(3) NOT NULL DEFAULT 'NGN',
-  currency_symbol VARCHAR(5) NOT NULL DEFAULT '₦',
+  currency VARCHAR(3) NOT NULL DEFAULT 'CAD',
+  currency_symbol VARCHAR(5) NOT NULL DEFAULT '$',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -37,5 +37,5 @@ CREATE POLICY "Allow admin users to update business settings"
 INSERT INTO public.business_settings
   (account_name, bank_name, account_number, account_type, store_email, tax_rate, shipping_cost, currency, currency_symbol)
 VALUES
-  ('Famous Jelly Luxe', 'Access Bank', '1770816426', 'Business Account', 'hello@fjlclothing.shop', 7.5, 0, 'NGN', '₦')
+  ('Famous Jelly Luxe', 'Access Bank', '1770816426', 'Business Account', 'hello@fjlclothing.shop', 7.5, 0, 'CAD', '$')
 ON CONFLICT DO NOTHING;

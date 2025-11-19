@@ -559,21 +559,21 @@
                         <div style="background: #fff8e1; border-left: 4px solid #fbc02d; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
                             <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #f57f17; margin-bottom: 8px;">⚠️ Important: Pay Exact Amount</div>
                             <div style="font-size: 13px; color: #333; line-height: 1.6; margin-bottom: 12px;">
-                                Transfer <strong>exactly ₦<span id="exactAmount">0.00</span></strong> to the account above. This amount includes your products + tax.
+                                Transfer <strong>exactly $<span id="exactAmount">0.00</span></strong> to the account above. This amount includes your products + tax.
                             </div>
                             <div style="background: white; padding: 12px; border-radius: 4px; font-size: 12px; color: #666;">
                                 <strong>Order Total Breakdown:</strong>
                                 <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
                                     <span>Subtotal:</span>
-                                    <span id="warningSubtotal">₦0.00</span>
+                                    <span id="warningSubtotal">$0.00</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-top: 6px;">
                                     <span>Tax (7.5%):</span>
-                                    <span id="warningTax">₦0.00</span>
+                                    <span id="warningTax">$0.00</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 2px solid #000; font-weight: 700; color: #000;">
                                     <span>TOTAL TO PAY:</span>
-                                    <span id="warningTotal">₦0.00</span>
+                                    <span id="warningTotal">$0.00</span>
                                 </div>
                             </div>
                         </div>
@@ -584,7 +584,7 @@
                         <div style="background: #e3f2fd; border-left: 4px solid #1976d2; padding: 16px; border-radius: 4px;">
                             <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #1565c0; margin-bottom: 8px;">✓ I Understand</div>
                             <div style="font-size: 13px; color: #333; line-height: 1.6;">
-                                I confirm that I will send <strong>exactly ₦<span id="confirmAmount">0.00</span></strong> from my account in the name of <strong><span id="confirmName">-</span></strong> to the FJL account details above. I understand that my order will only be processed after payment is verified.
+                                I confirm that I will send <strong>exactly $<span id="confirmAmount">0.00</span></strong> from my account in the name of <strong><span id="confirmName">-</span></strong> to the FJL account details above. I understand that my order will only be processed after payment is verified.
                             </div>
                         </div>
                     </div>
@@ -608,7 +608,7 @@
                     <div id="summaryItems"></div>
                     <div class="summary-item">
                         <span>Subtotal</span>
-                        <span id="summarySubtotal">₦0.00</span>
+                        <span id="summarySubtotal">$0.00</span>
                     </div>
                     <div class="summary-item">
                         <span>Shipping</span>
@@ -616,11 +616,11 @@
                     </div>
                     <div class="summary-item">
                         <span>Tax (7.5%)</span>
-                        <span id="summaryTax">₦0.00</span>
+                        <span id="summaryTax">$0.00</span>
                     </div>
                     <div class="summary-item total">
                         <span>Total</span>
-                        <span id="summaryTotal">₦0.00</span>
+                        <span id="summaryTotal">$0.00</span>
                     </div>
                 </div>
             </div>
@@ -738,15 +738,15 @@
                 itemsHtml += `
                     <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e5e5;">
                         <span>${item.name} (${item.quantity}x)</span>
-                        <span>₦${(item.price * item.quantity).toLocaleString('en-NG')}</span>
+                        <span>$${(item.price * item.quantity).toLocaleString('en-CA')}</span>
                     </div>
                 `;
             });
 
             document.getElementById('summaryItems').innerHTML = itemsHtml;
-            document.getElementById('summarySubtotal').textContent = `₦${subtotal.toLocaleString('en-NG')}`;
-            document.getElementById('summaryTax').textContent = `₦${tax.toLocaleString('en-NG')}`;
-            document.getElementById('summaryTotal').textContent = `₦${total.toLocaleString('en-NG')}`;
+            document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('en-CA')}`;
+            document.getElementById('summaryTax').textContent = `$${tax.toLocaleString('en-CA')}`;
+            document.getElementById('summaryTotal').textContent = `$${total.toLocaleString('en-CA')}`;
         }
 
         // Generate temporary order number for display
@@ -783,10 +783,10 @@
             document.getElementById('refOrderNum').textContent = tempOrderNumber;
 
             // Update exact amount warning section
-            document.getElementById('exactAmount').textContent = total.toLocaleString('en-NG', {minimumFractionDigits: 2});
-            document.getElementById('warningSubtotal').textContent = `₦${subtotal.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
-            document.getElementById('warningTax').textContent = `₦${tax.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
-            document.getElementById('warningTotal').textContent = `₦${total.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+            document.getElementById('exactAmount').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2});
+            document.getElementById('warningSubtotal').textContent = `$${subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
+            document.getElementById('warningTax').textContent = `$${tax.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
+            document.getElementById('warningTotal').textContent = `$${total.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
         }
 
         // Function to update confirmation when buyer name changes
@@ -797,7 +797,7 @@
             const total = subtotal + tax;
 
             document.getElementById('confirmName').textContent = buyerName;
-            document.getElementById('confirmAmount').textContent = total.toLocaleString('en-NG', {minimumFractionDigits: 2});
+            document.getElementById('confirmAmount').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2});
         }
 
         // Add listener for buyer name input

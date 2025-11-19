@@ -147,7 +147,7 @@ class CartDrawer {
                         <span style="
                             font-weight: 700;
                             font-size: 16px;
-                        ">₦<span id="totalAmount">0.00</span></span>
+                        ">$<span id="totalAmount">0.00</span></span>
                     </div>
 
                     <!-- Action Buttons -->
@@ -405,7 +405,7 @@ class CartDrawer {
                                 font-size: 13px;
                                 font-weight: 600;
                                 margin: 0;
-                            ">₦${item.price.toLocaleString('en-NG')}</p>
+                            ">$${item.price.toLocaleString('en-CA')}</p>
 
                             <!-- Stock Info - Uses variant stock if available, falls back to size-only -->
                             ${(() => {
@@ -471,7 +471,7 @@ class CartDrawer {
             itemsContainer.innerHTML = itemsHTML;
 
             // Update subtotal (no tax in cart drawer)
-            document.getElementById('totalAmount').textContent = subtotal.toLocaleString('en-NG', {minimumFractionDigits: 2});
+            document.getElementById('totalAmount').textContent = subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2});
         }
     }
 

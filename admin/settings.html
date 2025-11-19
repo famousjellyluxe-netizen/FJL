@@ -78,7 +78,7 @@
                                     <input type="number" id="taxRate" class="form-control" min="0" max="100" step="0.01">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Shipping Cost (₦)</label>
+                                    <label class="form-label">Shipping Cost ($)</label>
                                     <input type="number" id="shippingCost" class="form-control" min="0">
                                 </div>
                             </div>
@@ -120,11 +120,11 @@
                             <div class="form-group-row">
                                 <div class="form-group">
                                     <label class="form-label">Currency Code</label>
-                                    <input type="text" id="currency" class="form-control" maxlength="3" placeholder="e.g., NGN">
+                                    <input type="text" id="currency" class="form-control" maxlength="3" placeholder="e.g., CAD">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Currency Symbol</label>
-                                    <input type="text" id="currencySymbol" class="form-control" maxlength="5" placeholder="e.g., ₦">
+                                    <input type="text" id="currencySymbol" class="form-control" maxlength="5" placeholder="e.g., $">
                                 </div>
                             </div>
                         </div>
@@ -338,8 +338,8 @@
                 document.getElementById('accountNumber').value = settings.account_number || '';
                 document.getElementById('accountHolder').value = settings.account_name || '';
                 document.getElementById('accountType').value = settings.account_type || '';
-                document.getElementById('currency').value = settings.currency || 'NGN';
-                document.getElementById('currencySymbol').value = settings.currency_symbol || '₦';
+                document.getElementById('currency').value = settings.currency || 'CAD';
+                document.getElementById('currencySymbol').value = settings.currency_symbol || '$';
 
                 console.log('✅ Bank settings populated successfully');
             } catch (error) {
@@ -351,8 +351,8 @@
                 document.getElementById('accountNumber').value = '';
                 document.getElementById('accountHolder').value = '';
                 document.getElementById('accountType').value = '';
-                document.getElementById('currency').value = 'NGN';
-                document.getElementById('currencySymbol').value = '₦';
+                document.getElementById('currency').value = 'CAD';
+                document.getElementById('currencySymbol').value = '$';
             }
         }
 

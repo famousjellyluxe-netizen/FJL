@@ -107,10 +107,10 @@
     return {
       ...order,
       // Format amounts
-      subtotalDisplay: `₦${(order.subtotal || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
-      taxDisplay: `₦${(order.tax || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
-      shippingDisplay: `₦${(order.shipping_cost || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
-      totalDisplay: `₦${(order.total_amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
+      subtotalDisplay: `$${(order.subtotal || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
+      taxDisplay: `$${(order.tax || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
+      shippingDisplay: `$${(order.shipping_cost || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
+      totalDisplay: `$${(order.total_amount || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
 
       // Format dates
       orderDate: order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Unknown',
@@ -130,8 +130,8 @@
       // Items
       items: (order.order_items || []).map(item => ({
         ...item,
-        priceDisplay: `₦${item.unit_price.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
-        totalDisplay: `₦${item.total_price.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`
+        priceDisplay: `$${item.unit_price.toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
+        totalDisplay: `$${item.total_price.toLocaleString('en-CA', { minimumFractionDigits: 2 })}`
       }))
     };
   }
@@ -245,7 +245,7 @@
 
     const orderDateEl = document.getElementById('orderDate');
     if (orderDateEl) {
-      orderDateEl.textContent = order.orderDate || new Date(order.created_at).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+      orderDateEl.textContent = order.orderDate || new Date(order.created_at).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 
     const orderNumberEl = document.getElementById('orderNumber');
@@ -296,7 +296,7 @@
         const detailsText = details.join(' · ');
 
         const totalPrice = item.totalDisplay || item.priceDisplay ||
-          `₦${(item.total_price || item.unit_price * item.quantity).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+          `$${(item.total_price || item.unit_price * item.quantity).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
 
         itemRow.innerHTML = `
           <td style="padding: 12px 0; text-align: left; color: #333;">${productName}</td>
@@ -310,17 +310,17 @@
     // Populate price summary
     const summarySubtotalEl = document.getElementById('summarySubtotal');
     if (summarySubtotalEl) {
-      summarySubtotalEl.textContent = order.subtotalDisplay || `₦${(order.subtotal || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+      summarySubtotalEl.textContent = order.subtotalDisplay || `$${(order.subtotal || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
     }
 
     const summaryTaxEl = document.getElementById('summaryTax');
     if (summaryTaxEl) {
-      summaryTaxEl.textContent = order.taxDisplay || `₦${(order.tax || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+      summaryTaxEl.textContent = order.taxDisplay || `$${(order.tax || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
     }
 
     const summaryTotalEl = document.getElementById('summaryTotal');
     if (summaryTotalEl) {
-      summaryTotalEl.textContent = order.totalDisplay || `₦${(order.total_amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+      summaryTotalEl.textContent = order.totalDisplay || `$${(order.total_amount || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
     }
 
     // Populate FJL business account details (where customer should send payment)
@@ -345,7 +345,7 @@
     }
 
     // Populate confirmation total in both places
-    const totalAmount = (order.total_amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    const totalAmount = (order.total_amount || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 });
 
     const confirmTotalEl = document.getElementById('confirmTotal');
     if (confirmTotalEl) {
@@ -354,7 +354,7 @@
 
     const confirmTotal2El = document.getElementById('confirmTotal2');
     if (confirmTotal2El) {
-      confirmTotal2El.textContent = `₦${totalAmount}`;
+      confirmTotal2El.textContent = `$${totalAmount}`;
     }
 
     console.log('✅ Order confirmation displayed');

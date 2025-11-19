@@ -1021,7 +1021,7 @@
                 <!-- Product Details (Right) -->
                 <div class="product-details">
                     <h1 class="product-title">FTG Tracksuit</h1>
-                    <div class="product-price">₦75,000.00</div>
+                    <div class="product-price">$75,000.00</div>
                     <span class="stock-status low-stock">Low Stock</span>
 
                     <!-- Size Selection -->
@@ -1376,7 +1376,7 @@
             document.querySelector('.product-title').textContent = product.name;
 
             // Update product price
-            document.querySelector('.product-price').textContent = '₦' + product.price.toLocaleString() + '.00';
+            document.querySelector('.product-price').textContent = '$' + product.price.toLocaleString() + '.00';
 
             // Update product image if available
             const mainImage = document.getElementById('mainImage');
@@ -1669,7 +1669,7 @@
                     const productImage = product.image || (product.images && product.images[0]) || '';
 
                     // Format price
-                    const formattedPrice = '₦' + (product.price || 0).toLocaleString() + '.00';
+                    const formattedPrice = '$' + (product.price || 0).toLocaleString() + '.00';
 
                     productCard.innerHTML = `
                         <div class="bg-gray-100 aspect-square flex items-center justify-center overflow-hidden">

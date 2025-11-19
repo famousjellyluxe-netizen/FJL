@@ -63,8 +63,8 @@ export async function getSettings() {
       // Store settings
       tax_rate: settings.tax_rate ? parseFloat(settings.tax_rate) : 7.5,
       shipping_cost: settings.shipping_cost ? parseFloat(settings.shipping_cost) : 0,
-      currency: settings.store_currency || 'NGN',
-      currency_symbol: settings.currency_symbol || '₦',
+      currency: settings.store_currency || 'CAD',
+      currency_symbol: settings.currency_symbol || '$',
       store_name: settings.store_name || '',
       business_name: settings.business_name || '',
       store_phone: settings.store_phone || '',
@@ -105,8 +105,8 @@ function getDefaultSettings() {
     store_address: '',
     tax_rate: 7.5,
     shipping_cost: 0,
-    currency: 'NGN',
-    currency_symbol: '₦',
+    currency: 'CAD',
+    currency_symbol: '$',
     // Email settings
     delivery_days: 5
   };
@@ -130,8 +130,8 @@ export async function updateSettings(settingsData) {
       { key: 'account_type', value: settingsData.account_type, type: 'string' },
       { key: 'tax_rate', value: String(parseFloat(settingsData.tax_rate) || 7.5), type: 'number' },
       { key: 'shipping_cost', value: String(parseFloat(settingsData.shipping_cost) || 0), type: 'number' },
-      { key: 'currency', value: settingsData.currency || 'NGN', type: 'string' },
-      { key: 'currency_symbol', value: settingsData.currency_symbol || '₦', type: 'string' },
+      { key: 'currency', value: settingsData.currency || 'CAD', type: 'string' },
+      { key: 'currency_symbol', value: settingsData.currency_symbol || '$', type: 'string' },
       { key: 'delivery_days', value: String(parseInt(settingsData.delivery_days) || 5), type: 'number' }
     ];
 
