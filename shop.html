@@ -226,7 +226,7 @@
             background: white;
             border: 1px solid #e5e5e5;
             padding: 8px 12px;
-            font-size: 14px;
+            font-size: clamp(12px, 2.5vw, 14px);
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -246,16 +246,16 @@
 
         /* Filter label styling */
         .filter-label {
-            font-size: 14px;
+            font-size: clamp(12px, 2.5vw, 14px);
             font-weight: 500;
             color: #374151;
-            min-width: 120px;
+            min-width: clamp(70px, 18vw, 120px);
             flex-shrink: 0;
         }
 
         /* Items count specific styling */
         .items-count {
-            font-size: 14px;
+            font-size: clamp(12px, 2.5vw, 14px);
             color: #6b7280;
             font-weight: 400;
         }
@@ -433,13 +433,13 @@
         .product-modal {
             background: white;
             border-radius: 8px;
-            padding: 40px;
+            padding: clamp(20px, 5vw, 40px);
             max-width: 500px;
             width: 90%;
             position: relative;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             animation: slideUp 0.3s ease;
-            max-height: 90vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
 
@@ -484,15 +484,16 @@
         }
 
         .modal-product-name {
-            font-size: 24px;
+            font-size: clamp(18px, 5vw, 24px);
             font-weight: 600;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            line-height: 1.3;
         }
 
         .modal-product-price {
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             font-weight: 600;
             color: #E09F3E;
             margin-bottom: 24px;
@@ -518,7 +519,7 @@
             background: white;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: clamp(12px, 2vw, 14px);
             font-weight: 600;
             text-transform: uppercase;
             transition: all 0.3s ease;
@@ -788,6 +789,32 @@
 
             .product-info h3 {
                 font-size: 13px;
+            }
+        }
+
+        /* Product Modal - Mobile Optimization (CRITICAL) */
+        @media (max-width: 767px) {
+            .product-modal {
+                width: 95vw;
+                max-width: 100%;
+            }
+
+            .modal-product-image {
+                margin-bottom: 16px;
+            }
+
+            .modal-size-label,
+            .modal-quantity-label {
+                font-size: clamp(12px, 3vw, 14px);
+            }
+
+            .size-btn {
+                padding: 8px 12px;
+            }
+
+            .modal-add-to-cart {
+                padding: 14px;
+                font-size: clamp(12px, 2.5vw, 14px);
             }
         }
     </style>
