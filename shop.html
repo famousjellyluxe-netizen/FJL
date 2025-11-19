@@ -380,6 +380,17 @@
             height: 18px;
         }
 
+        /* Mobile: Always show add button on mobile devices */
+        @media (max-width: 767px) {
+            .cart-icon-btn {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .product-card:hover .cart-icon-btn {
+                opacity: 1;
+            }
+        }
 
         .add-to-cart-success {
             position: absolute;

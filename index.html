@@ -291,6 +291,18 @@
             display: none;
         }
 
+        /* Mobile: Always show add button on mobile devices */
+        @media (max-width: 767px) {
+            .cart-icon-btn {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .product-card:hover .cart-icon-btn {
+                opacity: 1;
+            }
+        }
+
         /* Email input styling */
         .email-input {
             background: #f5f5f5;
