@@ -26,7 +26,7 @@
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
-                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                    <div><div class="label-text">Logged in as</div><div class="truncate-bold" id="adminName">Admin</div></div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
             </div>
@@ -157,7 +157,7 @@
                     const revenue = product.sold * product.price;
                     return `
                         <tr>
-                            <td><strong>${product.name}</strong></td>
+                            <td><span class="table-bold">${product.name}</span></td>
                             <td>${product.sold}</td>
                             <td>${formatCurrency(revenue)}</td>
                             <td>${formatCurrency(product.price)}</td>

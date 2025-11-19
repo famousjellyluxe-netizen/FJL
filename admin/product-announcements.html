@@ -25,7 +25,7 @@
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
-                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                    <div><div class="label-text">Logged in as</div><div class="truncate-bold" id="adminName">Admin</div></div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
             </div>
@@ -58,15 +58,15 @@
                     <div class="card-body">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--spacing-xl); text-align: center;">
                             <div>
-                                <div style="font-size: 32px; font-weight: bold;" id="unannouncedCount">0</div>
+                                <div class="stat-value-bold" id="unannouncedCount">0</div>
                                 <div style="font-size: 14px; opacity: 0.9;">New Products</div>
                             </div>
                             <div>
-                                <div style="font-size: 32px; font-weight: bold;" id="subscriberCount">...</div>
+                                <div class="stat-value-bold" id="subscriberCount">...</div>
                                 <div style="font-size: 14px; opacity: 0.9;">Subscribers</div>
                             </div>
                             <div>
-                                <div style="font-size: 32px; font-weight: bold;" id="emailsToSend">0</div>
+                                <div class="stat-value-bold" id="emailsToSend">0</div>
                                 <div style="font-size: 14px; opacity: 0.9;">Emails to Send</div>
                             </div>
                         </div>
@@ -229,12 +229,12 @@
                          alt="${product.name}"
                          style="width: 100%; height: 200px; object-fit: cover;">
                     <div class="card-body">
-                        <h4 style="margin-bottom: var(--spacing-sm); font-size: 16px;">${product.name}</h4>
+                        <h4 class="truncate-bold" style="margin-bottom: var(--spacing-sm); font-size: 16px;">${product.name}</h4>
                         <p class="text-sm" style="color: var(--color-gray); margin-bottom: var(--spacing-sm);">
                             ${product.description ? (product.description.substring(0, 80) + '...') : 'No description'}
                         </p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
-                            <span style="font-size: 18px; font-weight: bold; color: var(--color-accent);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); gap: var(--spacing-md);">
+                            <span class="truncate-bold" style="font-size: 18px; color: var(--color-accent);">
                                 $${parseFloat(product.price).toLocaleString('en-CA', { minimumFractionDigits: 2 })}
                             </span>
                             <span class="badge badge-info">${product.sleeve_type || 'N/A'}</span>

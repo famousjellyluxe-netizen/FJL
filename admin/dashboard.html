@@ -67,7 +67,7 @@
                     <div class="sidebar-avatar">A</div>
                     <div>
                         <div class="label-text">Logged in as</div>
-                        <div style="font-weight: 600;" id="adminName">Admin</div>
+                        <div class="truncate-bold" id="adminName">Admin</div>
                     </div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
@@ -231,14 +231,14 @@
                 recentOrdersList.innerHTML = '<p style="text-align: center; color: var(--color-gray);">No orders yet</p>';
             } else {
                 recentOrdersList.innerHTML = analytics.recentOrders.map(order => `
-                    <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-md);">
                         <div>
-                            <div style="font-weight: 600;">${order.orderId}</div>
+                            <div class="truncate-bold">${order.orderId}</div>
                             <div class="text-xs" style="color: var(--color-gray);">${order.customerName}</div>
                             <div class="text-xs" style="color: var(--color-gray);">${formatDate(order.createdAt)}</div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-weight: 600;">${formatCurrency(order.total)}</div>
+                            <div class="truncate-bold">${formatCurrency(order.total)}</div>
                             <span class="table-status status-${order.status.toLowerCase()}">${order.status}</span>
                         </div>
                     </div>
@@ -251,13 +251,13 @@
                 topProductsList.innerHTML = '<p style="text-align: center; color: var(--color-gray);">No sales data available</p>';
             } else {
                 topProductsList.innerHTML = analytics.topProducts.map(product => `
-                    <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-md);">
                         <div>
-                            <div style="font-weight: 600;">${product.name}</div>
+                            <div class="truncate-bold">${product.name}</div>
                             <div class="text-xs" style="color: var(--color-gray);">SKU: ${product.sku}</div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-weight: 600;">${product.sold} sold</div>
+                            <div class="truncate-bold">${product.sold} sold</div>
                             <div class="text-xs" style="color: var(--color-gray);">${formatCurrency(product.price * product.sold)}</div>
                         </div>
                     </div>
@@ -271,9 +271,9 @@
             } else {
                 lowStockList.innerHTML = analytics.lowStockProducts.map(product => `
                     <tr>
-                        <td><strong>${product.name}</strong></td>
+                        <td><span class="table-bold">${product.name}</span></td>
                         <td>${product.sku}</td>
-                        <td><span style="color: var(--color-danger); font-weight: 600;">${product.quantity} units</span></td>
+                        <td><span style="color: var(--color-danger);" class="truncate-bold">${product.quantity} units</span></td>
                         <td><a href="products.html?id=${product.id}" class="btn btn-sm btn-accent">Restock</a></td>
                     </tr>
                 `).join('');

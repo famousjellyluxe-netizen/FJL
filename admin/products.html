@@ -177,7 +177,7 @@
 
                 <!-- Manual Stock Distribution Section -->
                 <div class="form-group" style="border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg); margin-top: var(--spacing-lg);">
-                    <label class="form-label" style="margin-bottom: var(--spacing-md); display: block;">Manual Stock Distribution</label>
+                    <label class="form-label bold-label" style="margin-bottom: var(--spacing-md); display: block;">Manual Stock Distribution</label>
                     <p class="text-xs" style="color: var(--color-gray); margin-bottom: var(--spacing-md);">Enter stock quantity for each variant. Total must equal the Stock Quantity above.</p>
 
                     <div id="manualDistributionSection" style="margin-top: var(--spacing-lg);">
@@ -185,10 +185,10 @@
                             <p style="text-align: center; color: var(--color-gray); padding: var(--spacing-lg);">First, select sizes and colors above to generate variant grid</p>
                         </div>
                         <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background-color: #f0f9ff; border-left: 4px solid #0284c7; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-weight: 600;">Total Assigned:</span>
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-md);">
+                                <span class="bold-label" style="margin-bottom: 0;">Total Assigned:</span>
                                 <span class="total-assigned" id="totalAssigned">0</span>
-                                <span style="font-weight: 600;" id="totalRequired">/ 0</span>
+                                <span class="bold-label" id="totalRequired" style="margin-bottom: 0;">/ 0</span>
                             </div>
                             <div id="variantValidationMsg" class="text-xs" style="margin-top: var(--spacing-sm);"></div>
                         </div>
@@ -436,8 +436,8 @@
 
             const fieldHtml = `
                 <div id="${fieldId}" style="border: 1px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); position: relative;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
-                        <label class="form-label" style="margin: 0;">Image ${container.children.length + 1}</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); gap: var(--spacing-md);">
+                        <label class="form-label bold-label" style="margin: 0; flex-shrink: 0;">Image ${container.children.length + 1}</label>
                         <button type="button" class="btn btn-danger btn-sm image-upload-remove-btn" onclick="removeImageField('${fieldId}')">Remove</button>
                     </div>
 

@@ -54,6 +54,9 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 h1 { font-size: clamp(24px, 6vw, 28px); }
@@ -259,6 +262,9 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
 .card-title {
     font-size: clamp(16px, 4vw, 18px);
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-body {
@@ -422,6 +428,9 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--color-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .form-control,
@@ -495,12 +504,18 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     text-transform: uppercase;
     font-size: clamp(11px, 2vw, 12px);
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .table td {
     padding: clamp(10px, 2vw, 16px);
     border-bottom: 1px solid var(--color-border);
     font-size: clamp(12px, 2.5vw, 14px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .table tbody tr:hover {
@@ -968,6 +983,51 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
         color: #0284c7;
     }
 
+    /* Bold Text Overflow Handling Classes */
+    .bold-label {
+        font-weight: 600;
+        white-space: nowrap;
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .bold-label-lg {
+        font-weight: 700;
+        font-size: clamp(16px, 4vw, 20px);
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .truncate-bold {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        width: 100%;
+    }
+
+    .stat-value-bold {
+        font-weight: bold;
+        font-size: clamp(24px, 8vw, 32px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .table-bold {
+        font-weight: 600;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
     /* Spacing utilities for mobile */
     .p-mobile-sm { padding: var(--spacing-sm); }
     .p-mobile-md { padding: var(--spacing-md); }
@@ -997,6 +1057,17 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     }
 }
 
+/* Tablets and smaller (max-width: 768px) */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        display: none;
+    }
+
+    .admin-main {
+        margin-left: 0;
+    }
+}
+
 /* Small phones (max-width: 480px) */
 @media (max-width: 480px) {
     :root {
@@ -1009,7 +1080,11 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     }
 
     .admin-sidebar {
-        width: 100%;
+        display: none;
+    }
+
+    .admin-main {
+        margin-left: 0;
     }
 
     .admin-content {

@@ -26,7 +26,7 @@
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
-                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                    <div><div class="label-text">Logged in as</div><div class="truncate-bold" id="adminName">Admin</div></div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
             </div>
@@ -214,11 +214,11 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
                             <div>
                                 <div class="label-text">Order ID</div>
-                                <div class="text-sm" style="font-weight: 600;">${currentOrder.orderId}</div>
+                                <div class="text-sm truncate-bold">${currentOrder.orderId}</div>
                             </div>
                             <div>
                                 <div class="label-text">Date</div>
-                                <div class="text-sm" style="font-weight: 600;">${formatDate(currentOrder.createdAt)}</div>
+                                <div class="text-sm truncate-bold">${formatDate(currentOrder.createdAt)}</div>
                             </div>
                             <div>
                                 <div class="label-text">Status</div>
@@ -226,7 +226,7 @@
                             </div>
                             <div>
                                 <div class="label-text">Payment Status</div>
-                                <div class="text-sm" style="font-weight: 600;">${currentOrder.paymentStatus || 'Pending'}</div>
+                                <div class="text-sm truncate-bold">${currentOrder.paymentStatus || 'Pending'}</div>
                             </div>
                         </div>
                     </div>
@@ -236,11 +236,11 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
                             <div>
                                 <div class="label-text">Name</div>
-                                <div class="text-sm" style="font-weight: 600;">${currentOrder.customerName}</div>
+                                <div class="text-sm truncate-bold">${currentOrder.customerName}</div>
                             </div>
                             <div>
                                 <div class="label-text">Email</div>
-                                <div class="text-sm" style="font-weight: 600;">${currentOrder.customerEmail}</div>
+                                <div class="text-sm truncate-bold">${currentOrder.customerEmail}</div>
                             </div>
                         </div>
                     </div>
@@ -270,7 +270,7 @@
                             <span>Tax (7.5%)</span>
                             <span>${formatCurrency(currentOrder.tax)}</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; border-top: 2px solid var(--color-border); padding-top: var(--spacing-md);">
+                        <div style="display: flex; justify-content: space-between; font-size: 16px; border-top: 2px solid var(--color-border); padding-top: var(--spacing-md);" class="bold-label-lg">
                             <span>Total</span>
                             <span>${formatCurrency(currentOrder.total)}</span>
                         </div>
@@ -284,7 +284,7 @@
                     </div>
 
                     <div style="margin-top: var(--spacing-lg);">
-                        <label class="form-label">Update Order Status</label>
+                        <label class="form-label bold-label">Update Order Status</label>
                         <div style="display: flex; gap: var(--spacing-md);">
                             <select id="statusSelect" class="form-select">
                                 <option value="pending" ${currentOrder.status === 'pending' ? 'selected' : ''}>Pending</option>
@@ -297,7 +297,7 @@
                     </div>
 
                     <div style="margin-top: var(--spacing-lg);">
-                        <label class="form-label">Update Payment Status</label>
+                        <label class="form-label bold-label">Update Payment Status</label>
                         <div style="display: flex; gap: var(--spacing-md);">
                             <select id="paymentStatusSelect" class="form-select">
                                 <option value="pending" ${currentOrder.paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
