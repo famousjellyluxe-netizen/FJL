@@ -792,7 +792,7 @@
             content: "•";
             position: absolute;
             left: 0;
-            color: #E09F3E;
+            color: var(--color-accent);
             font-weight: bold;
         }
 
@@ -829,7 +829,7 @@
         .email-input:focus {
             outline: none;
             background: #eee;
-            box-shadow: inset 0 0 0 1px #E09F3E;
+            box-shadow: inset 0 0 0 1px var(--color-accent);
         }
 
         .submit-btn {
@@ -970,11 +970,11 @@
 
                     <!-- Right icons -->
                     <div class="flex gap-6 items-center">
-                        <a href="cart.html" class="text-gray-700 hover:text-[#E09F3E] transition flex relative" aria-label="Shopping cart">
+                        <a href="cart.html" style="color: var(--color-accent); text-decoration: none; display: flex; align-items: center; position: relative; transition: color 0.3s ease;" aria-label="Shopping cart">
                             <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                             <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
                         </a>
-                        <button class="text-gray-700 hover:text-[#E09F3E] transition hidden md:flex" aria-label="Search">
+                        <button style="color: var(--color-accent); background: none; border: none; text-decoration: none; display: flex; align-items: center; transition: color 0.3s ease;" aria-label="Search">
                             <i data-lucide="search" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -1151,7 +1151,7 @@
                         <input type="text" name="full_name" placeholder="Full name" class="email-input w-full" required aria-label="Full name">
                         <div class="flex gap-2">
                             <input type="email" name="email" placeholder="Email address" class="email-input flex-1" required aria-label="Email address">
-                            <button type="submit" class="submit-btn px-6" style="background-color: #E09F3E; color: white;" aria-label="Subscribe">Join</button>
+                            <button type="submit" class="submit-btn px-6" style="background-color: var(--color-accent); color: #000;" aria-label="Subscribe">Join</button>
                         </div>
                     </form>
                 </div>
@@ -1185,16 +1185,16 @@
 
                 <!-- Social Icons -->
                 <div class="flex gap-6 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Facebook">
+                    <a href="#" style="color: var(--color-accent); text-decoration: none; transition: color 0.3s ease;" aria-label="Facebook">
                         <i data-lucide="facebook" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="YouTube">
+                    <a href="#" style="color: var(--color-accent); text-decoration: none; transition: color 0.3s ease;" aria-label="YouTube">
                         <i data-lucide="youtube" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="LinkedIn">
+                    <a href="#" style="color: var(--color-accent); text-decoration: none; transition: color 0.3s ease;" aria-label="LinkedIn">
                         <i data-lucide="linkedin" class="w-5 h-5"></i>
                     </a>
-                    <a href="#" class="text-gray-600 hover:text-[#E09F3E] transition" aria-label="Twitter">
+                    <a href="#" style="color: var(--color-accent); text-decoration: none; transition: color 0.3s ease;" aria-label="Twitter">
                         <i data-lucide="twitter" class="w-5 h-5"></i>
                     </a>
                 </div>
