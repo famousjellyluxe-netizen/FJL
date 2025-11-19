@@ -32,13 +32,13 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: var(--color-primary);
+            background: #FFFFFF;
             border-bottom: 2px solid var(--color-accent);
         }
 
         body {
-            background: var(--color-primary);
-            color: var(--color-secondary);
+            background: #FFFFFF;
+            color: #000000;
         }
 
         /* Mobile Menu Styles */
@@ -79,7 +79,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--color-primary);
+            background: #FFFFFF;
             z-index: 40;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -100,7 +100,7 @@
             border-bottom: 2px solid var(--color-accent);
             position: sticky;
             top: 0;
-            background: var(--color-primary);
+            background: #FFFFFF;
             z-index: 41;
         }
 
@@ -127,7 +127,7 @@
         }
 
         .mobile-menu-links li {
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #e5e5e5;
         }
 
         .mobile-menu-links a {
@@ -369,6 +369,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
+            color: #000000;
         }
 
         .product-price {
@@ -413,6 +414,7 @@
             text-transform: uppercase;
             margin-bottom: 12px;
             display: block;
+            color: #000000;
         }
 
         .size-grid {
@@ -481,6 +483,7 @@
             text-transform: uppercase;
             margin-bottom: 12px;
             display: block;
+            color: #000000;
         }
 
         .color-grid {
@@ -761,6 +764,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            color: #000000;
         }
 
         .description-content {
@@ -781,7 +785,7 @@
 
         .description-list li {
             font-size: 13px;
-            color: #666;
+            color: #666666;
             line-height: 1.6;
             padding: 6px 0;
             padding-left: 20px;
@@ -809,11 +813,12 @@
             font-weight: 700;
             text-transform: uppercase;
             margin-bottom: 8px;
+            color: #000000;
         }
 
         .model-detail-row {
             font-size: 12px;
-            color: #666;
+            color: #666666;
             line-height: 1.8;
         }
 
@@ -853,13 +858,14 @@
         }
 
         .breadcrumb a {
-            color: #8b8b8b;
+            color: var(--color-accent);
             text-decoration: none;
             transition: color 0.3s ease;
+            font-weight: 600;
         }
 
         .breadcrumb a:hover {
-            color: #000;
+            color: var(--color-accent-hover);
         }
 
         /* Responsive */
