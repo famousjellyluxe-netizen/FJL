@@ -139,7 +139,7 @@ export async function sendOrderConfirmation(order, customer) {
       .map(item => {
         const sizeColor = `Size: ${item.size}${item.color ? ` | Color: ${item.color}` : ''}`;
         const subtotal = parseFloat(item.total_price).toLocaleString('en-CA', { minimumFractionDigits: 2 });
-        return `${item.product_name}\n${sizeColor} | Qty: ${item.quantity}\nSubtotal: ${settings.currency_symbol}${subtotal}`;
+        return `${item.product_name}\n${sizeColor} | Qty: ${item.quantity}\nSubtotal: ${settings.currency_symbol}${subtotal} CAD`;
       })
       .join('\n\n');
 
@@ -159,13 +159,13 @@ Here's your order summary:
 
 ───────────────────────────────
 ${itemsText}
-Subtotal: ${settings.currency_symbol}${subtotal}
-Tax (7.5%): ${settings.currency_symbol}${tax}
+Subtotal: ${settings.currency_symbol}${subtotal} CAD
+Tax (7.5%): ${settings.currency_symbol}${tax} CAD
 Shipping: Free
 ───────────────────────────────
-Total: ${settings.currency_symbol}${total}
+Total: ${settings.currency_symbol}${total} CAD
 
-Please transfer ${settings.currency_symbol}${total} to:
+Please transfer ${settings.currency_symbol}${total} CAD to:
 Account Name: ${settings.account_name}
 Bank: ${settings.bank_name}
 Account Number: ${settings.account_number}
@@ -225,7 +225,7 @@ Payment Method: Bank Transfer
 
 ${itemsText}
 ───────────────────────────────
-Total Amount: ${settings.currency_symbol}${total}
+Total Amount: ${settings.currency_symbol}${total} CAD
 
 ───────────────────────────────
 🚚 Shipping Details
@@ -237,7 +237,7 @@ Country: ${order.shipping_country}
 ───────────────────────────────
 💳 Payment Info
 
-The buyer has been instructed to transfer ${settings.currency_symbol}${total} to:
+The buyer has been instructed to transfer ${settings.currency_symbol}${total} CAD to:
 Account Name: ${settings.account_name}
 Bank: ${settings.bank_name}
 Account Number: ${settings.account_number}
@@ -386,11 +386,11 @@ ${itemsText}
 ───────────────────────────────
 💳 Payment Summary
 
-Subtotal: ${settings.currency_symbol}${subtotal}
-Tax (7.5%): ${settings.currency_symbol}${tax}
+Subtotal: ${settings.currency_symbol}${subtotal} CAD
+Tax (7.5%): ${settings.currency_symbol}${tax} CAD
 Shipping: Free
 ───────────────────────────────
-Total Paid: ${settings.currency_symbol}${total}
+Total Paid: ${settings.currency_symbol}${total} CAD
 
 ───────────────────────────────
 📅 What's Next?

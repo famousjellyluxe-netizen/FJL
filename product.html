@@ -1376,7 +1376,7 @@
             document.querySelector('.product-title').textContent = product.name;
 
             // Update product price
-            document.querySelector('.product-price').textContent = '$' + product.price.toLocaleString() + '.00';
+            document.querySelector('.product-price').textContent = '$' + product.price.toLocaleString('en-CA') + ' CAD';
 
             // Update product image if available
             const mainImage = document.getElementById('mainImage');
@@ -1669,7 +1669,7 @@
                     const productImage = product.image || (product.images && product.images[0]) || '';
 
                     // Format price
-                    const formattedPrice = '$' + (product.price || 0).toLocaleString() + '.00';
+                    const formattedPrice = '$' + (product.price || 0).toLocaleString('en-CA') + ' CAD';
 
                     productCard.innerHTML = `
                         <div class="bg-gray-100 aspect-square flex items-center justify-center overflow-hidden">

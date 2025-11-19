@@ -405,7 +405,7 @@ class CartDrawer {
                                 font-size: 13px;
                                 font-weight: 600;
                                 margin: 0;
-                            ">$${item.price.toLocaleString('en-CA')}</p>
+                            ">$${item.price.toLocaleString('en-CA')} CAD</p>
 
                             <!-- Stock Info - Uses variant stock if available, falls back to size-only -->
                             ${(() => {
@@ -471,7 +471,7 @@ class CartDrawer {
             itemsContainer.innerHTML = itemsHTML;
 
             // Update subtotal (no tax in cart drawer)
-            document.getElementById('totalAmount').textContent = subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2});
+            document.getElementById('totalAmount').textContent = subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2}) + ' CAD';
         }
     }
 

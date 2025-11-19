@@ -955,7 +955,7 @@
                             <div class="item-name">${item.name}</div>
                             <div class="item-meta">Size: ${item.size} | Qty: ${item.quantity}</div>
                         </div>
-                        <div class="item-price">$${(itemTotal).toLocaleString('en-CA', {minimumFractionDigits: 2})}</div>
+                        <div class="item-price">$${(itemTotal).toLocaleString('en-CA', {minimumFractionDigits: 2})} CAD</div>
                     </div>
                 `;
                 itemsContainer.innerHTML += itemHTML;
@@ -966,9 +966,9 @@
             const total = subtotal + tax;
 
             // Populate price summary
-            document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
-            document.getElementById('summaryTax').textContent = `$${tax.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
-            document.getElementById('summaryTotal').textContent = `$${total.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
+            document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2})} CAD`;
+            document.getElementById('summaryTax').textContent = `$${tax.toLocaleString('en-CA', {minimumFractionDigits: 2})} CAD`;
+            document.getElementById('summaryTotal').textContent = `$${total.toLocaleString('en-CA', {minimumFractionDigits: 2})} CAD`;
 
             // Populate buyer's payment details (account name from bank alert)
             document.getElementById('buyerName').textContent = order.buyerName || '-';
@@ -982,7 +982,7 @@
             document.getElementById('fjlPaymentType').textContent = businessAccount.accountType;
 
             // Populate confirmation total and order number
-            document.getElementById('confirmTotal').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2});
+            document.getElementById('confirmTotal').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2}) + ' CAD';
             document.getElementById('confirmOrderNum').textContent = order.orderNumber;
         }
 

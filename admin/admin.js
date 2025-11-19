@@ -1498,7 +1498,7 @@ migrateSizeChartData();
 
 // Utility Functions
 function formatCurrency(amount) {
-    return '$' + amount.toLocaleString('en-CA');
+    return '$' + amount.toLocaleString('en-CA') + ' CAD';
 }
 
 function formatDate(dateString) {

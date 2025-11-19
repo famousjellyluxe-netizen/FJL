@@ -738,15 +738,15 @@
                 itemsHtml += `
                     <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e5e5;">
                         <span>${item.name} (${item.quantity}x)</span>
-                        <span>$${(item.price * item.quantity).toLocaleString('en-CA')}</span>
+                        <span>$${(item.price * item.quantity).toLocaleString('en-CA')} CAD</span>
                     </div>
                 `;
             });
 
             document.getElementById('summaryItems').innerHTML = itemsHtml;
-            document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('en-CA')}`;
-            document.getElementById('summaryTax').textContent = `$${tax.toLocaleString('en-CA')}`;
-            document.getElementById('summaryTotal').textContent = `$${total.toLocaleString('en-CA')}`;
+            document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('en-CA')} CAD`;
+            document.getElementById('summaryTax').textContent = `$${tax.toLocaleString('en-CA')} CAD`;
+            document.getElementById('summaryTotal').textContent = `$${total.toLocaleString('en-CA')} CAD`;
         }
 
         // Generate temporary order number for display
@@ -783,10 +783,10 @@
             document.getElementById('refOrderNum').textContent = tempOrderNumber;
 
             // Update exact amount warning section
-            document.getElementById('exactAmount').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2});
-            document.getElementById('warningSubtotal').textContent = `$${subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
-            document.getElementById('warningTax').textContent = `$${tax.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
-            document.getElementById('warningTotal').textContent = `$${total.toLocaleString('en-CA', {minimumFractionDigits: 2})}`;
+            document.getElementById('exactAmount').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2}) + ' CAD';
+            document.getElementById('warningSubtotal').textContent = `$${subtotal.toLocaleString('en-CA', {minimumFractionDigits: 2})} CAD`;
+            document.getElementById('warningTax').textContent = `$${tax.toLocaleString('en-CA', {minimumFractionDigits: 2})} CAD`;
+            document.getElementById('warningTotal').textContent = `$${total.toLocaleString('en-CA', {minimumFractionDigits: 2})} CAD`;
         }
 
         // Function to update confirmation when buyer name changes
@@ -797,7 +797,7 @@
             const total = subtotal + tax;
 
             document.getElementById('confirmName').textContent = buyerName;
-            document.getElementById('confirmAmount').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2});
+            document.getElementById('confirmAmount').textContent = total.toLocaleString('en-CA', {minimumFractionDigits: 2}) + ' CAD';
         }
 
         // Add listener for buyer name input

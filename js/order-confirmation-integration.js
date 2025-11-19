@@ -107,10 +107,10 @@
     return {
       ...order,
       // Format amounts
-      subtotalDisplay: `$${(order.subtotal || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
-      taxDisplay: `$${(order.tax || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
-      shippingDisplay: `$${(order.shipping_cost || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
-      totalDisplay: `$${(order.total_amount || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
+      subtotalDisplay: `$${(order.subtotal || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`,
+      taxDisplay: `$${(order.tax || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`,
+      shippingDisplay: `$${(order.shipping_cost || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`,
+      totalDisplay: `$${(order.total_amount || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`,
 
       // Format dates
       orderDate: order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Unknown',
@@ -130,8 +130,8 @@
       // Items
       items: (order.order_items || []).map(item => ({
         ...item,
-        priceDisplay: `$${item.unit_price.toLocaleString('en-CA', { minimumFractionDigits: 2 })}`,
-        totalDisplay: `$${item.total_price.toLocaleString('en-CA', { minimumFractionDigits: 2 })}`
+        priceDisplay: `$${item.unit_price.toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`,
+        totalDisplay: `$${item.total_price.toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`
       }))
     };
   }
@@ -296,7 +296,7 @@
         const detailsText = details.join(' · ');
 
         const totalPrice = item.totalDisplay || item.priceDisplay ||
-          `$${(item.total_price || item.unit_price * item.quantity).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
+          `$${(item.total_price || item.unit_price * item.quantity).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`;
 
         itemRow.innerHTML = `
           <td style="padding: 12px 0; text-align: left; color: #333;">${productName}</td>
@@ -310,17 +310,17 @@
     // Populate price summary
     const summarySubtotalEl = document.getElementById('summarySubtotal');
     if (summarySubtotalEl) {
-      summarySubtotalEl.textContent = order.subtotalDisplay || `$${(order.subtotal || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
+      summarySubtotalEl.textContent = order.subtotalDisplay || `$${(order.subtotal || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`;
     }
 
     const summaryTaxEl = document.getElementById('summaryTax');
     if (summaryTaxEl) {
-      summaryTaxEl.textContent = order.taxDisplay || `$${(order.tax || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
+      summaryTaxEl.textContent = order.taxDisplay || `$${(order.tax || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`;
     }
 
     const summaryTotalEl = document.getElementById('summaryTotal');
     if (summaryTotalEl) {
-      summaryTotalEl.textContent = order.totalDisplay || `$${(order.total_amount || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })}`;
+      summaryTotalEl.textContent = order.totalDisplay || `$${(order.total_amount || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })} CAD`;
     }
 
     // Populate FJL business account details (where customer should send payment)
