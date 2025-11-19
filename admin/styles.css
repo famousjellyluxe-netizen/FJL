@@ -877,6 +877,97 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     h3 { font-size: 18px; }
     h4 { font-size: 16px; }
 
+    /* Responsive Icon Classes */
+    .icon-sm {
+        width: clamp(16px, 3vw, 20px);
+        height: clamp(16px, 3vw, 20px);
+        display: inline-block;
+    }
+
+    .icon-md {
+        width: clamp(20px, 4vw, 24px);
+        height: clamp(20px, 4vw, 24px);
+        display: inline-block;
+    }
+
+    .icon-lg {
+        width: clamp(24px, 5vw, 28px);
+        height: clamp(24px, 5vw, 28px);
+        display: inline-block;
+    }
+
+    .icon-gap {
+        margin-right: clamp(6px, 1.5vw, 8px);
+    }
+
+    /* Responsive Text Size Classes */
+    .text-xs {
+        font-size: clamp(11px, 2vw, 12px);
+    }
+
+    .text-sm {
+        font-size: clamp(12px, 2.5vw, 14px);
+    }
+
+    .label-text {
+        font-size: clamp(12px, 2vw, 12px);
+        color: var(--color-gray);
+        text-transform: uppercase;
+        opacity: 0.7;
+    }
+
+    /* Responsive Container Classes */
+    .list-container-sm {
+        max-height: clamp(250px, 40vh, 300px);
+        overflow-y: auto;
+    }
+
+    .list-container-md {
+        max-height: clamp(300px, 50vh, 400px);
+        overflow-y: auto;
+    }
+
+    .list-container-lg {
+        max-height: clamp(400px, 60vh, 600px);
+        overflow-y: auto;
+    }
+
+    /* Responsive Image Classes */
+    .image-preview-sm {
+        max-height: clamp(80px, 20vw, 120px);
+        max-width: clamp(150px, 40vw, 200px);
+    }
+
+    .image-preview-md {
+        max-height: clamp(100px, 25vw, 150px);
+        max-width: clamp(180px, 50vw, 250px);
+    }
+
+    /* Remove Button - Compact and Responsive */
+    .image-upload-remove-btn {
+        padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px) !important;
+        font-size: clamp(10px, 2vw, 12px) !important;
+        white-space: nowrap;
+        min-height: auto !important;
+    }
+
+    /* Variant Grid Input - Responsive Width */
+    .variant-grid-input {
+        width: clamp(60px, 15vw, 80px);
+        padding: clamp(6px, 1.5vw, 8px);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        text-align: center;
+        font-size: clamp(12px, 2vw, 13px);
+    }
+
+    /* Total Assigned Display - Responsive */
+    .total-assigned {
+        font-size: clamp(16px, 4vw, 18px);
+        font-weight: 700;
+        color: #0284c7;
+    }
+
     /* Spacing utilities for mobile */
     .p-mobile-sm { padding: var(--spacing-sm); }
     .p-mobile-md { padding: var(--spacing-md); }

@@ -277,43 +277,43 @@
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
                     <a href="dashboard.html" class="sidebar-menu-link">
-                        <span><i data-lucide="bar-chart-3" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
+                        <span><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i></span>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="products.html" class="sidebar-menu-link">
-                        <span><i data-lucide="package" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
+                        <span><i data-lucide="package" class="icon-sm icon-gap"></i></span>
                         <span>Products</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="categories.html" class="sidebar-menu-link active">
-                        <span><i data-lucide="tag" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
+                        <span><i data-lucide="tag" class="icon-sm icon-gap"></i></span>
                         <span>Categories</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="orders.html" class="sidebar-menu-link">
-                        <span><i data-lucide="shopping-cart" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
+                        <span><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i></span>
                         <span>Orders</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="customers.html" class="sidebar-menu-link">
-                        <span><i data-lucide="users" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
+                        <span><i data-lucide="users" class="icon-sm icon-gap"></i></span>
                         <span>Customers</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="analytics.html" class="sidebar-menu-link">
-                        <span><i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
+                        <span><i data-lucide="trending-up" class="icon-sm icon-gap"></i></span>
                         <span>Analytics</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="settings.html" class="sidebar-menu-link">
-                        <span><i data-lucide="settings" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i></span>
+                        <span><i data-lucide="settings" class="icon-sm icon-gap"></i></span>
                         <span>Settings</span>
                     </a>
                 </li>
@@ -323,7 +323,7 @@
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
                     <div>
-                        <div style="font-size: 12px; opacity: 0.7;">Logged in as</div>
+                        <div class="label-text">Logged in as</div>
                         <div style="font-weight: 600;" id="adminName">Admin</div>
                     </div>
                 </div>
@@ -340,7 +340,7 @@
                 </div>
                 <div class="header-right">
                     <div class="header-icons">
-                        <button class="header-icon-btn" onclick="refreshCategories()" title="Refresh"><i data-lucide="refresh-cw" style="width: 20px; height: 20px;"></i></button>
+                        <button class="header-icon-btn" onclick="refreshCategories()" title="Refresh"><i data-lucide="refresh-cw" class="icon-sm"></i></button>
                         <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
                     </div>
                 </div>
@@ -355,7 +355,7 @@
                         <p style="color: var(--color-gray); margin: 0; font-size: 14px;">Manage your product categories. Drag to reorder.</p>
                     </div>
                     <button class="btn btn-accent" onclick="openCreateModal()">
-                        <span><i data-lucide="plus" style="width: 16px; height: 16px; display: inline-block; margin-right: 6px;"></i></span>
+                        <span><i data-lucide="plus" class="icon-sm" style="margin-right: 6px;"></i></span>
                         New Category
                     </button>
                 </div>
@@ -370,7 +370,7 @@
                             </div>
                         </div>
                         <div class="sort-hint">
-                            <i data-lucide="info" style="width: 16px; height: 16px; display: inline-block; margin-right: 4px; vertical-align: middle;"></i>
+                            <i data-lucide="info" class="icon-sm" style="margin-right: 4px; vertical-align: middle;"></i>
                             Drag categories to reorder them in the shop and admin panels
                         </div>
                     </div>
@@ -408,7 +408,7 @@
                         class="form-input"
                         placeholder="Auto-generated from name"
                     >
-                    <div style="font-size: 12px; color: var(--color-gray); margin-top: var(--spacing-xs);">
+                    <div class="text-xs" style="color: var(--color-gray); margin-top: var(--spacing-xs);">
                         Leave empty to auto-generate from name. Use lowercase letters, numbers, and hyphens only.
                     </div>
                     <div class="form-error" id="slugError"></div>

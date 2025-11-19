@@ -14,19 +14,19 @@
         <aside class="admin-sidebar">
             <div class="sidebar-logo"><span>FJL</span></div>
             <ul class="sidebar-menu">
-                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Dashboard</a></li>
-                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Products</a></li>
-                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Categories</a></li>
-                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Announcements</a></li>
-                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link active"><i data-lucide="shopping-cart" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Orders</a></li>
-                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Customers</a></li>
-                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Analytics</a></li>
-                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Settings</a></li>
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
+                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" class="icon-sm icon-gap"></i>Categories</a></li>
+                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" class="icon-sm icon-gap"></i>Announcements</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link active"><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i>Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" class="icon-sm icon-gap"></i>Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" class="icon-sm icon-gap"></i>Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" class="icon-sm icon-gap"></i>Settings</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
-                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
             </div>
@@ -82,7 +82,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Orders (<span id="orderCount">0</span>)</h3>
-                        <button class="btn btn-secondary btn-sm" onclick="exportOrders()"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Export CSV</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportOrders()"><i data-lucide="download" class="icon-sm"></i> Export CSV</button>
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -114,10 +114,10 @@
                 <h2>Order Details</h2>
                 <button class="modal-close" onclick="closeOrderModal()">×</button>
             </div>
-            <div id="orderDetails" style="max-height: 600px; overflow-y: auto;"></div>
+            <div id="orderDetails" class="list-container-lg"></div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeOrderModal()">Close</button>
-                <button class="btn btn-primary" onclick="printOrder()"><i data-lucide="printer" style="width: 16px; height: 16px;"></i> Print</button>
+                <button class="btn btn-primary" onclick="printOrder()"><i data-lucide="printer" class="icon-sm"></i> Print</button>
             </div>
         </div>
     </div>
@@ -213,20 +213,20 @@
                         <h3 style="margin-bottom: var(--spacing-md);">Order Information</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
                             <div>
-                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Order ID</div>
-                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.orderId}</div>
+                                <div class="label-text">Order ID</div>
+                                <div class="text-sm" style="font-weight: 600;">${currentOrder.orderId}</div>
                             </div>
                             <div>
-                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Date</div>
-                                <div style="font-weight: 600; font-size: 14px;">${formatDate(currentOrder.createdAt)}</div>
+                                <div class="label-text">Date</div>
+                                <div class="text-sm" style="font-weight: 600;">${formatDate(currentOrder.createdAt)}</div>
                             </div>
                             <div>
-                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Status</div>
+                                <div class="label-text">Status</div>
                                 <span class="table-status status-${currentOrder.status.toLowerCase()}">${currentOrder.status}</span>
                             </div>
                             <div>
-                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Payment Status</div>
-                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.paymentStatus || 'Pending'}</div>
+                                <div class="label-text">Payment Status</div>
+                                <div class="text-sm" style="font-weight: 600;">${currentOrder.paymentStatus || 'Pending'}</div>
                             </div>
                         </div>
                     </div>
@@ -235,12 +235,12 @@
                         <h3 style="margin-bottom: var(--spacing-md);">Customer Information</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
                             <div>
-                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Name</div>
-                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.customerName}</div>
+                                <div class="label-text">Name</div>
+                                <div class="text-sm" style="font-weight: 600;">${currentOrder.customerName}</div>
                             </div>
                             <div>
-                                <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: var(--spacing-xs);">Email</div>
-                                <div style="font-weight: 600; font-size: 14px;">${currentOrder.customerEmail}</div>
+                                <div class="label-text">Email</div>
+                                <div class="text-sm" style="font-weight: 600;">${currentOrder.customerEmail}</div>
                             </div>
                         </div>
                     </div>

@@ -14,18 +14,18 @@
         <aside class="admin-sidebar">
             <div class="sidebar-logo"><span>FJL</span></div>
             <ul class="sidebar-menu">
-                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Dashboard</a></li>
-                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Products</a></li>
-                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link active"><i data-lucide="megaphone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Announcements</a></li>
-                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Orders</a></li>
-                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Customers</a></li>
-                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Analytics</a></li>
-                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Settings</a></li>
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
+                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link active"><i data-lucide="megaphone" class="icon-sm icon-gap"></i>Announcements</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i>Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" class="icon-sm icon-gap"></i>Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" class="icon-sm icon-gap"></i>Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" class="icon-sm icon-gap"></i>Settings</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
-                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
             </div>
@@ -78,7 +78,7 @@
                     <div class="card-header">
                         <h3 class="card-title">New Products Ready to Announce</h3>
                         <button class="btn btn-accent" id="sendAnnouncementBtn" onclick="sendAnnouncement()" disabled>
-                            <i data-lucide="send" style="width: 16px; height: 16px;"></i> Send to All Subscribers
+                            <i data-lucide="send" class="icon-sm"></i> Send to All Subscribers
                         </button>
                     </div>
                     <div class="card-body">
@@ -89,7 +89,7 @@
 
                         <!-- Empty State -->
                         <div id="emptyState" style="display: none; text-align: center; padding: var(--spacing-xxl); color: var(--color-gray);">
-                            <i data-lucide="check-circle" style="width: 64px; height: 64px; margin-bottom: var(--spacing-lg); stroke-width: 1; color: var(--color-success);"></i>
+                            <i data-lucide="check-circle" class="icon-md" style="width: 64px; height: 64px; margin-bottom: var(--spacing-lg); stroke-width: 1; color: var(--color-success);"></i>
                             <h3 style="margin-bottom: var(--spacing-sm);">All caught up!</h3>
                             <p>No new products to announce. All products have been sent to subscribers.</p>
                             <a href="products.html" class="btn btn-accent" style="margin-top: var(--spacing-lg);">+ Add New Product</a>
@@ -107,7 +107,7 @@
 
                         <!-- Success State -->
                         <div id="successState" style="display: none; text-align: center; padding: var(--spacing-xxl); color: var(--color-success);">
-                            <i data-lucide="check-circle" style="width: 64px; height: 64px; margin-bottom: var(--spacing-lg); stroke-width: 1;"></i>
+                            <i data-lucide="check-circle" class="icon-md" style="width: 64px; height: 64px; margin-bottom: var(--spacing-lg); stroke-width: 1;"></i>
                             <h3 style="margin-bottom: var(--spacing-sm);">Announcements Sent!</h3>
                             <p id="successMessage" style="color: var(--color-gray);"></p>
                             <button class="btn btn-accent" onclick="window.location.reload()" style="margin-top: var(--spacing-lg);">View Updated Products</button>
@@ -230,7 +230,7 @@
                          style="width: 100%; height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h4 style="margin-bottom: var(--spacing-sm); font-size: 16px;">${product.name}</h4>
-                        <p style="font-size: 14px; color: var(--color-gray); margin-bottom: var(--spacing-sm);">
+                        <p class="text-sm" style="color: var(--color-gray); margin-bottom: var(--spacing-sm);">
                             ${product.description ? (product.description.substring(0, 80) + '...') : 'No description'}
                         </p>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
@@ -239,7 +239,7 @@
                             </span>
                             <span class="badge badge-info">${product.sleeve_type || 'N/A'}</span>
                         </div>
-                        <div style="font-size: 12px; color: var(--color-gray);">
+                        <div class="text-xs" style="color: var(--color-gray);">
                             <div>Sizes: ${Array.isArray(product.available_sizes) ? product.available_sizes.join(', ') : 'N/A'}</div>
                             <div>Colors: ${Array.isArray(product.available_colors) ? product.available_colors.join(', ') : 'N/A'}</div>
                             <div style="margin-top: 4px;">Added: ${new Date(product.created_at).toLocaleDateString()}</div>

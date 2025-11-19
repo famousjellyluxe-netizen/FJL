@@ -14,19 +14,19 @@
         <aside class="admin-sidebar">
             <div class="sidebar-logo"><span>FJL</span></div>
             <ul class="sidebar-menu">
-                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Dashboard</a></li>
-                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Products</a></li>
-                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Categories</a></li>
-                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Announcements</a></li>
-                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Orders</a></li>
-                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Customers</a></li>
-                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link active"><i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Analytics</a></li>
-                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Settings</a></li>
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
+                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" class="icon-sm icon-gap"></i>Categories</a></li>
+                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" class="icon-sm icon-gap"></i>Announcements</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i>Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" class="icon-sm icon-gap"></i>Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link active"><i data-lucide="trending-up" class="icon-sm icon-gap"></i>Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" class="icon-sm icon-gap"></i>Settings</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
-                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
             </div>
@@ -41,28 +41,28 @@
             <div class="admin-content">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon success"><i data-lucide="dollar-sign" style="width: 24px; height: 24px;"></i></div>
+                        <div class="stat-icon success"><i data-lucide="dollar-sign" class="icon-md"></i></div>
                         <div class="stat-content">
                             <h3>Total Revenue</h3>
                             <div class="value" id="totalRevenue">$0</div>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon info"><i data-lucide="bar-chart-3" style="width: 24px; height: 24px;"></i></div>
+                        <div class="stat-icon info"><i data-lucide="bar-chart-3" class="icon-md"></i></div>
                         <div class="stat-content">
                             <h3>Average Order Value</h3>
                             <div class="value" id="avgOrderValue">$0</div>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon warning"><i data-lucide="trending-up" style="width: 24px; height: 24px;"></i></div>
+                        <div class="stat-icon warning"><i data-lucide="trending-up" class="icon-md"></i></div>
                         <div class="stat-content">
                             <h3>Conversion Rate</h3>
                             <div class="value" id="conversionRate">0%</div>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon primary"><i data-lucide="package" style="width: 24px; height: 24px;"></i></div>
+                        <div class="stat-icon primary"><i data-lucide="package" class="icon-md"></i></div>
                         <div class="stat-content">
                             <h3>Total Units Sold</h3>
                             <div class="value" id="totalUnits">0</div>

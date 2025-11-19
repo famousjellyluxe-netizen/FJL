@@ -14,19 +14,19 @@
         <aside class="admin-sidebar">
             <div class="sidebar-logo"><span>FJL</span></div>
             <ul class="sidebar-menu">
-                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Dashboard</a></li>
-                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link active"><i data-lucide="package" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Products</a></li>
-                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Categories</a></li>
-                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Announcements</a></li>
-                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Orders</a></li>
-                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Customers</a></li>
-                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Analytics</a></li>
-                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i>Settings</a></li>
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link active"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
+                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" class="icon-sm icon-gap"></i>Categories</a></li>
+                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" class="icon-sm icon-gap"></i>Announcements</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i>Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" class="icon-sm icon-gap"></i>Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" class="icon-sm icon-gap"></i>Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" class="icon-sm icon-gap"></i>Settings</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-avatar">A</div>
-                    <div><div style="font-size: 12px; opacity: 0.7;">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
                 </div>
                 <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
             </div>
@@ -79,7 +79,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Products (<span id="productCount">0</span>)</h3>
-                        <button class="btn btn-secondary btn-sm" onclick="exportProducts()"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Export CSV</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportProducts()"><i data-lucide="download" class="icon-sm"></i> Export CSV</button>
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -108,7 +108,7 @@
                     <div class="card-body">
                         <div style="display: flex; gap: var(--spacing-lg); align-items: center;">
                             <span id="selectedCount">0 products selected</span>
-                            <button class="btn btn-danger btn-sm" onclick="bulkDelete()"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i> Delete Selected</button>
+                            <button class="btn btn-danger btn-sm" onclick="bulkDelete()"><i data-lucide="trash-2" class="icon-sm"></i> Delete Selected</button>
                             <button class="btn btn-secondary btn-sm" onclick="clearSelection()">Clear Selection</button>
                         </div>
                     </div>
@@ -178,19 +178,19 @@
                 <!-- Manual Stock Distribution Section -->
                 <div class="form-group" style="border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg); margin-top: var(--spacing-lg);">
                     <label class="form-label" style="margin-bottom: var(--spacing-md); display: block;">Manual Stock Distribution</label>
-                    <p style="font-size: 12px; color: var(--color-gray); margin-bottom: var(--spacing-md);">Enter stock quantity for each variant. Total must equal the Stock Quantity above.</p>
+                    <p class="text-xs" style="color: var(--color-gray); margin-bottom: var(--spacing-md);">Enter stock quantity for each variant. Total must equal the Stock Quantity above.</p>
 
                     <div id="manualDistributionSection" style="margin-top: var(--spacing-lg);">
-                        <div id="variantGridContainer" style="border: 1px solid var(--color-border); border-radius: var(--border-radius); padding: var(--spacing-md); max-height: 400px; overflow-y: auto; background-color: var(--color-bg-light);">
+                        <div id="variantGridContainer" class="list-container-md" style="border: 1px solid var(--color-border); border-radius: var(--border-radius); padding: var(--spacing-md); background-color: var(--color-bg-light);">
                             <p style="text-align: center; color: var(--color-gray); padding: var(--spacing-lg);">First, select sizes and colors above to generate variant grid</p>
                         </div>
                         <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background-color: #f0f9ff; border-left: 4px solid #0284c7; border-radius: 4px;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span style="font-weight: 600;">Total Assigned:</span>
-                                <span style="font-size: 18px; font-weight: 700; color: #0284c7;" id="totalAssigned">0</span>
+                                <span class="total-assigned" id="totalAssigned">0</span>
                                 <span style="font-weight: 600;" id="totalRequired">/ 0</span>
                             </div>
-                            <div id="variantValidationMsg" style="font-size: 12px; margin-top: var(--spacing-sm);"></div>
+                            <div id="variantValidationMsg" class="text-xs" style="margin-top: var(--spacing-sm);"></div>
                         </div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                 <div class="form-group">
                     <label class="form-label">Product Images</label>
                     <div style="margin-bottom: var(--spacing-md);">
-                        <p style="font-size: 12px; color: var(--color-gray); margin-bottom: var(--spacing-sm);">Upload multiple images for your product. The first image will be the primary image.</p>
+                        <p class="text-xs" style="color: var(--color-gray); margin-bottom: var(--spacing-sm);">Upload multiple images for your product. The first image will be the primary image.</p>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="addImageUploadField()">+ Add Image</button>
                     </div>
                     <div id="imagesContainer" style="display: grid; gap: var(--spacing-md);"></div>
@@ -438,17 +438,17 @@
                 <div id="${fieldId}" style="border: 1px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); position: relative;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
                         <label class="form-label" style="margin: 0;">Image ${container.children.length + 1}</label>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeImageField('${fieldId}')" style="padding: 4px 8px;">Remove</button>
+                        <button type="button" class="btn btn-danger btn-sm image-upload-remove-btn" onclick="removeImageField('${fieldId}')">Remove</button>
                     </div>
 
                     ${existingImage ? `
                         <div style="margin-bottom: var(--spacing-md);">
-                            <p style="font-size: 12px; color: var(--color-gray); margin-bottom: 4px;">Current image:</p>
+                            <p class="text-xs" style="color: var(--color-gray); margin-bottom: 4px;">Current image:</p>
                             <div style="border: 2px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); text-align: center; max-width: 200px;">
-                                <img src="${existingImage}" alt="Current" style="max-width: 100%; max-height: 120px; border-radius: 4px;">
+                                <img src="${existingImage}" alt="Current" class="image-preview-sm" style="border-radius: 4px;">
                             </div>
                         </div>
-                        <p style="font-size: 12px; color: var(--color-gray); margin-bottom: 8px;">Or upload a new image to replace:</p>
+                        <p class="text-xs" style="color: var(--color-gray); margin-bottom: 8px;">Or upload a new image to replace:</p>
                     ` : ''}
 
                     <input type="file" class="form-control image-upload-input" accept="image/*" data-field-id="${fieldId}" onchange="previewImage(event)">
@@ -478,8 +478,8 @@
                 const previewDiv = document.getElementById('preview_' + fieldId);
                 previewDiv.innerHTML = `
                     <div style="border: 2px solid var(--color-gray); border-radius: 8px; padding: var(--spacing-md); text-align: center; max-width: 200px;">
-                        <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 4px;">
-                        <p style="margin-top: var(--spacing-sm); font-size: 12px; color: var(--color-gray);">Preview</p>
+                        <img src="${e.target.result}" alt="Preview" class="image-preview-md" style="border-radius: 4px;">
+                        <p class="text-xs" style="margin-top: var(--spacing-sm); color: var(--color-gray);">Preview</p>
                     </div>
                 `;
             };
@@ -522,7 +522,7 @@
                                 min="0"
                                 value="${savedValue}"
                                 onchange="updateVariantTotal()"
-                                style="width: 80px; padding: 6px; border: 1px solid var(--color-border); border-radius: 4px; text-align: center;">
+                                class="variant-grid-input" style="text-align: center;">
                         </td>
                     `;
                 });
