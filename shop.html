@@ -29,15 +29,15 @@
         }
 
         body {
-            background: var(--color-primary);
-            color: var(--color-secondary);
+            background: #FFFFFF;
+            color: var(--color-primary);
         }
 
         .sticky-header {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: var(--color-primary);
+            background: #000;
             border-bottom: 2px solid var(--color-accent);
         }
 
@@ -239,31 +239,40 @@
         }
 
         .filter-dropdown {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: var(--color-secondary);
-            padding: 8px 12px;
+            background: #FFFFFF;
+            border: 1px solid #000;
+            color: #000;
+            padding: 10px 12px;
             font-size: clamp(12px, 2.5vw, 14px);
             cursor: pointer;
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         .filter-dropdown:hover {
-            border-color: var(--color-accent);
+            border-color: #00FF00;
+            background: #f9f9f9;
         }
 
         .filter-dropdown:focus {
             outline: none;
-            border-color: var(--color-accent);
+            border-color: #00FF00;
             box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1);
         }
 
-        /* Filter row container - horizontal layout */
+        /* Filter container - grid layout */
+        .filters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            width: 100%;
+        }
+
+        /* Filter row container - vertical layout (label above dropdown) */
         .filter-row {
             display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 1rem;
+            flex-direction: column;
+            gap: 8px;
             width: 100%;
         }
 
@@ -271,11 +280,10 @@
         .filter-label {
             font-size: clamp(12px, 2.5vw, 14px);
             font-weight: 600;
-            color: var(--color-accent);
+            color: #000;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            min-width: clamp(70px, 18vw, 120px);
-            flex-shrink: 0;
+            display: block;
         }
 
         /* Items count specific styling */
@@ -798,6 +806,12 @@
             .product-info p {
                 font-size: 12px;
             }
+
+            /* Mobile filter grid - 2 columns */
+            .filters-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
         }
 
         /* Tablet & Desktop (768px+) */
@@ -916,12 +930,12 @@
     </div>
 
     <!-- Shop Filter & Controls Section -->
-    <section class="py-6 px-4 sm:px-6 lg:px-8" style="background: #1a1a1a; border-bottom: 1px solid #333;">
+    <section class="py-6 px-4 sm:px-6 lg:px-8" style="background: #FFFFFF; border-bottom: 1px solid #e0e0e0;">
         <div class="max-w-7xl mx-auto">
-            <!-- Filter Rows Container -->
-            <div class="flex flex-col gap-4">
+            <!-- Filter Rows Container - Grid Layout -->
+            <div class="filters-container">
 
-                <!-- Row 1: Availability Filter -->
+                <!-- Filter 1: Availability -->
                 <div class="filter-row">
                     <label class="filter-label">AVAILABILITY</label>
                     <select class="filter-dropdown">
@@ -931,7 +945,7 @@
                     </select>
                 </div>
 
-                <!-- Row 2: Category Filter -->
+                <!-- Filter 2: Category -->
                 <div class="filter-row">
                     <label class="filter-label">CATEGORY</label>
                     <select class="filter-dropdown" id="categoryFilter">
@@ -939,14 +953,24 @@
                     </select>
                 </div>
 
-                <!-- Row 3: Item Count + Sort -->
+                <!-- Filter 3: Pricing -->
                 <div class="filter-row">
-                    <span class="filter-label items-count">7 ITEMS</span>
+                    <label class="filter-label">PRICING</label>
                     <select class="filter-dropdown">
-                        <option>SORT</option>
+                        <option>All Prices</option>
+                        <option>Low to High</option>
+                        <option>High to Low</option>
+                    </select>
+                </div>
+
+                <!-- Filter 4: Sort -->
+                <div class="filter-row">
+                    <label class="filter-label">SORT</label>
+                    <select class="filter-dropdown">
+                        <option>Newest</option>
                         <option>Price: Low to High</option>
                         <option>Price: High to Low</option>
-                        <option>Newest</option>
+                        <option>Best Sellers</option>
                     </select>
                 </div>
 
@@ -955,7 +979,7 @@
     </section>
 
     <!-- Products Grid Section -->
-    <section class="py-12 px-4 sm:px-6 lg:px-8" style="background: #1a1a1a;">
+    <section class="py-12 px-4 sm:px-6 lg:px-8" style="background: #FFFFFF;">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 grid-view" id="productsGrid">
                 <!-- Products will be rendered here by JavaScript -->
