@@ -38,7 +38,7 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: #FFFFFF;
+            background: #000;
             border-bottom: 2px solid var(--color-accent);
         }
 
@@ -407,8 +407,182 @@
             textarea, select { font-size: 16px !important; min-height: 44px; padding: 12px 14px; }
             button[type="submit"], .checkout-btn { width: 100%; min-height: 44px; }
         }
+
+        /* Footer Styles */
+        .footer {
+            background: var(--color-primary);
+            color: var(--color-secondary);
+            border-top: 2px solid var(--color-accent);
+            padding: 60px 20px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--color-secondary);
+        }
+
+        .footer-description {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--color-gray);
+            margin-bottom: 15px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            color: var(--color-gray);
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--color-gray);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .newsletter-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--color-gray);
+            color: var(--color-secondary);
+            padding: 12px;
+            font-size: 13px;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .newsletter-input::placeholder {
+            color: var(--color-gray);
+        }
+
+        .newsletter-input:focus {
+            border-color: var(--color-accent);
+        }
+
+        .newsletter-btn {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .newsletter-btn:hover {
+            background: var(--color-accent-hover);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-copyright {
+            font-size: 13px;
+            color: var(--color-gray);
+            margin: 0;
+        }
+
+        .footer-policies {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-policies li {
+            font-size: 13px;
+        }
+
+        .footer-policies a {
+            color: var(--color-gray);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-policies a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Responsive Footer */
+        @media (max-width: 768px) {
+            .footer {
+                padding: 40px 20px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .footer-policies {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
     </style>
-    <script src="notifications.js"></script>
     </head>
 <body>
     <!-- Top banner -->
@@ -448,9 +622,6 @@
                 <a href="cart.html" aria-label="Shopping cart">
                     <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                     <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
-                </a>
-                <a href="/login/" aria-label="Account">
-                    <i data-lucide="user" class="w-5 h-5"></i>
                 </a>
             </div>
         </nav>
@@ -654,44 +825,78 @@
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-200" style="background: var(--color-bg-card);">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <!-- Logo/Brand -->
-                <div class="text-center md:text-left mb-4 md:mb-0">
-                    <a href="index.html" style="display: inline-block; text-decoration: none;">
-                        <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 36px; width: auto; cursor: pointer;">
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Footer Content Grid -->
+            <div class="footer-content">
+                <!-- Left Column - Logo & About -->
+                <div class="footer-section">
+                    <a href="index.html" class="nav-logo">
+                        <div class="nav-logo-text">FJL</div>
+                        <div class="nav-logo-tagline">STAY FJL</div>
                     </a>
+                    <p class="footer-description">
+                        FJL (Famous Jelly Luxe) is your destination for luxury streetwear that combines comfort with style. We bring bespoke fashion to the streets, where every piece is crafted to elevate your style while keeping you comfortable and confident.
+                    </p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/snug_worldd" target="_blank" rel="noopener" aria-label="Instagram">
+                            <i data-lucide="instagram" class="w-4 h-4"></i>
+                        </a>
+                        <a href="https://wa.me/2347078939461" target="_blank" rel="noopener" aria-label="WhatsApp">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Copyright & Links -->
-                <div class="text-center text-xs text-gray-600 space-x-2">
-                    <span>© 2025 Famous Jelly Luxe . All Rights Reserved</span>
-                    <span>|</span>
-                    <a href="/refund-policy.html" class="hover:text-black transition">Refund policy</a>
-                    <span>|</span>
-                    <a href="/privacy-policy.html" class="hover:text-black transition">Privacy policy</a>
-                    <span>|</span>
-                    <a href="/terms-of-service.html" class="hover:text-black transition">Terms of service</a>
-                    <span>|</span>
-                    <a href="/shipping-policy.html" class="hover:text-black transition">Shipping policy</a>
+                <!-- Middle Column - Links -->
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="shop.html">Shop</a></li>
+                        <li><a href="shop.html">Collection</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
                 </div>
 
-                <!-- Social Icons -->
-                <div class="flex gap-6 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="Facebook">
-                        <i data-lucide="facebook" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="YouTube">
-                        <i data-lucide="youtube" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="LinkedIn">
-                        <i data-lucide="linkedin" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 transition" style="color: var(--color-gray);" onmouseover="this.style.color='var(--color-accent)'" onmouseout="this.style.color='var(--color-gray)'" aria-label="Twitter">
-                        <i data-lucide="twitter" class="w-5 h-5"></i>
-                    </a>
+                <!-- Right Column - Newsletter -->
+                <div class="footer-section">
+                    <h3>Members Only</h3>
+                    <p class="footer-description" style="margin-bottom: 20px;">
+                        Sign up for our membership to be the first to get updates about FJL.
+                    </p>
+                    <form id="newsletterForm" class="newsletter-form">
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Type your email here"
+                            class="newsletter-input"
+                            required
+                            aria-label="Email address"
+                        >
+                        <input
+                            type="text"
+                            name="full_name"
+                            placeholder="Type your name here"
+                            class="newsletter-input"
+                            required
+                            aria-label="Full name"
+                        >
+                        <button type="submit" class="newsletter-btn">Join Us</button>
+                    </form>
                 </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <p class="footer-copyright">© 2025 FJL (Famous Jelly Luxe). All rights reserved.</p>
+                <ul class="footer-policies">
+                    <li><a href="contact.html">Customer Service</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="refund-policy.html">Refund and Returns Policy</a></li>
+                    <li><a href="contact.html">Faqs</a></li>
+                </ul>
             </div>
         </div>
     </footer>
@@ -916,6 +1121,7 @@
     </script>
     <script src="cart-manager.js"></script>
     <script src="cart-drawer.js"></script>
+    <script src="notifications.js"></script>
     <!-- Backend API Integration Scripts -->
     <script src="js/api-integration.js"></script>
     <script src="js/checkout-integration.js"></script>
