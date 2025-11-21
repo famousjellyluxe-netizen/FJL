@@ -380,6 +380,21 @@
             text-align: center;
         }
 
+        /* Mobile: Left align product name and price for better text wrapping */
+        @media (max-width: 767px) {
+            .product-card > div:last-child {
+                text-align: left;
+            }
+
+            .product-card h3 {
+                text-align: left;
+            }
+
+            .product-card p {
+                text-align: left;
+            }
+        }
+
         /* Out of Stock Styles */
         .cart-icon-btn.disabled {
             background: #666;
