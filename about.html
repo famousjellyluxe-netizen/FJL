@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&family=Bubbler+One&display=swap');
 
         * {
             font-family: 'Inter', sans-serif;
@@ -41,20 +41,104 @@
             border-bottom: 2px solid var(--color-accent);
         }
 
-        /* Mobile Menu Styles */
-        .mobile-menu-btn {
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100px;
+        }
+
+        .nav-logo {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            z-index: 10;
+            gap: 4px;
+        }
+
+        .nav-logo-text {
+            font-family: 'Bubbler One', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            color: #00FF00;
+            letter-spacing: 2px;
+            text-shadow:
+                0 0 10px rgba(0, 255, 0, 0.8),
+                0 0 20px rgba(255, 0, 255, 0.4),
+                2px 2px 0px rgba(255, 0, 150, 0.6);
+            transform: skewX(-5deg);
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.5));
+        }
+
+        .nav-logo-tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            color: #00FF00;
+            font-style: italic;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+            line-height: 1;
+        }
+
+        .nav-logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-menu {
             display: none;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu li {
+            margin: 0;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--color-accent);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--color-accent-hover);
+        }
+
+        @media (min-width: 768px) {
+            .nav-menu {
+                display: flex;
+            }
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: flex;
             flex-direction: column;
             gap: 5px;
-            cursor: pointer;
             background: none;
             border: none;
+            cursor: pointer;
             padding: 8px;
+            z-index: 10;
         }
 
         .mobile-menu-btn span {
             width: 24px;
-            height: 3px;
+            height: 2px;
             background: var(--color-accent);
             transition: all 0.3s ease;
         }
@@ -67,19 +151,60 @@
             transform: rotate(-45deg) translate(7px, -7px);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             .mobile-menu-btn {
                 display: flex;
             }
+
+            .nav-menu {
+                display: none;
+            }
         }
 
+        /* Nav icons */
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-icons a {
+            color: var(--color-accent);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-icons a:hover {
+            color: var(--color-accent-hover);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Mobile Menu */
         .mobile-menu {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--color-bg-page);
+            background: var(--color-primary);
             z-index: 40;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -100,7 +225,7 @@
             border-bottom: 1px solid #2A2A2A;
             position: sticky;
             top: 0;
-            background: var(--color-bg-page);
+            background: var(--color-primary);
             z-index: 41;
         }
 
@@ -110,11 +235,6 @@
             background: none;
             border: none;
             color: var(--color-secondary);
-        }
-
-        .mobile-menu-content {
-            flex: 1;
-            padding: 20px 16px;
         }
 
         .mobile-menu-links {
@@ -132,27 +252,18 @@
 
         .mobile-menu-links a {
             display: block;
-            padding: 16px 0;
+            padding: 16px;
             text-decoration: none;
             color: var(--color-secondary);
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: color 0.3s ease;
         }
 
         .mobile-menu-links a:hover {
             color: var(--color-accent);
-        }
-
-        /* Hide header when mobile menu is open */
-        @media (max-width: 768px) {
-            body.menu-open {
-                overflow: hidden;
-            }
-            body.menu-open .sticky-header {
-                display: none;
-            }
         }
 
         .top-banner {
@@ -351,41 +462,40 @@
 
     <!-- Header & Navigation -->
     <header class="sticky-header">
-        <nav class="bg-white border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <!-- Mobile Menu Button (Left) -->
-                    <button class="mobile-menu-btn md:hidden" id="mobileMenuBtn" onclick="toggleMobileMenu()">
-                        <span></span>
-                        <span></span>
-                    </button>
+        <nav class="nav-container">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+            </button>
 
-                    <!-- Left nav items -->
-                    <div class="hidden md:flex gap-8">
-                        <a href="index.html" class="text-gray-700 text-sm font-medium hover:text-black transition">HOME</a>
-                        <a href="about.html" class="text-gray-700 text-sm font-medium hover:text-black transition">ABOUT US</a>
-                        <a href="shop.html" class="text-gray-700 text-sm font-medium hover:text-black transition">SHOP</a>
-                        <a href="contact.html" class="text-gray-700 text-sm font-medium hover:text-black transition">CONTACT US</a>
-                    </div>
+            <!-- Logo -->
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
+            </a>
 
-                    <!-- Logo -->
-                    <div class="absolute left-1/2 transform -translate-x-1/2">
-                        <a href="index.html" style="display: inline-block; text-decoration: none;">
-                            <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto; cursor: pointer;">
-                        </a>
-                    </div>
+            <!-- Desktop Menu -->
+            <ul class="nav-menu">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT US</a></li>
+                <li><a href="shop.html">Collection</a></li>
+                <li><a href="shop.html?category=tees">Tees</a></li>
+                <li><a href="shop.html?category=sleeveless">Sleeveless</a></li>
+                <li><a href="shop.html?category=pants">Pants|Denims</a></li>
+                <li><a href="shop.html?category=headwears">HeadWears</a></li>
+                <li><a href="contact.html">CONTACT US</a></li>
+            </ul>
 
-                    <!-- Right icons -->
-                    <div class="flex gap-6 items-center">
-                        <a href="cart.html" class="text-gray-700 hover:text-[#00FF00] transition flex relative" aria-label="Shopping cart">
-                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
-                        </a>
-                        <button class="text-gray-700 hover:text-[#00FF00] transition hidden md:flex" aria-label="Search">
-                            <i data-lucide="search" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
+            <!-- Icons -->
+            <div class="nav-icons">
+                <a href="cart.html" aria-label="Shopping cart">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+                </a>
+                <a href="/login/" aria-label="Account">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                </a>
             </div>
         </nav>
     </header>
@@ -393,19 +503,22 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
-            <a href="index.html" style="display: inline-block; text-decoration: none;" onclick="toggleMobileMenu()">
-                <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 32px; width: auto; cursor: pointer;">
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
             </a>
-            <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
+            <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">×</button>
         </div>
-        <div class="mobile-menu-content">
-            <ul class="mobile-menu-links">
-                <li><a href="index.html" onclick="toggleMobileMenu()">HOME</a></li>
-                <li><a href="about.html" onclick="toggleMobileMenu()">ABOUT US</a></li>
-                <li><a href="shop.html" onclick="toggleMobileMenu()">SHOP</a></li>
-                <li><a href="contact.html" onclick="toggleMobileMenu()">CONTACT US</a></li>
-            </ul>
-        </div>
+        <ul class="mobile-menu-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="about.html">ABOUT US</a></li>
+            <li><a href="shop.html">SHOP</a></li>
+            <li><a href="shop.html?category=tees">TEES</a></li>
+            <li><a href="shop.html?category=sleeveless">SLEEVELESS</a></li>
+            <li><a href="shop.html?category=pants">PANTS|DENIMS</a></li>
+            <li><a href="shop.html?category=headwears">HEADWEARS</a></li>
+            <li><a href="contact.html">CONTACT US</a></li>
+        </ul>
     </div>
 
     <!-- About Hero Section -->
@@ -433,9 +546,9 @@
                     <li><a href="index.html">Home</a></li>
                     <li><a href="about.html">About Us</a></li>
                     <li><a href="shop.html">Shop</a></li>
-                    <li><a href="#">Campaigns</a></li>
-                    <li><a href="#">Order Lookup</a></li>
-                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="shop.html">Campaigns</a></li>
+                    <li><a href="shop.html">Order Lookup</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
                 </ul>
             </div>
 
@@ -443,9 +556,9 @@
             <div class="footer-col">
                 <h3>Policies</h3>
                 <ul>
-                    <li><a href="#">Search</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Refund policy</a></li>
+                    <li><a href="shop.html">Search</a></li>
+                    <li><a href="terms-of-service.html">Terms of Service</a></li>
+                    <li><a href="refund-policy.html">Refund policy</a></li>
                 </ul>
             </div>
 
@@ -564,6 +677,12 @@
                 }
             }
         });
+
+        // Mobile menu button event listeners
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileMenuClose.addEventListener('click', toggleMobileMenu);
 
         // Initialize Lucide icons
         lucide.createIcons();

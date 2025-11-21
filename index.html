@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* Custom fonts and variables */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&family=Bubbler+One&display=swap');
 
         * {
             font-family: 'Inter', sans-serif;
@@ -50,13 +50,43 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
-            height: 60px;
+            height: 100px;
         }
 
         .nav-logo {
-            display: inline-block;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
             text-decoration: none;
             z-index: 10;
+            gap: 4px;
+        }
+
+        .nav-logo-text {
+            font-family: 'Bubbler One', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            color: #00FF00;
+            letter-spacing: 2px;
+            text-shadow:
+                0 0 10px rgba(0, 255, 0, 0.8),
+                0 0 20px rgba(255, 0, 255, 0.4),
+                2px 2px 0px rgba(255, 0, 150, 0.6);
+            transform: skewX(-5deg);
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.5));
+        }
+
+        .nav-logo-tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            color: #00FF00;
+            font-style: italic;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+            line-height: 1;
         }
 
         .nav-logo img {
@@ -851,17 +881,20 @@
 
             <!-- Logo -->
             <a href="index.html" class="nav-logo">
-                <img src="/ftg-logo.svg" alt="FJL Logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
             </a>
 
             <!-- Desktop Menu -->
             <ul class="nav-menu">
                 <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT US</a></li>
                 <li><a href="shop.html">Collection</a></li>
                 <li><a href="shop.html?category=tees">Tees</a></li>
                 <li><a href="shop.html?category=sleeveless">Sleeveless</a></li>
                 <li><a href="shop.html?category=pants">Pants|Denims</a></li>
                 <li><a href="shop.html?category=headwears">HeadWears</a></li>
+                <li><a href="contact.html">CONTACT US</a></li>
             </ul>
 
             <!-- Icons -->
@@ -881,17 +914,20 @@
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
             <a href="index.html" class="nav-logo">
-                <img src="/ftg-logo.svg" alt="FJL Logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
             </a>
             <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">×</button>
         </div>
         <ul class="mobile-menu-links">
             <li><a href="index.html">HOME</a></li>
+            <li><a href="about.html">ABOUT US</a></li>
             <li><a href="shop.html">SHOP</a></li>
             <li><a href="shop.html?category=tees">TEES</a></li>
             <li><a href="shop.html?category=sleeveless">SLEEVELESS</a></li>
             <li><a href="shop.html?category=pants">PANTS|DENIMS</a></li>
             <li><a href="shop.html?category=headwears">HEADWEARS</a></li>
+            <li><a href="contact.html">CONTACT US</a></li>
         </ul>
     </div>
 
@@ -949,7 +985,8 @@
                 <!-- Left Column - Logo & About -->
                 <div class="footer-section">
                     <a href="index.html" class="nav-logo">
-                        <img src="/ftg-logo.svg" alt="FJL Logo">
+                        <div class="nav-logo-text">FJL</div>
+                        <div class="nav-logo-tagline">STAY FJL</div>
                     </a>
                     <p class="footer-description">
                         FJL (Famous Jelly Luxe) is your destination for luxury streetwear that combines comfort with style. We bring bespoke fashion to the streets, where every piece is crafted to elevate your style while keeping you comfortable and confident.
@@ -971,8 +1008,8 @@
                         <li><a href="index.html">Home</a></li>
                         <li><a href="shop.html">Shop</a></li>
                         <li><a href="shop.html">Collection</a></li>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
                     </ul>
                 </div>
 
@@ -1008,10 +1045,10 @@
             <div class="footer-bottom">
                 <p class="footer-copyright">© 2025 FJL (Famous Jelly Luxe). All rights reserved.</p>
                 <ul class="footer-policies">
-                    <li><a href="#">Customer Service</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Refund and Returns Policy</a></li>
-                    <li><a href="#">Faqs</a></li>
+                    <li><a href="contact.html">Customer Service</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="refund-policy.html">Refund and Returns Policy</a></li>
+                    <li><a href="contact.html">Faqs</a></li>
                 </ul>
             </div>
         </div>

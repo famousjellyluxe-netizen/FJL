@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="config.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&family=Bubbler+One&display=swap');
 
         * {
             font-family: 'Inter', sans-serif;
@@ -173,6 +173,126 @@
             letter-spacing: 0.5px;
             font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
             font-style: italic;
+        }
+
+        /* ===== NAVIGATION STYLES ===== */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100px;
+        }
+
+        .nav-logo {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            z-index: 10;
+            gap: 4px;
+        }
+
+        .nav-logo-text {
+            font-family: 'Bubbler One', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            color: #00FF00;
+            letter-spacing: 2px;
+            text-shadow:
+                0 0 10px rgba(0, 255, 0, 0.8),
+                0 0 20px rgba(255, 0, 255, 0.4),
+                2px 2px 0px rgba(255, 0, 150, 0.6);
+            transform: skewX(-5deg);
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.5));
+        }
+
+        .nav-logo-tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            color: #00FF00;
+            font-style: italic;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+            line-height: 1;
+        }
+
+        .nav-logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: none;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu li {
+            margin: 0;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--color-accent);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--color-accent-hover);
+        }
+
+        @media (min-width: 768px) {
+            .nav-menu {
+                display: flex;
+            }
+        }
+
+        /* Nav icons */
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-icons a {
+            color: var(--color-accent);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-icons a:hover {
+            color: var(--color-accent-hover);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .confirmation-container {
@@ -625,41 +745,40 @@
 
     <!-- Header & Navigation -->
     <header class="sticky-header">
-        <nav class="bg-white border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <!-- Mobile Menu Button (Left) -->
-                    <button class="mobile-menu-btn md:hidden" id="mobileMenuBtn" onclick="toggleMobileMenu()">
-                        <span></span>
-                        <span></span>
-                    </button>
+        <nav class="nav-container">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+            </button>
 
-                    <!-- Left nav items -->
-                    <div class="hidden md:flex gap-8">
-                        <a href="index.html" class="text-gray-700 text-sm font-medium hover:text-black transition">HOME</a>
-                        <a href="about.html" class="text-gray-700 text-sm font-medium hover:text-black transition">ABOUT US</a>
-                        <a href="shop.html" class="text-gray-700 text-sm font-medium hover:text-black transition">SHOP</a>
-                        <a href="contact.html" class="text-gray-700 text-sm font-medium hover:text-black transition">CONTACT US</a>
-                    </div>
+            <!-- Logo -->
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
+            </a>
 
-                    <!-- Logo -->
-                    <div class="absolute left-1/2 transform -translate-x-1/2">
-                        <a href="index.html" style="display: inline-block; text-decoration: none;">
-                            <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto; cursor: pointer;">
-                        </a>
-                    </div>
+            <!-- Desktop Menu -->
+            <ul class="nav-menu">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT US</a></li>
+                <li><a href="shop.html">Collection</a></li>
+                <li><a href="shop.html?category=tees">Tees</a></li>
+                <li><a href="shop.html?category=sleeveless">Sleeveless</a></li>
+                <li><a href="shop.html?category=pants">Pants|Denims</a></li>
+                <li><a href="shop.html?category=headwears">HeadWears</a></li>
+                <li><a href="contact.html">CONTACT US</a></li>
+            </ul>
 
-                    <!-- Right icons -->
-                    <div class="flex gap-6 items-center">
-                        <a href="cart.html" class="text-gray-700 transition flex relative" aria-label="Shopping cart" style="color: var(--color-secondary);">
-                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
-                        </a>
-                        <button class="text-gray-700 transition hidden md:flex" aria-label="Search" style="color: var(--color-secondary);">
-                            <i data-lucide="search" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
+            <!-- Icons -->
+            <div class="nav-icons">
+                <a href="cart.html" aria-label="Shopping cart">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+                </a>
+                <a href="/login/" aria-label="Account">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                </a>
             </div>
         </nav>
     </header>
@@ -667,19 +786,22 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
-            <a href="index.html" style="display: inline-block; text-decoration: none;" onclick="toggleMobileMenu()">
-                <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 32px; width: auto; cursor: pointer;">
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
             </a>
-            <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
+            <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">×</button>
         </div>
-        <div class="mobile-menu-content">
-            <ul class="mobile-menu-links">
-                <li><a href="index.html" onclick="toggleMobileMenu()">HOME</a></li>
-                <li><a href="about.html" onclick="toggleMobileMenu()">ABOUT US</a></li>
-                <li><a href="shop.html" onclick="toggleMobileMenu()">SHOP</a></li>
-                <li><a href="contact.html" onclick="toggleMobileMenu()">CONTACT US</a></li>
-            </ul>
-        </div>
+        <ul class="mobile-menu-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="about.html">ABOUT US</a></li>
+            <li><a href="shop.html">SHOP</a></li>
+            <li><a href="shop.html?category=tees">TEES</a></li>
+            <li><a href="shop.html?category=sleeveless">SLEEVELESS</a></li>
+            <li><a href="shop.html?category=pants">PANTS|DENIMS</a></li>
+            <li><a href="shop.html?category=headwears">HEADWEARS</a></li>
+            <li><a href="contact.html">CONTACT US</a></li>
+        </ul>
         <div class="mobile-menu-image">
             <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><rect fill='%23f5f5f5' width='300' height='400'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='18'>Featured Product</text></svg>" alt="Featured Product">
         </div>
@@ -814,8 +936,8 @@
                         <li><a href="index.html" class="text-gray-600 text-sm hover:text-black transition">Home</a></li>
                         <li><a href="about.html" class="text-gray-600 text-sm hover:text-black transition">About Us</a></li>
                         <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Shop</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Campaigns</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
+                        <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Campaigns</a></li>
+                        <li><a href="contact.html" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
                     </ul>
                 </div>
 
@@ -823,9 +945,9 @@
                 <div>
                     <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">Policies</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Search</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Terms of Service</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Refund policy</a></li>
+                        <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Search</a></li>
+                        <li><a href="terms-of-service.html" class="text-gray-600 text-sm hover:text-black transition">Terms of Service</a></li>
+                        <li><a href="refund-policy.html" class="text-gray-600 text-sm hover:text-black transition">Refund policy</a></li>
                     </ul>
                 </div>
 

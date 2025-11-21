@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&family=Bubbler+One&display=swap');
 
         * {
             font-family: 'Inter', sans-serif;
@@ -168,6 +168,126 @@
             font-style: italic;
         }
 
+        /* ===== NAVIGATION STYLES ===== */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100px;
+        }
+
+        .nav-logo {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            z-index: 10;
+            gap: 4px;
+        }
+
+        .nav-logo-text {
+            font-family: 'Bubbler One', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            color: #00FF00;
+            letter-spacing: 2px;
+            text-shadow:
+                0 0 10px rgba(0, 255, 0, 0.8),
+                0 0 20px rgba(255, 0, 255, 0.4),
+                2px 2px 0px rgba(255, 0, 150, 0.6);
+            transform: skewX(-5deg);
+            line-height: 1;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.5));
+        }
+
+        .nav-logo-tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            color: #00FF00;
+            font-style: italic;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+            line-height: 1;
+        }
+
+        .nav-logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: none;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu li {
+            margin: 0;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--color-accent);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--color-accent-hover);
+        }
+
+        @media (min-width: 768px) {
+            .nav-menu {
+                display: flex;
+            }
+        }
+
+        /* Nav icons */
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-icons a {
+            color: var(--color-accent);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-icons a:hover {
+            color: var(--color-accent-hover);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* Product Images Styles */
         .product-gallery {
             display: grid;
@@ -220,6 +340,46 @@
             transform: scale(1.1);
             transition: all 0.3s ease;
         }
+
+        /* ========== HOVER ZOOM + PAN EFFECT (Desktop/Tablet Only) ========== */
+        /* Wrapper that holds the zoomed image with fixed boundaries */
+        .main-image-zoom-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* The actual image element that will zoom and pan */
+        .main-image-zoom-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transform-origin: center center;
+            transition: transform 0.15s ease-out;
+            will-change: transform;
+        }
+
+        /* Mobile: Disable zoom effect on touch devices */
+        @media (max-width: 767px) {
+            .main-image-zoom-wrapper,
+            .main-image-zoom-image {
+                /* No zoom on mobile - keep it simple and static */
+            }
+        }
+
+        /* Tablet & Desktop: Enable zoom on larger screens */
+        @media (min-width: 768px) {
+            .main-image {
+                cursor: grab;
+            }
+
+            .main-image.zoomed {
+                cursor: grabbing;
+            }
+        }
+        /* ===================================================================== */
 
         /* Full Image Modal */
         .image-modal {
@@ -458,6 +618,37 @@
         .size-btn:disabled:hover,
         .size-btn.out-of-stock:hover {
             border-color: #e5e5e5;
+        }
+
+        /* Size Select Dropdown */
+        .size-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            color: #000000;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3e%3cpolyline points=%226 9 12 15 18 9%22%3e%3c/polyline%3e%3c/svg%3e');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        .size-select:hover {
+            border-color: #000;
+        }
+
+        .size-select:focus {
+            outline: none;
+            border-color: #000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
         }
 
         .size-chart-link {
@@ -950,41 +1141,40 @@
 
     <!-- Header & Navigation -->
     <header class="sticky-header">
-        <nav class="bg-white border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <!-- Mobile Menu Button (Left) -->
-                    <button class="mobile-menu-btn md:hidden" id="mobileMenuBtn" onclick="toggleMobileMenu()">
-                        <span></span>
-                        <span></span>
-                    </button>
+        <nav class="nav-container">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+            </button>
 
-                    <!-- Left nav items -->
-                    <div class="hidden md:flex gap-8">
-                        <a href="index.html" class="text-gray-700 text-sm font-medium hover:text-black transition">HOME</a>
-                        <a href="about.html" class="text-gray-700 text-sm font-medium hover:text-black transition">ABOUT US</a>
-                        <a href="shop.html" class="text-gray-700 text-sm font-medium hover:text-black transition">SHOP</a>
-                        <a href="contact.html" class="text-gray-700 text-sm font-medium hover:text-black transition">CONTACT US</a>
-                    </div>
+            <!-- Logo -->
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
+            </a>
 
-                    <!-- Logo -->
-                    <div class="absolute left-1/2 transform -translate-x-1/2">
-                        <a href="index.html" style="display: inline-block; text-decoration: none;">
-                            <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 40px; width: auto; cursor: pointer;">
-                        </a>
-                    </div>
+            <!-- Desktop Menu -->
+            <ul class="nav-menu">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT US</a></li>
+                <li><a href="shop.html">Collection</a></li>
+                <li><a href="shop.html?category=tees">Tees</a></li>
+                <li><a href="shop.html?category=sleeveless">Sleeveless</a></li>
+                <li><a href="shop.html?category=pants">Pants|Denims</a></li>
+                <li><a href="shop.html?category=headwears">HeadWears</a></li>
+                <li><a href="contact.html">CONTACT US</a></li>
+            </ul>
 
-                    <!-- Right icons -->
-                    <div class="flex gap-6 items-center">
-                        <a href="cart.html" style="color: var(--color-accent); text-decoration: none; display: flex; align-items: center; position: relative; transition: color 0.3s ease;" aria-label="Shopping cart">
-                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                            <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
-                        </a>
-                        <button style="color: var(--color-accent); background: none; border: none; text-decoration: none; display: flex; align-items: center; transition: color 0.3s ease;" aria-label="Search">
-                            <i data-lucide="search" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
+            <!-- Icons -->
+            <div class="nav-icons">
+                <a href="cart.html" aria-label="Shopping cart">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+                </a>
+                <a href="/login/" aria-label="Account">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                </a>
             </div>
         </nav>
     </header>
@@ -992,19 +1182,22 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
-            <a href="index.html" style="display: inline-block; text-decoration: none;" onclick="toggleMobileMenu()">
-                <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 32px; width: auto; cursor: pointer;">
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-text">FJL</div>
+                <div class="nav-logo-tagline">STAY FJL</div>
             </a>
-            <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
+            <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">×</button>
         </div>
-        <div class="mobile-menu-content">
-            <ul class="mobile-menu-links">
-                <li><a href="index.html" onclick="toggleMobileMenu()">HOME</a></li>
-                <li><a href="about.html" onclick="toggleMobileMenu()">ABOUT US</a></li>
-                <li><a href="shop.html" onclick="toggleMobileMenu()">SHOP</a></li>
-                <li><a href="contact.html" onclick="toggleMobileMenu()">CONTACT US</a></li>
-            </ul>
-        </div>
+        <ul class="mobile-menu-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="about.html">ABOUT US</a></li>
+            <li><a href="shop.html">SHOP</a></li>
+            <li><a href="shop.html?category=tees">TEES</a></li>
+            <li><a href="shop.html?category=sleeveless">SLEEVELESS</a></li>
+            <li><a href="shop.html?category=pants">PANTS|DENIMS</a></li>
+            <li><a href="shop.html?category=headwears">HEADWEARS</a></li>
+            <li><a href="contact.html">CONTACT US</a></li>
+        </ul>
     </div>
 
     <!-- Main Product Section -->
@@ -1042,14 +1235,15 @@
                     <!-- Size Selection -->
                     <div class="size-section">
                         <label class="size-label">Size</label>
-                        <div class="size-grid">
-                            <button class="size-btn" onclick="selectSize(this)">XSmall</button>
-                            <button class="size-btn" onclick="selectSize(this)">Small</button>
-                            <button class="size-btn active" onclick="selectSize(this)">Medium</button>
-                            <button class="size-btn" onclick="selectSize(this)">Large</button>
-                            <button class="size-btn" onclick="selectSize(this)">XL</button>
-                            <button class="size-btn" onclick="selectSize(this)">2XL</button>
-                        </div>
+                        <select id="sizeSelect" class="size-select">
+                            <option value="">Choose an option</option>
+                            <option value="XSmall">XSmall</option>
+                            <option value="Small">Small</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Large">Large</option>
+                            <option value="XL">XL</option>
+                            <option value="2XL">2XL</option>
+                        </select>
                         <a href="#" class="size-chart-link">Size Chart</a>
                     </div>
 
@@ -1133,9 +1327,9 @@
                         <li><a href="index.html" class="text-gray-600 text-sm hover:text-black transition">Home</a></li>
                         <li><a href="about.html" class="text-gray-600 text-sm hover:text-black transition">About Us</a></li>
                         <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Shop</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Campaigns</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Order Lookup</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
+                        <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Campaigns</a></li>
+                        <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Order Lookup</a></li>
+                        <li><a href="contact.html" class="text-gray-600 text-sm hover:text-black transition">Contact Us</a></li>
                     </ul>
                 </div>
 
@@ -1143,9 +1337,9 @@
                 <div>
                     <h3 class="font-semibold text-gray-900 mb-6 tracking-wide">Policies</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Search</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Terms of Service</a></li>
-                        <li><a href="#" class="text-gray-600 text-sm hover:text-black transition">Refund policy</a></li>
+                        <li><a href="shop.html" class="text-gray-600 text-sm hover:text-black transition">Search</a></li>
+                        <li><a href="terms-of-service.html" class="text-gray-600 text-sm hover:text-black transition">Terms of Service</a></li>
+                        <li><a href="refund-policy.html" class="text-gray-600 text-sm hover:text-black transition">Refund policy</a></li>
                     </ul>
                 </div>
 
@@ -1502,6 +1696,45 @@
                 }
             }
 
+            // Populate size dropdown dynamically from product data
+            // This replaces hardcoded options with actual product sizes from the database
+            const sizeSelect = document.getElementById('sizeSelect');
+            if (sizeSelect && product.sizes && Array.isArray(product.sizes)) {
+                // Clear existing options except the placeholder
+                while (sizeSelect.options.length > 1) {
+                    sizeSelect.remove(1);
+                }
+
+                // Add options for each size from the product
+                product.sizes.forEach(size => {
+                    const option = document.createElement('option');
+                    option.value = size;
+                    option.textContent = size;
+                    sizeSelect.appendChild(option);
+                });
+
+                console.log('✓ Populated size dropdown with sizes:', product.sizes);
+
+                // Add event listener to dropdown for size selection
+                sizeSelect.addEventListener('change', function() {
+                    const selectedValue = this.value;
+
+                    if (selectedValue === '') {
+                        // Placeholder selected, clear the selection
+                        window.selectedSize = null;
+                    } else {
+                        // Store selected size globally for add to cart and quantity validation
+                        window.selectedSize = selectedValue;
+
+                        // Reset quantity to 1 when size changes
+                        document.getElementById('quantityDisplay').value = '1';
+
+                        // Update quantity warning display
+                        updateQuantityWarning();
+                    }
+                });
+            }
+
             // FIX #3: Dynamically render size buttons from product data
             // This replaces the hardcoded buttons with actual product sizes
             const sizeGridContainer = document.querySelector('.size-grid');
@@ -1788,16 +2021,21 @@
             const display = document.getElementById('quantityDisplay');
             const currentQty = parseInt(display.value);
 
-            // Get selected size to check stock for that specific size
-            const selectedSizeBtn = document.querySelector('.size-btn.active');
-            if (!selectedSizeBtn) {
-                if (notifications) {
-                    notifications.warning('Please select a size first');
+            // Get selected size from dropdown first (new dropdown-based selection)
+            let selectedSize = window.selectedSize;
+
+            // If not from dropdown, try to get from button-based selection (legacy)
+            if (!selectedSize) {
+                const selectedSizeBtn = document.querySelector('.size-btn.active');
+                if (!selectedSizeBtn) {
+                    if (notifications) {
+                        notifications.warning('Please select a size first');
+                    }
+                    return;
                 }
-                return;
+                selectedSize = selectedSizeBtn.textContent.replace(/\s*\(Out\)/, '').trim();
             }
 
-            const selectedSize = selectedSizeBtn.textContent.replace(/\s*\(Out\)/, '').trim();
             const selectedColor = window.selectedColor || '';
 
             // Find the specific variant stock for this size+color combination
@@ -1838,11 +2076,17 @@
         function updateQuantityWarning() {
             const display = document.getElementById('quantityDisplay');
             const currentQty = parseInt(display.value);
-            const selectedSizeBtn = document.querySelector('.size-btn.active');
 
-            if (!selectedSizeBtn) return;
+            // Try to get selected size from dropdown first (new dropdown-based selection)
+            let selectedSize = window.selectedSize;
 
-            const selectedSize = selectedSizeBtn.textContent.replace(/\s*\(Out\)/, '').trim();
+            // If not from dropdown, try to get from button-based selection (legacy)
+            if (!selectedSize) {
+                const selectedSizeBtn = document.querySelector('.size-btn.active');
+                if (!selectedSizeBtn) return;
+                selectedSize = selectedSizeBtn.textContent.replace(/\s*\(Out\)/, '').trim();
+            }
+
             const selectedColor = window.selectedColor || '';
 
             // Find the specific variant stock for this size+color combination
@@ -1931,6 +2175,89 @@
             document.getElementById('mainImage').alt = img.alt;
         }
 
+        /* ========== HOVER ZOOM + PAN EFFECT (Desktop/Tablet Only) ========== */
+        // Initialize hover zoom effect for the main product image
+        function initializeImageZoom() {
+            const mainImageContainer = document.querySelector('.main-image');
+            const mainImage = document.getElementById('mainImage');
+
+            if (!mainImageContainer || !mainImage) return;
+
+            // Configuration
+            const ZOOM_LEVEL = 2; // 200% zoom
+            const MIN_SCREEN_WIDTH = 768; // Only apply on tablet/desktop
+
+            // State variables
+            let isZoomed = false;
+            let containerRect = null;
+
+            // Only apply zoom effect on desktop/tablet (min-width: 768px)
+            if (window.innerWidth < MIN_SCREEN_WIDTH) {
+                return; // Skip initialization on mobile
+            }
+
+            // Update container dimensions when needed
+            function updateContainerRect() {
+                containerRect = mainImageContainer.getBoundingClientRect();
+            }
+
+            // Handle mouse enter - start zoom
+            mainImageContainer.addEventListener('mouseenter', function() {
+                // Only zoom if viewport is large enough (tablet or bigger)
+                if (window.innerWidth < MIN_SCREEN_WIDTH) return;
+
+                isZoomed = true;
+                updateContainerRect();
+                mainImageContainer.classList.add('zoomed');
+
+                // Trigger initial zoom to center
+                mainImage.style.transform = `scale(${ZOOM_LEVEL})`;
+            });
+
+            // Handle mouse move - pan the zoomed image
+            mainImageContainer.addEventListener('mousemove', function(e) {
+                if (!isZoomed || !containerRect) return;
+
+                // Calculate cursor position relative to container (0 to 1)
+                const x = (e.clientX - containerRect.left) / containerRect.width;
+                const y = (e.clientY - containerRect.top) / containerRect.height;
+
+                // Clamp values between 0 and 1
+                const clampedX = Math.max(0, Math.min(1, x));
+                const clampedY = Math.max(0, Math.min(1, y));
+
+                // Calculate pan offset based on zoom level
+                // When zoomed, the image is larger, so we need to offset it to follow cursor
+                const offsetX = (clampedX - 0.5) * (ZOOM_LEVEL - 1) * containerRect.width / ZOOM_LEVEL;
+                const offsetY = (clampedY - 0.5) * (ZOOM_LEVEL - 1) * containerRect.height / ZOOM_LEVEL;
+
+                // Apply transform with scale and translate
+                mainImage.style.transform = `scale(${ZOOM_LEVEL}) translate(${offsetX}px, ${offsetY}px)`;
+            });
+
+            // Handle mouse leave - reset zoom
+            mainImageContainer.addEventListener('mouseleave', function() {
+                isZoomed = false;
+                mainImageContainer.classList.remove('zoomed');
+                mainImage.style.transform = `scale(1) translate(0, 0)`;
+            });
+
+            // Handle window resize - reset zoom state if switching to mobile
+            window.addEventListener('resize', function() {
+                if (window.innerWidth < MIN_SCREEN_WIDTH && isZoomed) {
+                    isZoomed = false;
+                    mainImageContainer.classList.remove('zoomed');
+                    mainImage.style.transform = `scale(1) translate(0, 0)`;
+                }
+            });
+        }
+
+        // Initialize zoom effect when page loads or after product loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => initializeImageZoom(), 100);
+        });
+        /* ===================================================================== */
+
         // Product description toggle
         function toggleDescription(titleElement) {
             const content = titleElement.nextElementSibling;
@@ -1942,11 +2269,17 @@
 
         // Add to cart
         function addToCart() {
-            const sizeBtn = document.querySelector('.size-btn.active');
-            let size = sizeBtn?.textContent || '';
+            // Try to get size from dropdown first (new dropdown-based selection)
+            let size = window.selectedSize;
 
-            // Clean up size text if it has inventory info appended
-            size = size.replace(/\s*\(Out\)/, '').trim();
+            // If not from dropdown, try to get from button-based selection (legacy)
+            if (!size) {
+                const sizeBtn = document.querySelector('.size-btn.active');
+                size = sizeBtn?.textContent || '';
+
+                // Clean up size text if it has inventory info appended
+                size = size.replace(/\s*\(Out\)/, '').trim();
+            }
 
             const quantity = parseInt(document.getElementById('quantityDisplay').value);
 
