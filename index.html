@@ -347,6 +347,13 @@
             margin-bottom: 40px;
         }
 
+        @media (max-width: 767px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 20px;
+            }
+        }
+
         @media (min-width: 768px) {
             .product-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -1257,13 +1264,7 @@
                                     <div class="product-category">${product.category || 'Collection'}</div>
                                     <h3 class="product-name">${product.name}</h3>
                                     <p class="product-price">₦${product.price.toLocaleString()}</p>
-                                    <button
-                                        class="product-action-btn ${isOutOfStock ? 'disabled' : ''}"
-                                        onclick="handleAddToCart(${product.id}, '${product.name}', ${product.price}, '${imageUrl}', ${isOutOfStock})"
-                                        ${isOutOfStock ? 'disabled' : ''}
-                                    >
-                                        ${isOutOfStock ? 'Sold Out' : 'Add to cart'}
-                                    </button>
+                                    ${isOutOfStock ? `<button class="product-action-btn disabled" disabled>Sold Out</button>` : ''}
                                 </div>
                             </div>
                         `;
