@@ -79,7 +79,9 @@
       "Bash(echo:*)",
       "Bash(fi)",
       "Bash(do echo \"=== $file ===\" grep -A 1 \"mobile-menu-links\" \"$file\")",
-      "mcp__playwright__browser_resize"
+      "mcp__playwright__browser_resize",
+      "Bash(npm test)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []
