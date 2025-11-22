@@ -35,14 +35,14 @@ class AdminDataService {
             localStorage.setItem('fjl_admin', JSON.stringify({
                 email: 'admin@fjl.com',
                 password: 'admin123', // In production: use bcrypt + backend
-                businessName: 'Famous Jelly Luxe',
+                businessName: 'Famous Jolly Luxe',
                 storeName: 'FJL Premium Store',
                 storeEmail: 'store@fjl.com',
                 storePhone: '+234 800 123 4567',
                 storeAddress: '123 Luxury Street, Lagos, Nigeria',
                 bankName: 'First Bank Nigeria',
                 accountNumber: '2058123456',
-                accountHolder: 'Famous Jelly Luxe Ltd',
+                accountHolder: 'Famous Jolly Luxe Ltd',
                 taxRate: 7.5,
                 shippingCost: 0,
                 createdAt: new Date().toISOString()
@@ -69,14 +69,14 @@ class AdminDataService {
             localStorage.setItem('fjl_admin', JSON.stringify({
                 email: 'admin@fjl.com',
                 password: 'admin123', // In production: use bcrypt + backend
-                businessName: 'Famous Jelly Luxe',
+                businessName: 'Famous Jolly Luxe',
                 storeName: 'FJL Premium Store',
                 storeEmail: 'store@fjl.com',
                 storePhone: '+234 800 123 4567',
                 storeAddress: '123 Luxury Street, Lagos, Nigeria',
                 bankName: 'First Bank Nigeria',
                 accountNumber: '2058123456',
-                accountHolder: 'Famous Jelly Luxe Ltd',
+                accountHolder: 'Famous Jolly Luxe Ltd',
                 taxRate: 7.5,
                 shippingCost: 0,
                 createdAt: new Date().toISOString()

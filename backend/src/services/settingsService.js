@@ -54,7 +54,7 @@ export async function getSettings() {
     // Map to expected field names
     const mappedSettings = {
       // Bank account details (fallback for email if not set)
-      account_name: settings.store_name || 'Famous Jelly Luxe',
+      account_name: settings.store_name || 'Famous Jolly Luxe',
       bank_name: settings.bank_name || 'Access Bank',
       account_number: settings.account_number || '1770816426',
       account_type: settings.account_type || 'Business Account',
@@ -93,12 +93,12 @@ export async function getSettings() {
 function getDefaultSettings() {
   return {
     // Bank account details
-    account_name: 'Famous Jelly Luxe',
+    account_name: 'Famous Jolly Luxe',
     bank_name: 'Access Bank',
     account_number: '1770816426',
     account_type: 'Business Account',
     // Store settings
-    store_name: 'Famous Jelly Luxe',
+    store_name: 'Famous Jolly Luxe',
     store_email: 'hello@fjlclothing.shop',
     business_name: '',
     store_phone: '',

@@ -54,7 +54,7 @@ const testEmail = {
     html: `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <h2 style="color: #333;">✅ Email Delivery Test Successful</h2>
-  <p>This is a comprehensive email delivery test from Famous Jelly Luxe.</p>
+  <p>This is a comprehensive email delivery test from Famous Jolly Luxe.</p>
 
   <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
     <strong>Test Details:</strong><br>
@@ -74,14 +74,14 @@ const testEmail = {
   <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
 
   <p style="font-size: 12px; color: #999;">
-    Famous Jelly Luxe<br>
+    Famous Jolly Luxe<br>
     Email System Diagnostic Test
   </p>
 </div>
     `,
     text: `Email Delivery Test
 
-This is a comprehensive email delivery test from Famous Jelly Luxe.
+This is a comprehensive email delivery test from Famous Jolly Luxe.
 
 Test Details:
 - Timestamp: ${new Date().toISOString()}
@@ -91,7 +91,7 @@ Test Details:
 
 If you received this email, your Resend configuration is working correctly.
 
-Famous Jelly Luxe - Email System Diagnostic Test
+Famous Jolly Luxe - Email System Diagnostic Test
 `
 };
 

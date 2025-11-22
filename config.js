@@ -3,7 +3,7 @@
 
 const fjlConfig = {
     businessAccount: {
-        accountHolder: "Famous Jelly Luxe Ltd",
+        accountHolder: "Famous Jolly Luxe Ltd",
         bankName: "First Bank Nigeria",
         accountNumber: "2058123456",
         accountType: "Business",

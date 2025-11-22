@@ -154,7 +154,7 @@ app.use(errorHandler); // Global error handler
 async function initialize() {
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
-║     Famous Jelly Luxe (FJL) - Backend API Server         ║
+║     Famous Jolly Luxe (FJL) - Backend API Server         ║
 ║                    v1.0.0                                ║
 ╚═══════════════════════════════════════════════════════════╝
   `);

@@ -589,7 +589,7 @@ Authorization: Bearer {JWT_TOKEN}
 {
   "success": true,
   "data": {
-    "store_name": "Famous Jelly Luxe",
+    "store_name": "Famous Jolly Luxe",
     "store_description": "Premium fashion brand",
     "tax_rate": 7.5,
     "shipping_cost": 500,

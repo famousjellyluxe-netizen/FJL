@@ -149,13 +149,13 @@ async function testSenderName() {
     console.log('\n' + '='.repeat(70));
     console.log('\n📧 EMAIL SENDER NAME TEST COMPLETE!');
     console.log('\n✅ The following emails should be sent with sender:');
-    console.log('   "Famous Jelly Luxe <hello@fjlclothing.shop>"');
+    console.log('   "Famous Jolly Luxe <hello@fjlclothing.shop>"');
     console.log('\n📬 Email recipients for verification:');
     console.log(`   - Order confirmation: ${testEmail}`);
     console.log(`   - Payment verified: ${testEmail}`);
     console.log(`   - Shipped notification: ${testEmail}`);
     console.log('\n💡 Check the Resend dashboard or received emails to verify:');
-    console.log('   The "From" header should show "Famous Jelly Luxe" as sender name');
+    console.log('   The "From" header should show "Famous Jolly Luxe" as sender name');
     console.log('   Not just "hello"\n');
 
   } catch (error) {

@@ -153,7 +153,7 @@ export async function sendOrderConfirmation(order, customer) {
     const customerHtmlContent = `
       <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi ${customer.first_name},
 
-Thank you for shopping with Famous Jelly Luxe!
+Thank you for shopping with Famous Jolly Luxe!
 
 Here's your order summary:
 
@@ -205,7 +205,7 @@ Stay fresh. Stay fearless.</pre>
     // ADMIN EMAIL
     const adminEmail = settings.store_email || 'hello@fjlclothing.shop';
     const adminHtmlContent = `
-      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi Famous Jelly Luxe Team,
+      <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;">Hi Famous Jolly Luxe Team,
 
 A new order has just been placed on your store.
 Here are the details:
@@ -257,8 +257,8 @@ Ensure the account name on your bank alert matches the customer's provided accou
 3. Mark the order as Paid & Processing in your records.
 
 ───────────────────────────────
-Famous Jelly Luxe Order System
-© 2025 Famous Jelly Luxe. All Rights Reserved.</pre>
+Famous Jolly Luxe Order System
+© 2025 Famous Jolly Luxe. All Rights Reserved.</pre>
     `;
 
     // Send to admin (non-blocking - don't fail order if admin email fails)
@@ -405,7 +405,7 @@ We'll notify you as soon as your package is on its way with a tracking number.
 
 If you have any questions about your order, please reach out to us at ${settings.store_email}.
 
-Thanks for choosing Famous Jelly Luxe!
+Thanks for choosing Famous Jolly Luxe!
 Stay fresh. Stay fearless.</pre>
     `;
 
@@ -481,8 +481,8 @@ export async function sendShippingNotification(order, customer, trackingNumber) 
         <p><strong>${trackingNumber}</strong></p>
       ` : ''}
 
-      <p>Your order will arrive shortly. Thank you for shopping with Famous Jelly Luxe!</p>
-      <p>Best regards,<br>Famous Jelly Luxe Team</p>
+      <p>Your order will arrive shortly. Thank you for shopping with Famous Jolly Luxe!</p>
+      <p>Best regards,<br>Famous Jolly Luxe Team</p>
     `;
 
     const response = await sendEmailWithRetry({
@@ -542,7 +542,7 @@ export async function sendMemberWelcome(member) {
     const htmlContent = `
       <h2>Welcome to Our Newsletter!</h2>
       <p>Hi ${member.full_name || 'there'},</p>
-      <p>Thank you for subscribing to the Famous Jelly Luxe newsletter!</p>
+      <p>Thank you for subscribing to the Famous Jolly Luxe newsletter!</p>
 
       <p>You'll now receive:</p>
       <ul>
@@ -553,13 +553,13 @@ export async function sendMemberWelcome(member) {
       </ul>
 
       <p>Check back soon for our latest collections!</p>
-      <p>Best regards,<br>Famous Jelly Luxe Team</p>
+      <p>Best regards,<br>Famous Jolly Luxe Team</p>
     `;
 
     const response = await sendEmailWithRetry({
       from: process.env.STORE_EMAIL,
       to: member.email,
-      subject: 'Welcome to Famous Jelly Luxe Newsletter',
+      subject: 'Welcome to Famous Jolly Luxe Newsletter',
       html: htmlContent
     });
 

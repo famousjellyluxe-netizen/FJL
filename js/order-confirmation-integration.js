@@ -326,7 +326,7 @@
     // Populate FJL business account details (where customer should send payment)
     const fjlPaymentNameEl = document.getElementById('fjlPaymentName');
     if (fjlPaymentNameEl) {
-      fjlPaymentNameEl.textContent = 'Famous Jelly Luxe';
+      fjlPaymentNameEl.textContent = 'Famous Jolly Luxe';
     }
 
     const fjlPaymentBankEl = document.getElementById('fjlPaymentBank');
