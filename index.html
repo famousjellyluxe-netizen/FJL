@@ -1223,53 +1223,133 @@
         document.addEventListener('DOMContentLoaded', openModal);
 
         // Load Featured Products
+        /**
+         * Load featured products with fallback support
+         * Uses apiManager for retry logic and caching (like shop page)
+         * Falls back to localStorage cache if API fails
+         */
         async function loadFeaturedProducts() {
+            const loadingState = document.getElementById('loadingState');
+            const productsGrid = document.getElementById('productsGrid');
+
             try {
-                const baseURL = window.location.hostname === 'localhost'
-                    ? 'http://localhost:5001/api'
-                    : 'https://fjl-backend.onrender.com/api';
+                console.log('📦 Loading featured products...');
 
-                const response = await fetch(`${baseURL}/products/featured`);
-                const data = await response.json();
-
-                const loadingState = document.getElementById('loadingState');
-                const productsGrid = document.getElementById('productsGrid');
-
-                if (data.success && data.data && data.data.length > 0) {
-                    loadingState.style.display = 'none';
-                    productsGrid.style.display = 'grid';
-
-                    let html = '';
-                    data.data.forEach(product => {
-                        const imageUrl = product.image_url || product.image || 'images/placeholder.png';
-                        const isOutOfStock = product.total_stock === 0;
-
-                        html += `
-                            <div class="product-card">
-                                <a href="product.html?id=${product.id}" style="text-decoration: none; color: inherit;">
-                                    <div class="product-image">
-                                        <img src="${imageUrl}" alt="${product.name}" onerror="this.src='images/placeholder.png'">
-                                    </div>
-                                </a>
-                                <div class="product-info">
-                                    <div class="product-category">${product.category || 'Collection'}</div>
-                                    <h3 class="product-name">${product.name}</h3>
-                                    <p class="product-price">₦${product.price.toLocaleString()}</p>
-                                    ${isOutOfStock ? `<button class="product-action-btn disabled" disabled>Sold Out</button>` : ''}
-                                </div>
-                            </div>
-                        `;
+                // Use apiManager for robust loading (retry logic, caching, etc)
+                let result;
+                try {
+                    // Try the featured endpoint first
+                    result = await window.apiManager.call('/products/featured', { method: 'GET' });
+                } catch (error) {
+                    console.warn('⚠️  Featured endpoint failed, attempting fallback...');
+                    // Fallback to regular products endpoint with featured filter
+                    result = await window.apiManager.call('/products', {
+                        method: 'GET',
+                        query: { limit: '6', sort_by: 'created_at', sort_order: 'desc' }
                     });
+                }
 
-                    productsGrid.innerHTML = html;
-                    lucide.createIcons();
+                console.log('Featured products result:', result);
+
+                // Extract products array
+                let productsArray = null;
+                if (result.success && result.data) {
+                    if (Array.isArray(result.data.data)) {
+                        productsArray = result.data.data;
+                    } else if (Array.isArray(result.data)) {
+                        productsArray = result.data;
+                    }
+                }
+
+                if (productsArray && Array.isArray(productsArray) && productsArray.length > 0) {
+                    console.log(`✅ Loaded ${productsArray.length} featured products`);
+
+                    // Cache featured products in localStorage for offline support
+                    localStorage.setItem('fjl_featured_products', JSON.stringify(productsArray));
+
+                    // Render products
+                    renderFeaturedProducts(productsArray);
                 } else {
+                    console.warn('⚠️  No featured products in API response, trying cached products...');
+                    // Try to use cached featured products
+                    const cachedFeatured = localStorage.getItem('fjl_featured_products');
+                    if (cachedFeatured) {
+                        try {
+                            const cachedProducts = JSON.parse(cachedFeatured);
+                            if (cachedProducts.length > 0) {
+                                console.log(`📦 Using ${cachedProducts.length} cached featured products`);
+                                renderFeaturedProducts(cachedProducts);
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse cached featured products');
+                        }
+                    }
+
+                    // No products found anywhere
                     loadingState.innerHTML = '<p style="color: #aaa;">No featured products available</p>';
+                    productsGrid.style.display = 'none';
                 }
             } catch (error) {
-                console.error('Error loading featured products:', error);
-                document.getElementById('loadingState').innerHTML = '<p style="color: #aaa;">Error loading products</p>';
+                console.error('❌ Error loading featured products:', error);
+
+                // Last resort: try cached featured products
+                const cachedFeatured = localStorage.getItem('fjl_featured_products');
+                if (cachedFeatured) {
+                    try {
+                        const cachedProducts = JSON.parse(cachedFeatured);
+                        if (cachedProducts.length > 0) {
+                            console.log(`📦 API failed, showing ${cachedProducts.length} cached featured products`);
+                            renderFeaturedProducts(cachedProducts);
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn('Failed to parse cached featured products');
+                    }
+                }
+
+                // No fallback available
+                loadingState.innerHTML = '<p style="color: #aaa;">Unable to load featured products. Please refresh the page.</p>';
+                productsGrid.style.display = 'none';
             }
+        }
+
+        /**
+         * Render featured products to the grid
+         * @param {Array} products - Array of product objects
+         */
+        function renderFeaturedProducts(products) {
+            const loadingState = document.getElementById('loadingState');
+            const productsGrid = document.getElementById('productsGrid');
+
+            loadingState.style.display = 'none';
+            productsGrid.style.display = 'grid';
+
+            let html = '';
+            products.forEach(product => {
+                // Handle both lightweight (image) and full (image_url) formats
+                const imageUrl = product.image_url || product.image || 'images/placeholder.png';
+                const isOutOfStock = product.total_stock === 0 || product.stock === 0;
+
+                html += `
+                    <div class="product-card">
+                        <a href="product.html?id=${product.id}" style="text-decoration: none; color: inherit;">
+                            <div class="product-image">
+                                <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='images/placeholder.png'">
+                            </div>
+                        </a>
+                        <div class="product-info">
+                            <div class="product-category">${product.category || product.categories?.name || 'Collection'}</div>
+                            <h3 class="product-name">${product.name}</h3>
+                            <p class="product-price">₦${product.price.toLocaleString()}</p>
+                            ${isOutOfStock ? `<button class="product-action-btn disabled" disabled>Sold Out</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            productsGrid.innerHTML = html;
+            lucide.createIcons();
         }
 
         function handleAddToCart(id, name, price, image, isOutOfStock) {
