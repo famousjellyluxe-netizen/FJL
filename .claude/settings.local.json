@@ -72,7 +72,14 @@
       "Bash(lsof:*)",
       "Bash(find:*)",
       "mcp__playwright__browser_network_requests",
-      "Bash(copy index.html index.html.backup)"
+      "Bash(copy index.html index.html.backup)",
+      "Bash(for:*)",
+      "Bash(if grep -q \"SHOP\" \"$file\")",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(fi)",
+      "Bash(do echo \"=== $file ===\" grep -A 1 \"mobile-menu-links\" \"$file\")",
+      "mcp__playwright__browser_resize"
     ],
     "deny": [],
     "ask": []

@@ -78,11 +78,12 @@
             background: none;
             border: none;
             padding: 8px;
+            z-index: 10;
         }
 
         .mobile-menu-btn span {
             width: 24px;
-            height: 3px;
+            height: 2px;
             background: var(--color-accent);
             transition: all 0.3s ease;
         }
@@ -95,9 +96,13 @@
             transform: rotate(-45deg) translate(7px, -7px);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             .mobile-menu-btn {
                 display: flex;
+            }
+
+            .nav-menu {
+                display: none;
             }
         }
 
@@ -107,7 +112,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #FFFFFF;
+            background: var(--color-primary);
             z-index: 40;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -124,12 +129,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid #e5e5e5;
-            position: sticky;
-            top: 0;
-            background: #FFFFFF;
-            z-index: 41;
+            padding: 16px 20px;
+            border-bottom: 2px solid var(--color-accent);
         }
 
         .mobile-menu-close {
@@ -137,44 +138,37 @@
             cursor: pointer;
             background: none;
             border: none;
-            color: #333;
-        }
-
-        .mobile-menu-content {
-            flex: 1;
-            padding: 20px 16px;
+            color: var(--color-accent);
         }
 
         .mobile-menu-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
             list-style: none;
-            padding: 0;
+            padding: 20px;
             margin: 0;
         }
 
         .mobile-menu-links li {
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: 1px solid #333;
         }
 
         .mobile-menu-links a {
             display: block;
             padding: 16px 0;
             text-decoration: none;
-            color: #333;
-            font-size: 16px;
-            font-weight: 500;
+            color: var(--color-accent);
+            font-size: 14px;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: color 0.3s ease;
         }
 
         .mobile-menu-links a:hover {
-            color: var(--color-accent);
+            color: var(--color-accent-hover);
         }
 
         /* Hide header when mobile menu is open */
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             body.menu-open {
                 overflow: hidden;
             }
@@ -639,7 +633,7 @@
         <ul class="mobile-menu-links">
             <li><a href="index.html">HOME</a></li>
             <li><a href="about.html">ABOUT US</a></li>
-            <li><a href="shop.html">SHOP</a></li>
+            <li><a href="shop.html">COLLECTION</a></li>
             <li><a href="shop.html?category=tees">TEES</a></li>
             <li><a href="shop.html?category=sleeveless">SLEEVELESS</a></li>
             <li><a href="shop.html?category=pants">PANTS|DENIMS</a></li>
@@ -902,26 +896,32 @@
     </footer>
 
     <script>
-        // Mobile Menu Toggle
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const body = document.body;
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const body = document.body;
 
+        function toggleMobileMenu() {
             mobileMenu.classList.toggle('active');
             mobileMenuBtn.classList.toggle('active');
             body.classList.toggle('menu-open');
         }
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileMenuClose.addEventListener('click', toggleMobileMenu);
 
-            if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+        // Close mobile menu when clicking on a link
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', toggleMobileMenu);
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
                 if (mobileMenu.classList.contains('active')) {
-                    mobileMenu.classList.remove('active');
-                    mobileMenuBtn.classList.remove('active');
+                    toggleMobileMenu();
                 }
             }
         });

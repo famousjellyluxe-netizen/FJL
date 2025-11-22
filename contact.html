@@ -50,11 +50,12 @@
             background: none;
             border: none;
             padding: 8px;
+            z-index: 10;
         }
 
         .mobile-menu-btn span {
             width: 24px;
-            height: 3px;
+            height: 2px;
             background: var(--color-accent);
             transition: all 0.3s ease;
         }
@@ -67,9 +68,13 @@
             transform: rotate(-45deg) translate(7px, -7px);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             .mobile-menu-btn {
                 display: flex;
+            }
+
+            .nav-menu {
+                display: none;
             }
         }
 
@@ -79,7 +84,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--color-bg-page);
+            background: var(--color-primary);
             z-index: 40;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -96,12 +101,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
+            padding: 16px 20px;
             border-bottom: 2px solid var(--color-accent);
-            position: sticky;
-            top: 0;
-            background: var(--color-bg-page);
-            z-index: 41;
         }
 
         .mobile-menu-close {
@@ -109,44 +110,37 @@
             cursor: pointer;
             background: none;
             border: none;
-            color: var(--color-secondary);
-        }
-
-        .mobile-menu-content {
-            flex: 1;
-            padding: 20px 16px;
+            color: var(--color-accent);
         }
 
         .mobile-menu-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
             list-style: none;
-            padding: 0;
+            padding: 20px;
             margin: 0;
         }
 
         .mobile-menu-links li {
-            border-bottom: 1px solid #2A2A2A;
+            border-bottom: 1px solid #333;
         }
 
         .mobile-menu-links a {
             display: block;
             padding: 16px 0;
             text-decoration: none;
-            color: var(--color-secondary);
-            font-size: 16px;
-            font-weight: 500;
+            color: var(--color-accent);
+            font-size: 14px;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: color 0.3s ease;
         }
 
         .mobile-menu-links a:hover {
-            color: var(--color-accent);
+            color: var(--color-accent-hover);
         }
 
         /* Hide header when mobile menu is open */
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             body.menu-open {
                 overflow: hidden;
             }
@@ -551,6 +545,193 @@
                 font-size: 13px;
             }
         }
+
+        /* ===== FOOTER SECTION ===== */
+        .footer {
+            background: #000;
+            border-top: 2px solid var(--color-accent);
+            padding: 60px 20px 30px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 60px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .footer-content {
+                grid-template-columns: 2fr 1fr 2fr;
+            }
+        }
+
+        .footer-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-accent);
+            margin: 0 0 16px 0;
+        }
+
+        .footer-description {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #aaa;
+            margin: 0 0 16px 0;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #aaa;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--color-accent);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: transparent;
+            border: 1px solid #333;
+            border-radius: 50%;
+            color: var(--color-accent);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--color-accent);
+            color: #000;
+            border-color: var(--color-accent);
+        }
+
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .newsletter-input {
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: var(--color-secondary);
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-input::placeholder {
+            color: #666;
+        }
+
+        .newsletter-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1);
+        }
+
+        .newsletter-btn {
+            padding: 12px 24px;
+            background: var(--color-accent);
+            color: #000;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-btn:hover {
+            background: var(--color-accent-hover);
+            box-shadow: 0 4px 12px rgba(0, 255, 0, 0.3);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (min-width: 768px) {
+            .footer-bottom {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+        }
+
+        .footer-copyright {
+            margin: 0;
+        }
+
+        .footer-policies {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        @media (min-width: 768px) {
+            .footer-policies {
+                justify-content: flex-start;
+            }
+        }
+
+        .footer-policies a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-policies a:hover {
+            color: var(--color-accent);
+        }
     </style>
     </head>
 <body>
@@ -608,7 +789,7 @@
         <ul class="mobile-menu-links">
             <li><a href="index.html">HOME</a></li>
             <li><a href="about.html">ABOUT US</a></li>
-            <li><a href="shop.html">SHOP</a></li>
+            <li><a href="shop.html">COLLECTION</a></li>
             <li><a href="shop.html?category=tees">TEES</a></li>
             <li><a href="shop.html?category=sleeveless">SLEEVELESS</a></li>
             <li><a href="shop.html?category=pants">PANTS|DENIMS</a></li>
@@ -785,44 +966,78 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-black border-t border-gray-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <!-- Logo/Brand -->
-                <div class="text-center md:text-left mb-4 md:mb-0">
-                    <a href="index.html" style="display: inline-block; text-decoration: none;">
-                        <img src="/ftg-logo.svg" alt="FJL Logo" style="height: 36px; width: auto; cursor: pointer;">
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Footer Content Grid -->
+            <div class="footer-content">
+                <!-- Left Column - Logo & About -->
+                <div class="footer-section">
+                    <a href="index.html" class="nav-logo">
+                        <div class="nav-logo-text">FJL</div>
+                        <div class="nav-logo-tagline">STAY FJL</div>
                     </a>
+                    <p class="footer-description">
+                        FJL (Famous Jelly Luxe) is your destination for luxury streetwear that combines comfort with style. We bring bespoke fashion to the streets, where every piece is crafted to elevate your style while keeping you comfortable and confident.
+                    </p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/snug_worldd" target="_blank" rel="noopener" aria-label="Instagram">
+                            <i data-lucide="instagram" class="w-4 h-4"></i>
+                        </a>
+                        <a href="https://wa.me/2347078939461" target="_blank" rel="noopener" aria-label="WhatsApp">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Copyright & Links -->
-                <div class="text-center text-xs text-gray-400 space-x-2">
-                    <span>© 2025 Famous Jelly Luxe . All Rights Reserved</span>
-                    <span>|</span>
-                    <a href="/refund-policy.html" class="text-gray-400 hover:text-white transition">Refund policy</a>
-                    <span>|</span>
-                    <a href="/privacy-policy.html" class="text-gray-400 hover:text-white transition">Privacy policy</a>
-                    <span>|</span>
-                    <a href="/terms-of-service.html" class="text-gray-400 hover:text-white transition">Terms of service</a>
-                    <span>|</span>
-                    <a href="/shipping-policy.html" class="text-gray-400 hover:text-white transition">Shipping policy</a>
+                <!-- Middle Column - Links -->
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="shop.html">Shop</a></li>
+                        <li><a href="shop.html">Collection</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
                 </div>
 
-                <!-- Social Icons -->
-                <div class="flex gap-6 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-600 hover:text-[#00FF00] transition" aria-label="Facebook">
-                        <i data-lucide="facebook" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 hover:text-[#00FF00] transition" aria-label="YouTube">
-                        <i data-lucide="youtube" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 hover:text-[#00FF00] transition" aria-label="LinkedIn">
-                        <i data-lucide="linkedin" class="w-5 h-5"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 hover:text-[#00FF00] transition" aria-label="Twitter">
-                        <i data-lucide="twitter" class="w-5 h-5"></i>
-                    </a>
+                <!-- Right Column - Newsletter -->
+                <div class="footer-section">
+                    <h3>Members Only</h3>
+                    <p class="footer-description" style="margin-bottom: 20px;">
+                        Sign up for our membership to be the first to get updates about FJL.
+                    </p>
+                    <form id="newsletterForm" class="newsletter-form">
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Type your email here"
+                            class="newsletter-input"
+                            required
+                            aria-label="Email address"
+                        >
+                        <input
+                            type="text"
+                            name="full_name"
+                            placeholder="Type your name here"
+                            class="newsletter-input"
+                            required
+                            aria-label="Full name"
+                        >
+                        <button type="submit" class="newsletter-btn">Join Us</button>
+                    </form>
                 </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <p class="footer-copyright">© 2025 FJL (Famous Jelly Luxe). All rights reserved.</p>
+                <ul class="footer-policies">
+                    <li><a href="contact.html">Customer Service</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="refund-policy.html">Refund and Returns Policy</a></li>
+                    <li><a href="contact.html">Faqs</a></li>
+                </ul>
             </div>
         </div>
     </footer>
@@ -861,26 +1076,32 @@
             updateCartBadge();
         });
 
-        // Mobile Menu Toggle
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const body = document.body;
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const body = document.body;
 
+        function toggleMobileMenu() {
             mobileMenu.classList.toggle('active');
             mobileMenuBtn.classList.toggle('active');
             body.classList.toggle('menu-open');
         }
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileMenuClose.addEventListener('click', toggleMobileMenu);
 
-            if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+        // Close mobile menu when clicking on a link
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', toggleMobileMenu);
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
                 if (mobileMenu.classList.contains('active')) {
-                    mobileMenu.classList.remove('active');
-                    mobileMenuBtn.classList.remove('active');
+                    toggleMobileMenu();
                 }
             }
         });
