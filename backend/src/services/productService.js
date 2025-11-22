@@ -1,6 +1,7 @@
 import { supabase, supabaseService } from '../config/database.js';
 import { AppError, NotFoundError } from '../middleware/errorHandler.js';
 import * as stockUpdateService from './stockUpdateService.js';
+import cache from '../utils/cache.js';
 
 // Storage configuration
 const STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'product-images';
@@ -112,10 +113,103 @@ export function validateProductImage(file) {
 }
 
 /**
+ * Get lightweight product list (minimal fields for list views)
+ * Returns only essential fields: id, name, price, image_url, category
+ * Dramatically reduces payload size (~10x smaller than full response)
+ * @param {Object} filters - Filter object
+ * @returns {Promise<Object>} Lightweight products with pagination
+ */
+export async function getLightweightProducts(filters = {}) {
+  try {
+    // Generate cache key
+    const cacheKey = `products:light:${cache.constructor.generateProductListKey(filters)}`;
+
+    // Check cache first (skip cache if search query)
+    if (!filters.search && cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
+    let query = supabase
+      .from('products')
+      // Select ONLY essential fields - drastically reduces payload
+      .select('id, name, price, image_url, category_id, categories(name, slug)');
+
+    // Apply filters
+    if (filters.is_active !== undefined) {
+      query = query.eq('is_active', filters.is_active);
+    } else {
+      query = query.eq('is_active', true); // Default to active only
+    }
+
+    if (filters.category_id) {
+      query = query.eq('category_id', filters.category_id);
+    }
+
+    if (filters.search) {
+      query = query.ilike('name', `%${filters.search}%`);
+    }
+
+    // Sorting
+    const sortField = filters.sort_by || 'created_at';
+    const sortOrder = filters.sort_order === 'asc' ? true : false;
+    query = query.order(sortField, { ascending: sortOrder });
+
+    // Pagination
+    const page = parseInt(filters.page) || 1;
+    const limit = parseInt(filters.limit) || 12;
+    const offset = (page - 1) * limit;
+
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error, count } = await query;
+
+    if (error) throw error;
+
+    // Transform to include category name at root level
+    const products = (data || []).map(product => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_url,
+      category: product.categories?.name || 'Uncategorized'
+    }));
+
+    const result = {
+      data: products,
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        pages: Math.ceil((count || 0) / limit)
+      }
+    };
+
+    // Cache result (5 minutes) unless it's a search query
+    if (!filters.search) {
+      cache.set(cacheKey, result, 5 * 60 * 1000);
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching lightweight products:', error);
+    throw error;
+  }
+}
+
+/**
  * Get all products with optional filtering
+ * Implements caching for improved performance
  */
 export async function getAllProducts(filters = {}) {
   try {
+    // Generate cache key based on filters
+    const cacheKey = cache.constructor.generateProductListKey(filters);
+
+    // Check cache first (skip cache if search query to always get fresh results)
+    if (!filters.search && cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
     let query = supabase
       .from('products')
       .select('*, categories(name, slug), product_variants(*)');
@@ -155,7 +249,7 @@ export async function getAllProducts(filters = {}) {
       product_variants: undefined  // Remove the nested property
     }));
 
-    return {
+    const result = {
       data: products,
       pagination: {
         page,
@@ -164,6 +258,13 @@ export async function getAllProducts(filters = {}) {
         pages: Math.ceil((count || 0) / limit)
       }
     };
+
+    // Cache result (5 minutes) unless it's a search query
+    if (!filters.search) {
+      cache.set(cacheKey, result, 5 * 60 * 1000);
+    }
+
+    return result;
   } catch (error) {
     console.error('Error fetching products:', error);
     throw error;
@@ -361,6 +462,10 @@ export async function createProduct(productData) {
     if (updateError) throw updateError;
 
     console.log(`✅ Product created successfully with ${total_stock} total stock distributed across ${variants.length} variants`);
+
+    // Invalidate related caches
+    cache.clearAll(); // Clear all product caches since new product was created
+
     return updatedProduct?.[0];
   } catch (error) {
     console.error('Error creating product:', error);
@@ -514,6 +619,10 @@ export async function updateProduct(id, updateData) {
     }
 
     console.log('✅ Product updated successfully');
+
+    // Invalidate related caches
+    cache.clearAll(); // Clear all product caches since product data changed
+
     return data[0];
   } catch (error) {
     if (error instanceof NotFoundError || error instanceof AppError) throw error;
@@ -537,6 +646,9 @@ export async function deleteProduct(id) {
     if (!data?.[0]) {
       throw new NotFoundError('Product');
     }
+
+    // Invalidate related caches
+    cache.clearAll(); // Clear all product caches since product is now inactive
 
     return data[0];
   } catch (error) {
@@ -922,6 +1034,14 @@ export async function createVariant(productId, variantData) {
  */
 export async function getFeaturedProducts(limit = 6) {
   try {
+    // Generate cache key
+    const cacheKey = cache.constructor.generateFeaturedProductsKey(limit);
+
+    // Check cache first
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+
     const { data, error } = await supabase
       .from('products')
       .select('*, categories(name, slug), product_variants(*)')
@@ -938,6 +1058,9 @@ export async function getFeaturedProducts(limit = 6) {
       variants: Array.isArray(product.product_variants) ? product.product_variants : [],
       product_variants: undefined  // Remove the nested property
     }));
+
+    // Cache result (5 minutes)
+    cache.set(cacheKey, products, 5 * 60 * 1000);
 
     return products;
   } catch (error) {
@@ -1219,6 +1342,7 @@ export async function recalculateProductTotalStock(productId) {
 
 export default {
   getAllProducts,
+  getLightweightProducts,
   getProductById,
   createProduct,
   updateProduct,

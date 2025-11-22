@@ -81,7 +81,8 @@
       "Bash(do echo \"=== $file ===\" grep -A 1 \"mobile-menu-links\" \"$file\")",
       "mcp__playwright__browser_resize",
       "Bash(npm test)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

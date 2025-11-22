@@ -51,6 +51,37 @@ router.get('/featured', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * GET /api/products/list/lightweight
+ * Get lightweight product list (minimal fields for performance)
+ * Returns only: id, name, price, image, category
+ * Dramatically reduces payload size (~10x smaller than full response)
+ * Perfect for product grids and lists
+ * NOTE: Must come BEFORE /:id route to avoid parameterized route matching
+ */
+router.get('/list/lightweight', asyncHandler(async (req, res) => {
+  const filters = {
+    is_active: true,
+    category_id: req.query.category,
+    search: req.query.search,
+    sort_by: req.query.sort_by,
+    sort_order: req.query.sort_order,
+    page: req.query.page,
+    limit: req.query.limit
+  };
+
+  const result = await productService.getLightweightProducts(filters);
+
+  // Set cache headers for lightweight products (more aggressive caching)
+  res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
+
+  res.json({
+    success: true,
+    data: result.data,
+    pagination: result.pagination
+  });
+}));
+
+/**
  * POST /api/products/:id/upload
  * Upload product image (admin only)
  */
