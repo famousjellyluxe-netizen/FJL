@@ -1340,8 +1340,8 @@ let stockUpdateClient = null;
 
 async function initializeAdminStockUpdates() {
     try {
-        // Dynamically import StockUpdateClient
-        const { StockUpdateClient } = await import('../frontend/js/lib/StockUpdateClient.js');
+        // Dynamically import StockUpdateClient (local copy)
+        const { StockUpdateClient } = await import('./StockUpdateClient.js');
 
         // Initialize SSE client
         stockUpdateClient = new StockUpdateClient();
