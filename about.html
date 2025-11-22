@@ -10,8 +10,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&family=Bubbler+One&display=swap');
 
+        html, body {
+            box-sizing: border-box;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
         * {
             font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -39,6 +46,8 @@
             z-index: 50;
             background: #000;
             border-bottom: 2px solid var(--color-accent);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .nav-container {
@@ -126,7 +135,7 @@
 
         /* Mobile menu button */
         .mobile-menu-btn {
-            display: none;
+            display: flex;
             flex-direction: column;
             gap: 5px;
             background: none;
@@ -151,12 +160,8 @@
             transform: rotate(-45deg) translate(7px, -7px);
         }
 
-        @media (max-width: 767px) {
+        @media (min-width: 768px) {
             .mobile-menu-btn {
-                display: flex;
-            }
-
-            .nav-menu {
                 display: none;
             }
         }
@@ -164,7 +169,7 @@
         /* Nav icons */
         .nav-icons {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             align-items: center;
         }
 
@@ -219,12 +224,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
+            padding: 16px 20px;
             border-bottom: 2px solid var(--color-accent);
-            position: sticky;
-            top: 0;
-            background: var(--color-primary);
-            z-index: 41;
         }
 
         .mobile-menu-close {
@@ -236,24 +237,21 @@
         }
 
         .mobile-menu-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
             list-style: none;
-            padding: 0;
+            padding: 20px;
             margin: 0;
         }
 
         .mobile-menu-links li {
-            border-bottom: 1px solid #2A2A2A;
+            border-bottom: 1px solid #333;
         }
 
         .mobile-menu-links a {
             display: block;
-            padding: 16px;
+            padding: 16px 0;
             text-decoration: none;
             color: var(--color-accent);
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -261,7 +259,7 @@
         }
 
         .mobile-menu-links a:hover {
-            color: var(--color-accent);
+            color: var(--color-accent-hover);
         }
 
         .top-banner {
@@ -274,6 +272,8 @@
             letter-spacing: 0.5px;
             font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
             font-style: italic;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .about-hero {
@@ -291,6 +291,7 @@
             position: relative;
             overflow: hidden;
             margin-top: 0;
+            box-sizing: border-box;
         }
 
         .about-hero h1 {
@@ -345,15 +346,6 @@
 
         .submit-btn:hover {
             background: #f5f5f5;
-        }
-
-        .footer-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            padding: 60px 20px;
-            max-width: 1280px;
-            margin: 0 auto;
         }
 
         .footer-col h3 {
@@ -479,6 +471,7 @@
         @media (min-width: 1024px) {
             .footer-content {
                 grid-template-columns: 2fr 1fr 2fr;
+                gap: 60px;
             }
         }
 
@@ -693,7 +686,7 @@
         <ul class="mobile-menu-links">
             <li><a href="index.html">HOME</a></li>
             <li><a href="about.html">ABOUT US</a></li>
-            <li><a href="shop.html">SHOP</a></li>
+            <li><a href="shop.html">COLLECTION</a></li>
             <li><a href="shop.html?category=tees">TEES</a></li>
             <li><a href="shop.html?category=sleeveless">SLEEVELESS</a></li>
             <li><a href="shop.html?category=pants">PANTS|DENIMS</a></li>
@@ -717,8 +710,6 @@
         </div>
     </section>
 
-    <!-- Footer with Newsletter Section -->
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
             <!-- Footer Content Grid -->
@@ -829,35 +820,35 @@
             updateCartBadge();
         });
 
-        // Mobile Menu Toggle
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const body = document.body;
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const body = document.body;
 
+        function toggleMobileMenu() {
             mobileMenu.classList.toggle('active');
             mobileMenuBtn.classList.toggle('active');
             body.classList.toggle('menu-open');
         }
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileMenuClose.addEventListener('click', toggleMobileMenu);
 
-            if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+        // Close mobile menu when clicking on a link
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', toggleMobileMenu);
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
                 if (mobileMenu.classList.contains('active')) {
-                    mobileMenu.classList.remove('active');
-                    mobileMenuBtn.classList.remove('active');
+                    toggleMobileMenu();
                 }
             }
         });
-
-        // Mobile menu button event listeners
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenuClose = document.getElementById('mobileMenuClose');
-        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-        mobileMenuClose.addEventListener('click', toggleMobileMenu);
 
         // Initialize Lucide icons
         lucide.createIcons();
