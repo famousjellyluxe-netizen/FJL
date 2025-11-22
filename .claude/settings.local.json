@@ -82,7 +82,11 @@
       "mcp__playwright__browser_resize",
       "Bash(npm test)",
       "mcp__ide__getDiagnostics",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npm start)",
+      "Bash(do if grep -q \"FTG\" \"$file\")",
+      "Bash(then echo \"$file has FTG\")",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
