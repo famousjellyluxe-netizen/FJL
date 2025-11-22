@@ -1,4 +1,4 @@
-# FJL (Famous Jelly Luxe) - Complete Project Overview
+# FJL (Famous Jolly Luxe) - Complete Project Overview
 
 ## Executive Summary
 
@@ -2061,7 +2061,7 @@ SUPABASE_STORAGE_URL=https://project.supabase.co/storage/v1/object/public/produc
 # Application Settings
 ADMIN_EMAIL=admin@fjl.com (super admin)
 STORE_CURRENCY=NGN
-STORE_NAME=Famous Jelly Luxe
+STORE_NAME=Famous Jolly Luxe
 ```
 
 ### 11.2 Frontend Configuration
@@ -2387,4 +2387,4 @@ Response: { status: 'ok', uptime: 1234 }
 **Project Version:** 1.0
 **Last Updated:** November 2025
 **Status:** Active Development
-**License:** Proprietary - Famous Jelly Luxe
+**License:** Proprietary - Famous Jolly Luxe

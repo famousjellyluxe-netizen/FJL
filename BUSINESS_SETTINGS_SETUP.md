@@ -20,7 +20,7 @@ Business settings (bank account details, tax rate, currency, etc.) are now manag
 4. Click **Run** to execute the migration
 
 The table will be created with default settings:
-- **Account Name:** Famous Jelly Luxe
+- **Account Name:** Famous Jolly Luxe
 - **Bank Name:** Access Bank
 - **Account Number:** 1770816426
 - **Account Type:** Business Account
@@ -69,7 +69,7 @@ Changes take effect immediately for new orders.
 If you want to keep some settings in `.env` for security, you can add:
 
 ```env
-BUSINESS_ACCOUNT_NAME=Famous Jelly Luxe
+BUSINESS_ACCOUNT_NAME=Famous Jolly Luxe
 BUSINESS_BANK_NAME=Access Bank
 BUSINESS_ACCOUNT_NUMBER=1770816426
 BUSINESS_ACCOUNT_TYPE=Business Account
@@ -88,7 +88,7 @@ Fetch all business settings (public endpoint, used for emails)
 {
   "success": true,
   "data": {
-    "account_name": "Famous Jelly Luxe",
+    "account_name": "Famous Jolly Luxe",
     "bank_name": "Access Bank",
     "account_number": "1770816426",
     "account_type": "Business Account",
@@ -109,7 +109,7 @@ Fetch a specific setting (e.g., `/api/settings/account_name`)
 {
   "success": true,
   "key": "account_name",
-  "value": "Famous Jelly Luxe"
+  "value": "Famous Jolly Luxe"
 }
 ```
 
@@ -119,7 +119,7 @@ Update business settings (admin only, requires authentication)
 **Request:**
 ```json
 {
-  "account_name": "Famous Jelly Luxe",
+  "account_name": "Famous Jolly Luxe",
   "bank_name": "Access Bank",
   "account_number": "1770816426",
   "account_type": "Business Account",

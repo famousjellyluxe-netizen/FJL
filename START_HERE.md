@@ -2,7 +2,7 @@
 
 ## ✅ EVERYTHING IS READY!
 
-Your **production-ready backend** for Famous Jelly Luxe has been completely designed and is ready for implementation.
+Your **production-ready backend** for Famous Jolly Luxe has been completely designed and is ready for implementation.
 
 ---
 

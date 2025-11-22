@@ -1,4 +1,4 @@
-# FJL (Famous Jelly Luxe) - Mobile-Responsive Design Guide
+# FJL (Famous Jolly Luxe) - Mobile-Responsive Design Guide
 
 ## Overview
 

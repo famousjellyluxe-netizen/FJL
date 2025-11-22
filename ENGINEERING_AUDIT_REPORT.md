@@ -1,4 +1,4 @@
-# FJL (Famous Jelly Luxe) - Professional Engineering Audit Report
+# FJL (Famous Jolly Luxe) - Professional Engineering Audit Report
 
 **Audit Date:** November 2025
 **Auditor:** Senior Software Engineering Review

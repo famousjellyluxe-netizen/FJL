@@ -7,7 +7,7 @@
 
 ## 📋 Overview
 
-A comprehensive database audit of the Famous Jelly Luxe (FJL) e-commerce platform has been completed. All data models, relationships, and business logic have been extracted from both frontend and backend codebases and synthesized into a production-ready PostgreSQL schema for Supabase deployment.
+A comprehensive database audit of the Famous Jolly Luxe (FJL) e-commerce platform has been completed. All data models, relationships, and business logic have been extracted from both frontend and backend codebases and synthesized into a production-ready PostgreSQL schema for Supabase deployment.
 
 ---
 

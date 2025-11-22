@@ -1,7 +1,7 @@
 # Resend Email Service Setup & Implementation Guide
 
 **Last Updated:** November 9, 2025
-**Project:** Famous Jelly Luxe (FJL) Admin Panel
+**Project:** Famous Jolly Luxe (FJL) Admin Panel
 **Email Service:** Resend
 
 ---

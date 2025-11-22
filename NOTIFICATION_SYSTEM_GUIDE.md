@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Famous Jelly Luxe (FJL) website now includes a comprehensive global notification system that displays all user and system messages in a unified, elegant notification box positioned at the top-center of the screen.
+The Famous Jolly Luxe (FJL) website now includes a comprehensive global notification system that displays all user and system messages in a unified, elegant notification box positioned at the top-center of the screen.
 
 ## Features
 

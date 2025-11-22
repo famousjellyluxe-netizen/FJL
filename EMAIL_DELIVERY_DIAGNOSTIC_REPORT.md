@@ -1,5 +1,5 @@
 # EMAIL DELIVERY DIAGNOSTIC REPORT
-## Famous Jelly Luxe - Resend Email Service
+## Famous Jolly Luxe - Resend Email Service
 
 **Date:** November 11, 2025
 **Diagnostic Runtime:** ~15 minutes

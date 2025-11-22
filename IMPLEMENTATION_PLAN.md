@@ -8,7 +8,7 @@
 
 ## OVERVIEW
 
-This document outlines the implementation plan for 7 major feature enhancements to the Famous Jelly Luxe e-commerce platform.
+This document outlines the implementation plan for 7 major feature enhancements to the Famous Jolly Luxe e-commerce platform.
 
 ---
 
@@ -242,7 +242,7 @@ export async function sendContactEmail(contactData) {
   await sendEmail({
     from: process.env.STORE_EMAIL,
     to: email,
-    subject: 'We received your message - Famous Jelly Luxe',
+    subject: 'We received your message - Famous Jolly Luxe',
     html: formatContactAutoReply(name)
   });
 }

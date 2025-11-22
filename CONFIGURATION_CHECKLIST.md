@@ -124,7 +124,7 @@ FROM store_settings;
 ```
 
 **Current defaults:**
-- `store_name`: "Famous Jelly Luxe"
+- `store_name`: "Famous Jolly Luxe"
 - `tax_rate`: "0.075" (7.5%)
 - `shipping_cost`: "0" (free)
 - `currency`: "NGN"

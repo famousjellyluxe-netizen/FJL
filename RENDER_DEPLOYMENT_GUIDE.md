@@ -1,6 +1,6 @@
 # FJL Render Deployment Guide
 
-This guide explains how to deploy the FJL (Famous Jelly Luxe) full-stack e-commerce application to Render.
+This guide explains how to deploy the FJL (Famous Jolly Luxe) full-stack e-commerce application to Render.
 
 ## ⚠️ Important: This is NOT a Static Website
 
@@ -156,7 +156,7 @@ ADMIN_JWT_EXPIRY=7d
 RESEND_API_KEY=your-resend-api-key
 
 # Store Configuration
-STORE_NAME=Famous Jelly Luxe
+STORE_NAME=Famous Jolly Luxe
 STORE_EMAIL=hello@fjlclothing.shop
 
 # CORS Origins (include localhost for local dev testing + production domains)
@@ -347,7 +347,7 @@ JWT_SECRET=
 JWT_EXPIRY=24h
 ADMIN_JWT_EXPIRY=7d
 RESEND_API_KEY=
-STORE_NAME=Famous Jelly Luxe
+STORE_NAME=Famous Jolly Luxe
 STORE_EMAIL=hello@fjlclothing.shop
 # Include localhost for local dev testing during early stages
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,https://fjl-frontend.onrender.com,https://fjl.com,https://www.fjl.com

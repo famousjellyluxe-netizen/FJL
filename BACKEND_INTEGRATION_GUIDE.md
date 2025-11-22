@@ -43,7 +43,7 @@ npm run dev
 Expected output:
 ```
 ╔═══════════════════════════════════════════════════════════╗
-║     Famous Jelly Luxe (FJL) - Backend API Server         ║
+║     Famous Jolly Luxe (FJL) - Backend API Server         ║
 ║                    v1.0.0                                ║
 ╚═══════════════════════════════════════════════════════════╝
 
@@ -198,13 +198,13 @@ ADMIN_JWT_EXPIRY=7d
 RESEND_API_KEY=re_dp7WeoJP_K5qAGZGaS7pQwBWiHmk2uEWd
 
 # Store
-STORE_NAME=Famous Jelly Luxe
+STORE_NAME=Famous Jolly Luxe
 STORE_EMAIL=hello@fjlclothing.shop
 TAX_RATE=7.5
 SHIPPING_COST=0
 
 # Bank
-BANK_ACCOUNT_HOLDER=Famous Jelly Luxe Ltd
+BANK_ACCOUNT_HOLDER=Famous Jolly Luxe Ltd
 BANK_NAME=First Bank Nigeria
 BANK_ACCOUNT_NUMBER=2058123456
 BANK_CODE=011

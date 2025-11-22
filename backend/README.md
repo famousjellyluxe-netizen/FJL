@@ -1,4 +1,4 @@
-# FJL Backend - Famous Jelly Luxe API Server
+# FJL Backend - Famous Jolly Luxe API Server
 
 Production-ready Node.js + Express backend for the FJL e-commerce platform, integrated with Supabase and Resend email service.
 

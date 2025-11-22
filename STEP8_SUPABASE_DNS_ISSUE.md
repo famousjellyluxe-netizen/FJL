@@ -48,7 +48,7 @@
 **Go to Supabase Dashboard:**
 1. Visit: https://app.supabase.com
 2. Log in to your account
-3. Look for project named: **FJL** or **Famous Jelly Luxe**
+3. Look for project named: **FJL** or **Famous Jolly Luxe**
 4. Check the project's URL (should look like: `https://youkrpmiaebulbbktpvu.supabase.co`)
 
 **What to Check:**

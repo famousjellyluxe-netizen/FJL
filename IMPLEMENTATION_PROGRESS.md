@@ -98,7 +98,7 @@
    - Styled with FJL branding
 
 2. **Customer Auto-Reply:**
-   - Subject: "We received your message - Famous Jelly Luxe"
+   - Subject: "We received your message - Famous Jolly Luxe"
    - Thanks customer, confirms receipt
    - Shows copy of their message
    - "Continue Shopping" button

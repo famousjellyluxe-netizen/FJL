@@ -229,12 +229,12 @@ async function sendShippingNotification(order, customer, settings) {
 
 **Subject Line:**
 ```
-👋 Welcome to Famous Jelly Luxe! — Exclusive First Purchase Offer Inside
+👋 Welcome to Famous Jolly Luxe! — Exclusive First Purchase Offer Inside
 ```
 
 **Email Body Components:**
 1. **Header:**
-   - "Welcome to Famous Jelly Luxe!"
+   - "Welcome to Famous Jolly Luxe!"
    - Tagline or brand message
 2. **Greeting:**
    - "Hi [First Name]," (personalized if subscriber has name)

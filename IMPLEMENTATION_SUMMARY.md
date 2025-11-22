@@ -320,7 +320,7 @@ curl http://localhost:3000/api/products
 ### Expected Output
 ```
 ╔═══════════════════════════════════════════════════════════╗
-║     Famous Jelly Luxe (FJL) - Backend API Server         ║
+║     Famous Jolly Luxe (FJL) - Backend API Server         ║
 ║                    v1.0.0                                ║
 ╚═══════════════════════════════════════════════════════════╝
 
@@ -566,7 +566,7 @@ Your system now has:
 
 ## Conclusion
 
-Your Famous Jelly Luxe backend is **production-ready**!
+Your Famous Jolly Luxe backend is **production-ready**!
 
 The entire system is:
 - **Complete** - All endpoints implemented

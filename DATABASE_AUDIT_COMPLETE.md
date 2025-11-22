@@ -5,7 +5,7 @@
 
 ## 📋 Executive Summary
 
-This document contains a complete database audit of the Famous Jelly Luxe (FJL) e-commerce platform, covering all data entities, relationships, and validation rules used across both frontend and backend. The schema is production-ready for Supabase PostgreSQL deployment.
+This document contains a complete database audit of the Famous Jolly Luxe (FJL) e-commerce platform, covering all data entities, relationships, and validation rules used across both frontend and backend. The schema is production-ready for Supabase PostgreSQL deployment.
 
 ### Key Findings:
 - **10 Core Tables** with full CRUD operations
@@ -432,7 +432,7 @@ COMMENT ON TABLE store_settings IS 'Global store configuration and feature flags
 
 -- Insert default settings
 INSERT INTO store_settings (setting_key, setting_value, setting_type) VALUES
-  ('store_name', 'Famous Jelly Luxe', 'string'),
+  ('store_name', 'Famous Jolly Luxe', 'string'),
   ('tax_rate', '0.075', 'number'),
   ('shipping_cost', '0', 'number'),
   ('currency', 'NGN', 'string'),

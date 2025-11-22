@@ -1,5 +1,5 @@
 # GLOBAL NOTIFICATION SYSTEM IMPLEMENTATION - REVIEW DOCUMENT
-## Famous Jelly Luxe (FJL) - Complete Integration
+## Famous Jolly Luxe (FJL) - Complete Integration
 
 **Status:** ✅ READY FOR REVIEW (No commits made yet)
 **Date:** 2025-11-07

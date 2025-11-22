@@ -107,7 +107,7 @@ ADMIN_JWT_EXPIRY=7d
 RESEND_API_KEY=re_dp7WeoJP_K5qAGZGaS7pQwBWiHmk2uEWd
 
 # Store Configuration
-STORE_NAME=Famous Jelly Luxe
+STORE_NAME=Famous Jolly Luxe
 TAX_RATE=7.5
 SHIPPING_COST=0
 ```

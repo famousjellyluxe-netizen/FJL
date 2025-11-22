@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The Famous Jelly Luxe (FJL) website has been **fully redesigned for mobile responsiveness** across all device sizes from small phones (320px) to 4K displays (2560px+). This implementation maintains the luxury streetwear brand aesthetic while ensuring seamless user experiences on every device.
+The Famous Jolly Luxe (FJL) website has been **fully redesigned for mobile responsiveness** across all device sizes from small phones (320px) to 4K displays (2560px+). This implementation maintains the luxury streetwear brand aesthetic while ensuring seamless user experiences on every device.
 
 ---
 

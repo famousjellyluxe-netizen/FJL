@@ -2,7 +2,7 @@
 
 ## ✅ WHAT HAS BEEN DELIVERED
 
-You now have a **complete, production-ready backend** for Famous Jelly Luxe with everything needed to launch a professional e-commerce platform.
+You now have a **complete, production-ready backend** for Famous Jolly Luxe with everything needed to launch a professional e-commerce platform.
 
 ---
 

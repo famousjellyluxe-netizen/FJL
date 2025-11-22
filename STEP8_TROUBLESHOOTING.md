@@ -344,7 +344,7 @@ After fixing, run `npm run dev` and you should see:
 ✅ Supabase client initialized successfully
 
 ╔═══════════════════════════════════════════════════════════╗
-║     Famous Jelly Luxe (FJL) - Backend API Server         ║
+║     Famous Jolly Luxe (FJL) - Backend API Server         ║
 ║                    v1.0.0                                ║
 ╚═══════════════════════════════════════════════════════════╝
 

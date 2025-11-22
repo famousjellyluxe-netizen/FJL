@@ -2,7 +2,7 @@
 
 ## ✅ What Has Been Created
 
-A **production-ready Node.js + Express backend** for Famous Jelly Luxe with:
+A **production-ready Node.js + Express backend** for Famous Jolly Luxe with:
 
 ### 📊 Database Schema (PostgreSQL/Supabase)
 - 11 core tables
