@@ -1,6 +1,7 @@
 import { supabase, supabaseService } from '../config/database.js';
 import { AppError, NotFoundError } from '../middleware/errorHandler.js';
 import * as stockUpdateService from './stockUpdateService.js';
+import * as imageOptimizationService from './imageOptimizationService.js';
 import cache from '../utils/cache.js';
 
 // Storage configuration
@@ -9,11 +10,13 @@ const STORAGE_URL = process.env.SUPABASE_STORAGE_URL ||
   'https://youkrpmiaebulbbktpvu.supabase.co/storage/v1/object/public/product-images/';
 
 /**
- * Upload image to Supabase Storage
+ * Upload image to Supabase Storage with automatic optimization
+ * Converts to WebP, compresses to <200KB, and generates responsive versions
+ *
  * @param {Buffer} fileBuffer - File buffer
  * @param {string} filename - Original filename
  * @param {string} mimetype - File mime type
- * @returns {Promise<string>} - Public URL of uploaded image
+ * @returns {Promise<Object>} - URLs for different image formats and sizes
  */
 export async function uploadProductImage(fileBuffer, filename, mimetype) {
   try {
@@ -32,28 +35,66 @@ export async function uploadProductImage(fileBuffer, filename, mimetype) {
       throw new AppError('Invalid file type. Only JPG, PNG, WebP allowed', 400);
     }
 
-    // Generate unique filename
+    // Optimize image (convert to WebP, compress)
+    console.log(`🖼️  Optimizing image: ${filename} (${Math.round(fileBuffer.length / 1024)}KB)`);
+    const optimized = await imageOptimizationService.optimizeImage(fileBuffer, mimetype);
+
+    // Generate unique base filename
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(7);
-    const extension = filename.split('.').pop();
-    const storagePath = `products/${timestamp}-${randomStr}.${extension}`;
+    const baseFilename = `${timestamp}-${randomStr}`;
+    const baseStoragePath = `products/${baseFilename}`;
 
-    // Upload to Supabase Storage
-    const { data, error } = await supabaseService.storage
+    // Upload optimized WebP version (primary)
+    const webpPath = `${baseStoragePath}.webp`;
+    const { error: webpError } = await supabaseService.storage
       .from(STORAGE_BUCKET)
-      .upload(storagePath, fileBuffer, {
-        contentType: mimetype,
+      .upload(webpPath, optimized.webp, {
+        contentType: 'image/webp',
         upsert: false
       });
 
-    if (error) {
-      console.error('Storage upload error:', error);
-      throw new AppError('Failed to upload image', 500);
+    if (webpError) {
+      console.error('WebP upload error:', webpError);
+      throw new AppError('Failed to upload optimized image', 500);
     }
 
-    // Return public URL
-    const publicUrl = `${STORAGE_URL}${storagePath}`;
-    return publicUrl;
+    // Upload JPEG fallback version
+    const jpegPath = `${baseStoragePath}.jpg`;
+    const { error: jpegError } = await supabaseService.storage
+      .from(STORAGE_BUCKET)
+      .upload(jpegPath, optimized.jpeg, {
+        contentType: 'image/jpeg',
+        upsert: false
+      });
+
+    if (jpegError) {
+      console.error('JPEG upload error:', jpegError);
+      // Continue anyway, WebP is uploaded
+    }
+
+    console.log(`✅ Image optimization complete:`);
+    console.log(`   Original: ${Math.round(optimized.originalSize / 1024)}KB (${optimized.format})`);
+    console.log(`   WebP: ${Math.round(optimized.webpSize / 1024)}KB (Saved ${optimized.compressionRatio}%)`);
+    console.log(`   JPEG: ${Math.round(optimized.jpegSize / 1024)}KB`);
+
+    // Return URLs for both formats
+    return {
+      // Primary URL (WebP with JPEG fallback via picture element)
+      primary: `${STORAGE_URL}${webpPath}`,
+      // URLs for srcset
+      webp: `${STORAGE_URL}${webpPath}`,
+      jpeg: `${STORAGE_URL}${jpegPath}`,
+      // Legacy - return primary URL for backward compatibility
+      url: `${STORAGE_URL}${webpPath}`,
+      // Optimization metadata
+      optimization: {
+        originalSize: optimized.originalSize,
+        webpSize: optimized.webpSize,
+        jpegSize: optimized.jpegSize,
+        compressionRatio: optimized.compressionRatio
+      }
+    };
   } catch (error) {
     if (error instanceof AppError) throw error;
     console.error('Error uploading product image:', error);
