@@ -474,6 +474,24 @@
             animation: slideDown 0.3s ease;
         }
 
+        /* Error Message */
+        .error-message {
+            display: none;
+            padding: 16px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            color: #721c24;
+            text-align: left;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -807,6 +825,8 @@
                 Thank you! Your message has been sent successfully. We'll get back to you soon.
             </div>
 
+            <div class="error-message" id="errorMessage"></div>
+
             <form id="contactForm" onsubmit="handleFormSubmit(event)">
                 <div class="form-grid">
                     <div class="form-group">
@@ -1013,36 +1033,102 @@
             }
         });
 
-        function handleFormSubmit(event) {
+        async function handleFormSubmit(event) {
             event.preventDefault();
 
             const form = document.getElementById('contactForm');
             const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitBtn.textContent;
 
             // Get form values
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const subject = document.getElementById('subject').value;
-            const message = document.getElementById('message').value;
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const message = document.getElementById('message').value.trim();
 
-            // Log form data (in a real app, this would be sent to a server)
-            console.log('Contact Form Submission:', {
-                name,
-                email,
-                subject,
-                message
-            });
+            // Clear any previous messages
+            successMessage.classList.remove('show');
+            if (errorMessage) errorMessage.classList.remove('show');
 
-            // Show success message
-            successMessage.classList.add('show');
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
 
-            // Reset form
-            form.reset();
+            try {
+                // Prepare contact data
+                const contactData = {
+                    name,
+                    email,
+                    subject,
+                    message
+                };
 
-            // Hide success message after 5 seconds
-            setTimeout(() => {
-                successMessage.classList.remove('show');
-            }, 5000);
+                // Only include phone if provided
+                if (phone) {
+                    contactData.phone = phone;
+                }
+
+                console.log('📤 Sending contact form data:', contactData);
+
+                // Call the contact API
+                const result = await contactAPI.submit(contactData);
+
+                if (result.success) {
+                    // Show success message
+                    successMessage.classList.add('show');
+                    console.log('✓ Contact form submitted successfully');
+
+                    // Reset form
+                    form.reset();
+                    submitBtn.textContent = originalButtonText;
+                    submitBtn.disabled = false;
+
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        successMessage.classList.remove('show');
+                    }, 5000);
+                } else {
+                    // Handle API error
+                    throw {
+                        message: result.error || 'Failed to submit form',
+                        details: result.details || []
+                    };
+                }
+            } catch (error) {
+                console.error('✗ Contact form error:', error);
+
+                // Show error message
+                if (errorMessage) {
+                    let errorText = error.message || 'Failed to send message. Please try again.';
+
+                    // Add validation details if available
+                    if (error.details && error.details.length > 0) {
+                        // Handle both 'msg' (express-validator) and 'message' formats
+                        errorText += '\n' + error.details.map(d => {
+                            if (typeof d === 'string') return d;
+                            return d.msg || d.message || JSON.stringify(d);
+                        }).join('\n');
+                    }
+
+                    errorMessage.textContent = errorText;
+                    errorMessage.classList.add('show');
+
+                    // Hide error message after 8 seconds
+                    setTimeout(() => {
+                        errorMessage.classList.remove('show');
+                    }, 8000);
+                } else {
+                    // Fallback if no error message element
+                    alert('Error: ' + (error.message || 'Failed to send message'));
+                }
+
+                // Restore button
+                submitBtn.textContent = originalButtonText;
+                submitBtn.disabled = false;
+            }
         }
 
         // Mobile Menu Event Listeners

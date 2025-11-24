@@ -342,6 +342,21 @@ const customersAPI = {
 };
 
 /**
+ * CONTACT API
+ */
+const contactAPI = {
+  /**
+   * Submit contact form
+   */
+  async submit(contactData) {
+    return apiManager.call('/contact', {
+      method: 'POST',
+      body: contactData
+    }, false); // Don't cache POST
+  }
+};
+
+/**
  * NOTIFICATION HELPERS
  */
 function showAPIError(message, details = []) {
@@ -383,6 +398,7 @@ window.apiManager = apiManager;
 window.productsAPI = productsAPI;
 window.ordersAPI = ordersAPI;
 window.customersAPI = customersAPI;
+window.contactAPI = contactAPI;
 window.showAPIError = showAPIError;
 window.showAPISuccess = showAPISuccess;
 window.useFallbackData = useFallbackData;
