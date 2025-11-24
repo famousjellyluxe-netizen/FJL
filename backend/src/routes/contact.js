@@ -40,7 +40,7 @@ router.post('/',
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        error: 'Validation failed',
+        error: 'Please check the form and try again',
         details: errors.array()
       });
     }

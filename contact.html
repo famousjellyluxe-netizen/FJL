@@ -1102,15 +1102,18 @@
 
                 // Show error message
                 if (errorMessage) {
-                    let errorText = error.message || 'Failed to send message. Please try again.';
+                    let errorText = '';
 
-                    // Add validation details if available
+                    // Show validation details if available, otherwise show general error
                     if (error.details && error.details.length > 0) {
                         // Handle both 'msg' (express-validator) and 'message' formats
-                        errorText += '\n' + error.details.map(d => {
+                        errorText = error.details.map(d => {
                             if (typeof d === 'string') return d;
                             return d.msg || d.message || JSON.stringify(d);
                         }).join('\n');
+                    } else {
+                        // Show general error message if no validation details
+                        errorText = error.message || 'Failed to send message. Please try again.';
                     }
 
                     errorMessage.textContent = errorText;
