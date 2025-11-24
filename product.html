@@ -21,8 +21,8 @@
         :root {
             --color-primary: #000;
             --color-secondary: #fff;
-            --color-accent: #000;
-            --color-accent-hover: #333;
+            --color-accent: #00ff00;
+            --color-accent-hover: #0aff00;
             --color-gray: #8b8b8b;
             --color-gray-light: #f5f5f5;
             --color-gray-dark: #333;
@@ -184,18 +184,21 @@
             font-family: 'Bubbler One', sans-serif;
             font-size: 64px;
             font-weight: 700;
-            color: #000;
+            color: #00FF00;
             letter-spacing: 2px;
-            text-shadow: none;
+            text-shadow:
+                0 0 10px rgba(0, 255, 0, 0.8),
+                0 0 20px rgba(255, 0, 255, 0.4),
+                2px 2px 0px rgba(255, 0, 150, 0.6);
             transform: skewX(-5deg);
             line-height: 1;
-            filter: none;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.5));
         }
 
         .nav-logo-tagline {
             font-family: 'Inter', sans-serif;
             font-size: 9px;
-            color: #000;
+            color: #00FF00;
             font-style: italic;
             font-weight: 700;
             letter-spacing: 1px;
@@ -524,7 +527,7 @@
         .product-price {
             font-size: 16px;
             font-weight: 600;
-            color: var(--color-accent);
+            color: #000;
             margin-bottom: 16px;
         }
 
@@ -545,6 +548,63 @@
         .stock-status.in-stock {
             background: #d4edda;
             color: #155724;
+        }
+
+        /* Skeleton Loading Styles */
+        .product-skeleton {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e8e8e8 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-title {
+            height: 28px;
+            width: 70%;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-price {
+            height: 20px;
+            width: 40%;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-badge {
+            height: 32px;
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .product-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .stock-status.out-of-stock {
@@ -882,7 +942,7 @@
             width: 100%;
             padding: 16px;
             background: var(--color-accent);
-            color: #000;
+            color: #fff;
             border: none;
             border-radius: 2px;
             font-size: 12px;
@@ -1033,19 +1093,19 @@
         /* Breadcrumb */
         .breadcrumb {
             font-size: 12px;
-            color: #8b8b8b;
+            color: #000;
             margin-bottom: 24px;
         }
 
         .breadcrumb a {
-            color: var(--color-accent);
+            color: #000;
             text-decoration: none;
             transition: color 0.3s ease;
             font-weight: 600;
         }
 
         .breadcrumb a:hover {
-            color: var(--color-accent-hover);
+            color: #333;
         }
 
         /* Responsive */
@@ -1309,11 +1369,6 @@
     </style>
 </head>
 <body>
-    <!-- Top banner -->
-    <div class="top-banner">
-        Stay fresh. Stay fearless. Stay FJL.
-    </div>
-
     <!-- Header & Navigation -->
     <header class="sticky-header">
         <nav class="nav-container">
@@ -1400,9 +1455,19 @@
 
                 <!-- Product Details (Right) -->
                 <div class="product-details">
-                    <h1 class="product-title" id="productTitle">Product Details</h1>
-                    <div class="product-price">$75,000.00</div>
-                    <span class="stock-status low-stock">Low Stock</span>
+                    <!-- Skeleton Loading State -->
+                    <div class="product-skeleton" id="productSkeleton">
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-price"></div>
+                        <div class="skeleton skeleton-badge"></div>
+                    </div>
+
+                    <!-- Real Product Content (Hidden initially) -->
+                    <div class="product-content" id="productContent" style="display: none;">
+                        <h1 class="product-title" id="productTitle"></h1>
+                        <div class="product-price" id="productPriceDisplay"></div>
+                        <span class="stock-status" id="stockStatusBadge"></span>
+                    </div>
 
                     <!-- Size Selection -->
                     <div class="size-section">
@@ -1776,10 +1841,10 @@
             }
 
             // Update product heading
-            document.querySelector('.product-title').textContent = product.name;
+            document.getElementById('productTitle').textContent = product.name;
 
             // Update product price
-            document.querySelector('.product-price').textContent = '$' + product.price.toLocaleString('en-CA') + ' CAD';
+            document.getElementById('productPriceDisplay').textContent = '$' + product.price.toLocaleString('en-CA') + ' CAD';
 
             // Update product image if available
             const mainImage = document.getElementById('mainImage');
@@ -1875,7 +1940,7 @@
             // Fallback to checking overall total_stock or inStock flag if sizeInventory is empty
             const hasOverallStock = product.total_stock > 0 || product.inStock === true;
             const actualTotalStock = totalStock > 0 ? totalStock : (hasOverallStock ? (product.total_stock || 1) : 0);
-            const stockStatusElement = document.querySelector('.stock-status');
+            const stockStatusElement = document.getElementById('stockStatusBadge');
 
             if (stockStatusElement) {
                 if (actualTotalStock <= 0) {
@@ -1888,6 +1953,16 @@
                     stockStatusElement.textContent = 'In Stock';
                     stockStatusElement.className = 'stock-status in-stock';
                 }
+            }
+
+            // Hide skeleton and show product content
+            const skeleton = document.getElementById('productSkeleton');
+            const content = document.getElementById('productContent');
+            if (skeleton) {
+                skeleton.style.display = 'none';
+            }
+            if (content) {
+                content.style.display = 'block';
             }
 
             // Populate size dropdown dynamically from product data
@@ -2839,31 +2914,5 @@
         </script>
         <!-- Real-time Stock Updates via SSE -->
         <script src="js/product-stock-updates.js"></script>
-        <!-- SSE Status Indicator -->
-        <script>
-          (function() {
-            function addStatusIndicator() {
-              const header = document.querySelector('nav');
-              if (!header) return;
-              const statusDiv = document.createElement('div');
-              statusDiv.id = 'sseStatusIndicator';
-              statusDiv.style.cssText = 'position: fixed; top: 70px; right: 20px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; z-index: 999; display: none;';
-              header.parentElement.insertBefore(statusDiv, header.nextSibling);
-              if (window.dataSyncBus) {
-                window.dataSyncBus.onStatusChange((status) => {
-                  const el = document.getElementById('sseStatusIndicator');
-                  if (!el) return;
-                  const map = {'connected': { bg: '#d4edda', color: '#155724', text: '✅ Live' }, 'connecting': { bg: '#fff3cd', color: '#856404', text: '🔄 Connecting' }, 'polling': { bg: '#cce5ff', color: '#004085', text: '📡 Polling' }, 'reconnecting': { bg: '#fff3cd', color: '#856404', text: '🔄 Reconnecting' }, 'idle': { bg: '#f8d7da', color: '#721c24', text: '⚠️ Offline' }};
-                  const cfg = map[status] || map['idle'];
-                  el.textContent = cfg.text;
-                  el.style.backgroundColor = cfg.bg;
-                  el.style.color = cfg.color;
-                  el.style.display = status === 'idle' ? 'none' : 'block';
-                });
-              }
-            }
-            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', addStatusIndicator); } else { addStatusIndicator(); }
-          })();
-        </script>
 </body>
 </html>
