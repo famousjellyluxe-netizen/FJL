@@ -18,21 +18,21 @@ router.post('/',
   [
     body('name')
       .trim()
-      .notEmpty().withMessage('Name is required')
+      .notEmpty().withMessage('Please enter your name')
       .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2-100 characters'),
     body('email')
       .trim()
-      .notEmpty().withMessage('Email is required')
-      .isEmail().withMessage('Invalid email address')
+      .notEmpty().withMessage('Please enter your email address')
+      .isEmail().withMessage('Please enter a valid email address')
       .normalizeEmail(),
     body('subject')
       .optional()
       .trim()
-      .isLength({ max: 200 }).withMessage('Subject must be less than 200 characters'),
+      .isLength({ max: 200 }).withMessage('Subject is too long'),
     body('message')
       .trim()
-      .notEmpty().withMessage('Message is required')
-      .isLength({ min: 10, max: 5000 }).withMessage('Message must be between 10-5000 characters')
+      .notEmpty().withMessage('Please enter your message')
+      .isLength({ min: 10, max: 5000 }).withMessage('Message must be between 10 to 5000 characters')
   ],
   async (req, res) => {
     // Validate inputs
