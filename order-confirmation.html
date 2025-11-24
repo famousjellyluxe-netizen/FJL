@@ -389,6 +389,14 @@
             overflow: hidden;
         }
 
+        .order-items-list {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
         .order-item {
             padding: 16px;
             border-bottom: 1px solid #e5e5e5;
@@ -701,9 +709,46 @@
                 padding: 20px !important;
             }
 
+            .order-items-list {
+                border: none;
+                padding: 0;
+            }
+
             .order-item {
-                flex-direction: column;
+                display: flex;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px solid #e5e5e5;
                 gap: 12px;
+            }
+
+            .order-item:last-child {
+                border-bottom: none;
+            }
+
+            .item-details {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .item-name {
+                font-size: 13px;
+                white-space: normal;
+                overflow-wrap: break-word;
+                margin-bottom: 2px;
+            }
+
+            .item-meta {
+                font-size: 11px;
+                color: #999;
+                margin-bottom: 4px;
+            }
+
+            .item-price {
+                text-align: right;
+                font-size: 13px;
+                white-space: nowrap;
+                flex-shrink: 0;
             }
 
             .order-item-image {
@@ -1001,18 +1046,9 @@
             <div class="section">
                 <h2 class="section-title">📦 Order Summary</h2>
                 <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                        <thead>
-                            <tr style="border-bottom: 2px solid #e5e5e5;">
-                                <th style="text-align: left; padding: 12px 0; font-weight: 700; color: #333;">Item</th>
-                                <th style="text-align: left; padding: 12px 0; font-weight: 700; color: #333;">Details</th>
-                                <th style="text-align: right; padding: 12px 0; font-weight: 700; color: #333;">Price</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orderItemsContainer">
-                            <!-- Items will be inserted here -->
-                        </tbody>
-                    </table>
+                    <div id="orderItemsContainer" class="order-items-list">
+                        <!-- Items will be inserted here -->
+                    </div>
                 </div>
                 <div class="price-summary" style="margin-top: 16px;">
                     <div class="price-row">
@@ -1268,6 +1304,9 @@
             // Populate order items
             const itemsContainer = document.getElementById('orderItemsContainer');
             let subtotal = 0;
+
+            // Clear container first
+            itemsContainer.innerHTML = '';
 
             order.items.forEach(item => {
                 const itemTotal = item.price * item.quantity;
