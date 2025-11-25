@@ -173,7 +173,7 @@ export async function getLightweightProducts(filters = {}) {
     let query = supabase
       .from('products')
       // Select ONLY essential fields - drastically reduces payload
-      .select('id, name, price, image_url, category_id, categories(name, slug)');
+      .select('id, name, price, image_url, category_id, categories(name, slug), product_variants(*)');
 
     // Apply filters
     if (filters.is_active !== undefined) {
@@ -206,13 +206,14 @@ export async function getLightweightProducts(filters = {}) {
 
     if (error) throw error;
 
-    // Transform to include category name at root level
+    // Transform to include category name at root level and variants for proper client rendering
     const products = (data || []).map(product => ({
       id: product.id,
       name: product.name,
       price: product.price,
       image: product.image_url,
-      category: product.categories?.name || 'Uncategorized'
+      category: product.categories?.name || 'Uncategorized',
+      variants: Array.isArray(product.product_variants) ? product.product_variants : []
     }));
 
     const result = {

@@ -115,13 +115,13 @@
               sleeve: 'Sleeve',
               inStock: true, // Lightweight format doesn't include stock
               stock: 0,
-              sizes: [],
-              sizeInventory: {},
+              sizes: extractUniqueSizesFromVariants(product.variants),
+              sizeInventory: transformVariantsToInventory(product.variants),
               sku: '',
               description: '',
               category: product.category,
               category_slug: '',
-              variants: []
+              variants: product.variants || []
             };
           }
           // Full format: includes all details
