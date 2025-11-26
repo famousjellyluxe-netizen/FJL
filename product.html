@@ -937,6 +937,65 @@
             font-weight: 600;
         }
 
+        /* Quantity Warning Alert */
+        .quantity-warning-alert {
+            display: none;
+            width: 100%;
+            margin: 12px 0;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            border-left: 4px solid transparent;
+            animation: slideDown 0.3s ease;
+        }
+
+        .quantity-warning-alert.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+
+        .quantity-warning-alert.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+
+        .quantity-warning-alert.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile responsive: tablets and phones (767px and below) */
+        @media (max-width: 767px) {
+            .quantity-warning-alert {
+                font-size: 12px;
+                padding: 8px 10px;
+                margin: 10px 0;
+            }
+        }
+
+        /* Extra-small devices (320px and below) - iPhone SE, old phones */
+        @media (max-width: 320px) {
+            .quantity-warning-alert {
+                font-size: 11px;
+                padding: 6px 8px;
+                margin: 8px 0;
+            }
+        }
+
         /* Add to Cart Button */
         .add-to-cart-btn {
             width: 100%;
@@ -1502,6 +1561,9 @@
                         </div>
                     </div>
 
+                    <!-- NEW: Full-width quantity validation alert -->
+                    <div id="quantityWarning" class="quantity-warning-alert"></div>
+
                     <!-- Add to Cart Button -->
                     <button class="add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
 
@@ -1946,8 +2008,8 @@
                 if (actualTotalStock <= 0) {
                     stockStatusElement.textContent = 'Out of Stock';
                     stockStatusElement.className = 'stock-status out-of-stock';
-                } else if (actualTotalStock <= 10) {
-                    stockStatusElement.textContent = 'Low Stock';
+                } else if (actualTotalStock <= 5) {
+                    stockStatusElement.textContent = 'Limited Stock';
                     stockStatusElement.className = 'stock-status low-stock';
                 } else {
                     stockStatusElement.textContent = 'In Stock';
@@ -2020,7 +2082,7 @@
                     btn.className = `size-btn ${isOutOfStock ? 'out-of-stock' : ''}`;
                     btn.textContent = size;
                     btn.disabled = isOutOfStock;
-                    btn.title = isOutOfStock ? 'Out of stock' : `${stockCount} available`;
+                    btn.title = isOutOfStock ? 'This size is no longer available.' : `${stockCount} available`;
 
                     if (!isOutOfStock) {
                         btn.onclick = function() { selectSize(this); };
@@ -2028,7 +2090,7 @@
                         btn.onclick = function(e) {
                             e.preventDefault();
                             if (notifications) {
-                                notifications.warning('This size is out of stock');
+                                notifications.warning('This size is no longer available.');
                             }
                         };
                     }
@@ -2057,7 +2119,7 @@
                     if (stockCount <= 0) {
                         btn.disabled = true;
                         btn.classList.add('out-of-stock');
-                        btn.title = 'Out of stock';
+                        btn.title = 'This size is no longer available.';
                         btn.textContent = sizeText + ' (Out)';
                     } else {
                         btn.disabled = false;
@@ -2329,7 +2391,7 @@
             // Check if incrementing would exceed available stock
             if (currentQty + 1 > availableStock) {
                 if (notifications) {
-                    notifications.warning(`Only ${availableStock} units of ${selectedSize} ${selectedColor} available in stock`);
+                    notifications.warning(`Only ${availableStock} left in stock.`);
                 }
                 console.log(`⚠️  Cannot increase quantity: Current=${currentQty}, Max Available=${availableStock}`);
                 return;
@@ -2377,31 +2439,23 @@
                 availableStock = sizeInventory[selectedSize] || 0;
             }
 
-            // Get or create warning element
+            // Get warning element (pre-created in HTML)
             let warningElement = document.getElementById('quantityWarning');
-            if (!warningElement) {
-                warningElement = document.createElement('div');
-                warningElement.id = 'quantityWarning';
-                warningElement.style.cssText = 'font-size: 12px; margin-top: 4px; padding: 6px 8px; border-radius: 4px; text-align: center;';
-                display.parentElement.appendChild(warningElement);
-            }
 
             // ONLY show notification when at maximum available stock (not for low stock)
             if (currentQty === availableStock && availableStock > 0) {
                 // User has selected the maximum available
-                warningElement.style.backgroundColor = '#fff3cd';
-                warningElement.style.color = '#856404';
-                warningElement.textContent = `⚠️ You've selected the maximum available (${availableStock})`;
+                warningElement.className = 'quantity-warning-alert warning show';
+                warningElement.textContent = `⚠️ You've added the maximum available quantity (${availableStock}).`;
             } else if (currentQty > availableStock) {
                 // User tried to select more than available - force to max and show error
-                warningElement.style.backgroundColor = '#f8d7da';
-                warningElement.style.color = '#721c24';
-                warningElement.textContent = `❌ Exceeds available stock (${availableStock} max)`;
+                warningElement.className = 'quantity-warning-alert error show';
+                warningElement.textContent = `❌ Exceeds available stock. Only ${availableStock} left in stock.`;
                 display.value = availableStock; // Force to max
             } else {
                 // No notification for normal quantities or low stock situations
+                warningElement.className = 'quantity-warning-alert';
                 warningElement.textContent = '';
-                warningElement.style.backgroundColor = 'transparent';
             }
         }
 
@@ -2410,7 +2464,7 @@
             // Prevent selecting disabled (out of stock) sizes
             if (btn.disabled) {
                 if (notifications) {
-                    notifications.warning('This size is out of stock');
+                    notifications.warning('This size is no longer available.');
                 }
                 return;
             }
@@ -2598,7 +2652,7 @@
                 // (This shouldn't happen in normal circumstances but provides defense-in-depth)
                 if (sizeBtn && sizeBtn.disabled) {
                     if (notifications) {
-                        notifications.error('This size is out of stock');
+                        notifications.error('This size is no longer available.');
                     }
                     return;
                 }

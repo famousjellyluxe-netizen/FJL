@@ -236,8 +236,8 @@ class ProductStockUpdater {
       if (actualTotalStock <= 0) {
         stockStatusElement.textContent = 'Out of Stock';
         stockStatusElement.className = 'stock-status out-of-stock';
-      } else if (actualTotalStock <= 10) {
-        stockStatusElement.textContent = 'Low Stock';
+      } else if (actualTotalStock <= 5) {
+        stockStatusElement.textContent = 'Limited Stock';
         stockStatusElement.className = 'stock-status low-stock';
       } else {
         stockStatusElement.textContent = 'In Stock';
@@ -262,11 +262,11 @@ class ProductStockUpdater {
       if (isOutOfStock) {
         btn.disabled = true;
         btn.classList.add('out-of-stock');
-        btn.title = 'Out of stock';
+        btn.title = 'This size is no longer available.';
       } else {
         btn.disabled = false;
         btn.classList.remove('out-of-stock');
-        btn.title = `${stockCount} available`;
+        btn.title = `${stockCount} left in stock`;
       }
     });
   }

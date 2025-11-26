@@ -306,7 +306,7 @@ class CartDrawer {
                     // Validate before allowing increase
                     if (typeof maxAvailable === 'number' && maxAvailable > 0 && currentQty + 1 > maxAvailable) {
                         if (typeof notifications !== 'undefined' && notifications) {
-                            notifications.warning(`Only ${maxAvailable} units of ${size} ${color} available in stock`);
+                            notifications.warning(`Only ${maxAvailable} left in stock.`);
                         }
                         console.log(`⚠️ Cannot increase quantity: Only ${maxAvailable} available for ${size} ${color}, requested ${currentQty + 1}`);
                         return;
@@ -417,7 +417,7 @@ class CartDrawer {
                                         margin: 4px 0 0 0;
                                         font-weight: 600;
                                     ">
-                                        ${item.quantity === availableStock ? '⚠️ Max available (' + availableStock + ' of ' + item.color + ')' : availableStock + ' in stock (' + item.color + ')'}
+                                        ${item.quantity === availableStock ? '⚠️ You\'ve added the maximum available quantity (' + availableStock + ')' : availableStock + ' left in stock'}
                                     </p>
                                 ` : '';
                             })()}

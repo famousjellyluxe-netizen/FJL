@@ -87,8 +87,8 @@ export async function createOrder(orderData) {
       // Check if requested quantity exceeds available stock
       if (item.quantity > variant.stock_quantity) {
         throw new AppError(
-          `Insufficient stock for ${item.product_name} (${variant.color} - ${variant.size}). ` +
-          `Requested: ${item.quantity}, Available: ${variant.stock_quantity}`,
+          `${item.product_name} (${variant.color} - ${variant.size}) is no longer available in the requested quantity. ` +
+          `Only ${variant.stock_quantity} left in stock.`,
           400
         );
       }

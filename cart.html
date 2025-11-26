@@ -1104,16 +1104,16 @@
             // Update stock info display
             const stockInfo = document.getElementById('editModalStockInfo');
             if (variantStock && variantStock < 99) {
-                stockInfo.textContent = `${variantStock} available in stock for ${selectedColor}`;
+                stockInfo.textContent = `${variantStock} left in stock for ${selectedColor}`;
                 if (variantStock < 5) {
                     stockInfo.style.color = '#e74c3c';
-                    stockInfo.innerHTML = `⚠️ Only <strong>${variantStock}</strong> available in stock for ${selectedColor}`;
+                    stockInfo.innerHTML = `⚠️ Only <strong>${variantStock}</strong> left in stock for ${selectedColor}`;
                 } else {
                     stockInfo.style.color = '#27ae60';
-                    stockInfo.textContent = `${variantStock} available in stock for ${selectedColor}`;
+                    stockInfo.textContent = `${variantStock} left in stock for ${selectedColor}`;
                 }
             } else {
-                stockInfo.textContent = 'Stock info unavailable';
+                stockInfo.textContent = 'Stock information unavailable';
             }
 
             // Update quantity input max attribute to match the variant stock
@@ -1141,13 +1141,13 @@
             // Display stock information - shows variant-specific stock
             const stockInfo = document.getElementById('editModalStockInfo');
             if (maxAvailable && maxAvailable < 99) {
-                stockInfo.textContent = `${maxAvailable} available in stock (${item.color})`;
+                stockInfo.textContent = `${maxAvailable} left in stock (${item.color})`;
                 if (maxAvailable < 5) {
                     stockInfo.style.color = '#e74c3c';
-                    stockInfo.innerHTML = `⚠️ Only <strong>${maxAvailable}</strong> available in stock for ${item.color}`;
+                    stockInfo.innerHTML = `⚠️ Only <strong>${maxAvailable}</strong> left in stock for ${item.color}`;
                 }
             } else {
-                stockInfo.textContent = 'Stock info unavailable';
+                stockInfo.textContent = 'Stock information unavailable';
             }
 
             // Fetch actual product data to get correct sizes and colors
@@ -1318,7 +1318,7 @@
             // Validate quantity against available stock (using dynamically looked up variant stock)
             if (quantity > maxAvailable) {
                 if (notifications) {
-                    notifications.error(`Cannot set quantity to ${quantity}. Only ${maxAvailable} ${item.name} (${color}-${size}) available in stock`);
+                    notifications.error(`Only ${maxAvailable} of this item left in stock.`);
                 }
                 console.log(`❌ Validation failed: Requested quantity (${quantity}) exceeds available variant stock (${maxAvailable})`);
                 return;
@@ -1387,7 +1387,7 @@
                 if (newQty > effectiveMax) {
                     // Show warning if exceeding available stock
                     if (typeof notifications !== 'undefined' && notifications) {
-                        notifications.warning(`Only ${effectiveMax} ${item.name} (${item.color}-${item.size}) available in stock`);
+                        notifications.warning(`Only ${effectiveMax} left in stock.`);
                     }
                     console.log(`⚠️ Cannot increase quantity: Only ${effectiveMax} available, requested ${newQty}`);
                     return;
@@ -1442,12 +1442,12 @@
                                     <div class="item-meta" style="color: #27ae60; font-weight: 600; margin-top: 4px;" id="stock-${index}">
                                         ${(() => {
                                             const availableStock = item.variantStock || item.maxQuantity;
-                                            return availableStock ? `${availableStock} in stock (${item.color})` : 'Stock info unavailable';
+                                            return availableStock ? `${availableStock} left in stock` : 'Stock information unavailable';
                                         })()}
                                     </div>
                                     ${(() => {
                                         const availableStock = item.variantStock || item.maxQuantity;
-                                        return availableStock && availableStock < 5 ? `<div class="item-meta" style="color: #e74c3c; font-weight: 600;">⚠️ Only ${availableStock} of ${item.color} available!</div>` : '';
+                                        return availableStock && availableStock < 5 ? `<div class="item-meta" style="color: #e74c3c; font-weight: 600;">⚠️ Only ${availableStock} left in stock</div>` : '';
                                     })()}
                                 </div>
                             </div>

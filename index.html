@@ -1439,23 +1439,13 @@
                     // Render products
                     renderFeaturedProducts(productsArray);
                 } else {
-                    console.warn('⚠️  No featured products in API response, trying cached products...');
-                    // Try to use cached featured products
-                    const cachedFeatured = localStorage.getItem('fjl_featured_products');
-                    if (cachedFeatured) {
-                        try {
-                            const cachedProducts = JSON.parse(cachedFeatured);
-                            if (cachedProducts.length > 0) {
-                                console.log(`📦 Using ${cachedProducts.length} cached featured products`);
-                                renderFeaturedProducts(cachedProducts);
-                                return;
-                            }
-                        } catch (e) {
-                            console.warn('Failed to parse cached featured products');
-                        }
-                    }
+                    // API returned empty - this is intentional, not a network error
+                    console.warn('⚠️  No featured products in API response - database is empty');
 
-                    // No products found anywhere
+                    // Clear stale cache to avoid showing ghost products
+                    localStorage.removeItem('fjl_featured_products');
+
+                    // Show empty state message
                     loadingState.innerHTML = '<p style="color: #aaa;">No featured products available</p>';
                     productsGrid.style.display = 'none';
                 }
@@ -1510,7 +1500,7 @@
                         <div class="product-info">
                             <div class="product-category">${product.category || product.categories?.name || 'Collection'}</div>
                             <h3 class="product-name">${product.name}</h3>
-                            <p class="product-price">₦${product.price.toLocaleString()}</p>
+                            <p class="product-price">$${product.price.toLocaleString('en-CA')} CAD</p>
                             ${isOutOfStock ? `<button class="product-action-btn disabled" disabled>Sold Out</button>` : ''}
                         </div>
                     </div>

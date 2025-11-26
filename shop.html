@@ -875,6 +875,28 @@
             }
         }
 
+        /* Empty State Styles */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--color-gray-dark);
+        }
+
+        .empty-state h2 {
+            font-size: clamp(24px, 5vw, 32px);
+            margin: 0 0 12px 0;
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            font-size: clamp(14px, 2vw, 16px);
+            color: var(--color-gray);
+            margin: 0;
+            line-height: 1.5;
+        }
+
         /* MOBILE RESPONSIVE FIXES */
         @media (max-width: 767px) {
             .product-card { display: flex; flex-direction: column; }
@@ -1541,6 +1563,19 @@
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
 
+            // Handle empty state
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No Products Available</h2>
+                        <p>Check back soon as we add new items to our collection!</p>
+                    </div>
+                `;
+                renderPaginationButtons(0);
+                lucide.createIcons();
+                return;
+            }
+
             // Calculate pagination
             const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
             const startIndex = (currentPage - 1) * itemsPerPage;
@@ -1575,7 +1610,7 @@
                             </div>
                         </a>
                         <div class="product-info-header">
-                            <button class="cart-icon-btn ${isAllOutOfStock ? 'disabled' : ''}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-image-url="${imageUrl}" data-out-of-stock="${isAllOutOfStock}" title="${isAllOutOfStock ? 'Out of stock' : 'Add to cart'}" type="button" ${isAllOutOfStock ? 'disabled' : ''}>
+                            <button class="cart-icon-btn ${isAllOutOfStock ? 'disabled' : ''}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-image-url="${imageUrl}" data-out-of-stock="${isAllOutOfStock}" title="${isAllOutOfStock ? 'This item is no longer available.' : 'Add to cart'}" type="button" ${isAllOutOfStock ? 'disabled' : ''}>
                                 <i data-lucide="shopping-bag"></i>
                                 <span>${isAllOutOfStock ? 'Sold Out' : 'Add'}</span>
                             </button>
@@ -1914,8 +1949,8 @@
                                 <span id="modalQuantity" class="quantity-display">1</span>
                                 <button class="quantity-btn" onclick="increaseQuantity()">+</button>
                             </div>
-                            <p id="modalStockDisplay" style="color: #27ae60; font-size: 12px; margin-top: 8px; display: none;"><strong id="modalAvailableStock">0</strong> in stock</p>
-                            <p id="modalLowStockWarning" style="color: #e74c3c; font-size: 12px; margin-top: 8px; display: none;">⚠️ Only <strong id="modalLowStockCount">0</strong> available - quantity limited</p>
+                            <p id="modalStockDisplay" style="color: #27ae60; font-size: 12px; margin-top: 8px; display: none;"><strong id="modalAvailableStock">0</strong> left in stock</p>
+                            <p id="modalLowStockWarning" style="color: #e74c3c; font-size: 12px; margin-top: 8px; display: none;">⚠️ Only <strong id="modalLowStockCount">0</strong> left in stock</p>
                         </div>
 
                         <button id="modalAddButton" class="modal-add-to-cart" onclick="confirmAddToCart()">Add to Cart</button>
@@ -2041,7 +2076,7 @@
                     if (!isOutOfStock) {
                         btn.onclick = () => selectSize(size);
                     } else {
-                        btn.title = 'Out of stock';
+                        btn.title = 'This size is no longer available.';
                     }
 
                     sizeButtonsContainer.appendChild(btn);
@@ -2263,14 +2298,14 @@
                 const stockCount = modalState.sizeInventory[modalState.selectedSize] || 0;
                 if (stockCount <= 0) {
                     if (notifications) {
-                        notifications.error(`${modalState.selectedSize} size is out of stock`);
+                        notifications.error(`This size is no longer available.`);
                     }
                     return;
                 }
 
                 if (stockCount < modalState.quantity) {
                     if (notifications) {
-                        notifications.error(`Only ${stockCount} item(s) available in ${modalState.selectedSize} size`);
+                        notifications.error(`Only ${stockCount} left in stock.`);
                     }
                     return;
                 }
