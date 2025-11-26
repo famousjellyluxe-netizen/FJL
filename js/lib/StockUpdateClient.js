@@ -131,7 +131,13 @@
  */
 
 export class StockUpdateClient {
-  constructor(baseUrl = import.meta.env.VITE_API_URL || '/api') {
+  constructor(baseUrl = (() => {
+    try {
+      return import.meta.env.VITE_API_URL || '/api';
+    } catch (e) {
+      return '/api';
+    }
+  })()) {
     this.baseUrl = baseUrl;
     console.log(`📡 StockUpdateClient using API URL: ${this.baseUrl}`);
     this.eventSource = null;
