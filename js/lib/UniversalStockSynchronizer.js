@@ -589,7 +589,11 @@ class UniversalStockSynchronizer {
   }
 }
 
-// Export for ES6 modules
+// Export for CommonJS modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { UniversalStockSynchronizer };
 }
+
+// Export for ES6 modules
+export { UniversalStockSynchronizer };
+export default UniversalStockSynchronizer;
