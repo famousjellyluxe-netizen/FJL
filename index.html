@@ -1204,6 +1204,102 @@
     <script src="cart-drawer.js"></script>
     <script src="js/api-integration.js"></script>
     <script src="js/newsletter-integration.js"></script>
+    <!-- Real-Time Stock Updates for Featured Products (uses UniversalStockSynchronizer) -->
+    <script type="module">
+      import { UniversalStockSynchronizer } from './js/lib/UniversalStockSynchronizer.js';
+
+      (async function initializeFeaturedProductsRealTimeUpdates() {
+        try {
+          const synchronizer = await UniversalStockSynchronizer.getInstance();
+
+          // Register handler for featured products
+          synchronizer.registerPageHandler('featured', (data) => {
+            // Update featured product card if present on page
+            const productCard = document.querySelector(`[data-featured-product-id="${data.productId}"]`);
+            if (productCard) {
+              // Update "Sold Out" button state
+              const button = productCard.querySelector('[data-featured-action-btn]');
+              if (button) {
+                if (data.newQuantity <= 0) {
+                  button.classList.add('disabled');
+                  button.disabled = true;
+                  button.textContent = 'Sold Out';
+                } else {
+                  button.classList.remove('disabled');
+                  button.disabled = false;
+                }
+              }
+
+              // Update CSS class for styling
+              if (data.newQuantity <= 0) {
+                productCard.classList.add('out-of-stock');
+              } else {
+                productCard.classList.remove('out-of-stock');
+              }
+            }
+          });
+
+          // Auto-discover featured product IDs when they're rendered
+          // Wait for DOMContentLoaded to ensure products are rendered
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', async () => {
+              subscribeToFeaturedProducts();
+            });
+          } else {
+            subscribeToFeaturedProducts();
+          }
+
+          async function subscribeToFeaturedProducts() {
+            // Get all featured product IDs from product cards
+            const productCards = Array.from(document.querySelectorAll('.product-card'))
+              .filter(card => {
+                // Filter to only featured products (those with data-featured-product-id attribute will be added dynamically)
+                // Or get from rendered product links
+                const link = card.querySelector('a[href*="product.html?id="]');
+                return link !== null;
+              });
+
+            const featuredIds = productCards.map(card => {
+              const link = card.querySelector('a[href*="product.html?id="]');
+              if (link && link.href) {
+                const url = new URL(link.href, window.location.origin);
+                const id = url.searchParams.get('id');
+                return id;
+              }
+              return null;
+            }).filter(id => id && id.length > 0);
+
+            if (featuredIds.length > 0) {
+              // Add data-featured-product-id attributes for easy targeting
+              productCards.forEach((card, index) => {
+                if (featuredIds[index]) {
+                  card.setAttribute('data-featured-product-id', featuredIds[index]);
+                  // Also add button if not present
+                  let button = card.querySelector('[data-featured-action-btn]');
+                  if (!button) {
+                    const actionBtn = card.querySelector('.product-action-btn');
+                    if (actionBtn) {
+                      actionBtn.setAttribute('data-featured-action-btn', 'true');
+                    }
+                  }
+                }
+              });
+
+              await synchronizer.subscribe(featuredIds);
+              console.log(`✅ Featured products: Subscribed to ${featuredIds.length} products for real-time updates`);
+            }
+          }
+
+          // Cleanup on page unload
+          window.addEventListener('beforeunload', () => {
+            synchronizer.disconnect();
+          });
+
+        } catch (error) {
+          console.error('❌ Failed to initialize featured products real-time updates:', error);
+        }
+      })();
+    </script>
 
     <script>
         // Initialize Lucide icons

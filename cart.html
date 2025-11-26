@@ -1540,5 +1540,113 @@
     <!-- Backend API Integration Scripts -->
     <script src="js/api-integration.js"></script>
     <script src="js/newsletter-integration.js"></script>
+    <!-- Real-Time Stock Monitoring for Cart (uses UniversalStockSynchronizer) -->
+    <script type="module">
+      import { UniversalStockSynchronizer } from './js/lib/UniversalStockSynchronizer.js';
+
+      (async function initializeCartRealTimeMonitoring() {
+        try {
+          const synchronizer = await UniversalStockSynchronizer.getInstance();
+
+          // Register handler for cart stock monitoring
+          synchronizer.registerPageHandler('cart', (data) => {
+            // Check if any cart item is affected by this stock update
+            if (typeof cart !== 'undefined' && cart.items) {
+              let itemAffected = false;
+
+              cart.items.forEach((item, index) => {
+                // Match by product ID
+                if (item.id === data.productId) {
+                  // Update variant stock info
+                  if (data.variantId) {
+                    // Check if this is the matching variant
+                    const matchesVariant =
+                      (item.size === data.size || !data.size) &&
+                      (item.color === data.color || !data.color);
+
+                    if (matchesVariant) {
+                      // Store old quantity for comparison
+                      const oldQuantity = item.quantity;
+                      const oldMaxQuantity = item.maxQuantity || item.variantStock || 0;
+
+                      // Update maximum available quantity
+                      item.maxQuantity = data.newQuantity;
+                      item.variantStock = data.newQuantity;
+
+                      // If quantity exceeds new stock, auto-reduce
+                      if (oldQuantity > data.newQuantity) {
+                        const newQuantity = Math.max(1, data.newQuantity);
+                        cart.updateItem(index, { quantity: newQuantity });
+
+                        // Notify user
+                        if (typeof notifications !== 'undefined') {
+                          notifications.warning(
+                            `Stock reduced for "${item.name}". Quantity adjusted from ${oldQuantity} to ${newQuantity}.`
+                          );
+                        }
+
+                        itemAffected = true;
+                      }
+                    }
+                  } else {
+                    // No specific variant match - just update the max quantity
+                    item.maxQuantity = data.newQuantity;
+                    item.variantStock = data.newQuantity;
+                  }
+                }
+              });
+
+              // If any item was affected, update the UI
+              if (itemAffected && typeof renderSummary === 'function') {
+                renderSummary();
+              }
+            }
+          });
+
+          // Subscribe to cart items on page load
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+              subscribeToCartItems();
+            });
+          } else {
+            subscribeToCartItems();
+          }
+
+          async function subscribeToCartItems() {
+            if (typeof cart !== 'undefined' && cart.items && cart.items.length > 0) {
+              const productIds = [...new Set(cart.items.map(item => item.id))];
+              await synchronizer.subscribe(productIds);
+              console.log(`✅ Cart: Subscribed to ${productIds.length} product(s) for real-time stock monitoring`);
+            }
+          }
+
+          // Listen for items added to cart (to subscribe to new products)
+          document.addEventListener('cartItemAdded', async (e) => {
+            if (e.detail && e.detail.productId) {
+              await synchronizer.subscribe(e.detail.productId);
+            }
+          });
+
+          // Listen for items removed from cart
+          document.addEventListener('cartItemRemoved', async (e) => {
+            // Check if we still have items from this product
+            if (typeof cart !== 'undefined' && cart.items) {
+              const stillHasProduct = cart.items.some(item => item.id === e.detail.productId);
+              if (!stillHasProduct) {
+                await synchronizer.unsubscribe(e.detail.productId);
+              }
+            }
+          });
+
+          // Cleanup on page unload
+          window.addEventListener('beforeunload', () => {
+            synchronizer.disconnect();
+          });
+
+        } catch (error) {
+          console.error('❌ Failed to initialize cart real-time monitoring:', error);
+        }
+      })();
+    </script>
 </body>
 </html>

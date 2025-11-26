@@ -2329,6 +2329,103 @@
     <script type="module">
       import { DataSyncBus } from './js/lib/DataSyncBus.js';
     </script>
+    <!-- Real-Time Stock Updates for Shop Page (uses UniversalStockSynchronizer) -->
+    <script type="module">
+      import { UniversalStockSynchronizer } from './js/lib/UniversalStockSynchronizer.js';
+
+      (async function initializeShopRealTimeUpdates() {
+        try {
+          const synchronizer = await UniversalStockSynchronizer.getInstance();
+
+          // Register handler for shop page stock updates
+          synchronizer.registerPageHandler('shop', (data) => {
+            // Update product card if present on page
+            const productElement = document.querySelector(`[data-product-id="${data.productId}"]`);
+            if (productElement) {
+              // Update stock display if available
+              const stockBadge = productElement.querySelector('[data-stock-status]');
+              if (stockBadge) {
+                if (data.newQuantity <= 0) {
+                  productElement.classList.add('out-of-stock');
+                  stockBadge.textContent = 'SOLD OUT';
+                } else {
+                  productElement.classList.remove('out-of-stock');
+                  stockBadge.textContent = `${data.newQuantity} in stock`;
+                }
+              }
+
+              // Update out-of-stock button state
+              const outOfStockBtn = productElement.querySelector('[data-out-of-stock-btn]');
+              if (outOfStockBtn && data.newQuantity <= 0) {
+                outOfStockBtn.classList.add('disabled');
+                outOfStockBtn.disabled = true;
+              } else if (outOfStockBtn && data.newQuantity > 0) {
+                outOfStockBtn.classList.remove('disabled');
+                outOfStockBtn.disabled = false;
+              }
+            }
+
+            // Also update modal if it's currently open and showing this product
+            if (window.modalState && window.modalState.productId === data.productId && window.modalState.variants) {
+              // Find and update the variant in modalState
+              const variant = window.modalState.variants.find(v => v.id === data.variantId);
+              if (variant) {
+                variant.stock_quantity = data.newQuantity;
+
+                // Recalculate sizeInventory (sum stock across colors for each size)
+                const sizeInventory = {};
+                window.modalState.variants.forEach(v => {
+                  const sizeKey = v.size;
+                  if (!sizeInventory[sizeKey]) sizeInventory[sizeKey] = 0;
+                  sizeInventory[sizeKey] += (v.stock_quantity || 0);
+                });
+                window.modalState.sizeInventory = sizeInventory;
+
+                // Update modal UI if function available
+                if (typeof updateSizeButtons === 'function') {
+                  updateSizeButtons();
+                }
+              }
+            }
+          });
+
+          // Auto-discover all product IDs on the page
+          const productIds = Array.from(document.querySelectorAll('[data-product-id]'))
+            .map(el => el.getAttribute('data-product-id'))
+            .filter(id => id && id.length > 0);
+
+          if (productIds.length > 0) {
+            await synchronizer.subscribe(productIds);
+            console.log(`✅ Shop page: Subscribed to ${productIds.length} products for real-time updates`);
+          }
+
+          // Listen for new products added (e.g., via infinite scroll or pagination)
+          const observer = new MutationObserver(async (mutations) => {
+            const newProductIds = Array.from(document.querySelectorAll('[data-product-id]'))
+              .map(el => el.getAttribute('data-product-id'))
+              .filter(id => id && !Array.from(synchronizer.getSubscribedProducts()).includes(id));
+
+            if (newProductIds.length > 0) {
+              await synchronizer.subscribe(newProductIds);
+            }
+          });
+
+          const productsGrid = document.getElementById('productsGrid');
+          if (productsGrid) {
+            observer.observe(productsGrid, { childList: true, subtree: true });
+          }
+
+          // Cleanup on page unload
+          window.addEventListener('beforeunload', () => {
+            observer.disconnect();
+            synchronizer.disconnect();
+          });
+
+        } catch (error) {
+          console.error('❌ Failed to initialize shop real-time updates:', error);
+        }
+      })();
+    </script>
     <!-- SSE Status Indicator -->
     <script>
       (function() {

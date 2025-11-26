@@ -1113,6 +1113,135 @@
     <!-- Backend API Integration Scripts -->
     <script src="js/api-integration.js"></script>
     <script src="js/checkout-integration.js"></script>
+    <!-- Real-Time Stock Pre-Validation for Checkout (uses UniversalStockSynchronizer) -->
+    <script type="module">
+      import { UniversalStockSynchronizer } from './js/lib/UniversalStockSynchronizer.js';
+
+      (async function initializeCheckoutStockPreValidation() {
+        try {
+          const synchronizer = await UniversalStockSynchronizer.getInstance();
+
+          // Register handler for checkout stock monitoring
+          synchronizer.registerPageHandler('checkout', (data) => {
+            // Show a subtle warning if stock decreased for an item in the order
+            if (typeof cart !== 'undefined' && cart.items) {
+              const affectedItem = cart.items.find(item =>
+                item.id === data.productId &&
+                (item.size === data.size || !data.size) &&
+                (item.color === data.color || !data.color)
+              );
+
+              if (affectedItem) {
+                // Display stock warning near the affected item
+                const itemWarning = document.querySelector(`[data-checkout-item-warning="${data.productId}"]`);
+                if (itemWarning) {
+                  if (data.newQuantity <= 0) {
+                    itemWarning.innerHTML = '⚠️ Item is now out of stock';
+                    itemWarning.style.display = 'block';
+                    itemWarning.style.color = '#e74c3c';
+                  } else if (data.newQuantity < affectedItem.quantity) {
+                    itemWarning.innerHTML = `⚠️ Stock reduced to ${data.newQuantity}`;
+                    itemWarning.style.display = 'block';
+                    itemWarning.style.color = '#f39c12';
+                  } else {
+                    itemWarning.style.display = 'none';
+                  }
+                }
+              }
+            }
+          });
+
+          // Subscribe to cart items on checkout page load
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+              subscribeToCheckoutItems();
+            });
+          } else {
+            subscribeToCheckoutItems();
+          }
+
+          async function subscribeToCheckoutItems() {
+            if (typeof cart !== 'undefined' && cart.items && cart.items.length > 0) {
+              const productIds = [...new Set(cart.items.map(item => item.id))];
+              await synchronizer.subscribe(productIds);
+              console.log(`✅ Checkout: Subscribed to ${productIds.length} product(s) for stock pre-validation`);
+            }
+          }
+
+          // Add pre-submission stock validation
+          const originalSetTimeout = window.setTimeout;
+          let checkoutFormSubmitAttached = false;
+
+          function attachCheckoutFormListener() {
+            if (checkoutFormSubmitAttached) return;
+
+            const checkoutForm = document.getElementById('checkoutForm');
+            if (!checkoutForm) {
+              // Retry in a moment
+              originalSetTimeout(attachCheckoutFormListener, 500);
+              return;
+            }
+
+            checkoutForm.addEventListener('submit', async function(e) {
+              // Get the event that caused this submit
+              const submitButton = e.submitter || document.getElementById('completeOrderBtn');
+
+              // Don't block here - let the form submit naturally
+              // The server will do final validation
+              // But we can warn the user if stock is critical
+
+              if (typeof cart !== 'undefined' && cart.items) {
+                const outOfStockItems = [];
+
+                for (const item of cart.items) {
+                  const stock = await synchronizer.getProductStock(item.id, item.size, item.color);
+                  if (stock <= 0) {
+                    outOfStockItems.push(item.name);
+                  }
+                }
+
+                if (outOfStockItems.length > 0) {
+                  // Prevent default form submission
+                  e.preventDefault();
+
+                  // Show error notification
+                  if (typeof notifications !== 'undefined') {
+                    notifications.error(
+                      `These items are now out of stock: ${outOfStockItems.join(', ')}. ` +
+                      `Please review your cart.`
+                    );
+                  } else {
+                    alert(
+                      `These items are now out of stock: ${outOfStockItems.join(', ')}. ` +
+                      `Please review your cart.`
+                    );
+                  }
+
+                  // Re-enable button if it was disabled
+                  if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Place Order';
+                  }
+                }
+              }
+            }, { once: false });
+
+            checkoutFormSubmitAttached = true;
+          }
+
+          // Wait a bit for the form to be added to the DOM
+          originalSetTimeout(attachCheckoutFormListener, 500);
+
+          // Cleanup on page unload
+          window.addEventListener('beforeunload', () => {
+            synchronizer.disconnect();
+          });
+
+        } catch (error) {
+          console.error('❌ Failed to initialize checkout stock pre-validation:', error);
+        }
+      })();
+    </script>
     <!-- Async Button Handler for loading states -->
     <script src="js/async-button-handler.js"></script>
     <script>
