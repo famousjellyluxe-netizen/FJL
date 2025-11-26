@@ -1083,7 +1083,15 @@
             } catch (error) {
                 console.error('Order creation error:', error);
                 if (notifications) {
-                    notifications.error('An error occurred while creating your order. Please try again.');
+                    // Show specific error message if available
+                    let errorMsg = error.message || 'An error occurred while creating your order. Please try again.';
+
+                    // Extract message from error details if present
+                    if (error.details && error.details.length > 0) {
+                        errorMsg = error.details.map(d => d.message || d).join('\n');
+                    }
+
+                    notifications.error(errorMsg);
                 }
             }
         });
@@ -1350,7 +1358,15 @@
                 } catch (error) {
                     console.error('Order creation error:', error);
                     if (notifications) {
-                        notifications.error('An error occurred while creating your order. Please try again.');
+                        // Show specific error message if available
+                        let errorMsg = error.message || 'An error occurred while creating your order. Please try again.';
+
+                        // Extract message from error details if present
+                        if (error.details && error.details.length > 0) {
+                            errorMsg = error.details.map(d => d.message || d).join('\n');
+                        }
+
+                        notifications.error(errorMsg);
                     }
                 } finally {
                     completeOrderHandler.setLoading(false);
