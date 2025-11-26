@@ -1,33 +1,133 @@
 /**
- * Stock Update Client
- * Real-time stock updates using Server-Sent Events (SSE)
- * with fallback to polling if SSE fails
+ * StockUpdateClient
  *
- * Features:
- * - SSE for real-time updates
- * - Automatic reconnection with exponential backoff
- * - Fallback to polling if SSE fails multiple times
- * - DataSyncBus integration for cross-page synchronization
- * - Cross-tab synchronization via storage events
+ * Manages real-time stock updates from backend via Server-Sent Events (SSE)
+ * with intelligent fallback to polling if SSE connection fails.
  *
- * Usage:
- *   const client = new StockUpdateClient();
- *   client.onStockUpdate((data) => {
- *     console.log(`Product ${data.productId} updated: ${data.newQuantity} units`);
- *   });
+ * ## Connection Strategy
  *
- *   // Subscribe to products
- *   client.subscribe(['product-id-1', 'product-id-2']);
+ * **Primary: Server-Sent Events (SSE)**
+ * - Real-time updates via persistent HTTP connection
+ * - Updates received in <500ms typically
+ * - Most efficient use of bandwidth and resources
+ * - Supported by all modern browsers
  *
- *   // Later, update subscriptions
- *   client.updateSubscriptions(['product-id-1', 'product-id-3']);
+ * **Fallback: Polling**
+ * - If SSE fails after 5 reconnection attempts
+ * - Polls `/api/products/stock/status` every 10 seconds
+ * - Updates received within 10 seconds
+ * - Graceful degradation when network conditions poor
  *
- *   // Get current stock for a product
- *   const stock = await client.getProductStock('product-id-1');
- *   console.log(stock); // { variants: [...], totalStock: 100 }
+ * ## Features
  *
- *   // Cleanup
- *   client.disconnect();
+ * - **Real-Time Updates via SSE**: Initial stock data and stock change events
+ * - **Automatic Reconnection**: Exponential backoff with configurable max attempts
+ * - **Intelligent Fallback**: Switches to polling after max reconnection failures
+ * - **DataSyncBus Integration**: Broadcasts all updates to other pages/tabs
+ * - **Local Stock Cache**: Caches stock data for quick access
+ * - **Connection Status Tracking**: Reports current mode (SSE, polling, idle)
+ * - **Event Callbacks**: Register handlers for updates and initial stock
+ *
+ * ## Reconnection Strategy
+ *
+ * When SSE connection fails:
+ * 1. Attempt to reconnect immediately
+ * 2. Wait 1s, retry (attempt 1)
+ * 3. Wait 2s, retry (attempt 2)
+ * 4. Wait 4s, retry (attempt 3)
+ * 5. Wait 8s, retry (attempt 4)
+ * 6. Wait 16s, retry (attempt 5)
+ * 7. If still failing, switch to polling (10-second intervals)
+ *
+ * When polling detects SSE might work again, retries SSE.
+ *
+ * ## Data Formats
+ *
+ * **Initial Stock Event** (`initial_stock`):
+ * ```javascript
+ * {
+ *   productId: 'uuid-string',
+ *   variants: [
+ *     { id: 'var-uuid', size: 'M', color: 'Red', stock_quantity: 10 },
+ *     { id: 'var-uuid', size: 'L', color: 'Red', stock_quantity: 5 }
+ *   ],
+ *   timestamp: '2025-11-26T14:30:00.000Z'
+ * }
+ * ```
+ *
+ * **Stock Update Event** (`stock_update`):
+ * ```javascript
+ * {
+ *   productId: 'uuid-string',
+ *   variantId: 'var-uuid',
+ *   newQuantity: 9,
+ *   oldQuantity: 10,
+ *   size: 'M',
+ *   color: 'Red',
+ *   lowStock: false,
+ *   timestamp: '2025-11-26T14:30:15.000Z'
+ * }
+ * ```
+ *
+ * ## Example Usage
+ *
+ * ```javascript
+ * const client = new StockUpdateClient('/api');
+ *
+ * // Register callbacks for updates
+ * client.onStockUpdate((data) => {
+ *   console.log(`${data.productId}: ${data.oldQuantity} → ${data.newQuantity}`);
+ * });
+ *
+ * client.onInitialStock((data) => {
+ *   console.log(`Initial stock for ${data.productId}:`, data.variants);
+ * });
+ *
+ * // Subscribe to products
+ * await client.subscribe(['product-id-1', 'product-id-2']);
+ *
+ * // Update subscriptions (replaces previous)
+ * await client.updateSubscriptions(['product-id-2', 'product-id-3']);
+ *
+ * // Query stock directly
+ * const stock = await client.getProductStock('product-id-1');
+ * console.log(`Total stock: ${stock.totalStock}`);
+ *
+ * // Check if variant in stock
+ * const inStock = client.isInStock('product-id-1', 'var-id-1');
+ *
+ * // Check if low stock (≤5 units)
+ * const lowStock = client.isLowStock('product-id-1');
+ *
+ * // Get current mode
+ * console.log(client.mode); // 'sse', 'polling', or 'idle'
+ *
+ * // Cleanup on page unload
+ * client.disconnect();
+ * client.clearCache();
+ * ```
+ *
+ * ## Integration Points
+ *
+ * - **DataSyncBus**: Broadcasts updates to other pages listening to products
+ * - **UniversalStockSynchronizer**: Receives updates, distributes to page handlers
+ * - **Backend API**: `/api/products/stock/subscribe` (SSE endpoint)
+ *
+ * ## Monitoring & Debugging
+ *
+ * Check browser console for status messages:
+ * - `📡 StockUpdateClient using API URL: /api`
+ * - `🔌 Connecting to stock updates: /api/products/stock/subscribe...`
+ * - `✅ Connected to stock updates via SSE`
+ * - `📡 Stock update: product-id = 15 units`
+ * - `⚠️  Max SSE reconnection attempts reached. Falling back to polling...`
+ * - `📡 Switching to polling mode (every 10s)`
+ *
+ * @class StockUpdateClient
+ * @author Claude Code (with phase summaries from implementation)
+ * @version 1.0.0
+ * @date 2025-11-26
+ * @copyright FJL e-commerce platform
  */
 
 export class StockUpdateClient {
