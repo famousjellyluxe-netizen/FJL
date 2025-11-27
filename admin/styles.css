@@ -192,6 +192,7 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
 .header-title {
     font-size: clamp(18px, 5vw, 20px);
     font-weight: 700;
+    flex: 1;
 }
 
 .header-right {
@@ -1147,6 +1148,25 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
 
     .admin-header {
         padding: var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+
+    .header-right {
+        gap: var(--spacing-sm);
+    }
+
+    /* Hide Delete button text on mobile, show only icon */
+    .btn.btn-danger {
+        padding: 8px !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn.btn-danger i {
+        margin: 0 !important;
     }
 
     .admin-sidebar {
