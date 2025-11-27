@@ -1912,16 +1912,46 @@
 
             // If not found in localStorage and localStorage is empty, attempt to fetch from API
             // This ensures we get fresh data after cache clear instead of showing defaults
-            if (!product && !storedProducts && typeof initializeShopProducts === 'function') {
+            if (!product && !storedProducts) {
                 console.log('localStorage is empty. Attempting to fetch products from API...');
                 try {
-                    await initializeShopProducts(); // Properly wait for API fetch to complete
-                    // After API fetch, check localStorage again
-                    const newStoredProducts = localStorage.getItem('fjl_products');
-                    if (newStoredProducts) {
-                        const allProducts = JSON.parse(newStoredProducts);
-                        product = allProducts.find(p => p.id === productId);
-                        console.log('✓ Reloaded product from API:', productId);
+                    // Try using initializeShopProducts if available
+                    if (typeof initializeShopProducts === 'function') {
+                        await initializeShopProducts(); // Properly wait for API fetch to complete
+                        // After API fetch, check localStorage again
+                        const newStoredProducts = localStorage.getItem('fjl_products');
+                        if (newStoredProducts) {
+                            const allProducts = JSON.parse(newStoredProducts);
+                            product = allProducts.find(p => p.id === productId);
+                            console.log('✓ Reloaded product from API:', productId);
+                        }
+                    } else {
+                        // Fallback: Fetch individual product directly from API
+                        console.log('initializeShopProducts not available, fetching individual product...');
+                        const apiBase = localStorage.getItem('API_BASE') || 'http://localhost:5001';
+                        const response = await fetch(`${apiBase}/products/${productId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const apiProduct = data.data;
+                            // Transform API product to match frontend format
+                            product = {
+                                id: apiProduct.id,
+                                name: apiProduct.name,
+                                price: apiProduct.price,
+                                original_price: apiProduct.original_price,
+                                image: apiProduct.image_url || apiProduct.images?.[0],
+                                images: apiProduct.images || [],
+                                sleeve: apiProduct.sleeve_type === 'sleeveless' ? 'Sleeveless' : 'Sleeve',
+                                inStock: apiProduct.total_stock > 0,
+                                stock: apiProduct.total_stock,
+                                sku: apiProduct.sku,
+                                description: apiProduct.description,
+                                category: apiProduct.categories?.name || apiProduct.category,
+                                category_slug: apiProduct.categories?.slug || '',
+                                variants: apiProduct.variants || []
+                            };
+                            console.log('✓ Fetched product directly from API:', productId);
+                        }
                     }
                 } catch (e) {
                     console.warn('Failed to fetch products from API:', e);
