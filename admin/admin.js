@@ -370,6 +370,9 @@ class AdminDataService {
                 apiProduct.image_url = product.image_url;
             } else if (product.image) {
                 apiProduct.image_url = product.image;
+            } else if (product.images && product.images.length > 0) {
+                // If no explicit image_url but we have images, use the first one
+                apiProduct.image_url = product.images[0];
             }
             if (product.images && product.images.length > 0) {
                 apiProduct.images = product.images;
@@ -496,6 +499,10 @@ class AdminDataService {
 
             if (updates.image_url) apiUpdates.image_url = updates.image_url;
             else if (updates.image) apiUpdates.image_url = updates.image;
+            else if (updates.images && updates.images.length > 0) {
+                // If no explicit image_url but we have images, use the first one
+                apiUpdates.image_url = updates.images[0];
+            }
             if (updates.images) apiUpdates.images = updates.images;
 
             // Handle stock
