@@ -374,6 +374,9 @@ class AdminDataService {
             if (product.images && product.images.length > 0) {
                 apiProduct.images = product.images;
             }
+            if (product.is_featured !== undefined) {
+                apiProduct.is_featured = product.is_featured;
+            }
 
             const response = await fetch(`${getAPIBase()}/products`, {
                 method: 'POST',
