@@ -318,7 +318,7 @@
             sizes.forEach(size => {
                 html += `<tr><td><strong>${size}</strong></td>`;
                 colors.forEach(color => {
-                    const key = `${size}-${color}`;
+                    const key = `${color}-${size}`;
                     html += `<td><input type="number" class="variant-grid-input" data-key="${key}" min="0" onchange="updateVariantTotal()"></td>`;
                 });
                 html += '</tr>';
@@ -432,7 +432,7 @@
                 total_stock: quantity,
                 available_sizes: sizes,
                 available_colors: colors,
-                in_stock: document.getElementById('productInStock').checked,
+                is_active: document.getElementById('productInStock').checked,
                 is_featured: document.getElementById('productFeatured').checked,
                 images,
                 distribution_mode: 'manual',
