@@ -369,6 +369,8 @@
             const sku = document.getElementById('productSku').value;
             const price = parseFloat(document.getElementById('productPrice').value);
             const quantity = parseInt(document.getElementById('productQuantity').value);
+            const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+            const colors = document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c);
 
             if (!name || !category || !sku || !price || quantity < 0) {
                 notifications.error('Please fill in all required fields');
@@ -417,8 +419,8 @@
                 original_price: parseFloat(document.getElementById('productOriginalPrice').value) || price,
                 description: document.getElementById('productDescription').value,
                 total_stock: quantity,
-                available_sizes: document.getElementById('productSizes').value,
-                available_colors: document.getElementById('productColors').value,
+                available_sizes: sizes,
+                available_colors: colors,
                 in_stock: document.getElementById('productInStock').checked,
                 is_featured: document.getElementById('productFeatured').checked,
                 images,
