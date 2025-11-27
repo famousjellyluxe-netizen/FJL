@@ -328,15 +328,26 @@
 
             // Collect variant distribution
             const variantStock = {};
-            document.querySelectorAll('.variant-grid-input').forEach(input => {
+            let assignedStock = 0;
+            const inputs = document.querySelectorAll('.variant-grid-input');
+
+            if (inputs.length === 0) {
+                notifications.error('Please generate variant grid (set sizes and colors)');
+                return;
+            }
+
+            inputs.forEach(input => {
+                const key = input.getAttribute('data-key');
                 const value = parseInt(input.value) || 0;
-                if (value > 0) {
-                    variantStock[input.dataset.key] = value;
+                if (key) {
+                    if (value > 0) {
+                        variantStock[key] = value;
+                    }
+                    assignedStock += value;
                 }
             });
 
             // Validate manual distribution - sum of variant stocks must equal total stock
-            const assignedStock = Object.values(variantStock).reduce((a, b) => a + b, 0);
             if (assignedStock !== quantity) {
                 notifications.error(`Sum of variant stocks (${assignedStock}) doesn't match total stock (${quantity})`);
                 return;
