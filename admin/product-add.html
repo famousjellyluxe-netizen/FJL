@@ -333,6 +333,13 @@
                 }
             });
 
+            // Validate manual distribution - sum of variant stocks must equal total stock
+            const assignedStock = Object.values(variantStock).reduce((a, b) => a + b, 0);
+            if (assignedStock !== quantity) {
+                notifications.error(`Sum of variant stocks (${assignedStock}) doesn't match total stock (${quantity})`);
+                return;
+            }
+
             const product = {
                 name,
                 category_id: category,
@@ -346,6 +353,7 @@
                 in_stock: document.getElementById('productInStock').checked,
                 is_featured: document.getElementById('productFeatured').checked,
                 images,
+                distribution_mode: 'manual',
                 variant_stock: variantStock
             };
 

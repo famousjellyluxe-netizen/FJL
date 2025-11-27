@@ -361,5 +361,3 @@ if (document.readyState === 'loading') {
 } else {
   window.responsiveManager = new ResponsiveManager();
 }
-
-export default ResponsiveManager;
