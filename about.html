@@ -191,10 +191,10 @@
 
         .nav-logo-text {
             font-family: 'Bubbler One', sans-serif;
-            font-size: 64px;
+            font-size: 32px;
             font-weight: 700;
             color: #00FF00;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-shadow:
                 0 0 10px rgba(0, 255, 0, 0.8),
                 0 0 20px rgba(255, 0, 255, 0.4),
@@ -206,14 +206,48 @@
 
         .nav-logo-tagline {
             font-family: 'Inter', sans-serif;
-            font-size: 9px;
+            font-size: 6px;
             color: #00FF00;
             font-style: italic;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             text-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
             line-height: 1;
+        }
+
+        /* Responsive logo sizing */
+        @media (min-width: 480px) {
+            .nav-logo-text {
+                font-size: 40px;
+                letter-spacing: 1.5px;
+            }
+            .nav-logo-tagline {
+                font-size: 7px;
+                letter-spacing: 0.75px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .nav-logo-text {
+                font-size: 52px;
+                letter-spacing: 1.75px;
+            }
+            .nav-logo-tagline {
+                font-size: 8px;
+                letter-spacing: 0.9px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .nav-logo-text {
+                font-size: 64px;
+                letter-spacing: 2px;
+            }
+            .nav-logo-tagline {
+                font-size: 9px;
+                letter-spacing: 1px;
+            }
         }
 
         .nav-menu {
@@ -300,7 +334,7 @@
         }
 
         .about-hero h1 {
-            font-size: 48px;
+            font-size: 28px;
             font-weight: 700;
             letter-spacing: 2px;
             margin-bottom: 40px;
@@ -311,6 +345,26 @@
             line-height: 1.8;
             max-width: 900px;
             color: #000000;
+        }
+
+        /* Responsive heading sizes */
+        @media (min-width: 768px) {
+            .about-hero h1 {
+                font-size: 36px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .about-hero h1 {
+                font-size: 48px;
+            }
+        }
+
+        /* Responsive mobile menu close button */
+        @media (max-width: 767px) {
+            .mobile-menu-close {
+                font-size: 24px;
+            }
         }
 
         .about-content p {
