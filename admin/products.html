@@ -40,7 +40,7 @@
                     <h2 class="header-title">Products</h2>
                 </div>
                 <div class="header-right">
-                    <button class="btn btn-accent" onclick="openCreateProductModal()">+ Add Product</button>
+                    <a href="product-add.html" class="btn btn-accent">+ Add Product</a>
                     <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
                 </div>
             </header>
@@ -317,8 +317,10 @@
                         <input type="checkbox" class="featured-checkbox" ${product.isFeatured ? 'checked' : ''} onchange="toggleFeatured('${product.id}', this)" title="Mark as featured" style="cursor: pointer; width: 18px; height: 18px;">
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-secondary" onclick="editProduct('${product.id}')">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">Delete</button>
+                        <div class="btn-group">
+                            <a href="product-edit.html?id=${product.id}" class="btn btn-sm btn-secondary" style="display: inline-block; text-decoration: none;">Edit</a>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">Delete</button>
+                        </div>
                     </td>
                 </tr>
             `;

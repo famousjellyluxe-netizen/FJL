@@ -85,22 +85,25 @@
                         <button class="btn btn-secondary btn-sm" onclick="exportOrders()"><i data-lucide="download" class="icon-sm"></i> Export CSV</button>
                     </div>
                     <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Email</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersTable">
-                                <tr><td colspan="7" style="text-align: center; color: var(--color-gray);">No orders found</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th class="col-hide-mobile">Email</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th class="col-hide-mobile">Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTable">
+                                    <tr><td colspan="8" style="text-align: center; color: var(--color-gray);">No orders found</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -148,21 +151,40 @@
             document.getElementById('orderCount').textContent = orders.length;
 
             if (orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-gray);">No orders found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No orders found</td></tr>';
                 return;
+            }
+
+            // Helper function to get payment status badge
+            function getPaymentStatusBadge(paymentStatus) {
+                const status = (paymentStatus || 'pending').toLowerCase();
+                const statusMap = {
+                    'pending': 'status-pending',
+                    'verified': 'status-shipped',
+                    'failed': 'status-cancelled'
+                };
+                const displayMap = {
+                    'pending': 'Pending',
+                    'verified': 'Verified',
+                    'failed': 'Failed'
+                };
+                return `<span class="table-status ${statusMap[status]}">${displayMap[status]}</span>`;
             }
 
             tbody.innerHTML = orders.map(order => `
                 <tr>
                     <td><strong>${order.orderId}</strong></td>
                     <td>${order.customerName}</td>
-                    <td>${order.customerEmail}</td>
+                    <td class="col-hide-mobile">${order.customerEmail}</td>
                     <td>${formatCurrency(order.total)}</td>
                     <td><span class="table-status status-${order.status.toLowerCase()}">${order.status}</span></td>
-                    <td>${formatDate(order.createdAt)}</td>
+                    <td>${getPaymentStatusBadge(order.paymentStatus)}</td>
+                    <td class="col-hide-mobile">${formatDate(order.createdAt)}</td>
                     <td>
-                        <button class="btn btn-sm btn-secondary" onclick="viewOrderDetails('${order.id}')">View</button>
-                        <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${order.id}')">Update</button>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-secondary" onclick="viewOrderDetails('${order.id}')">View</button>
+                            <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${order.id}')">Edit</button>
+                        </div>
                     </td>
                 </tr>
             `).join('');

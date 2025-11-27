@@ -230,10 +230,27 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     color: var(--color-primary);
     font-size: 20px;
     transition: var(--transition);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .header-icon-btn:hover {
     color: var(--color-accent);
+}
+
+/* Mobile menu button - hamburger icon */
+.mobile-menu-btn {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex !important;
+    }
 }
 
 /* Cards & Containers */
@@ -532,6 +549,56 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     display: inline-block;
 }
 
+/* Mobile-friendly table wrapper */
+.table-responsive-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+/* Compact table for mobile */
+@media (max-width: 640px) {
+    .table {
+        font-size: 12px;
+    }
+
+    .table th {
+        font-size: 10px;
+        padding: 8px;
+    }
+
+    .table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    /* Hide less important columns on small screens */
+    .table .col-hide-mobile {
+        display: none !important;
+    }
+
+    /* Stack action buttons vertically */
+    .table td:last-child {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .table td:last-child .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .table td:last-child .btn {
+        width: 100%;
+        font-size: 11px;
+        padding: 6px 8px;
+        min-height: 36px;
+    }
+}
+
 .status-pending { background: rgba(255, 133, 27, 0.1); color: var(--color-warning); }
 .status-processing { background: rgba(0, 116, 217, 0.1); color: var(--color-info); }
 .status-shipped { background: rgba(46, 204, 64, 0.1); color: var(--color-success); }
@@ -679,28 +746,31 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
         z-index: 999;
         width: 260px;
         overflow-y: auto;
+        top: 0;
     }
 
     .admin-sidebar.open {
         left: 0;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     }
 
-    .admin-sidebar::before {
-        content: '';
-        display: block;
+    /* Sidebar overlay backdrop */
+    .sidebar-overlay {
+        display: none;
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 998;
         opacity: 0;
         transition: opacity 0.3s ease;
         pointer-events: none;
-        z-index: -1;
     }
 
-    .admin-sidebar.open::before {
+    .sidebar-overlay.visible {
+        display: block;
         opacity: 1;
         pointer-events: all;
     }
@@ -1155,6 +1225,203 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     textarea {
         font-size: 16px !important;
     }
+}
+
+/* Very small phones (max-width: 380px) */
+@media (max-width: 380px) {
+    :root {
+        --spacing-sm: 6px;
+        --spacing-md: 10px;
+        --spacing-lg: 10px;
+        --spacing-xl: 14px;
+    }
+
+    .admin-header {
+        padding: 8px var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+
+    .header-left {
+        gap: var(--spacing-sm);
+    }
+
+    .header-title {
+        font-size: 18px;
+        max-width: 60vw;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .header-right {
+        gap: var(--spacing-md);
+    }
+
+    .header-icons {
+        gap: 4px;
+    }
+
+    .header-icon-btn {
+        font-size: 18px;
+        padding: 6px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    .admin-content {
+        padding: var(--spacing-md);
+    }
+
+    /* Typography */
+    h1 { font-size: 18px; }
+    h2 { font-size: 16px; }
+    h3 { font-size: 14px; }
+    h4 { font-size: 13px; }
+
+    /* Buttons */
+    .btn {
+        padding: 8px 10px;
+        font-size: 12px;
+        min-height: 40px;
+        gap: 4px;
+    }
+
+    .btn-sm {
+        padding: 6px 8px;
+        font-size: 11px;
+        min-height: 36px;
+    }
+
+    /* Forms */
+    .form-label {
+        font-size: 11px;
+        margin-bottom: 4px;
+    }
+
+    .form-control,
+    .form-select,
+    .form-textarea {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    /* Cards */
+    .card {
+        padding: 12px;
+    }
+
+    .card-header {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        gap: var(--spacing-sm);
+    }
+
+    .card-title {
+        font-size: 14px;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        padding: var(--spacing-lg);
+        gap: var(--spacing-md);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .stat-content h3 {
+        font-size: 10px;
+    }
+
+    .stat-content .value {
+        font-size: 20px;
+    }
+
+    /* Modal */
+    .modal-content {
+        padding: 12px;
+        width: 96vw;
+    }
+
+    .modal-header {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        gap: 6px;
+    }
+
+    .modal-header h2 {
+        font-size: 16px;
+    }
+
+    .modal-close {
+        font-size: 20px;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+    }
+
+    .modal-footer {
+        margin-top: 10px;
+        padding-top: 10px;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    /* Tables */
+    .table {
+        font-size: 10px;
+    }
+
+    .table th,
+    .table td {
+        padding: 6px;
+    }
+
+    .table-status {
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+
+    /* Button Groups */
+    td:last-child .btn {
+        width: 100%;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    td:last-child .btn:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Image Upload */
+    .image-preview-md {
+        max-height: 80px;
+        max-width: 120px;
+    }
+
+    /* Variant Grid */
+    .variant-grid-input {
+        width: 50px;
+        padding: 4px;
+        font-size: 11px;
+    }
+
+    /* Spacing utilities */
+    .p-mobile-sm { padding: 6px; }
+    .p-mobile-md { padding: 8px; }
+    .m-mobile-sm { margin: 6px; }
+    .m-mobile-md { margin: 8px; }
 }
 
 /* Utility Classes */

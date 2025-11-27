@@ -47,27 +47,73 @@ class ResponsiveManager {
    * Set up mobile menu toggle
    */
   setupMobileMenu() {
-    // Find or create menu toggle button
+    // Find existing menu toggle button in header or create one
     let menuButton = document.querySelector('.mobile-menu-btn');
 
+    // If no dedicated mobile menu button, use the existing hamburger icon button
+    if (!menuButton) {
+      const headerRight = this.header?.querySelector('.header-right');
+      if (headerRight) {
+        // Check if there's an existing hamburger button (≡ or menu icon)
+        const existingMenus = headerRight.querySelectorAll('button');
+        if (existingMenus.length > 0) {
+          // Use the last button as menu toggle
+          menuButton = existingMenus[existingMenus.length - 1];
+          menuButton.classList.add('mobile-menu-btn');
+        }
+      }
+    }
+
+    // Create button if still not found
     if (!menuButton && this.header) {
       menuButton = document.createElement('button');
-      menuButton.className = 'mobile-menu-btn btn-icon';
-      menuButton.innerHTML = '<i class="lucide-menu"></i>';
+      menuButton.className = 'mobile-menu-btn header-icon-btn';
+      menuButton.innerHTML = '<i data-lucide="menu"></i>';
       menuButton.setAttribute('aria-label', 'Toggle menu');
+      menuButton.setAttribute('title', 'Toggle navigation menu');
 
-      // Insert at start of header
-      this.header.insertBefore(menuButton, this.header.firstChild);
+      // Insert at end of header-right or header
+      const headerRight = this.header.querySelector('.header-right');
+      if (headerRight) {
+        const headerIcons = headerRight.querySelector('.header-icons');
+        if (headerIcons) {
+          headerIcons.appendChild(menuButton);
+        } else {
+          headerRight.appendChild(menuButton);
+        }
+      } else {
+        this.header.appendChild(menuButton);
+      }
     }
 
     if (menuButton) {
-      menuButton.addEventListener('click', () => this.toggleSidebar());
+      // Remove any existing click listeners by cloning
+      const newMenuButton = menuButton.cloneNode(true);
+      menuButton.parentNode.replaceChild(newMenuButton, menuButton);
+      menuButton = newMenuButton;
+
+      // Add click handler
+      menuButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleSidebar();
+      });
+
+      console.log('✓ Mobile menu button configured');
+    }
+
+    // Create overlay for sidebar (if not exists)
+    if (this.isMobile && !document.querySelector('.sidebar-overlay')) {
+      const overlay = document.createElement('div');
+      overlay.className = 'sidebar-overlay';
+      overlay.addEventListener('click', () => this.closeSidebar());
+      document.body.appendChild(overlay);
     }
 
     // Close sidebar when clicking outside on mobile
     if (this.mainContent) {
-      this.mainContent.addEventListener('click', () => {
-        if (this.sidebarOpen) {
+      this.mainContent.addEventListener('click', (e) => {
+        // Don't close if clicking the menu button
+        if (!e.target.closest('.mobile-menu-btn') && this.sidebarOpen && this.isMobile) {
           this.closeSidebar();
         }
       });
@@ -77,7 +123,9 @@ class ResponsiveManager {
     if (this.sidebar) {
       this.sidebar.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
-          this.closeSidebar();
+          if (this.isMobile) {
+            this.closeSidebar();
+          }
         });
       });
     }
@@ -157,6 +205,13 @@ class ResponsiveManager {
     if (this.sidebar) {
       this.sidebar.classList.add('open');
       document.body.style.overflow = 'hidden'; // Prevent scrolling
+
+      // Show overlay
+      const overlay = document.querySelector('.sidebar-overlay');
+      if (overlay) {
+        overlay.classList.add('visible');
+      }
+
       this.sidebarOpen = true;
       console.log('📱 Sidebar opened');
     }
@@ -169,6 +224,13 @@ class ResponsiveManager {
     if (this.sidebar) {
       this.sidebar.classList.remove('open');
       document.body.style.overflow = '';
+
+      // Hide overlay
+      const overlay = document.querySelector('.sidebar-overlay');
+      if (overlay) {
+        overlay.classList.remove('visible');
+      }
+
       this.sidebarOpen = false;
       console.log('📱 Sidebar closed');
     }
