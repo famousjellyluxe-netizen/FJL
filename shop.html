@@ -346,6 +346,25 @@
             object-fit: cover;
         }
 
+        /* Discount Badge on Product Card */
+        .product-image-wrapper {
+            position: relative;
+        }
+
+        .discount-badge-card {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
         .hover-lift {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -1641,10 +1660,18 @@
                 const hasTotalStock = product.total_stock > 0 || product.inStock === true;
                 const isAllOutOfStock = !hasAnyStock && !hasTotalStock;
 
+                // Calculate discount percentage if original_price exists
+                let discountHTML = '';
+                if (product.original_price && product.original_price > product.price) {
+                    const discountPercent = Math.round(((product.original_price - product.price) / product.original_price) * 100);
+                    discountHTML = `<span class="discount-badge-card">${discountPercent}% OFF</span>`;
+                }
+
                 htmlContent += `
                     <div class="product-card hover-lift ${isAllOutOfStock ? 'out-of-stock-card' : ''}">
                         <a href="product.html?id=${product.id}" class="text-decoration-none">
                             <div class="product-image-wrapper">
+                                ${discountHTML}
                                 <div class="product-image ${isAllOutOfStock ? 'out-of-stock-image' : ''}">
                                     <img src="${imageUrl}" alt="${product.name}">
                                 </div>

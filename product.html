@@ -591,6 +591,45 @@
             color: #155724;
         }
 
+        /* Price Section with Original Price */
+        .price-section {
+            margin-bottom: 16px;
+        }
+
+        .price-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .original-price-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .original-price-section[hidden] {
+            display: none;
+        }
+
+        .original-price {
+            font-size: 14px;
+            color: #999;
+            text-decoration: line-through;
+            font-weight: 500;
+        }
+
+        .discount-badge {
+            display: inline-block;
+            background: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
         /* Skeleton Loading Styles */
         .product-skeleton {
             animation: fadeIn 0.3s ease-in-out;
@@ -1565,7 +1604,18 @@
                     <!-- Real Product Content (Hidden initially) -->
                     <div class="product-content" id="productContent" style="display: none;">
                         <h1 class="product-title" id="productTitle"></h1>
-                        <div class="product-price" id="productPriceDisplay"></div>
+
+                        <!-- Price Section with Original Price -->
+                        <div class="price-section">
+                            <div class="price-display">
+                                <div class="product-price" id="productPriceDisplay"></div>
+                                <div id="originalPriceSection" class="original-price-section" hidden>
+                                    <span class="original-price" id="originalPriceDisplay"></span>
+                                    <span class="discount-badge" id="discountBadge"></span>
+                                </div>
+                            </div>
+                        </div>
+
                         <span class="stock-status" id="stockStatusBadge"></span>
                     </div>
 
@@ -1948,6 +1998,21 @@
 
             // Update product price
             document.getElementById('productPriceDisplay').textContent = '$' + product.price.toLocaleString('en-CA') + ' CAD';
+
+            // Handle original price and discount badge
+            const originalPriceSection = document.getElementById('originalPriceSection');
+            if (product.original_price && product.original_price > product.price) {
+                // Show original price section
+                originalPriceSection.removeAttribute('hidden');
+                document.getElementById('originalPriceDisplay').textContent = '$' + product.original_price.toLocaleString('en-CA') + ' CAD';
+
+                // Calculate and display discount percentage
+                const discountPercent = Math.round(((product.original_price - product.price) / product.original_price) * 100);
+                document.getElementById('discountBadge').textContent = discountPercent + '% OFF';
+            } else {
+                // Hide original price section if no original price or it's not greater than sale price
+                originalPriceSection.setAttribute('hidden', '');
+            }
 
             // Update product image if available
             const mainImage = document.getElementById('mainImage');

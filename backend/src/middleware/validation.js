@@ -73,6 +73,33 @@ export const validators = {
     .isFloat({ min: 0.01 })
     .withMessage('Price must be a positive number'),
 
+  productOriginalPrice: body('original_price')
+    .optional()
+    .custom((value) => {
+      if (value === null || value === undefined || value === '') {
+        return true;
+      }
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) {
+        throw new Error('Original price must be a valid number');
+      }
+      if (numValue <= 0) {
+        throw new Error('Original price must be a positive number');
+      }
+      return true;
+    })
+    .custom((value, { req }) => {
+      if (value === null || value === undefined || value === '') {
+        return true;
+      }
+      const originalPrice = parseFloat(value);
+      const salePrice = parseFloat(req.body.price);
+      if (!isNaN(originalPrice) && !isNaN(salePrice) && originalPrice < salePrice) {
+        throw new Error('Original price must be greater than or equal to the sale price');
+      }
+      return true;
+    }),
+
   productSKU: body('sku')
     .trim()
     .matches(/^[A-Z0-9-]+$/)
@@ -233,6 +260,7 @@ export const validationChains = {
     validators.productName,
     validators.productDescription,
     validators.productPrice,
+    validators.productOriginalPrice,
     validators.productSKU,
     validators.productCategory
   ],
@@ -241,7 +269,8 @@ export const validationChains = {
     validators.uuidParam,
     validators.productName,
     validators.productDescription,
-    validators.productPrice
+    validators.productPrice,
+    validators.productOriginalPrice
   ],
 
   // Orders
