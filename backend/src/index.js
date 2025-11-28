@@ -117,7 +117,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true })); // Parse URL-enc
 app.use(morgan(nodeEnv === 'production' ? 'combined' : 'dev'));
 
 // ============================================================================
-// HEALTH CHECK ENDPOINT
+// HEALTH CHECK ENDPOINTS
 // ============================================================================
 
 app.get('/health', (req, res) => {
@@ -126,6 +126,29 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: nodeEnv,
   });
+});
+
+// Newsletter health check endpoint
+app.get('/api/health/newsletter', (req, res) => {
+  const status = {
+    newsletter_enabled: !!process.env.RESEND_API_KEY && !!process.env.STORE_EMAIL,
+    database_configured: !!process.env.SUPABASE_URL && !!process.env.SUPABASE_KEY,
+    email_service_configured: !!process.env.RESEND_API_KEY,
+    store_email_configured: !!process.env.STORE_EMAIL,
+    issues: []
+  };
+
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+    status.issues.push('Database not configured - subscriptions cannot be saved');
+  }
+  if (!process.env.RESEND_API_KEY) {
+    status.issues.push('RESEND_API_KEY not set - emails will not be sent');
+  }
+  if (!process.env.STORE_EMAIL) {
+    status.issues.push('STORE_EMAIL not set - email service will crash when attempting to send');
+  }
+
+  res.json(status);
 });
 
 // ============================================================================
@@ -162,6 +185,49 @@ async function initialize() {
   console.log(`Environment: ${nodeEnv}`);
   console.log(`Port: ${port}`);
 
+  // ===== CRITICAL: Check required environment variables =====
+  console.log('\n🔍 Checking critical environment variables...');
+  const envChecks = {
+    SUPABASE_URL: { required: true, status: !!process.env.SUPABASE_URL },
+    SUPABASE_KEY: { required: true, status: !!process.env.SUPABASE_KEY },
+    RESEND_API_KEY: { required: false, status: !!process.env.RESEND_API_KEY },
+    STORE_EMAIL: { required: false, status: !!process.env.STORE_EMAIL },
+    APP_URL: { required: false, status: !!process.env.APP_URL }
+  };
+
+  let criticalMissing = [];
+  let warningMissing = [];
+
+  Object.entries(envChecks).forEach(([key, { required, status }]) => {
+    const symbol = status ? '✅' : '❌';
+    const type = required ? 'CRITICAL' : 'OPTIONAL';
+    console.log(`  ${symbol} ${key}: ${status ? 'SET' : `MISSING (${type})`}`);
+
+    if (!status) {
+      if (required) criticalMissing.push(key);
+      else warningMissing.push(key);
+    }
+  });
+
+  if (criticalMissing.length > 0) {
+    console.error(`\n❌ CRITICAL: Missing required variables: ${criticalMissing.join(', ')}`);
+    console.error('Newsletter system will NOT work without these variables in .env');
+    if (nodeEnv === 'production') {
+      console.error('❌ Production deployment blocked due to missing critical variables.');
+      process.exit(1);
+    }
+  }
+
+  if (warningMissing.length > 0) {
+    console.warn(`\n⚠️  WARNING: Missing optional variables: ${warningMissing.join(', ')}`);
+    if (warningMissing.includes('RESEND_API_KEY')) {
+      console.warn('  → Email notifications will NOT be sent (RESEND_API_KEY missing)');
+    }
+    if (warningMissing.includes('STORE_EMAIL')) {
+      console.warn('  → Email service will crash when attempting to send (STORE_EMAIL missing)');
+    }
+  }
+
   // Test database connection
   console.log('\n📦 Testing database connection...');
   const dbConnected = await testDatabaseConnection();
@@ -180,6 +246,7 @@ async function initialize() {
 
   if (!emailConnected) {
     console.warn('⚠️  Email service may not be properly configured');
+    console.warn('  → Newsletter subscriptions will be created but emails will NOT be sent');
   }
 
   // Start server

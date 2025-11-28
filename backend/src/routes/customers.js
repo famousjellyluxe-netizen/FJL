@@ -100,26 +100,44 @@ router.get('/members/list', verifyJWT, requireAdmin, requirePermission('manage_c
  */
 router.post('/members/subscribe', validationChains.subscribeMember, handleValidationErrors, asyncHandler(async (req, res) => {
   const { email, full_name } = req.body;
+  const requestId = `subscribe-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+  console.log(`\n📧 [${requestId}] Newsletter subscription request`);
+  console.log(`  Email: ${email}`);
+  console.log(`  Full Name: ${full_name || '(not provided)'}`);
+  console.log(`  Source: ${req.body.source || 'homepage_modal'}`);
 
   // Check if already subscribed
-  const { data: existing } = await supabase
+  console.log(`  → Checking for existing subscription...`);
+  const { data: existing, error: checkError } = await supabase
     .from('members')
     .select('id')
     .eq('email', email.toLowerCase())
     .single();
 
+  if (checkError && checkError.code !== 'PGRST116') {
+    // PGRST116 = no rows found (expected), other errors should be thrown
+    console.error(`  ✗ Database error checking existing subscription:`, checkError);
+    throw checkError;
+  }
+
   if (existing) {
+    console.log(`  ⚠️  Email already subscribed, returning 409`);
     return res.status(409).json({
       success: false,
       error: 'This email is already subscribed'
     });
   }
 
+  console.log(`  ✓ Email is new (not previously subscribed)`);
+
   // Generate unique unsubscribe token
   const unsubscribe_token = crypto.randomBytes(32).toString('hex');
+  console.log(`  → Generated unsubscribe token (length: ${unsubscribe_token.length})`);
 
   // Create member
-  const { data: member, error } = await supabase
+  console.log(`  → Inserting member into database...`);
+  const { data: member, error: insertError } = await supabase
     .from('members')
     .insert([{
       email: email.toLowerCase(),
@@ -131,21 +149,43 @@ router.post('/members/subscribe', validationChains.subscribeMember, handleValida
     .select()
     .single();
 
-  if (error) throw error;
-
-  // Send welcome email
-  try {
-    await emailService.sendMemberWelcome(member);
-  } catch (emailError) {
-    console.error('Error sending welcome email:', emailError);
+  if (insertError) {
+    console.error(`  ✗ Database insert error:`, insertError);
+    throw insertError;
   }
 
+  console.log(`  ✓ Member created in database (ID: ${member.id})`);
+
+  // Send welcome email (NON-BLOCKING - Option B)
+  let emailSendSuccess = false;
+  let emailError = null;
+
+  try {
+    console.log(`  → Attempting to send welcome email...`);
+    await emailService.sendMemberWelcome(member);
+    emailSendSuccess = true;
+    console.log(`  ✓ Welcome email sent successfully`);
+  } catch (err) {
+    emailError = err;
+    console.error(`  ✗ Error sending welcome email:`, err.message);
+    console.error(`     Full error:`, err);
+  }
+
+  console.log(`\n✅ [${requestId}] Subscription completed - Member created: ${member.email}`);
+  console.log(`   Email Status: ${emailSendSuccess ? 'SENT' : 'FAILED'}\n`);
+
+  // Return response with email status (Option B - partial success)
   res.status(201).json({
     success: true,
-    message: 'Successfully subscribed to newsletter!',
+    message: emailSendSuccess
+      ? 'Successfully subscribed to newsletter!'
+      : 'Subscribed to newsletter, but email failed to send. Check spam folder.',
     data: {
       id: member.id,
-      email: member.email
+      email: member.email,
+      subscriptionSuccess: true,
+      emailSuccess: emailSendSuccess,
+      emailError: emailError ? emailError.message : null
     }
   });
 }));
