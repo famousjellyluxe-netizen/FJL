@@ -44,6 +44,9 @@
 
       if (result.success && result.data) {
         console.log(`✅ Subscribed to newsletter: ${email}`);
+        console.log(`   Subscription Success: ${result.data.subscriptionSuccess}`);
+        console.log(`   Email Success: ${result.data.emailSuccess}`);
+        console.log(`   Email Error: ${result.data.emailError || 'None'}`);
 
         // Cache subscription
         const subscriptions = JSON.parse(localStorage.getItem('fjl_subscriptions') || '[]');
@@ -53,20 +56,35 @@
           source: source,
           timestamp: new Date().toISOString(),
           status: 'subscribed',
-          synced: true
+          synced: true,
+          emailSuccess: result.data.emailSuccess,
+          emailError: result.data.emailError
         });
         localStorage.setItem('fjl_subscriptions', JSON.stringify(subscriptions));
 
         if (window.notifications) {
-          window.notifications.success(
-            'Thank you for subscribing! Check your email for a welcome message.'
-          );
+          if (result.data.emailSuccess) {
+            // Email sent successfully
+            window.notifications.success(
+              'Thank you for subscribing! Check your email for a welcome message.'
+            );
+          } else {
+            // Subscription succeeded but email failed
+            window.notifications.success(
+              'You\'re subscribed! We tried to send a welcome email, but it failed. Check spam folder or try resubscribing.'
+            );
+            if (result.data.emailError) {
+              console.warn(`Email send error: ${result.data.emailError}`);
+            }
+          }
         }
 
         return {
           success: true,
           email: email,
-          method: 'api'
+          method: 'api',
+          subscriptionSuccess: result.data.subscriptionSuccess,
+          emailSuccess: result.data.emailSuccess
         };
       }
 
@@ -202,6 +220,11 @@
     // Return result for use in HTML
     return result;
   };
+
+  /**
+   * Expose subscribeToNewsletter globally so forms can call it
+   */
+  window.subscribeToNewsletter = subscribeToNewsletter;
 
   /**
    * Initialize newsletter integration

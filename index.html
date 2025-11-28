@@ -1416,12 +1416,103 @@
             }
         });
 
-        memberForm.addEventListener('submit', (e) => {
+        memberForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            memberForm.style.display = 'none';
-            modalSuccess.style.display = 'block';
-            setTimeout(closeModal, 2000);
+
+            // Get form inputs
+            const emailInput = memberForm.querySelector('input[type="email"]');
+            const nameInput = memberForm.querySelector('input[type="text"]');
+
+            const email = emailInput ? emailInput.value.trim() : '';
+            const fullName = nameInput ? nameInput.value.trim() : null;
+
+            // Validate inputs
+            if (!email) {
+                if (window.notifications) {
+                    window.notifications.error('Please enter an email address');
+                }
+                return;
+            }
+
+            // Call the newsletter subscription function
+            if (window.subscribeToNewsletter) {
+                try {
+                    const result = await window.subscribeToNewsletter(email, fullName, 'modal');
+
+                    if (result.success) {
+                        memberForm.style.display = 'none';
+                        modalSuccess.style.display = 'block';
+                        setTimeout(closeModal, 2000);
+                    } else {
+                        // Show error message
+                        if (window.notifications) {
+                            window.notifications.error(result.error || 'Subscription failed. Please try again.');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error subscribing to newsletter:', error);
+                    if (window.notifications) {
+                        window.notifications.error('Subscription failed. Please try again.');
+                    }
+                }
+            } else {
+                console.warn('Newsletter integration not loaded');
+                if (window.notifications) {
+                    window.notifications.error('Newsletter service not available');
+                }
+            }
         });
+
+        // Handle footer newsletter form submission
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Get form inputs
+                const emailInput = newsletterForm.querySelector('input[type="email"]');
+                const nameInput = newsletterForm.querySelector('input[type="text"]');
+
+                const email = emailInput ? emailInput.value.trim() : '';
+                const fullName = nameInput ? nameInput.value.trim() : null;
+
+                // Validate inputs
+                if (!email) {
+                    if (window.notifications) {
+                        window.notifications.error('Please enter an email address');
+                    }
+                    return;
+                }
+
+                // Call the newsletter subscription function
+                if (window.subscribeToNewsletter) {
+                    try {
+                        const result = await window.subscribeToNewsletter(email, fullName, 'footer');
+
+                        if (result.success) {
+                            // Show success message and reset form
+                            newsletterForm.reset();
+                            // Message already shown by subscribeToNewsletter function
+                        } else {
+                            // Show error message
+                            if (window.notifications) {
+                                window.notifications.error(result.error || 'Subscription failed. Please try again.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error subscribing to newsletter:', error);
+                        if (window.notifications) {
+                            window.notifications.error('Subscription failed. Please try again.');
+                        }
+                    }
+                } else {
+                    console.warn('Newsletter integration not loaded');
+                    if (window.notifications) {
+                        window.notifications.error('Newsletter service not available');
+                    }
+                }
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', openModal);
 
