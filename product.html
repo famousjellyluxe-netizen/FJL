@@ -1929,28 +1929,38 @@
                         // Fallback: Fetch individual product directly from API
                         console.log('initializeShopProducts not available, fetching individual product...');
                         const apiBase = localStorage.getItem('API_BASE') || 'http://localhost:5173/api';
-                        const response = await fetch(`${apiBase}/products/${productId}`);
-                        if (response.ok) {
-                            const data = await response.json();
-                            const apiProduct = data.data;
-                            // Transform API product to match frontend format
-                            product = {
-                                id: apiProduct.id,
-                                name: apiProduct.name,
-                                price: apiProduct.price,
-                                original_price: apiProduct.original_price,
-                                image: apiProduct.image_url || apiProduct.images?.[0],
-                                images: apiProduct.images || [],
-                                sleeve: apiProduct.sleeve_type === 'sleeveless' ? 'Sleeveless' : 'Sleeve',
-                                inStock: apiProduct.total_stock > 0,
-                                stock: apiProduct.total_stock,
-                                sku: apiProduct.sku,
-                                description: apiProduct.description,
-                                category: apiProduct.categories?.name || apiProduct.category,
-                                category_slug: apiProduct.categories?.slug || '',
-                                variants: apiProduct.variants || []
-                            };
-                            console.log('✓ Fetched product directly from API:', productId);
+                        const fetchUrl = `${apiBase}/products/${productId}`;
+                        console.log('Fetching from:', fetchUrl);
+                        try {
+                            const response = await fetch(fetchUrl);
+                            console.log('API Response status:', response.status);
+                            if (response.ok) {
+                                const data = await response.json();
+                                console.log('API Response data:', data);
+                                const apiProduct = data.data;
+                                // Transform API product to match frontend format
+                                product = {
+                                    id: apiProduct.id,
+                                    name: apiProduct.name,
+                                    price: apiProduct.price,
+                                    original_price: apiProduct.original_price,
+                                    image: apiProduct.image_url || apiProduct.images?.[0],
+                                    images: apiProduct.images || [],
+                                    sleeve: apiProduct.sleeve_type === 'sleeveless' ? 'Sleeveless' : 'Sleeve',
+                                    inStock: apiProduct.total_stock > 0,
+                                    stock: apiProduct.total_stock,
+                                    sku: apiProduct.sku,
+                                    description: apiProduct.description,
+                                    category: apiProduct.categories?.name || apiProduct.category,
+                                    category_slug: apiProduct.categories?.slug || '',
+                                    variants: apiProduct.variants || []
+                                };
+                                console.log('✓ Fetched product directly from API:', productId, product);
+                            } else {
+                                console.error('API returned status:', response.status, response.statusText);
+                            }
+                        } catch (fetchError) {
+                            console.error('Error during fetch:', fetchError);
                         }
                     }
                 } catch (e) {
@@ -2027,21 +2037,28 @@
             document.getElementById('productTitle').textContent = product.name;
 
             // Update product price
-            document.getElementById('productPriceDisplay').textContent = '$' + product.price.toLocaleString('en-CA') + ' CAD';
+            const salePrice = parseFloat(product.price);
+            document.getElementById('productPriceDisplay').textContent = '$' + salePrice.toLocaleString('en-CA') + ' CAD';
 
             // Handle original price and discount badge
             const originalPriceSection = document.getElementById('originalPriceSection');
-            if (product.original_price && product.original_price > product.price) {
+            const originalPrice = product.original_price ? parseFloat(product.original_price) : null;
+
+            console.log('Price info - Sale:', salePrice, 'Original:', originalPrice, 'Display original:', originalPrice && originalPrice > salePrice);
+
+            if (originalPrice && originalPrice > salePrice) {
                 // Show original price section
                 originalPriceSection.removeAttribute('hidden');
-                document.getElementById('originalPriceDisplay').textContent = '$' + product.original_price.toLocaleString('en-CA') + ' CAD';
+                document.getElementById('originalPriceDisplay').textContent = '$' + originalPrice.toLocaleString('en-CA') + ' CAD';
 
                 // Calculate and display discount percentage
-                const discountPercent = Math.round(((product.original_price - product.price) / product.original_price) * 100);
+                const discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
                 document.getElementById('discountBadge').textContent = discountPercent + '% OFF';
+                console.log('✓ Displaying original price and discount:', discountPercent + '% OFF');
             } else {
                 // Hide original price section if no original price or it's not greater than sale price
                 originalPriceSection.setAttribute('hidden', '');
+                console.log('Original price section hidden (no original_price or not greater than sale price)');
             }
 
             // Update product image if available
