@@ -1263,6 +1263,7 @@ class AdminDataService {
                     id: product.id,
                     name: product.name,
                     price: product.price,
+                    original_price: product.original_price,
                     image: product.image_url || product.images?.[0],
                     images: product.images || [],
                     inStock: product.total_stock > 0,

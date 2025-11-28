@@ -569,7 +569,7 @@
             font-size: 16px;
             font-weight: 600;
             color: #000;
-            margin-bottom: 16px;
+            line-height: 1.2;
         }
 
         .stock-status {
@@ -598,8 +598,8 @@
 
         .price-display {
             display: flex;
-            align-items: center;
-            gap: 12px;
+            align-items: baseline;
+            gap: 8px;
         }
 
         .original-price-section {
@@ -617,6 +617,7 @@
             color: #999;
             text-decoration: line-through;
             font-weight: 500;
+            line-height: 1.2;
         }
 
         .discount-badge {
@@ -628,6 +629,7 @@
             font-size: 12px;
             font-weight: 600;
             white-space: nowrap;
+            line-height: 1.2;
         }
 
         /* Skeleton Loading Styles */
@@ -1897,132 +1899,31 @@
                 return;
             }
 
-            // ALWAYS load from localStorage first (live data from admin/Supabase)
+            // Use ProductDataService to load full product with automatic enrichment
             let product = null;
-            const storedProducts = localStorage.getItem('fjl_products');
-
-            if (storedProducts) {
-                try {
-                    const allProducts = JSON.parse(storedProducts);
-                    product = allProducts.find(p => p.id === productId);
-                } catch (e) {
-                    console.error('Error loading products from localStorage:', e);
-                }
+            try {
+                // This will:
+                // 1. Try cache first
+                // 2. Enrich with full data if description missing
+                // 3. Fetch from API if not in cache
+                // 4. Return validated product
+                product = await window.productDataService.getFullProductData(productId);
+            } catch (error) {
+                console.error(`Failed to load product ${productId}:`, error.message);
             }
 
-            // If not found in localStorage and localStorage is empty, attempt to fetch from API
-            // This ensures we get fresh data after cache clear instead of showing defaults
-            if (!product && !storedProducts) {
-                console.log('localStorage is empty. Attempting to fetch products from API...');
-                try {
-                    // Try using initializeShopProducts if available
-                    if (typeof initializeShopProducts === 'function') {
-                        await initializeShopProducts(); // Properly wait for API fetch to complete
-                        // After API fetch, check localStorage again
-                        const newStoredProducts = localStorage.getItem('fjl_products');
-                        if (newStoredProducts) {
-                            const allProducts = JSON.parse(newStoredProducts);
-                            product = allProducts.find(p => p.id === productId);
-                            console.log('✓ Reloaded product from API:', productId);
-                        }
-                    } else {
-                        // Fallback: Fetch individual product directly from API
-                        console.log('initializeShopProducts not available, fetching individual product...');
-                        const apiBase = localStorage.getItem('API_BASE') || 'http://localhost:5173/api';
-                        const fetchUrl = `${apiBase}/products/${productId}`;
-                        console.log('Fetching from:', fetchUrl);
-                        try {
-                            const response = await fetch(fetchUrl);
-                            console.log('API Response status:', response.status);
-                            if (response.ok) {
-                                const data = await response.json();
-                                console.log('API Response data:', data);
-                                const apiProduct = data.data;
-                                // Transform API product to match frontend format
-                                product = {
-                                    id: apiProduct.id,
-                                    name: apiProduct.name,
-                                    price: apiProduct.price,
-                                    original_price: apiProduct.original_price,
-                                    image: apiProduct.image_url || apiProduct.images?.[0],
-                                    images: apiProduct.images || [],
-                                    sleeve: apiProduct.sleeve_type === 'sleeveless' ? 'Sleeveless' : 'Sleeve',
-                                    inStock: apiProduct.total_stock > 0,
-                                    stock: apiProduct.total_stock,
-                                    sku: apiProduct.sku,
-                                    description: apiProduct.description,
-                                    category: apiProduct.categories?.name || apiProduct.category,
-                                    category_slug: apiProduct.categories?.slug || '',
-                                    variants: apiProduct.variants || []
-                                };
-                                console.log('✓ Fetched product directly from API:', productId, product);
-                            } else {
-                                console.error('API returned status:', response.status, response.statusText);
-                            }
-                        } catch (fetchError) {
-                            console.error('Error during fetch:', fetchError);
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Failed to fetch products from API:', e);
-                }
-            }
-
-            // Fallback to default database ONLY if still not found
-            // Do NOT default to another product - only use defaults if the requested product exists
-            if (!product) {
-                const defaultDB = getDefaultProductDatabase();
-                product = defaultDB[productId];
-            }
-
-            // If product still not found, immediately redirect to shop (no error message)
+            // If product still not found, redirect to shop
             if (!product) {
                 console.error(`Product "${productId}" not found. Redirecting to shop...`);
                 window.location.href = 'shop.html';
                 return;
             }
 
-            // CRITICAL: If product was loaded from defaults, ensure we get the REAL inventory from localStorage
-            // This ensures we always validate against the actual stock, not the default mock data
-            if (storedProducts) {
-                try {
-                    const allProducts = JSON.parse(storedProducts);
-                    const liveProduct = allProducts.find(p => p.id === productId);
-                    if (liveProduct) {
-                        // Use live data from localStorage, including inventory and sizes
-                        // IMPORTANT: Recalculate sizeInventory from variants to avoid stale cache
-                        // This ensures size buttons reflect actual stock across all colors
-                        if (liveProduct.variants && Array.isArray(liveProduct.variants)) {
-                            const inventory = {};
-                            liveProduct.variants.forEach(variant => {
-                                const key = variant.size;
-                                if (!inventory[key]) {
-                                    inventory[key] = 0;
-                                }
-                                // Sum stock across all colors for this size
-                                inventory[key] += (variant.stock_quantity || 0);
-                            });
-                            product.sizeInventory = inventory;
-                            console.log('✓ Recalculated sizeInventory from variants:', inventory);
-                        } else if (liveProduct.sizeInventory) {
-                            // Fallback to cached sizeInventory if variants not available
-                            product.sizeInventory = liveProduct.sizeInventory;
-                        }
-
-                        if (liveProduct.sizes && Array.isArray(liveProduct.sizes)) {
-                            product.sizes = liveProduct.sizes;
-                        }
-                        if (liveProduct.inStock !== undefined) {
-                            product.inStock = liveProduct.inStock;
-                        }
-                        if (liveProduct.updatedAt) {
-                            product.updatedAt = liveProduct.updatedAt;
-                        }
-                    }
-                } catch (e) {
-                    console.error('Error syncing live inventory:', e);
-                }
-            }
+            // ProductDataService has already validated and enriched product data with:
+            // - sizeInventory (calculated from variants)
+            // - sizes (extracted from variants)
+            // - inStock status (from total_stock)
+            // No need for additional sync logic
 
             // Update page title
             document.title = product.name + ' - Famous Jolly Luxe (FJL)';
@@ -2112,7 +2013,7 @@
             // Update product description if available
             const descriptionListElement = document.querySelector('#productDescriptionList');
             if (descriptionListElement) {
-                if (product.description) {
+                if (product.description && product.description.trim().length > 0) {
                     // Split description by newlines and create list items
                     const descriptionItems = product.description
                         .split('\n')
@@ -2121,9 +2022,11 @@
                         .map(item => `<li>${item}</li>`)
                         .join('');
                     descriptionListElement.innerHTML = descriptionItems;
+                    console.log('✓ Product description loaded:', product.description);
                 } else {
                     // Show a placeholder message if no description is available
-                    descriptionListElement.innerHTML = '<li><em>No description provided</em></li>';
+                    descriptionListElement.innerHTML = '<li><em>No description available for this product</em></li>';
+                    console.log('ℹ No product description found in database');
                 }
             }
 
@@ -3113,6 +3016,8 @@
         <script src="notifications.js"></script>
         <!-- Backend API Integration Scripts -->
         <script src="js/api-integration.js"></script>
+        <!-- Product Data Service - Centralized data layer for product loading and enrichment -->
+        <script src="js/product-data-service.js"></script>
         <script src="js/shop-integration.js"></script>
         <script src="js/newsletter-integration.js"></script>
         <!-- Global Data Sync Bus (must load before stock updates) -->

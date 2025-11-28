@@ -87,7 +87,8 @@
       "Bash(do if grep -q \"FTG\" \"$file\")",
       "Bash(then echo \"$file has FTG\")",
       "Bash(rm:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "mcp__playwright__browser_run_code"
     ],
     "deny": [],
     "ask": []
