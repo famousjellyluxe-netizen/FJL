@@ -118,8 +118,8 @@
               stock: 0,
               sizes: extractUniqueSizesFromVariants(product.variants),
               sizeInventory: transformVariantsToInventory(product.variants),
-              sku: '',
-              description: '',
+              sku: product.sku || '',
+              description: product.description || '',
               category: product.category,
               category_slug: '',
               variants: product.variants || []
