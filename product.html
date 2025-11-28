@@ -1928,7 +1928,7 @@
                     } else {
                         // Fallback: Fetch individual product directly from API
                         console.log('initializeShopProducts not available, fetching individual product...');
-                        const apiBase = localStorage.getItem('API_BASE') || 'http://localhost:5001';
+                        const apiBase = localStorage.getItem('API_BASE') || 'http://localhost:5173/api';
                         const response = await fetch(`${apiBase}/products/${productId}`);
                         if (response.ok) {
                             const data = await response.json();
