@@ -13,6 +13,32 @@
     <!-- Fonts & Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../notifications.js"></script>
+
+    <style>
+        /* Image preview container */
+        .image-preview-md {
+            max-width: 300px;
+            max-height: 300px;
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--color-border, #e0e0e0);
+            display: block;
+        }
+
+        /* Image upload field styling */
+        #imageUploadContainer {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .image-upload-remove-btn {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-layout">
