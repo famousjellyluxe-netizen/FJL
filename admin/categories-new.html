@@ -1,0 +1,643 @@
+<!--
+  FJL Admin Panel - Categories Page
+  Mobile-first responsive categories management
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - FJL Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="design-tokens.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Categories Page Styles */
+
+        .categories-wrapper {
+            display: flex;
+            height: 100vh;
+            background: var(--color-bg);
+        }
+
+        .categories-sidebar {
+            width: var(--sidebar-width);
+            background: var(--color-primary);
+            color: var(--color-secondary);
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            z-index: var(--z-menu);
+        }
+
+        .categories-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .categories-header {
+            background: var(--color-secondary);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: var(--header-height);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .categories-header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            flex: 1;
+        }
+
+        .categories-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-primary);
+            font-size: 24px;
+            padding: var(--spacing-md);
+            min-width: var(--touch-target-min);
+            min-height: var(--touch-target-min);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .categories-menu-btn:hover {
+            background: var(--color-light-gray);
+        }
+
+        .categories-title {
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: var(--font-weight-bold);
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+        }
+
+        .btn-add-category {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: var(--transition);
+        }
+
+        .btn-add-category:hover {
+            background: #d4891b;
+        }
+
+        .categories-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xl);
+        }
+
+        /* Categories Grid */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .category-card {
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .category-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-accent);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-lg);
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-lg);
+            background: rgba(224, 159, 62, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-name {
+            font-size: 16px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .category-count {
+            font-size: 13px;
+            color: var(--color-gray);
+        }
+
+        .category-description {
+            font-size: 13px;
+            color: var(--color-gray);
+            line-height: var(--line-height-normal);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .category-footer {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .category-action-btn {
+            flex: 1;
+            background: var(--color-light-gray);
+            border: none;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: var(--font-weight-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        .category-action-btn:hover {
+            background: var(--color-accent);
+            color: var(--color-primary);
+        }
+
+        .category-action-btn.delete {
+            color: var(--color-danger);
+            background: rgba(255, 65, 54, 0.1);
+        }
+
+        .category-action-btn.delete:hover {
+            background: var(--color-danger);
+            color: var(--color-secondary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-3xl) var(--spacing-xl);
+            color: var(--color-gray);
+            gap: var(--spacing-lg);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Loading Skeleton */
+        .loading-skeleton {
+            animation: loading 1.5s infinite;
+            background: linear-gradient(90deg, var(--color-light-gray) 25%, var(--color-bg) 50%, var(--color-light-gray) 75%);
+            background-size: 200% 100%;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 767px) {
+            .categories-wrapper {
+                flex-direction: column;
+            }
+
+            .categories-sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100vh;
+                transition: left 0.3s ease;
+                z-index: 100;
+            }
+
+            .categories-sidebar.active {
+                left: 0;
+            }
+
+            .categories-main {
+                margin-left: 0;
+                height: 100vh;
+            }
+
+            .categories-menu-btn {
+                display: flex;
+            }
+
+            .categories-header {
+                order: -1;
+            }
+
+            .categories-content {
+                padding: var(--spacing-lg);
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-add-category {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Tablet Responsive */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Desktop Responsive */
+        @media (min-width: 1025px) {
+            .categories-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .categories-sidebar,
+            .categories-header,
+            .categories-menu-btn,
+            .category-action-btn {
+                display: none;
+            }
+
+            .categories-main {
+                margin-left: 0;
+            }
+
+            .categories-content {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="categories-wrapper">
+        <!-- Sidebar -->
+        <aside class="categories-sidebar" id="categoriesSidebar"></aside>
+
+        <!-- Main Content -->
+        <div class="categories-main">
+            <!-- Header -->
+            <header class="categories-header">
+                <div class="categories-header-left">
+                    <button class="categories-menu-btn" id="categoriesMenuBtn" title="Toggle menu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="categories-title">Categories</h1>
+                </div>
+                <button class="btn-add-category" id="addCategoryBtn">
+                    <span>➕</span>
+                    <span>Add Category</span>
+                </button>
+            </header>
+
+            <!-- Content -->
+            <main class="categories-content">
+                <div class="categories-grid" id="categoriesGrid">
+                    <!-- Categories load here -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <div class="modal-backdrop" id="categoryModal">
+        <div class="modal-content modal-md">
+            <div class="modal-header">
+                <h2 class="modal-title" id="categoryModalTitle">Add Category</h2>
+                <button class="modal-close" onclick="closeCategoryModal()" aria-label="Close">×</button>
+            </div>
+
+            <div class="modal-body">
+                <form id="categoryForm" class="modal-form">
+                    <div class="form-group">
+                        <label class="form-label">Category Name *</label>
+                        <input type="text" name="name" class="form-input" placeholder="Enter category name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-input" placeholder="Enter category description" rows="4" style="resize: vertical;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="filter-select" style="width: 100%; min-height: 40px;">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                <button class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-backdrop" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete Category?</h2>
+                <button class="modal-close" onclick="closeDeleteModal()" aria-label="Close">×</button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to delete this category? This action cannot be undone.</p>
+            </div>
+
+            <div class="modal-footer space-between">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
+
+    <script>
+        window.apiUtils?.requireAuth?.();
+
+        class CategoriesManager {
+            constructor() {
+                this.categories = [];
+                this.editingCategory = null;
+                this.deletingCategoryId = null;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadCategories();
+            }
+
+            setupEventListeners() {
+                const menuBtn = document.getElementById('categoriesMenuBtn');
+                const sidebar = document.getElementById('categoriesSidebar');
+
+                menuBtn?.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth < 768 && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+
+                document.getElementById('addCategoryBtn')?.addEventListener('click', () => {
+                    this.openCategoryModal();
+                });
+
+                document.getElementById('saveCategoryBtn')?.addEventListener('click', () => {
+                    this.saveCategory();
+                });
+
+                document.getElementById('categoryModal')?.addEventListener('click', (e) => {
+                    if (e.target.id === 'categoryModal') closeCategoryModal();
+                });
+
+                document.getElementById('deleteModal')?.addEventListener('click', (e) => {
+                    if (e.target.id === 'deleteModal') closeDeleteModal();
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        closeCategoryModal();
+                        closeDeleteModal();
+                    }
+                });
+            }
+
+            async loadCategories() {
+                try {
+                    this.showLoading();
+                    this.categories = await window.apiServices?.categoryService?.getCategories?.() || [];
+                    this.renderCategories();
+                } catch (error) {
+                    console.error('Failed to load categories:', error);
+                    this.showError('Failed to load categories');
+                }
+            }
+
+            showLoading() {
+                const grid = document.getElementById('categoriesGrid');
+                grid.innerHTML = Array(6)
+                    .fill(null)
+                    .map(() => `<div class="category-card loading-skeleton" style="height: 200px;"></div>`)
+                    .join('');
+            }
+
+            renderCategories() {
+                const grid = document.getElementById('categoriesGrid');
+
+                if (this.categories.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1;">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📁</div>
+                                <div class="empty-state-text">No categories yet</div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = this.categories
+                    .map(cat => this.createCategoryCard(cat))
+                    .join('');
+            }
+
+            createCategoryCard(category) {
+                return `
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-icon">📦</div>
+                            <div class="category-info">
+                                <div class="category-name">${category.name}</div>
+                                <div class="category-count">${category.product_count || 0} products</div>
+                            </div>
+                        </div>
+
+                        <div class="category-description">
+                            ${category.description || 'No description'}
+                        </div>
+
+                        <div class="category-footer">
+                            <button class="category-action-btn" onclick="categoriesManager.editCategory(${category.id})">Edit</button>
+                            <button class="category-action-btn delete" onclick="categoriesManager.deleteCategory(${category.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            openCategoryModal(categoryId = null) {
+                const modal = document.getElementById('categoryModal');
+                const form = document.getElementById('categoryForm');
+                const title = document.getElementById('categoryModalTitle');
+
+                if (categoryId) {
+                    this.editingCategory = this.categories.find(c => c.id === categoryId);
+                    title.textContent = 'Edit Category';
+                    form.elements['name'].value = this.editingCategory.name;
+                    form.elements['description'].value = this.editingCategory.description || '';
+                    form.elements['status'].value = this.editingCategory.status;
+                } else {
+                    this.editingCategory = null;
+                    title.textContent = 'Add Category';
+                    form.reset();
+                }
+
+                modal.classList.add('active');
+                document.body.classList.add('modal-open');
+            }
+
+            editCategory(categoryId) {
+                this.openCategoryModal(categoryId);
+            }
+
+            async saveCategory() {
+                const form = document.getElementById('categoryForm');
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+
+                try {
+                    if (this.editingCategory) {
+                        await window.apiServices?.categoryService?.updateCategory?.(this.editingCategory.id, data);
+                        alert('Category updated successfully');
+                    } else {
+                        await window.apiServices?.categoryService?.createCategory?.(data);
+                        alert('Category created successfully');
+                    }
+
+                    closeCategoryModal();
+                    this.loadCategories();
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                }
+            }
+
+            deleteCategory(categoryId) {
+                this.deletingCategoryId = categoryId;
+                document.getElementById('deleteModal').classList.add('active');
+                document.body.classList.add('modal-open');
+                document.getElementById('confirmDeleteBtn').onclick = () => this.confirmDelete();
+            }
+
+            async confirmDelete() {
+                try {
+                    await window.apiServices?.categoryService?.deleteCategory?.(this.deletingCategoryId);
+                    alert('Category deleted successfully');
+                    closeDeleteModal();
+                    this.loadCategories();
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                }
+            }
+
+            showError(message) {
+                const grid = document.getElementById('categoriesGrid');
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1;">
+                        <div class="empty-state">
+                            <div class="empty-state-text">⚠️ ${message}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        let categoriesManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            categoriesManager = new CategoriesManager();
+        });
+    </script>
+</body>
+</html>
