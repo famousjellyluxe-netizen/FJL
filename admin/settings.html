@@ -88,6 +88,9 @@
             </header>
 
             <main class="settings-content">
+                <!-- Loading Status -->
+                <div id="loadMessage" class="status-message"></div>
+
                 <!-- Store Information -->
                 <div class="settings-section">
                     <div class="settings-section-header">
@@ -138,6 +141,89 @@
 
                         <div id="storeMessage" class="status-message"></div>
                         <button type="button" class="btn-save" onclick="settingsManager.saveStore()">Save Store Settings</button>
+                    </form>
+                </div>
+
+                <!-- Pagination & Limits -->
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <div>
+                            <h2 class="settings-section-title">Pagination & Limits</h2>
+                            <div class="settings-section-subtitle">Configure display and pagination limits</div>
+                        </div>
+                    </div>
+
+                    <form id="paginationForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Products Per Page</label>
+                                <input type="number" name="products_per_page" class="form-input" placeholder="20" min="1" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Orders Per Page</label>
+                                <input type="number" name="orders_per_page" class="form-input" placeholder="20" min="1" step="1">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Featured Products Limit</label>
+                                <input type="number" name="featured_products_limit" class="form-input" placeholder="6" min="1" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Low Stock Threshold</label>
+                                <input type="number" name="low_stock_threshold" class="form-input" placeholder="10" min="0" step="1">
+                            </div>
+                        </div>
+
+                        <div id="paginationMessage" class="status-message"></div>
+                        <button type="button" class="btn-save" onclick="settingsManager.savePagination()">Save Pagination Settings</button>
+                    </form>
+                </div>
+
+                <!-- File & Format Settings -->
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <div>
+                            <h2 class="settings-section-title">File & Format Settings</h2>
+                            <div class="settings-section-subtitle">Configure file upload restrictions</div>
+                        </div>
+                    </div>
+
+                    <form id="fileForm">
+                        <div class="form-group">
+                            <label class="form-label">Max Image Size (MB)</label>
+                            <input type="number" name="max_image_size_mb" class="form-input" placeholder="5" min="0.1" step="0.1">
+                        </div>
+
+                        <div id="fileMessage" class="status-message"></div>
+                        <button type="button" class="btn-save" onclick="settingsManager.saveFile()">Save File Settings</button>
+                    </form>
+                </div>
+
+                <!-- Currency Settings -->
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <div>
+                            <h2 class="settings-section-title">Currency Settings</h2>
+                            <div class="settings-section-subtitle">Configure currency display</div>
+                        </div>
+                    </div>
+
+                    <form id="currencyForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Store Currency</label>
+                                <input type="text" name="store_currency" class="form-input" placeholder="NGN" maxlength="3">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Currency Symbol</label>
+                                <input type="text" name="currency_symbol" class="form-input" placeholder="₦">
+                            </div>
+                        </div>
+
+                        <div id="currencyMessage" class="status-message"></div>
+                        <button type="button" class="btn-save" onclick="settingsManager.saveCurrency()">Save Currency Settings</button>
                     </form>
                 </div>
 
@@ -238,18 +324,49 @@
 
             async loadSettings() {
                 try {
-                    const settings = await window.apiServices?.settingsService?.getStoreSettings?.();
-                    if (settings) {
-                        document.getElementById('storeForm').elements['store_name'].value = settings.store_name || '';
-                        document.getElementById('storeForm').elements['business_name'].value = settings.business_name || '';
-                        document.getElementById('storeForm').elements['email'].value = settings.email || '';
-                        document.getElementById('storeForm').elements['phone'].value = settings.phone || '';
-                        document.getElementById('storeForm').elements['address'].value = settings.address || '';
-                        document.getElementById('storeForm').elements['tax_rate'].value = settings.tax_rate || 0;
-                        document.getElementById('storeForm').elements['shipping_cost'].value = settings.shipping_cost || 0;
+                    // Fetch all settings from the database using API service
+                    const data = await window.apiServices?.settingsService?.getSettings?.();
+                    const settingsMap = data?.data || data || {};
+
+                    // Populate Store Information form
+                    const storeForm = document.getElementById('storeForm');
+                    if (storeForm) {
+                        storeForm.elements['store_name'].value = settingsMap['store_name'] || '';
+                        storeForm.elements['business_name'].value = settingsMap['business_name'] || '';
+                        storeForm.elements['email'].value = settingsMap['store_email'] || '';
+                        storeForm.elements['phone'].value = settingsMap['store_phone'] || '';
+                        storeForm.elements['address'].value = settingsMap['store_address'] || '';
+                        storeForm.elements['tax_rate'].value = settingsMap['tax_rate'] || '';
+                        storeForm.elements['shipping_cost'].value = settingsMap['shipping_cost'] || '';
                     }
+
+                    // Populate Pagination & Limits form
+                    const paginationForm = document.getElementById('paginationForm');
+                    if (paginationForm) {
+                        paginationForm.elements['products_per_page'].value = settingsMap['products_per_page'] !== undefined ? settingsMap['products_per_page'] : '';
+                        paginationForm.elements['orders_per_page'].value = settingsMap['orders_per_page'] !== undefined ? settingsMap['orders_per_page'] : '';
+                        paginationForm.elements['featured_products_limit'].value = settingsMap['featured_products_limit'] !== undefined ? settingsMap['featured_products_limit'] : '';
+                        paginationForm.elements['low_stock_threshold'].value = settingsMap['low_stock_threshold'] !== undefined ? settingsMap['low_stock_threshold'] : '';
+                    }
+
+                    // Populate File & Format Settings form
+                    const fileForm = document.getElementById('fileForm');
+                    if (fileForm) {
+                        fileForm.elements['max_image_size_mb'].value = settingsMap['max_image_size_mb'] !== undefined ? settingsMap['max_image_size_mb'] : '';
+                    }
+
+                    // Populate Currency Settings form
+                    const currencyForm = document.getElementById('currencyForm');
+                    if (currencyForm) {
+                        // Backend returns 'currency' but form field is 'store_currency'
+                        currencyForm.elements['store_currency'].value = settingsMap['currency'] || settingsMap['store_currency'] || '';
+                        currencyForm.elements['currency_symbol'].value = settingsMap['currency_symbol'] || '';
+                    }
+
+                    console.log('Settings loaded successfully:', settingsMap);
                 } catch (error) {
                     console.error('Failed to load settings:', error);
+                    this.showMessage('loadMessage', 'Failed to load settings', 'error');
                 }
             }
 
@@ -284,12 +401,80 @@
             async saveStore() {
                 try {
                     const form = document.getElementById('storeForm');
-                    const data = Object.fromEntries(new FormData(form));
-                    await window.apiServices?.settingsService?.updateStoreSettings?.(data);
-                    this.showMessage('storeMessage', 'Store settings saved successfully!', 'success');
+                    const formData = Object.fromEntries(new FormData(form));
+
+                    // Map form field names to database keys
+                    const data = {
+                        store_name: formData.store_name,
+                        business_name: formData.business_name,
+                        store_email: formData.email,
+                        store_phone: formData.phone,
+                        store_address: formData.address,
+                        tax_rate: parseFloat(formData.tax_rate) || 0,
+                        shipping_cost: parseFloat(formData.shipping_cost) || 0
+                    };
+
+                    await this.saveSettingsToAPI(data, 'storeMessage');
                 } catch (error) {
                     this.showMessage('storeMessage', 'Error: ' + error.message, 'error');
                 }
+            }
+
+            async savePagination() {
+                try {
+                    const form = document.getElementById('paginationForm');
+                    const formData = Object.fromEntries(new FormData(form));
+
+                    // Convert string values to numbers
+                    const data = {
+                        products_per_page: parseInt(formData.products_per_page) || 20,
+                        orders_per_page: parseInt(formData.orders_per_page) || 20,
+                        featured_products_limit: parseInt(formData.featured_products_limit) || 6,
+                        low_stock_threshold: parseInt(formData.low_stock_threshold) || 10
+                    };
+
+                    await this.saveSettingsToAPI(data, 'paginationMessage');
+                } catch (error) {
+                    this.showMessage('paginationMessage', 'Error: ' + error.message, 'error');
+                }
+            }
+
+            async saveFile() {
+                try {
+                    const form = document.getElementById('fileForm');
+                    const formData = Object.fromEntries(new FormData(form));
+
+                    // Convert to number
+                    const data = {
+                        max_image_size_mb: parseFloat(formData.max_image_size_mb) || 5
+                    };
+
+                    await this.saveSettingsToAPI(data, 'fileMessage');
+                } catch (error) {
+                    this.showMessage('fileMessage', 'Error: ' + error.message, 'error');
+                }
+            }
+
+            async saveCurrency() {
+                try {
+                    const form = document.getElementById('currencyForm');
+                    const formData = Object.fromEntries(new FormData(form));
+
+                    // Pass currency settings as-is
+                    const data = {
+                        store_currency: formData.store_currency || 'NGN',
+                        currency_symbol: formData.currency_symbol || '₦'
+                    };
+
+                    await this.saveSettingsToAPI(data, 'currencyMessage');
+                } catch (error) {
+                    this.showMessage('currencyMessage', 'Error: ' + error.message, 'error');
+                }
+            }
+
+            async saveSettingsToAPI(data, messageElementId) {
+                await window.apiServices?.settingsService?.updateSettings?.(data);
+                this.showMessage(messageElementId, 'Settings saved successfully!', 'success');
             }
 
             async changePassword() {

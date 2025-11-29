@@ -53,22 +53,35 @@ export async function getSettings() {
 
     // Map to expected field names
     const mappedSettings = {
-      // Bank account details (fallback for email if not set)
+      // Store Information
+      store_name: settings.store_name || '',
+      business_name: settings.business_name || '',
+      store_email: settings.store_email || 'hello@fjlclothing.shop',
+      store_phone: settings.store_phone || '',
+      store_address: settings.store_address || '',
+
+      // Bank account details
       account_name: settings.store_name || 'Famous Jolly Luxe',
       bank_name: settings.bank_name || 'Access Bank',
       account_number: settings.account_number || '1770816426',
       account_type: settings.account_type || 'Business Account',
-      store_email: settings.store_email || 'hello@fjlclothing.shop',
 
-      // Store settings
+      // Pricing
       tax_rate: settings.tax_rate ? parseFloat(settings.tax_rate) : 7.5,
       shipping_cost: settings.shipping_cost ? parseFloat(settings.shipping_cost) : 0,
-      currency: settings.store_currency || 'CAD',
+
+      // Currency
+      currency: settings.currency || settings.store_currency || 'CAD',
       currency_symbol: settings.currency_symbol || '$',
-      store_name: settings.store_name || '',
-      business_name: settings.business_name || '',
-      store_phone: settings.store_phone || '',
-      store_address: settings.store_address || '',
+
+      // Pagination & Limits
+      products_per_page: settings.products_per_page ? parseInt(settings.products_per_page) : 20,
+      orders_per_page: settings.orders_per_page ? parseInt(settings.orders_per_page) : 20,
+      featured_products_limit: settings.featured_products_limit ? parseInt(settings.featured_products_limit) : 6,
+      low_stock_threshold: settings.low_stock_threshold ? parseInt(settings.low_stock_threshold) : 10,
+
+      // File Settings
+      max_image_size_mb: settings.max_image_size_mb ? parseFloat(settings.max_image_size_mb) : 5,
 
       // Email settings
       delivery_days: settings.delivery_days ? parseInt(settings.delivery_days) : 5
@@ -120,18 +133,30 @@ export async function updateSettings(settingsData) {
   try {
     // Map the incoming data to the settings table structure
     const updates = [
+      // Store Information
       { key: 'business_name', value: settingsData.business_name, type: 'string' },
       { key: 'store_name', value: settingsData.store_name, type: 'string' },
       { key: 'store_email', value: settingsData.store_email, type: 'string' },
       { key: 'store_phone', value: settingsData.store_phone, type: 'string' },
       { key: 'store_address', value: settingsData.store_address, type: 'string' },
+      // Bank Details
       { key: 'bank_name', value: settingsData.bank_name, type: 'string' },
       { key: 'account_number', value: settingsData.account_number, type: 'string' },
       { key: 'account_type', value: settingsData.account_type, type: 'string' },
+      // Pricing
       { key: 'tax_rate', value: String(parseFloat(settingsData.tax_rate) || 7.5), type: 'number' },
       { key: 'shipping_cost', value: String(parseFloat(settingsData.shipping_cost) || 0), type: 'number' },
-      { key: 'currency', value: settingsData.currency || 'CAD', type: 'string' },
+      // Currency
+      { key: 'currency', value: settingsData.currency || settingsData.store_currency || 'CAD', type: 'string' },
       { key: 'currency_symbol', value: settingsData.currency_symbol || '$', type: 'string' },
+      // Pagination & Limits
+      { key: 'products_per_page', value: String(parseInt(settingsData.products_per_page) || 20), type: 'number' },
+      { key: 'orders_per_page', value: String(parseInt(settingsData.orders_per_page) || 20), type: 'number' },
+      { key: 'featured_products_limit', value: String(parseInt(settingsData.featured_products_limit) || 6), type: 'number' },
+      { key: 'low_stock_threshold', value: String(parseInt(settingsData.low_stock_threshold) || 10), type: 'number' },
+      // File Settings
+      { key: 'max_image_size_mb', value: String(parseFloat(settingsData.max_image_size_mb) || 5), type: 'number' },
+      // Other
       { key: 'delivery_days', value: String(parseInt(settingsData.delivery_days) || 5), type: 'number' }
     ];
 

@@ -404,6 +404,20 @@ const customerService = {
  */
 const settingsService = {
     /**
+     * Get all settings from database
+     */
+    getSettings: () => {
+        return apiClient.get('/settings');
+    },
+
+    /**
+     * Update all settings in database
+     */
+    updateSettings: (data) => {
+        return apiClient.put('/settings', data);
+    },
+
+    /**
      * Get store settings
      */
     getStoreSettings: () => {
