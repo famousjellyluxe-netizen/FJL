@@ -1,0 +1,293 @@
+<!--
+  FJL Admin Panel - Customers Page
+  Mobile-first responsive customer management
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - FJL Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="design-tokens.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .customers-wrapper { display: flex; height: 100vh; background: var(--color-bg); }
+        .customers-sidebar { width: var(--sidebar-width); background: var(--color-primary); color: var(--color-secondary); overflow-y: auto; position: fixed; height: 100vh; z-index: var(--z-menu); }
+        .customers-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; overflow: hidden; }
+        .customers-header { background: var(--color-secondary); border-bottom: 1px solid var(--color-border); padding: var(--spacing-lg) var(--spacing-xl); display: flex; justify-content: space-between; align-items: center; height: var(--header-height); box-shadow: var(--shadow-sm); }
+        .customers-header-left { display: flex; align-items: center; gap: var(--spacing-lg); flex: 1; }
+        .customers-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--color-primary); font-size: 24px; padding: var(--spacing-md); min-width: var(--touch-target-min); min-height: var(--touch-target-min); border-radius: var(--radius-md); transition: var(--transition); }
+        .customers-menu-btn:hover { background: var(--color-light-gray); }
+        .customers-title { font-size: clamp(18px, 5vw, 24px); font-weight: var(--font-weight-bold); font-family: var(--font-heading); color: var(--color-primary); }
+        .customers-content { flex: 1; overflow-y: auto; padding: var(--spacing-xl); }
+
+        .customers-table-wrapper { border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-secondary); overflow: hidden; }
+        .customers-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .customers-table thead { background: var(--color-light-gray); border-bottom: 2px solid var(--color-border); }
+        .customers-table th { padding: var(--spacing-lg); text-align: left; font-weight: var(--font-weight-semibold); color: var(--color-primary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .customers-table tbody tr { border-bottom: 1px solid var(--color-border); transition: var(--transition); }
+        .customers-table tbody tr:hover { background: rgba(224, 159, 62, 0.02); }
+        .customers-table td { padding: var(--spacing-lg); color: var(--color-primary); }
+
+        .customer-expand-btn { background: none; border: none; cursor: pointer; color: var(--color-accent); font-size: 20px; padding: 4px; display: flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; border-radius: var(--radius-md); transition: var(--transition); }
+        .customer-expand-btn:hover { background: var(--color-light-gray); }
+
+        .customer-details-row { display: none; }
+        .customer-details-row.expanded { display: table-row; }
+        .customer-details-cell { padding: var(--spacing-lg) !important; background: rgba(224, 159, 62, 0.05); }
+        .customer-details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-xl); }
+
+        .action-btn { background: none; border: none; cursor: pointer; padding: var(--spacing-sm); border-radius: var(--radius-md); transition: var(--transition); display: flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; color: var(--color-gray); }
+        .action-btn:hover { color: var(--color-accent); background: var(--color-light-gray); }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--spacing-3xl) var(--spacing-xl); color: var(--color-gray); gap: var(--spacing-lg); }
+
+        .filter-bar { background: var(--color-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-xl); display: flex; gap: var(--spacing-md); flex-wrap: wrap; }
+        .filter-input, .filter-select { padding: var(--spacing-md) var(--spacing-lg); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 14px; font-family: var(--font-body); background: var(--color-light-gray); color: var(--color-primary); min-height: 40px; flex: 1; min-width: 200px; }
+        .filter-input:focus, .filter-select:focus { outline: none; border-color: var(--color-accent); background: var(--color-secondary); box-shadow: 0 0 0 3px rgba(224, 159, 62, 0.1); }
+
+        @media (max-width: 767px) {
+            .customers-wrapper { flex-direction: column; }
+            .customers-sidebar { position: fixed; top: 0; left: -100%; width: 100%; height: 100vh; transition: left 0.3s ease; z-index: 100; }
+            .customers-sidebar.active { left: 0; }
+            .customers-main { margin-left: 0; height: 100vh; }
+            .customers-menu-btn { display: flex; }
+            .customers-header { order: -1; }
+            .customers-content { padding: var(--spacing-lg); }
+            .filter-bar { flex-direction: column; }
+            .filter-input, .filter-select { width: 100%; }
+            .customers-table thead { display: none; }
+            .customers-table tbody { display: block; }
+            .customers-table tbody tr { display: block; margin-bottom: var(--spacing-lg); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-secondary); overflow: hidden; }
+            .customers-table td { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-border); }
+            .customers-table td:last-child { border-bottom: none; }
+            .customers-table td::before { content: attr(data-label); font-weight: var(--font-weight-semibold); color: var(--color-gray); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        }
+
+        @media (min-width: 1025px) {
+            .customers-table th:nth-child(n+5), .customers-table tbody td:nth-child(n+5) { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="customers-wrapper">
+        <aside class="customers-sidebar" id="customersSidebar"></aside>
+
+        <div class="customers-main">
+            <header class="customers-header">
+                <div class="customers-header-left">
+                    <button class="customers-menu-btn" id="customersMenuBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <h1 class="customers-title">Customers</h1>
+                </div>
+            </header>
+
+            <main class="customers-content">
+                <div class="filter-bar">
+                    <input type="text" id="searchInput" class="filter-input" placeholder="Search by name or email..." style="flex: 1;">
+                    <button onclick="customersManager.clearFilters()" style="background: none; border: 1px solid var(--color-border); color: var(--color-gray); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); cursor: pointer; font-size: 12px; font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.5px; min-height: 40px;">Clear</button>
+                </div>
+
+                <div class="customers-table-wrapper">
+                    <table class="customers-table" id="customersTable">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Orders</th>
+                                <th>Total Spent</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTableBody"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Customer Detail Modal -->
+    <div class="modal-backdrop" id="customerDetailModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 class="modal-title" id="customerDetailTitle">Customer Details</h2>
+                <button class="modal-close" onclick="closeCustomerDetail()" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" id="customerDetailContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCustomerDetail()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
+
+    <script>
+        window.apiUtils?.requireAuth?.();
+
+        class CustomersManager {
+            constructor() {
+                this.customers = [];
+                this.filters = { search: '' };
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadCustomers();
+            }
+
+            setupEventListeners() {
+                const menuBtn = document.getElementById('customersMenuBtn');
+                const sidebar = document.getElementById('customersSidebar');
+
+                menuBtn?.addEventListener('click', () => sidebar.classList.toggle('active'));
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth < 768 && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 768) sidebar.classList.remove('active');
+                });
+
+                document.getElementById('searchInput')?.addEventListener('input', (e) => {
+                    this.filters.search = e.target.value;
+                    this.loadCustomers();
+                });
+
+                document.getElementById('customerDetailModal')?.addEventListener('click', (e) => {
+                    if (e.target.id === 'customerDetailModal') closeCustomerDetail();
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeCustomerDetail();
+                });
+            }
+
+            async loadCustomers() {
+                try {
+                    this.customers = await window.apiServices?.customerService?.getCustomers?.(this.filters) || [];
+                    this.renderCustomers();
+                } catch (error) {
+                    console.error('Failed to load customers:', error);
+                }
+            }
+
+            renderCustomers() {
+                const tbody = document.getElementById('customersTableBody');
+
+                if (!this.customers || this.customers.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div style="font-size: 48px; opacity: 0.5;">👥</div><div>No customers found</div></div></td></tr>`;
+                    return;
+                }
+
+                const { numberUtils } = window.adminUtils;
+                tbody.innerHTML = this.customers
+                    .map(customer => `
+                        <tr>
+                            <td>
+                                <button class="customer-expand-btn" onclick="customersManager.toggleDetails(event)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                            </td>
+                            <td data-label="Name" style="font-weight: var(--font-weight-semibold);">${customer.name}</td>
+                            <td data-label="Email">${customer.email}</td>
+                            <td data-label="Orders">${customer.order_count || 0}</td>
+                            <td data-label="Total Spent">${numberUtils.formatCurrency(customer.total_spent || 0)}</td>
+                            <td data-label="Status"><span style="padding: 6px var(--spacing-md); border-radius: var(--radius-full); font-size: 11px; font-weight: var(--font-weight-semibold); background: rgba(46, 204, 64, 0.1); color: var(--color-success);">Active</span></td>
+                            <td data-label="Actions">
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <button class="action-btn" onclick="customersManager.viewDetails(${customer.id})">👁️</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="customer-details-row">
+                            <td colspan="7">
+                                <div class="customer-details-cell">
+                                    <div class="customer-details-grid">
+                                        <div>
+                                            <div style="font-size: 11px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Phone</div>
+                                            <div>${customer.phone || 'N/A'}</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 11px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Address</div>
+                                            <div>${customer.address || 'N/A'}</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 11px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Joined</div>
+                                            <div>${window.adminUtils?.dateUtils?.formatDate(customer.created_at) || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `)
+                    .join('');
+            }
+
+            toggleDetails(e) {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                btn.classList.toggle('expanded');
+                const row = btn.closest('tr');
+                const detailsRow = row.nextElementSibling;
+                if (detailsRow?.classList.contains('customer-details-row')) {
+                    detailsRow.classList.toggle('expanded');
+                }
+            }
+
+            async viewDetails(customerId) {
+                try {
+                    const customer = await window.apiServices?.customerService?.getCustomer?.(customerId);
+                    const { numberUtils, dateUtils } = window.adminUtils;
+
+                    document.getElementById('customerDetailTitle').textContent = customer.name;
+                    document.getElementById('customerDetailContent').innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Email</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold);">${customer.email}</div></div>
+                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Total Orders</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold);">${customer.order_count || 0}</div></div>
+                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Total Spent</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold); color: var(--color-accent);">${numberUtils.formatCurrency(customer.total_spent || 0)}</div></div>
+                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Joined</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold);">${dateUtils.formatDate(customer.created_at)}</div></div>
+                        </div>
+                        <h4 style="margin: var(--spacing-lg) 0 var(--spacing-md);">Contact Information</h4>
+                        <div style="padding: var(--spacing-md); background: var(--color-light-gray); border-radius: var(--radius-md);">
+                            <div><strong>Phone:</strong> ${customer.phone || 'Not provided'}</div>
+                            <div><strong>Address:</strong> ${customer.address || 'Not provided'}</div>
+                        </div>
+                    `;
+                    document.getElementById('customerDetailModal').classList.add('active');
+                    document.body.classList.add('modal-open');
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            clearFilters() {
+                this.filters = { search: '' };
+                document.getElementById('searchInput').value = '';
+                this.loadCustomers();
+            }
+        }
+
+        function closeCustomerDetail() {
+            document.getElementById('customerDetailModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        let customersManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            customersManager = new CustomersManager();
+        });
+    </script>
+</body>
+</html>
