@@ -179,7 +179,10 @@
 
             async loadCustomers() {
                 try {
-                    this.customers = await window.apiServices?.customerService?.getCustomers?.(this.filters) || [];
+                    const response = await window.apiServices?.customerService?.getCustomers?.(this.filters) || [];
+                    // Handle both array and object response formats
+                    this.customers = Array.isArray(response) ? response : (response.data || response.customers || []);
+                    console.log('Customers loaded:', this.customers.length, this.customers);
                     this.renderCustomers();
                 } catch (error) {
                     console.error('Failed to load customers:', error);

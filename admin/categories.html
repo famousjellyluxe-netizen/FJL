@@ -516,7 +516,10 @@
             async loadCategories() {
                 try {
                     this.showLoading();
-                    this.categories = await window.apiServices?.categoryService?.getCategories?.() || [];
+                    const response = await window.apiServices?.categoryService?.getCategories?.() || [];
+                    // Handle both array and object response formats
+                    this.categories = Array.isArray(response) ? response : (response.data || response.categories || []);
+                    console.log('Categories loaded:', this.categories.length, this.categories);
                     this.renderCategories();
                 } catch (error) {
                     console.error('Failed to load categories:', error);

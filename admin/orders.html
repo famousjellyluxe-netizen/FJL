@@ -657,7 +657,10 @@
             async loadOrders() {
                 try {
                     this.showLoading();
-                    this.orders = await window.apiServices?.orderService?.getOrders?.(this.filters) || [];
+                    const response = await window.apiServices?.orderService?.getOrders?.(this.filters) || [];
+                    // Handle both array and object response formats
+                    this.orders = Array.isArray(response) ? response : (response.data || response.orders || []);
+                    console.log('Orders loaded:', this.orders.length, this.orders);
                     this.renderOrders();
                 } catch (error) {
                     console.error('Failed to load orders:', error);
