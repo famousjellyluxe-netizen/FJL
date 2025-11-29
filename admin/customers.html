@@ -181,7 +181,15 @@
                 try {
                     const response = await window.apiServices?.customerService?.getCustomers?.(this.filters) || [];
                     // Handle both array and object response formats
-                    this.customers = Array.isArray(response) ? response : (response.data || response.customers || []);
+                    let customers = Array.isArray(response) ? response : (response.data || response.customers || []);
+
+                    // Transform customer data to include computed fields
+                    this.customers = customers.map(customer => ({
+                        ...customer,
+                        name: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
+                        order_count: customer.order_count || 0,
+                        total_spent: customer.total_spent || 0
+                    }));
                     console.log('Customers loaded:', this.customers.length, this.customers);
                     this.renderCustomers();
                 } catch (error) {
@@ -213,7 +221,7 @@
                             <td data-label="Status"><span style="padding: 6px var(--spacing-md); border-radius: var(--radius-full); font-size: 11px; font-weight: var(--font-weight-semibold); background: rgba(46, 204, 64, 0.1); color: var(--color-success);">Active</span></td>
                             <td data-label="Actions">
                                 <div style="display: flex; gap: var(--spacing-sm);">
-                                    <button class="action-btn" onclick="customersManager.viewDetails(${customer.id})">👁️</button>
+                                    <button class="action-btn" onclick="customersManager.viewDetails('${customer.id}')">👁️</button>
                                 </div>
                             </td>
                         </tr>
@@ -254,10 +262,13 @@
 
             async viewDetails(customerId) {
                 try {
-                    const customer = await window.apiServices?.customerService?.getCustomer?.(customerId);
+                    const response = await window.apiServices?.customerService?.getCustomer?.(customerId);
+                    // Handle both direct object and wrapped response format
+                    const customer = response.data || response;
                     const { numberUtils, dateUtils } = window.adminUtils;
+                    const customerName = `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email;
 
-                    document.getElementById('customerDetailTitle').textContent = customer.name;
+                    document.getElementById('customerDetailTitle').textContent = customerName;
                     document.getElementById('customerDetailContent').innerHTML = `
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
                             <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Email</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold);">${customer.email}</div></div>
