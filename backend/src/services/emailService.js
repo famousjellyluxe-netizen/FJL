@@ -549,7 +549,7 @@ export async function sendMemberWelcome(member) {
       throw new Error(`Invalid member email address: ${member.email}`);
     }
 
-    const baseUrl = process.env.APP_URL || 'https://fjl.com';
+    const baseUrl = process.env.APP_URL || 'https://fjlclothing.shop';
 
     const htmlContent = `
       <h2>Welcome to Our Newsletter!</h2>
@@ -874,7 +874,7 @@ export async function sendContactEmail(contactData) {
         </div>
 
         <div style="margin: 30px 0; text-align: center;">
-          <a href="${process.env.APP_URL || 'https://fjl.com'}/shop.html"
+          <a href="${process.env.APP_URL || 'https://fjlclothing.shop'}/shop.html"
              style="display: inline-block; background: #E09F3E; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold;">
             Continue Shopping
           </a>
@@ -884,7 +884,7 @@ export async function sendContactEmail(contactData) {
           <p><strong>Famous Jolly Luxe</strong></p>
           <p>Luxury Streetwear for the Bold</p>
           <p style="margin-top: 15px;">
-            <a href="${process.env.APP_URL || 'https://fjl.com'}" style="color: #E09F3E; text-decoration: none;">Visit Our Website</a> |
+            <a href="${process.env.APP_URL || 'https://fjlclothing.shop'}" style="color: #E09F3E; text-decoration: none;">Visit Our Website</a> |
             <a href="mailto:${process.env.STORE_EMAIL}" style="color: #E09F3E; text-decoration: none;">Email Us</a>
           </p>
         </footer>
