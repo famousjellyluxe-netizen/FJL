@@ -34,6 +34,8 @@
             color: var(--color-secondary);
             overflow-y: auto;
             position: fixed;
+            left: 0;
+            top: 0;
             height: 100vh;
             z-index: var(--z-menu);
         }
@@ -44,6 +46,8 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
 
         .products-header {
@@ -1138,8 +1142,8 @@
                         </td>
                         <td data-label="Actions">
                             <div class="product-actions">
-                                <button class="action-btn" onclick="productsManager.editProduct(${product.id})" title="Edit">✏️</button>
-                                <button class="action-btn delete" onclick="productsManager.deleteProduct(${product.id})" title="Delete">🗑️</button>
+                                <button class="action-btn" onclick="productsManager.editProduct('${product.id}')" title="Edit">✏️</button>
+                                <button class="action-btn delete" onclick="productsManager.deleteProduct('${product.id}')" title="Delete">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -1243,7 +1247,7 @@
                         alert('Product created successfully');
                     }
 
-                    this.closeProductModal();
+                    closeProductModal();
                     this.loadProducts();
                 } catch (error) {
                     alert(`Error: ${error.message}`);
