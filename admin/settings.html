@@ -1,540 +1,333 @@
+<!--
+  FJL Admin Panel - Settings Page
+  Mobile-first responsive settings management
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - FJL Admin Panel</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Settings - FJL Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="../notifications.js"></script>
+    <link rel="stylesheet" href="design-tokens.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .settings-wrapper { display: flex; height: 100vh; background: var(--color-bg); }
+        .settings-sidebar { width: var(--sidebar-width); background: var(--color-primary); color: var(--color-secondary); overflow-y: auto; position: fixed; height: 100vh; z-index: var(--z-menu); }
+        .settings-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; overflow: hidden; }
+        .settings-header { background: var(--color-secondary); border-bottom: 1px solid var(--color-border); padding: var(--spacing-lg) var(--spacing-xl); display: flex; justify-content: space-between; align-items: center; height: var(--header-height); box-shadow: var(--shadow-sm); }
+        .settings-header-left { display: flex; align-items: center; gap: var(--spacing-lg); flex: 1; }
+        .settings-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--color-primary); font-size: 24px; padding: var(--spacing-md); min-width: var(--touch-target-min); min-height: var(--touch-target-min); border-radius: var(--radius-md); transition: var(--transition); }
+        .settings-menu-btn:hover { background: var(--color-light-gray); }
+        .settings-title { font-size: clamp(18px, 5vw, 24px); font-weight: var(--font-weight-bold); font-family: var(--font-heading); color: var(--color-primary); }
+        .settings-content { flex: 1; overflow-y: auto; padding: var(--spacing-xl); }
+
+        .settings-section { background: var(--color-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+        .settings-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--color-border); }
+        .settings-section-title { font-size: 18px; font-weight: var(--font-weight-bold); font-family: var(--font-heading); color: var(--color-primary); }
+        .settings-section-subtitle { font-size: 13px; color: var(--color-gray); }
+
+        .form-group { display: flex; flex-direction: column; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg); }
+        .form-label { font-weight: var(--font-weight-semibold); color: var(--color-primary); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-input { padding: var(--spacing-md) var(--spacing-lg); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 14px; font-family: var(--font-body); background: var(--color-light-gray); color: var(--color-primary); min-height: 40px; }
+        .form-input:focus { outline: none; border-color: var(--color-accent); background: var(--color-secondary); box-shadow: 0 0 0 3px rgba(224, 159, 62, 0.1); }
+
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); }
+
+        .btn-save { background: var(--color-accent); color: var(--color-primary); padding: var(--spacing-md) var(--spacing-lg); border: none; border-radius: var(--radius-md); font-weight: var(--font-weight-semibold); cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; min-height: 40px; transition: var(--transition); }
+        .btn-save:hover { background: #d4891b; }
+
+        .status-message { padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); display: none; }
+        .status-message.success { background: rgba(46, 204, 64, 0.1); color: var(--color-success); display: block; }
+        .status-message.error { background: rgba(255, 65, 54, 0.1); color: var(--color-danger); display: block; }
+
+        .collapsible-btn { background: none; border: none; color: var(--color-accent); cursor: pointer; font-size: 16px; padding: 0; text-decoration: underline; }
+
+        .password-strength { height: 4px; background: var(--color-light-gray); border-radius: 2px; margin-top: var(--spacing-sm); overflow: hidden; }
+        .password-strength-bar { height: 100%; background: var(--color-danger); transition: all 0.3s ease; }
+        .password-strength-bar.medium { background: var(--color-warning); width: 66%; }
+        .password-strength-bar.strong { background: var(--color-success); width: 100%; }
+
+        .info-box { background: var(--color-light-gray); border-left: 4px solid var(--color-accent); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg); }
+        .info-box-label { font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px; }
+        .info-box-value { font-size: 16px; font-weight: var(--font-weight-semibold); color: var(--color-primary); }
+
+        @media (max-width: 767px) {
+            .settings-wrapper { flex-direction: column; }
+            .settings-sidebar { position: fixed; top: 0; left: -100%; width: 100%; height: 100vh; transition: left 0.3s ease; z-index: 100; }
+            .settings-sidebar.active { left: 0; }
+            .settings-main { margin-left: 0; height: 100vh; }
+            .settings-menu-btn { display: flex; }
+            .settings-header { order: -1; }
+            .settings-content { padding: var(--spacing-lg); }
+            .settings-section { padding: var(--spacing-lg); }
+            .form-row { grid-template-columns: 1fr; }
+            .btn-save { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-    <div class="admin-layout">
-        <aside class="admin-sidebar">
-            <div class="sidebar-logo"><span>FJL</span></div>
-            <ul class="sidebar-menu">
-                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
-                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
-                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" class="icon-sm icon-gap"></i>Categories</a></li>
-                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" class="icon-sm icon-gap"></i>Announcements</a></li>
-                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i>Orders</a></li>
-                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" class="icon-sm icon-gap"></i>Customers</a></li>
-                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" class="icon-sm icon-gap"></i>Analytics</a></li>
-                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link active"><i data-lucide="settings" class="icon-sm icon-gap"></i>Settings</a></li>
-            </ul>
-            <div class="sidebar-footer">
-                <div class="sidebar-user">
-                    <div class="sidebar-avatar">A</div>
-                    <div><div class="label-text">Logged in as</div><div class="truncate-bold" id="adminName">Admin</div></div>
-                </div>
-                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
-            </div>
-        </aside>
+    <div class="settings-wrapper">
+        <aside class="settings-sidebar" id="settingsSidebar"></aside>
 
-        <main class="admin-main">
-            <header class="admin-header">
-                <h2 class="header-title">Settings & Account</h2>
-                <button class="header-icon-btn" onclick="toggleSidebar()">≡</button>
+        <div class="settings-main">
+            <header class="settings-header">
+                <div class="settings-header-left">
+                    <button class="settings-menu-btn" id="settingsMenuBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <h1 class="settings-title">Settings</h1>
+                </div>
             </header>
 
-            <div class="admin-content">
+            <main class="settings-content">
                 <!-- Store Information -->
-                <div class="card mb-xl">
-                    <div class="card-header">
-                        <h3 class="card-title">Store Information</h3>
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <div>
+                            <h2 class="settings-section-title">Store Information</h2>
+                            <div class="settings-section-subtitle">Manage your store details</div>
+                        </div>
                     </div>
-                    <form id="storeForm" onsubmit="saveStoreSettings(event)">
-                        <div class="card-body">
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Business Name</label>
-                                    <input type="text" id="businessName" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Store Name</label>
-                                    <input type="text" id="storeName" class="form-control">
-                                </div>
-                            </div>
 
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Store Email</label>
-                                    <input type="email" id="storeEmail" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Store Phone</label>
-                                    <input type="tel" id="storePhone" class="form-control">
-                                </div>
-                            </div>
-
+                    <form id="storeForm">
+                        <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Store Address</label>
-                                <textarea id="storeAddress" class="form-textarea" rows="3"></textarea>
+                                <label class="form-label">Store Name</label>
+                                <input type="text" name="store_name" class="form-input" placeholder="Famous Jelly Luxe" required>
                             </div>
-
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Tax Rate (%)</label>
-                                    <input type="number" id="taxRate" class="form-control" min="0" max="100" step="0.01">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Shipping Cost ($)</label>
-                                    <input type="number" id="shippingCost" class="form-control" min="0">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary">Save Store Settings</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Bank Account Details -->
-                <div class="card mb-xl">
-                    <div class="card-header">
-                        <h3 class="card-title">Bank Account Details</h3>
-                    </div>
-                    <form id="bankForm" onsubmit="saveBankSettings(event)">
-                        <div class="card-body">
                             <div class="form-group">
-                                <label class="form-label">Bank Name</label>
-                                <input type="text" id="bankName" class="form-control" value="First Bank Nigeria">
+                                <label class="form-label">Business Name</label>
+                                <input type="text" name="business_name" class="form-input" placeholder="Business Name" required>
                             </div>
+                        </div>
 
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Account Number</label>
-                                    <input type="text" id="accountNumber" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Account Holder Name</label>
-                                    <input type="text" id="accountHolder" class="form-control">
-                                </div>
-                            </div>
-
+                        <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Account Type</label>
-                                <input type="text" id="accountType" class="form-control" placeholder="e.g., Business Account">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-input" placeholder="hello@fjlclothing.shop" required>
                             </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" name="phone" class="form-input" placeholder="+234 800 000 0000">
+                            </div>
+                        </div>
 
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Currency Code</label>
-                                    <input type="text" id="currency" class="form-control" maxlength="3" placeholder="e.g., CAD">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Currency Symbol</label>
-                                    <input type="text" id="currencySymbol" class="form-control" maxlength="5" placeholder="e.g., $">
-                                </div>
+                        <div class="form-group">
+                            <label class="form-label">Address</label>
+                            <input type="text" name="address" class="form-input" placeholder="Store address">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Tax Rate (%)</label>
+                                <input type="number" name="tax_rate" class="form-input" placeholder="0" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Shipping Cost (₦)</label>
+                                <input type="number" name="shipping_cost" class="form-input" placeholder="0" step="0.01" min="0">
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary">Save Bank Details</button>
-                            <span id="bankSaveStatus" style="margin-left: 12px; font-size: 14px;"></span>
-                        </div>
+
+                        <div id="storeMessage" class="status-message"></div>
+                        <button type="button" class="btn-save" onclick="settingsManager.saveStore()">Save Store Settings</button>
                     </form>
                 </div>
 
                 <!-- Account Security -->
-                <div class="card mb-xl">
-                    <div class="card-header">
-                        <h3 class="card-title">Account Security</h3>
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <div>
+                            <h2 class="settings-section-title">Account Security</h2>
+                            <div class="settings-section-subtitle">Manage your password</div>
+                        </div>
                     </div>
-                    <form id="securityForm" onsubmit="changePassword(event)">
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label class="form-label">Current Password</label>
-                                <input type="password" id="currentPassword" class="form-control" required>
-                            </div>
 
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">New Password</label>
-                                    <input type="password" id="newPassword" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Confirm Password</label>
-                                    <input type="password" id="confirmPassword" class="form-control" required>
-                                </div>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="current_password" class="form-input" placeholder="Enter current password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="form-input" placeholder="Enter new password" id="newPassword" required>
+                            <div class="password-strength">
+                                <div class="password-strength-bar" id="strengthBar"></div>
                             </div>
+                            <small style="color: var(--color-gray); font-size: 12px;">At least 8 characters with uppercase, lowercase, and numbers</small>
                         </div>
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary">Change Password</button>
+
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" name="confirm_password" class="form-input" placeholder="Confirm new password" required>
                         </div>
+
+                        <div id="passwordMessage" class="status-message"></div>
+                        <button type="button" class="btn-save" onclick="settingsManager.changePassword()">Update Password</button>
                     </form>
                 </div>
 
                 <!-- System Information -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">System Information</h3>
+                <div class="settings-section">
+                    <div class="settings-section-header">
+                        <h2 class="settings-section-title">System Information</h2>
                     </div>
-                    <div class="card-body">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
-                            <div>
-                                <div class="label-text">Admin Panel Version</div>
-                                <div class="bold-label">1.0.0</div>
-                            </div>
-                            <div>
-                                <div class="label-text">Last Updated</div>
-                                <div class="bold-label" id="lastUpdated">-</div>
-                            </div>
-                            <div>
-                                <div class="label-text">Total Products</div>
-                                <div class="bold-label" id="totalProducts">0</div>
-                            </div>
-                            <div>
-                                <div class="label-text">Total Orders</div>
-                                <div class="bold-label" id="totalOrders">0</div>
-                            </div>
+
+                    <div id="systemInfo">
+                        <div class="info-box">
+                            <div class="info-box-label">Total Products</div>
+                            <div class="info-box-value" id="totalProducts">Loading...</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-box-label">Total Orders</div>
+                            <div class="info-box-value" id="totalOrders">Loading...</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-box-label">Total Customers</div>
+                            <div class="info-box-value" id="totalCustomers">Loading...</div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
-    <script src="admin.js"></script>
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
+
     <script>
-        // Determine API URL based on environment
-        function getAPIBase() {
-            const hostname = window.location.hostname;
+        window.apiUtils?.requireAuth?.();
 
-            // For local development
-            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168')) {
-                return 'http://localhost:5001/api';
+        class SettingsManager {
+            constructor() {
+                this.init();
             }
 
-            // For production on Render
-            if (hostname.includes('onrender.com') || hostname.includes('fjl')) {
-                return 'https://fjl-backend.onrender.com/api';
+            init() {
+                this.setupEventListeners();
+                this.loadSettings();
+                this.loadSystemInfo();
             }
 
-            // Fallback to localhost
-            return 'http://localhost:5001/api';
-        }
+            setupEventListeners() {
+                const menuBtn = document.getElementById('settingsMenuBtn');
+                const sidebar = document.getElementById('settingsSidebar');
 
-        if (!checkAdminAuth()) {
-            window.location.href = '/admin/index.html';
-        } else {
-            initializeSettings();
-        }
-
-        function initializeSettings() {
-            const adminInfo = adminDataService.getAdminInfo();
-            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
-            loadSettings();
-        }
-
-        function loadSettings() {
-            const settings = adminDataService.getAdminSettings();
-
-            // Load store settings from localStorage (fallback for fields not in database)
-            document.getElementById('businessName').value = settings.businessName || '';
-            document.getElementById('storeName').value = settings.storeName || '';
-            document.getElementById('storePhone').value = settings.storePhone || '';
-            document.getElementById('storeAddress').value = settings.storeAddress || '';
-
-            // Load store settings from API (overrides localStorage for these fields)
-            loadStoreSettingsFromAPI();
-
-            // Load bank settings from API
-            loadBankSettings();
-
-            // System info
-            const analytics = adminDataService.getAnalytics();
-            document.getElementById('totalProducts').textContent = analytics.totalProducts;
-            document.getElementById('totalOrders').textContent = analytics.totalOrders;
-            document.getElementById('lastUpdated').textContent = formatDate(new Date());
-        }
-
-        // Load store settings from backend API
-        async function loadStoreSettingsFromAPI() {
-            try {
-                console.log('Loading store settings from API...');
-
-                // Construct the full API URL
-                const apiUrl = `${getAPIBase()}/settings`;
-                console.log('Fetching from:', apiUrl);
-
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
+                menuBtn?.addEventListener('click', () => sidebar.classList.toggle('active'));
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth < 768 && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                        sidebar.classList.remove('active');
                     }
                 });
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 768) sidebar.classList.remove('active');
+                });
 
-                console.log('API Response Status:', response.status);
-
-                if (!response.ok) {
-                    console.error('API response not ok:', response.status, response.statusText);
-                    const text = await response.text();
-                    console.error('Response body:', text);
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('✅ Store settings loaded:', data);
-
-                const settings = data.data || data;
-
-                // Populate store settings fields from API
-                // Map API field names to HTML form IDs
-                document.getElementById('businessName').value = settings.business_name || '';
-                document.getElementById('storeName').value = settings.store_name || '';
-                document.getElementById('storeEmail').value = settings.store_email || '';
-                document.getElementById('storePhone').value = settings.store_phone || '';
-                document.getElementById('storeAddress').value = settings.store_address || '';
-                document.getElementById('taxRate').value = settings.tax_rate || 7.5;
-                document.getElementById('shippingCost').value = settings.shipping_cost || 0;
-
-                console.log('✅ Store settings populated successfully');
-            } catch (error) {
-                console.error('❌ Error loading store settings:', error);
-                console.error('Error stack:', error.stack);
-
-                // Use defaults if API call fails
-                document.getElementById('storeEmail').value = '';
-                document.getElementById('taxRate').value = 7.5;
-                document.getElementById('shippingCost').value = 0;
+                document.getElementById('newPassword')?.addEventListener('input', (e) => {
+                    this.checkPasswordStrength(e.target.value);
+                });
             }
-        }
 
-        // Load bank settings from backend API
-        async function loadBankSettings() {
-            try {
-                console.log('Loading bank settings from API...');
-
-                // Construct the full API URL
-                const apiUrl = `${getAPIBase()}/settings`;
-                console.log('Fetching from:', apiUrl);
-
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
+            async loadSettings() {
+                try {
+                    const settings = await window.apiServices?.settingsService?.getStoreSettings?.();
+                    if (settings) {
+                        document.getElementById('storeForm').elements['store_name'].value = settings.store_name || '';
+                        document.getElementById('storeForm').elements['business_name'].value = settings.business_name || '';
+                        document.getElementById('storeForm').elements['email'].value = settings.email || '';
+                        document.getElementById('storeForm').elements['phone'].value = settings.phone || '';
+                        document.getElementById('storeForm').elements['address'].value = settings.address || '';
+                        document.getElementById('storeForm').elements['tax_rate'].value = settings.tax_rate || 0;
+                        document.getElementById('storeForm').elements['shipping_cost'].value = settings.shipping_cost || 0;
                     }
-                });
-
-                console.log('API Response Status:', response.status);
-                console.log('API Response Headers:', {
-                    'content-type': response.headers.get('content-type')
-                });
-
-                if (!response.ok) {
-                    console.error('API response not ok:', response.status, response.statusText);
-                    const text = await response.text();
-                    console.error('Response body:', text);
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                } catch (error) {
+                    console.error('Failed to load settings:', error);
                 }
-
-                const data = await response.json();
-                console.log('✅ Bank settings loaded:', data);
-
-                const settings = data.data || data;
-
-                // Populate all form fields
-                document.getElementById('bankName').value = settings.bank_name || 'Access Bank';
-                document.getElementById('accountNumber').value = settings.account_number || '';
-                document.getElementById('accountHolder').value = settings.account_name || '';
-                document.getElementById('accountType').value = settings.account_type || '';
-                document.getElementById('currency').value = settings.currency || 'CAD';
-                document.getElementById('currencySymbol').value = settings.currency_symbol || '$';
-
-                console.log('✅ Bank settings populated successfully');
-            } catch (error) {
-                console.error('❌ Error loading bank settings:', error);
-                console.error('Error stack:', error.stack);
-
-                // Use defaults if API call fails
-                document.getElementById('bankName').value = 'Access Bank';
-                document.getElementById('accountNumber').value = '';
-                document.getElementById('accountHolder').value = '';
-                document.getElementById('accountType').value = '';
-                document.getElementById('currency').value = 'CAD';
-                document.getElementById('currencySymbol').value = '$';
             }
-        }
 
-        async function saveStoreSettings(event) {
-            event.preventDefault();
-
-            // Save to localStorage (for fields not in database)
-            const localStorageUpdates = {
-                businessName: document.getElementById('businessName').value,
-                storeName: document.getElementById('storeName').value,
-                storePhone: document.getElementById('storePhone').value,
-                storeAddress: document.getElementById('storeAddress').value
-            };
-            adminDataService.updateAdminSettings(localStorageUpdates);
-
-            // Save to API (for database fields)
-            try {
-                const token = localStorage.getItem('fjl_token') || '';
-
-                const apiUpdates = {
-                    business_name: document.getElementById('businessName').value,
-                    store_name: document.getElementById('storeName').value,
-                    store_email: document.getElementById('storeEmail').value,
-                    store_phone: document.getElementById('storePhone').value,
-                    store_address: document.getElementById('storeAddress').value,
-                    tax_rate: parseFloat(document.getElementById('taxRate').value),
-                    shipping_cost: parseFloat(document.getElementById('shippingCost').value)
-                };
-
-                const response = await fetch(`${getAPIBase()}/settings`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(apiUpdates)
-                });
-
-                if (!response.ok) {
-                    const text = await response.text();
-                    console.error('Response text:', text);
-                    try {
-                        const error = JSON.parse(text);
-                        throw new Error(error.error || `HTTP error! status: ${response.status}`);
-                    } catch (e) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+            async loadSystemInfo() {
+                try {
+                    const info = await window.apiServices?.settingsService?.getSystemInfo?.();
+                    if (info) {
+                        const { numberUtils } = window.adminUtils;
+                        document.getElementById('totalProducts').textContent = numberUtils.formatCompact(info.total_products || 0);
+                        document.getElementById('totalOrders').textContent = numberUtils.formatCompact(info.total_orders || 0);
+                        document.getElementById('totalCustomers').textContent = numberUtils.formatCompact(info.total_customers || 0);
                     }
+                } catch (error) {
+                    console.error('Failed to load system info:', error);
                 }
-
-                notifications.success('Store settings saved successfully!');
-            } catch (error) {
-                console.error('Error saving store settings to API:', error);
-                notifications.error('Failed to save some settings: ' + error.message);
             }
-        }
 
-        async function saveBankSettings(event) {
-            event.preventDefault();
+            checkPasswordStrength(password) {
+                const bar = document.getElementById('strengthBar');
+                let strength = 0;
 
-            const statusEl = document.getElementById('bankSaveStatus');
-            statusEl.textContent = 'Saving...';
-            statusEl.style.color = '#0066cc';
+                if (password.length >= 8) strength += 1;
+                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 1;
+                if (/\d/.test(password)) strength += 1;
 
-            try {
-                const token = localStorage.getItem('fjl_token') || '';
+                bar.style.width = (strength * 33) + '%';
+                bar.className = 'password-strength-bar';
+                if (strength >= 2) bar.classList.add('medium');
+                if (strength >= 3) bar.classList.add('strong');
+            }
 
-                const updates = {
-                    bank_name: document.getElementById('bankName').value,
-                    account_number: document.getElementById('accountNumber').value,
-                    account_name: document.getElementById('accountHolder').value,
-                    account_type: document.getElementById('accountType').value,
-                    currency: document.getElementById('currency').value,
-                    currency_symbol: document.getElementById('currencySymbol').value
-                };
-
-                const response = await fetch(`${getAPIBase()}/settings`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(updates)
-                });
-
-                if (!response.ok) {
-                    const text = await response.text();
-                    console.error('Response text:', text);
-                    try {
-                        const error = JSON.parse(text);
-                        throw new Error(error.error || `HTTP error! status: ${response.status}`);
-                    } catch (e) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+            async saveStore() {
+                try {
+                    const form = document.getElementById('storeForm');
+                    const data = Object.fromEntries(new FormData(form));
+                    await window.apiServices?.settingsService?.updateStoreSettings?.(data);
+                    this.showMessage('storeMessage', 'Store settings saved successfully!', 'success');
+                } catch (error) {
+                    this.showMessage('storeMessage', 'Error: ' + error.message, 'error');
                 }
+            }
 
-                statusEl.textContent = '✅ Saved successfully!';
-                statusEl.style.color = '#28a745';
-                notifications.success('Bank details saved successfully!');
+            async changePassword() {
+                try {
+                    const form = document.getElementById('passwordForm');
+                    const current = form.elements['current_password'].value;
+                    const newPass = form.elements['new_password'].value;
+                    const confirm = form.elements['confirm_password'].value;
 
+                    if (newPass !== confirm) {
+                        this.showMessage('passwordMessage', 'Passwords do not match', 'error');
+                        return;
+                    }
+
+                    if (newPass.length < 8) {
+                        this.showMessage('passwordMessage', 'Password must be at least 8 characters', 'error');
+                        return;
+                    }
+
+                    await window.apiServices?.settingsService?.changePassword?.(current, newPass);
+                    this.showMessage('passwordMessage', 'Password changed successfully!', 'success');
+                    form.reset();
+                } catch (error) {
+                    this.showMessage('passwordMessage', 'Error: ' + error.message, 'error');
+                }
+            }
+
+            showMessage(elementId, message, type) {
+                const el = document.getElementById(elementId);
+                el.textContent = message;
+                el.className = 'status-message ' + type;
                 setTimeout(() => {
-                    statusEl.textContent = '';
-                }, 3000);
-            } catch (error) {
-                console.error('Error saving bank settings:', error);
-                statusEl.textContent = '❌ Save failed';
-                statusEl.style.color = '#dc3545';
-                notifications.error('Failed to save bank details: ' + error.message);
+                    el.className = 'status-message';
+                }, 5000);
             }
         }
 
-        async function changePassword(event) {
-            event.preventDefault();
-
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            // Client-side validation
-            if (newPassword !== confirmPassword) {
-                notifications.error('New passwords do not match!');
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                notifications.error('Password must be at least 6 characters long!');
-                return;
-            }
-
-            if (!currentPassword.trim()) {
-                notifications.error('Current password is required!');
-                return;
-            }
-
-            // Call backend API to change password
-            try {
-                const token = localStorage.getItem('fjl_token') || '';
-
-                const response = await fetch(`${getAPIBase()}/auth/change-password`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        password: currentPassword,
-                        new_password: newPassword
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
-                }
-
-                // Success - clear form and logout
-                document.getElementById('securityForm').reset();
-                notifications.success('Password changed successfully! Please log in again.');
-
-                setTimeout(() => {
-                    adminDataService.logoutAdmin();
-                    window.location.href = 'index.html';
-                }, 1500);
-            } catch (error) {
-                console.error('Error changing password:', error);
-                notifications.error('Failed to change password: ' + error.message);
-            }
-        }
-
-        function toggleSidebar() {
-            document.querySelector('.admin-sidebar').classList.toggle('open');
-        }
-
-        function logoutAdmin() {
-            notifications.confirm('Are you sure you want to logout?', () => {
-                adminDataService.logoutAdmin();
-                window.location.href = 'index.html';
-            });
-        }
-
-        // Initialize Lucide icons
-        lucide.createIcons();
+        let settingsManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            settingsManager = new SettingsManager();
+        });
     </script>
 </body>
 </html>
