@@ -1131,9 +1131,9 @@
                         <td data-label="Price">${numberUtils.formatCurrency(product.price)}</td>
                         <td data-label="Stock">${stock} units</td>
                         <td data-label="Status">
-                            <span class="status-badge ${product.status === 'active' ? 'active' : 'inactive'}">
+                            <span class="status-badge ${product.is_active ? 'active' : 'inactive'}">
                                 <span class="status-badge-dot"></span>
-                                ${product.status === 'active' ? 'Active' : 'Inactive'}
+                                ${product.is_active ? 'Active' : 'Inactive'}
                             </span>
                         </td>
                         <td data-label="Actions">
