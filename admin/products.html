@@ -822,7 +822,7 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Image</th>
+                                <th>SKU</th>
                                 <th>Name</th>
                                 <th>Price</th>
                                 <th>Stock</th>
@@ -1124,11 +1124,7 @@
                                 </svg>
                             </button>
                         </td>
-                        <td data-label="Image">
-                            <div class="product-image">
-                                ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}">` : '🖼️'}
-                            </div>
-                        </td>
+                        <td data-label="SKU" style="font-family: monospace; font-size: 13px;">${product.sku || 'N/A'}</td>
                         <td data-label="Name" style="font-weight: var(--font-weight-semibold);">${this.truncate(product.name, 30)}</td>
                         <td data-label="Price">${numberUtils.formatCurrency(product.price)}</td>
                         <td data-label="Stock">${product.stock} units</td>
@@ -1150,8 +1146,12 @@
                             <div class="product-details-cell">
                                 <div class="product-details-grid">
                                     <div class="product-detail-item">
-                                        <div class="detail-label">SKU</div>
-                                        <div class="detail-value">${product.sku}</div>
+                                        <div class="detail-label">Image</div>
+                                        <div class="detail-value">
+                                            <div class="product-image" style="width: 60px; height: 60px;">
+                                                ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">` : '🖼️'}
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="product-detail-item">
                                         <div class="detail-label">Category</div>
