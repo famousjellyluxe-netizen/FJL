@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Product - FJL Admin Panel</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="design-tokens.css">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Fonts & Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../notifications.js"></script>
 </head>
@@ -171,6 +177,8 @@
         </main>
     </div>
 
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
     <script src="admin.js"></script>
     <script src="js/responsive.js"></script>
     <script>
@@ -182,13 +190,19 @@
 
         function initializeAddProduct() {
             const adminInfo = adminDataService.getAdminInfo();
-            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            if (adminInfo && adminInfo.email) {
+                document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            } else {
+                document.getElementById('adminName').textContent = 'Admin';
+            }
             loadCategories();
             addImageUploadField();
         }
 
         async function loadCategories() {
-            const categories = await adminDataService.getCategories();
+            const response = await window.apiServices?.categoryService?.getCategories?.() || { data: [] };
+            // Handle both wrapped {data: []} and direct array formats
+            const categories = Array.isArray(response) ? response : (response.data || []);
             const select = document.getElementById('productCategory');
             const options = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
             select.innerHTML = '<option value="">Select a Category</option>' + options;
@@ -371,7 +385,7 @@
             };
 
             try {
-                const result = await adminDataService.createProduct(product);
+                const result = await window.apiServices?.productService?.createProduct?.(product);
                 if (result) {
                     notifications.success('Product created successfully!');
                     setTimeout(() => window.location.href = 'products.html', 1000);

@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Product - FJL Admin Panel</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="design-tokens.css">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Fonts & Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../notifications.js"></script>
 </head>
@@ -172,6 +178,8 @@
         </main>
     </div>
 
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
     <script src="admin.js"></script>
     <script src="js/responsive.js"></script>
     <script>
@@ -183,9 +191,13 @@
             initializeEditProduct();
         }
 
-        function initializeEditProduct() {
+        async function initializeEditProduct() {
             const adminInfo = adminDataService.getAdminInfo();
-            document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            if (adminInfo && adminInfo.email) {
+                document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            } else {
+                document.getElementById('adminName').textContent = 'Admin';
+            }
 
             // Get product ID from URL query params
             const params = new URLSearchParams(window.location.search);
@@ -197,21 +209,46 @@
                 return;
             }
 
-            loadCategories();
-            loadProduct();
+            // Load categories first, then product
+            await loadCategories();
+            await loadProduct();
         }
 
         async function loadCategories() {
-            const categories = await adminDataService.getCategories();
-            const select = document.getElementById('productCategory');
-            const options = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
-            select.innerHTML = '<option value="">Select a Category</option>' + options;
+            try {
+                const response = await window.apiServices?.categoryService?.getCategories?.() || { data: [] };
+                // Handle both wrapped {data: []} and direct array formats
+                const categories = Array.isArray(response) ? response : (response.data || []);
+                const select = document.getElementById('productCategory');
+                const options = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+                select.innerHTML = '<option value="">Select a Category</option>' + options;
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
         }
 
         async function loadProduct() {
             try {
-                const product = await adminDataService.getProductById(currentProductId);
-                if (!product) {
+                console.log('Loading product with ID:', currentProductId);
+                const response = await window.apiServices?.productService?.getProduct?.(currentProductId);
+                console.log('Raw response:', response);
+
+                // Handle both direct product and wrapped responses
+                let product = response;
+                if (typeof response === 'object' && response !== null) {
+                    // If response has a 'data' property, use that
+                    if (response.data && typeof response.data === 'object') {
+                        product = response.data;
+                    }
+                    // If response has a 'product' property, use that
+                    else if (response.product && typeof response.product === 'object') {
+                        product = response.product;
+                    }
+                }
+
+                console.log('Product after unwrapping:', product);
+                if (!product || typeof product !== 'object') {
+                    console.error('Product is null, undefined, or not an object:', product);
                     notifications.error('Product not found');
                     setTimeout(() => window.location.href = 'products.html', 2000);
                     return;
@@ -227,7 +264,7 @@
                 document.getElementById('productQuantity').value = product.total_stock || 0;
                 document.getElementById('productSizes').value = product.available_sizes || '';
                 document.getElementById('productColors').value = product.available_colors || '';
-                document.getElementById('productInStock').checked = product.in_stock !== false;
+                document.getElementById('productInStock').checked = product.is_active !== false;
                 document.getElementById('productFeatured').checked = product.is_featured === true;
 
                 // Load images
@@ -245,13 +282,32 @@
                 generateVariantGrid();
 
                 // Load variant stock
-                if (product.variant_stock) {
-                    Object.keys(product.variant_stock).forEach(key => {
+                // Handle both formats: variant_stock object or variants array
+                let variantStockMap = product.variant_stock || {};
+
+                // If we have variants array instead, convert it to variant_stock object
+                if (product.variants && Array.isArray(product.variants) && Object.keys(variantStockMap).length === 0) {
+                    console.log('Converting variants array to variantStockMap');
+                    product.variants.forEach(variant => {
+                        const key = `${variant.color}-${variant.size}`;
+                        variantStockMap[key] = variant.stock_quantity;
+                    });
+                }
+
+                console.log('Final variantStockMap:', variantStockMap);
+                if (Object.keys(variantStockMap).length > 0) {
+                    Object.keys(variantStockMap).forEach(key => {
                         const input = document.querySelector(`[data-key="${key}"]`);
+                        console.log(`Looking for input with data-key="${key}":`, input);
                         if (input) {
-                            input.value = product.variant_stock[key];
+                            input.value = variantStockMap[key];
+                            console.log(`Set ${key} to ${variantStockMap[key]}`);
+                        } else {
+                            console.warn(`Input with data-key="${key}" not found`);
                         }
                     });
+                } else {
+                    console.log('No variant stock data found');
                 }
 
                 updateVariantTotal();
@@ -440,7 +496,7 @@
             };
 
             try {
-                const result = await adminDataService.updateProduct(currentProductId, product);
+                const result = await window.apiServices?.productService?.updateProduct?.(currentProductId, product);
                 if (result) {
                     notifications.success('Product updated successfully!');
                     setTimeout(() => window.location.href = 'products.html', 1000);
@@ -459,7 +515,7 @@
             }
 
             try {
-                const result = await adminDataService.deleteProduct(currentProductId);
+                const result = await window.apiServices?.productService?.deleteProduct?.(currentProductId);
                 if (result) {
                     notifications.success('Product deleted successfully!');
                     setTimeout(() => window.location.href = 'products.html', 1000);
