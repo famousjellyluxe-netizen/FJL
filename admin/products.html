@@ -1047,10 +1047,14 @@
                     filters.page = this.currentPage;
                     filters.limit = this.itemsPerPage;
 
-                    const response = await window.apiServices?.productService?.getProducts?.(filters) || { products: [], total: 0 };
-                    this.products = response.products || [];
+                    const response = await window.apiServices?.productService?.getProducts?.(filters) || { data: [], total: 0 };
+
+                    // Handle both response formats: {data: []} and {products: []}
+                    this.products = Array.isArray(response) ? response : (response.data || response.products || []);
+
+                    console.log('Products loaded:', this.products.length, this.products);
                     this.renderProducts();
-                    this.renderPagination(response.total || this.products.length);
+                    this.renderPagination(response.total || response.count || this.products.length);
                 } catch (error) {
                     console.error('Failed to load products:', error);
                     this.showTableError('Failed to load products');
