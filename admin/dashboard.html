@@ -543,10 +543,12 @@
                         apiClient.get('/customers')
                     ]);
 
-                    // Aggregate data for KPI cards
-                    const orders = ordersRes || [];
-                    const products = productsRes || [];
-                    const customers = customersRes || [];
+                    // Extract data arrays from responses (API returns {data: [...]} format)
+                    const orders = Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data || []);
+                    const products = Array.isArray(productsRes) ? productsRes : (productsRes?.data || []);
+                    const customers = Array.isArray(customersRes) ? customersRes : (customersRes?.data || []);
+
+                    console.log('Dashboard data loaded:', { orders: orders.length, products: products.length, customers: customers.length });
 
                     const summary = {
                         totalRevenue: orders.reduce((sum, o) => sum + (o.total_amount || 0), 0),
