@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - FJL Admin Panel</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="design-tokens.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Fonts & Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../notifications.js"></script>
+
+    <style>
+        /* Status Badge Colors */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-paid { background: #dcfce7; color: #166534; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-failed { background: #fee2e2; color: #7f1d1d; }
+        .status-pending-shipment { background: #fef3c7; color: #92400e; }
+        .status-shipped { background: #bfdbfe; color: #1e40af; }
+        .status-delivered { background: #d1fae5; color: #065f46; }
+        .status-returned { background: #e0e7ff; color: #3730a3; }
+
+        /* Section Styles */
+        .detail-section {
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .detail-section h3 {
+            margin: 0 0 var(--spacing-lg) 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        @media (min-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--color-gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        /* Products Table */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .products-table thead {
+            background: var(--color-light-gray);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .products-table th {
+            padding: var(--spacing-md) var(--spacing-lg);
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .products-table td {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+            color: var(--color-primary);
+        }
+
+        .products-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 2px;
+        }
+
+        .product-sku {
+            font-size: 12px;
+            color: var(--color-gray);
+        }
+
+        /* Mobile Accordion */
+        .accordion-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .accordion-header {
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: all var(--transition);
+        }
+
+        .accordion-header:hover {
+            background: var(--color-light-gray);
+        }
+
+        .accordion-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .accordion-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform var(--transition);
+        }
+
+        .accordion-section.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            display: none;
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .accordion-section.open .accordion-content {
+            display: block;
+        }
+
+        /* Desktop: show as sections, Mobile: show as accordions */
+        @media (max-width: 767px) {
+            .detail-section {
+                display: none;
+            }
+
+            .accordion-section {
+                display: block;
+            }
+
+            .products-table th:not(:first-child),
+            .products-table td:not(:first-child) {
+                display: none;
+            }
+
+            .products-table {
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .accordion-section {
+                display: none;
+            }
+
+            .detail-section {
+                display: block;
+            }
+        }
+
+        /* Action Buttons */
+        .order-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-2xl);
+            padding-top: var(--spacing-xl);
+            border-top: 1px solid var(--color-border);
+        }
+
+        @media (max-width: 767px) {
+            .order-actions {
+                flex-direction: column;
+            }
+
+            .order-actions button {
+                width: 100%;
+            }
+        }
+
+        /* Timeline (optional) */
+        .timeline {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 30px;
+            bottom: -30px;
+            width: 2px;
+            background: var(--color-border);
+        }
+
+        .timeline-dot {
+            width: 24px;
+            height: 24px;
+            background: var(--color-accent);
+            border: 2px solid var(--color-secondary);
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding-top: 2px;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: var(--color-gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo"><span>FJL</span></div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
+                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" class="icon-sm icon-gap"></i>Categories</a></li>
+                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" class="icon-sm icon-gap"></i>Announcements</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link active"><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i>Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link"><i data-lucide="users" class="icon-sm icon-gap"></i>Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" class="icon-sm icon-gap"></i>Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" class="icon-sm icon-gap"></i>Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <h2 class="header-title">Order Details</h2>
+                <div class="header-right">
+                    <button class="btn btn-primary btn-sm" onclick="goToEditOrder()" title="Edit Status"><i data-lucide="pencil" class="icon-sm"></i> Edit Status</button>
+                    <button class="header-icon-btn" onclick="goBackToOrders()" title="Close">×</button>
+                    <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="admin-content">
+                <!-- DESKTOP VIEW: Detail Sections -->
+                <div id="desktopView">
+                    <!-- Customer Information -->
+                    <div class="detail-section">
+                        <h3><i data-lucide="user" class="icon-sm"></i> Customer Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Name</span>
+                                <span class="detail-value" id="customerName">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value" id="customerEmail">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Phone</span>
+                                <span class="detail-value" id="customerPhone">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Address</span>
+                                <span class="detail-value" id="customerAddress">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Information -->
+                    <div class="detail-section">
+                        <h3><i data-lucide="shopping-cart" class="icon-sm"></i> Order Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Order ID</span>
+                                <span class="detail-value" id="orderId">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Order Date</span>
+                                <span class="detail-value" id="orderDate">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Payment Method</span>
+                                <span class="detail-value" id="paymentMethod">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Subtotal</span>
+                                <span class="detail-value" id="subtotal">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tax</span>
+                                <span class="detail-value" id="tax">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Shipping</span>
+                                <span class="detail-value" id="shipping">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Total</span>
+                                <span class="detail-value" id="total" style="font-size: 18px; color: var(--color-accent);">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Information -->
+                    <div class="detail-section">
+                        <h3><i data-lucide="info" class="icon-sm"></i> Status Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Payment Status</span>
+                                <span id="statusPayment"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Order Status</span>
+                                <span id="statusOrder"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products Ordered -->
+                    <div class="detail-section">
+                        <h3><i data-lucide="package" class="icon-sm"></i> Products Ordered</h3>
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <tr><td colspan="4" style="text-align: center; color: var(--color-gray);">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- MOBILE VIEW: Accordions -->
+                <div id="mobileView">
+                    <!-- Customer Information Accordion -->
+                    <div class="accordion-section">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <h3><i data-lucide="user" class="icon-sm"></i> Customer Information</h3>
+                            <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="detail-grid" style="gap: var(--spacing-lg);">
+                                <div class="detail-item">
+                                    <span class="detail-label">Name</span>
+                                    <span class="detail-value" id="mobileCustomerName">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Email</span>
+                                    <span class="detail-value" id="mobileCustomerEmail">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Phone</span>
+                                    <span class="detail-value" id="mobileCustomerPhone">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Address</span>
+                                    <span class="detail-value" id="mobileCustomerAddress">—</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Information Accordion -->
+                    <div class="accordion-section">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <h3><i data-lucide="shopping-cart" class="icon-sm"></i> Order Information</h3>
+                            <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="detail-grid" style="gap: var(--spacing-lg);">
+                                <div class="detail-item">
+                                    <span class="detail-label">Order ID</span>
+                                    <span class="detail-value" id="mobileOrderId">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Order Date</span>
+                                    <span class="detail-value" id="mobileOrderDate">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Payment Method</span>
+                                    <span class="detail-value" id="mobilePaymentMethod">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Subtotal</span>
+                                    <span class="detail-value" id="mobileSubtotal">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Tax</span>
+                                    <span class="detail-value" id="mobileTax">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Shipping</span>
+                                    <span class="detail-value" id="mobileShipping">—</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Total</span>
+                                    <span class="detail-value" id="mobileTotal" style="font-size: 18px; color: var(--color-accent);">—</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Information Accordion -->
+                    <div class="accordion-section">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <h3><i data-lucide="info" class="icon-sm"></i> Status Information</h3>
+                            <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="detail-grid" style="gap: var(--spacing-lg);">
+                                <div class="detail-item">
+                                    <span class="detail-label">Payment Status</span>
+                                    <span id="mobileStatusPayment"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Order Status</span>
+                                    <span id="mobileStatusOrder"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products Ordered Accordion -->
+                    <div class="accordion-section">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <h3><i data-lucide="package" class="icon-sm"></i> Products Ordered</h3>
+                            <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="accordion-content">
+                            <div id="mobileProductsList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="order-actions">
+                    <button class="btn btn-secondary" onclick="goBackToOrders()">Back to Orders</button>
+                    <button class="btn btn-primary" onclick="goToEditOrder()"><i data-lucide="pencil" class="icon-sm"></i> Edit Status</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="admin.js"></script>
+    <script src="js/responsive.js"></script>
+    <script>
+        let currentOrderId = null;
+        let currentOrder = null;
+
+        if (!checkAdminAuth()) {
+            window.location.href = '/admin/index.html';
+        } else {
+            initializeOrderDetail();
+        }
+
+        async function initializeOrderDetail() {
+            const adminInfo = adminDataService.getAdminInfo();
+            if (adminInfo && adminInfo.email) {
+                document.getElementById('adminName').textContent = adminInfo.email.split('@')[0];
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            currentOrderId = params.get('id');
+
+            if (!currentOrderId) {
+                notifications.error('No order ID provided');
+                setTimeout(() => window.location.href = 'orders.html', 2000);
+                return;
+            }
+
+            await loadOrder();
+        }
+
+        async function loadOrder() {
+            try {
+                console.log('Loading order with ID:', currentOrderId);
+
+                // Try using window.apiServices first (if available)
+                let orderData = null;
+                if (window.apiServices?.orderService?.getOrder) {
+                    try {
+                        orderData = await window.apiServices.orderService.getOrder(currentOrderId);
+                        currentOrder = orderData.data || orderData;
+                    } catch (apiError) {
+                        console.log('API service error, trying direct fetch:', apiError);
+                    }
+                }
+
+                // If service didn't work, try direct fetch
+                if (!currentOrder) {
+                    const token = sessionStorage.getItem('adminToken') || localStorage.getItem('adminToken');
+                    const response = await fetch(`/api/orders/${currentOrderId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': token ? `Bearer ${token}` : undefined
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to load order (Status: ${response.status})`);
+                    }
+
+                    const data = await response.json();
+                    currentOrder = data.data || data;
+                }
+
+                console.log('Order loaded:', currentOrder);
+
+                // Display all information
+                displayOrderDetails();
+
+            } catch (error) {
+                console.error('Error loading order:', error);
+                // Show graceful error message
+                notifications.error('Could not load order details. Some information may be unavailable.');
+                // Still try to display what we can
+                displayOrderDetails();
+            }
+        }
+
+        function displayOrderDetails() {
+            const formatDate = (date) => {
+                return new Date(date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            };
+
+            const formatCurrency = (amount) => `$${(amount || 0).toFixed(2)}`;
+
+            const getStatusBadge = (status) => {
+                const statusClasses = {
+                    'pending': 'status-pending',
+                    'verified': 'status-paid',
+                    'failed': 'status-failed',
+                    'shipped': 'status-shipped',
+                    'delivered': 'status-delivered',
+                    'cancelled': 'status-pending'
+                };
+                const badgeClass = statusClasses[status] || 'status-pending';
+                const formatStatus = (s) => s.replace(/_/g, ' ').toUpperCase();
+                return `<span class="status-badge ${badgeClass}">${formatStatus(status)}</span>`;
+            };
+
+            // Prepare data
+            const customerName = currentOrder.buyer_name || currentOrder.customer_name || 'Unknown';
+            const customerEmail = currentOrder.buyer_email || currentOrder.customer_email || '—';
+            const customerPhone = currentOrder.buyer_phone || currentOrder.customer_phone || '—';
+            const customerAddress = currentOrder.billing_address || currentOrder.shipping_address || '—';
+            const orderId = currentOrder.id || '—';
+            const orderDate = currentOrder.created_at || currentOrder.order_date ? formatDate(currentOrder.created_at || currentOrder.order_date) : '—';
+            const paymentMethod = currentOrder.payment_method || '—';
+            const subtotal = currentOrder.subtotal || currentOrder.total_amount || 0;
+            const tax = currentOrder.tax || 0;
+            const shipping = currentOrder.shipping_cost || 0;
+            const total = currentOrder.total_amount || currentOrder.total || 0;
+
+            const paymentStatus = currentOrder.payment_status || 'pending';
+            const orderStatus = currentOrder.order_status || 'pending';
+
+            // Update desktop view
+            document.getElementById('customerName').textContent = customerName;
+            document.getElementById('customerEmail').textContent = customerEmail;
+            document.getElementById('customerPhone').textContent = customerPhone;
+            document.getElementById('customerAddress').textContent = customerAddress;
+
+            document.getElementById('orderId').textContent = orderId;
+            document.getElementById('orderDate').textContent = orderDate;
+            document.getElementById('paymentMethod').textContent = paymentMethod;
+            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('tax').textContent = formatCurrency(tax);
+            document.getElementById('shipping').textContent = formatCurrency(shipping);
+            document.getElementById('total').textContent = formatCurrency(total);
+
+            document.getElementById('statusPayment').innerHTML = getStatusBadge(paymentStatus);
+            document.getElementById('statusOrder').innerHTML = getStatusBadge(orderStatus);
+
+            // Update mobile view
+            document.getElementById('mobileCustomerName').textContent = customerName;
+            document.getElementById('mobileCustomerEmail').textContent = customerEmail;
+            document.getElementById('mobileCustomerPhone').textContent = customerPhone;
+            document.getElementById('mobileCustomerAddress').textContent = customerAddress;
+
+            document.getElementById('mobileOrderId').textContent = orderId;
+            document.getElementById('mobileOrderDate').textContent = orderDate;
+            document.getElementById('mobilePaymentMethod').textContent = paymentMethod;
+            document.getElementById('mobileSubtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('mobileTax').textContent = formatCurrency(tax);
+            document.getElementById('mobileShipping').textContent = formatCurrency(shipping);
+            document.getElementById('mobileTotal').textContent = formatCurrency(total);
+
+            document.getElementById('mobileStatusPayment').innerHTML = getStatusBadge(paymentStatus);
+            document.getElementById('mobileStatusOrder').innerHTML = getStatusBadge(orderStatus);
+
+            // Display products
+            displayProducts();
+        }
+
+        function displayProducts() {
+            const items = currentOrder.items || currentOrder.products || [];
+
+            if (!Array.isArray(items) || items.length === 0) {
+                document.getElementById('productsTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-gray);">No items in this order</td></tr>';
+                document.getElementById('mobileProductsList').innerHTML = '<p style="text-align: center; color: var(--color-gray);">No items in this order</p>';
+                return;
+            }
+
+            // Desktop table
+            let tableHTML = '';
+            items.forEach(item => {
+                const productName = item.product_name || item.name || 'Unknown Product';
+                const productImage = item.product_image || item.image || '';
+                const quantity = item.quantity || 1;
+                const unitPrice = item.unit_price || item.price || 0;
+                const subtotal = quantity * unitPrice;
+                const sku = item.sku || '';
+
+                tableHTML += `
+                    <tr>
+                        <td>
+                            <div class="product-row">
+                                ${productImage ? `<img src="${productImage}" alt="${productName}" class="product-image">` : ''}
+                                <div class="product-info">
+                                    <div class="product-name">${productName}</div>
+                                    ${sku ? `<div class="product-sku">SKU: ${sku}</div>` : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td>${quantity}</td>
+                        <td>$${unitPrice.toFixed(2)}</td>
+                        <td>$${subtotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('productsTableBody').innerHTML = tableHTML;
+
+            // Mobile list
+            let mobileHTML = '';
+            items.forEach(item => {
+                const productName = item.product_name || item.name || 'Unknown Product';
+                const productImage = item.product_image || item.image || '';
+                const quantity = item.quantity || 1;
+                const unitPrice = item.unit_price || item.price || 0;
+                const subtotal = quantity * unitPrice;
+                const sku = item.sku || '';
+
+                mobileHTML += `
+                    <div style="margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--color-border);">
+                        <div class="product-row">
+                            ${productImage ? `<img src="${productImage}" alt="${productName}" class="product-image">` : ''}
+                            <div class="product-info">
+                                <div class="product-name">${productName}</div>
+                                ${sku ? `<div class="product-sku">SKU: ${sku}</div>` : ''}
+                            </div>
+                        </div>
+                        <div style="margin-top: var(--spacing-md); display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                            <div>
+                                <span class="detail-label">Qty</span>
+                                <div style="color: var(--color-primary); font-weight: 500;">${quantity}</div>
+                            </div>
+                            <div>
+                                <span class="detail-label">Unit Price</span>
+                                <div style="color: var(--color-primary); font-weight: 500;">$${unitPrice.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+                            <span class="detail-label">Subtotal</span>
+                            <div style="color: var(--color-accent); font-weight: 600; font-size: 16px;">$${subtotal.toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('mobileProductsList').innerHTML = mobileHTML;
+        }
+
+        function toggleAccordion(header) {
+            const section = header.parentElement;
+            section.classList.toggle('open');
+        }
+
+        function goToEditOrder() {
+            window.location.href = `orders-edit.html?id=${currentOrderId}`;
+        }
+
+        function goBackToOrders() {
+            window.location.href = 'orders.html';
+        }
+    </script>
+</body>
+</html>

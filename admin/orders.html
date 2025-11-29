@@ -755,8 +755,8 @@
                         <td data-label="Date">${dateUtils.formatDate(order.created_at)}</td>
                         <td data-label="Actions">
                             <div class="order-actions">
-                                <button class="action-btn" onclick="ordersManager.viewOrderDetail(${order.id})" title="View">👁️</button>
-                                <button class="action-btn" onclick="ordersManager.editOrder(${order.id})" title="Edit">✏️</button>
+                                <a href="/admin/orders-detail.html?id=${order.id}" class="action-btn" title="View Order Details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></a>
+                                <a href="/admin/orders-edit.html?id=${order.id}" class="action-btn" title="Edit Order Status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></a>
                             </div>
                         </td>
                     </tr>
