@@ -542,7 +542,7 @@ function requireAuth() {
     }
 }
 
-// Export utilities
+// Export utilities and client
 window.apiUtils = {
     showError,
     showSuccess,
@@ -550,3 +550,17 @@ window.apiUtils = {
     isAuthenticated,
     requireAuth,
 };
+
+// Export API client and services globally
+window.apiClient = apiClient;
+window.apiServices = {
+    productService,
+    categoryService,
+    orderService,
+    customerService,
+    settingsService,
+    dashboardService
+};
+
+// Also export APIClient class for direct instantiation if needed
+window.APIClient = APIClient;

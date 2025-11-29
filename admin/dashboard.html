@@ -535,21 +535,45 @@
                     this.showKpiLoading();
                     this.showActivityLoading();
 
-                    // Fetch data from API
-                    const [summary, activity] = await Promise.all([
-                        window.apiServices?.dashboardService?.getSummary?.(),
-                        window.apiServices?.dashboardService?.getActivity?.(10)
+                    // Fetch data from actual API endpoints
+                    const apiClient = window.apiClient || new APIClient();
+                    const [ordersRes, productsRes, customersRes] = await Promise.all([
+                        apiClient.get('/orders'),
+                        apiClient.get('/products'),
+                        apiClient.get('/customers')
                     ]);
 
+                    // Aggregate data for KPI cards
+                    const orders = ordersRes || [];
+                    const products = productsRes || [];
+                    const customers = customersRes || [];
+
+                    const summary = {
+                        totalRevenue: orders.reduce((sum, o) => sum + (o.total_amount || 0), 0),
+                        totalOrders: orders.length,
+                        totalCustomers: customers.length,
+                        activeProducts: products.filter(p => p.is_active).length,
+                        revenueChange: 0,
+                        ordersChange: 0,
+                        customersChange: 0,
+                        productsChange: 0
+                    };
+
+                    // Create activity from recent orders
+                    const activity = orders.slice(0, 10).map(order => ({
+                        id: order.id,
+                        type: 'order',
+                        title: `Order ${order.order_number}`,
+                        description: `${order.users?.first_name || 'Customer'} placed an order for ₦${(order.total_amount || 0).toLocaleString()}`,
+                        timestamp: order.created_at,
+                        icon: '📦'
+                    }));
+
                     // Render KPI cards
-                    if (summary) {
-                        this.renderKpiCards(summary);
-                    }
+                    this.renderKpiCards(summary);
 
                     // Render activity feed
-                    if (activity) {
-                        this.renderActivity(activity);
-                    }
+                    this.renderActivity(activity);
                 } catch (error) {
                     console.error('Failed to load dashboard:', error);
                     this.showError('Failed to load dashboard data');
