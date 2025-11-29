@@ -1228,6 +1228,12 @@
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData);
 
+                // Convert status string to is_active boolean for API
+                if (data.status) {
+                    data.is_active = data.status === 'active';
+                    delete data.status;
+                }
+
                 try {
                     if (this.editingProduct) {
                         await window.apiServices?.productService?.updateProduct?.(this.editingProduct.id, data);
