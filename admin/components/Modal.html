@@ -1,0 +1,423 @@
+<!--
+  Modal Component - Responsive modal dialog
+  Full-screen on mobile, centered on desktop
+  Mobile-first design
+-->
+
+<style>
+    /* Modal Styles */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: var(--z-modal-backdrop);
+        animation: fadeIn 0.2s ease;
+    }
+
+    .modal-backdrop.active {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal-content {
+        background: var(--color-secondary);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        z-index: var(--z-modal);
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-xl);
+        border-bottom: 1px solid var(--color-border);
+        flex-shrink: 0;
+    }
+
+    .modal-title {
+        font-size: clamp(18px, 5vw, 24px);
+        font-weight: var(--font-weight-bold);
+        font-family: var(--font-heading);
+        color: var(--color-primary);
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-gray);
+        font-size: 24px;
+        padding: var(--spacing-md);
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-md);
+        transition: var(--transition);
+    }
+
+    .modal-close:hover {
+        color: var(--color-primary);
+        background: var(--color-light-gray);
+    }
+
+    .modal-body {
+        padding: var(--spacing-xl);
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: var(--spacing-xl);
+        border-top: 1px solid var(--color-border);
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--spacing-md);
+        flex-shrink: 0;
+        flex-wrap: wrap;
+    }
+
+    .modal-footer.space-between {
+        justify-content: space-between;
+    }
+
+    /* Modal Sizes */
+    .modal-content.modal-sm {
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .modal-content.modal-md {
+        width: 90%;
+        max-width: 600px;
+    }
+
+    .modal-content.modal-lg {
+        width: 90%;
+        max-width: 900px;
+    }
+
+    .modal-content.modal-xl {
+        width: 90%;
+        max-width: 1100px;
+    }
+
+    /* Scrollable body with sticky header/footer */
+    .modal-scrollable .modal-body {
+        overflow-y: auto;
+    }
+
+    /* Centered content */
+    .modal-content.modal-centered {
+        margin: auto;
+    }
+
+    /* Mobile Styles - Full screen */
+    @media (max-width: 767px) {
+        .modal-backdrop {
+            padding: 0;
+        }
+
+        .modal-content {
+            width: 100%;
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 0;
+            animation: slideUp-mobile 0.3s ease;
+        }
+
+        @keyframes slideUp-mobile {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content.modal-sm,
+        .modal-content.modal-md,
+        .modal-content.modal-lg,
+        .modal-content.modal-xl {
+            width: 100%;
+            max-width: none;
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 0;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            flex-direction: column-reverse;
+        }
+
+        .modal-footer button,
+        .modal-footer a {
+            width: 100%;
+        }
+
+        .modal-footer.space-between {
+            justify-content: stretch;
+        }
+
+        .modal-close {
+            min-width: 40px;
+            min-height: 40px;
+        }
+    }
+
+    /* Tablet Styles */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .modal-content.modal-sm,
+        .modal-content.modal-md {
+            width: 85%;
+        }
+
+        .modal-content.modal-lg,
+        .modal-content.modal-xl {
+            width: 90%;
+        }
+    }
+
+    /* Desktop Styles */
+    @media (min-width: 1025px) {
+        .modal-backdrop {
+            padding: var(--spacing-xl);
+        }
+
+        .modal-content.modal-sm {
+            width: auto;
+        }
+
+        .modal-content.modal-md {
+            width: auto;
+        }
+
+        .modal-content.modal-lg {
+            width: auto;
+        }
+
+        .modal-content.modal-xl {
+            width: auto;
+        }
+    }
+
+    /* Prevent body scroll when modal is open */
+    body.modal-open {
+        overflow: hidden;
+    }
+
+    /* Form in modal */
+    .modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .form-label {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-input {
+        padding: var(--spacing-md) var(--spacing-lg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-family: var(--font-body);
+        background: var(--color-light-gray);
+        color: var(--color-primary);
+        min-height: 40px;
+        transition: var(--transition);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        background: var(--color-secondary);
+        box-shadow: 0 0 0 3px rgba(224, 159, 62, 0.1);
+    }
+
+    .form-input::placeholder {
+        color: var(--color-gray);
+    }
+
+    /* Alert in modal */
+    .modal-alert {
+        padding: var(--spacing-lg);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-lg);
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+
+    .modal-alert.success {
+        background: rgba(46, 204, 64, 0.1);
+        color: var(--color-success);
+        border: 1px solid rgba(46, 204, 64, 0.3);
+    }
+
+    .modal-alert.warning {
+        background: rgba(255, 133, 27, 0.1);
+        color: var(--color-warning);
+        border: 1px solid rgba(255, 133, 27, 0.3);
+    }
+
+    .modal-alert.danger {
+        background: rgba(255, 65, 54, 0.1);
+        color: var(--color-danger);
+        border: 1px solid rgba(255, 65, 54, 0.3);
+    }
+
+    .modal-alert.info {
+        background: rgba(0, 116, 217, 0.1);
+        color: var(--color-info);
+        border: 1px solid rgba(0, 116, 217, 0.3);
+    }
+
+    .modal-alert-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .modal-alert-content {
+        flex: 1;
+    }
+
+    .modal-alert-title {
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: 4px;
+    }
+
+    .modal-alert-message {
+        font-size: 13px;
+    }
+</style>
+
+<!--
+  Usage Example:
+
+  <div class="modal-backdrop active" id="exampleModal">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <h2 class="modal-title">Add New Product</h2>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="modal-form">
+          <div class="form-group">
+            <label class="form-label">Product Name</label>
+            <input type="text" class="form-input" placeholder="Enter product name">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-input" placeholder="Enter description" rows="4"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary">Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function closeModal() {
+      const modal = document.getElementById('exampleModal');
+      modal.classList.remove('active');
+      document.body.classList.remove('modal-open');
+    }
+
+    function openModal() {
+      const modal = document.getElementById('exampleModal');
+      modal.classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    // Close on backdrop click
+    document.getElementById('exampleModal').addEventListener('click', (e) => {
+      if (e.target.id === 'exampleModal') {
+        closeModal();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
+
+  Modal Variants:
+  - modal-sm: 400px max-width
+  - modal-md: 600px max-width
+  - modal-lg: 900px max-width
+  - modal-xl: 1100px max-width
+
+  Size Guidance:
+  - Forms: modal-md
+  - Confirmations: modal-sm
+  - Complex forms/tables: modal-lg
+  - Full content: modal-xl
+-->

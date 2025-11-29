@@ -1,0 +1,184 @@
+<!--
+  Card Component - Reusable card wrapper for content
+  Mobile-first responsive card with optional header, body, and footer
+-->
+
+<style>
+    /* Card Component Styles */
+    .card {
+        background: var(--color-secondary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+    }
+
+    .card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-accent);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-lg);
+        padding-bottom: var(--spacing-lg);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .card-header.no-border {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .card-title {
+        font-size: clamp(16px, 4vw, 18px);
+        font-weight: var(--font-weight-bold);
+        font-family: var(--font-heading);
+        color: var(--color-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+    }
+
+    .card-subtitle {
+        font-size: 13px;
+        color: var(--color-gray);
+        font-weight: var(--font-weight-medium);
+        margin-top: 4px;
+    }
+
+    .card-header-action {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .card-body {
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .card-body.no-margin {
+        margin-bottom: 0;
+    }
+
+    .card-footer {
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid var(--color-border);
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+    }
+
+    .card-footer.no-border {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    .card-footer.space-between {
+        justify-content: space-between;
+    }
+
+    /* Card Variants */
+    .card.card-accent {
+        border-color: var(--color-accent);
+        background: rgba(224, 159, 62, 0.02);
+    }
+
+    .card.card-success {
+        border-left: 4px solid var(--color-success);
+    }
+
+    .card.card-warning {
+        border-left: 4px solid var(--color-warning);
+    }
+
+    .card.card-danger {
+        border-left: 4px solid var(--color-danger);
+    }
+
+    .card.card-info {
+        border-left: 4px solid var(--color-info);
+    }
+
+    /* Card Grid */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+        .card {
+            padding: var(--spacing-lg);
+        }
+
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .card-title {
+            font-size: 16px;
+        }
+
+        .card-header-action {
+            align-self: flex-end;
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .cards-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-footer {
+            flex-direction: column;
+            justify-content: stretch;
+        }
+
+        .card-footer button,
+        .card-footer a {
+            width: 100%;
+        }
+    }
+</style>
+
+<!--
+  Usage Example:
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Card Title</h2>
+        <p class="card-subtitle">Optional subtitle</p>
+      </div>
+      <div class="card-header-action">
+        <button class="btn btn-sm">Action</button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Card content goes here -->
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-secondary">Cancel</button>
+      <button class="btn btn-primary">Save</button>
+    </div>
+  </div>
+
+  Variants:
+  - card-accent: Accent border and background
+  - card-success: Green left border
+  - card-warning: Orange left border
+  - card-danger: Red left border
+  - card-info: Blue left border
+-->

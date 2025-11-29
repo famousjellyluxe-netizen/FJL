@@ -1,0 +1,667 @@
+<!--
+  FJL Admin Panel - Main Layout Component
+  This is the primary wrapper for all admin pages
+  Mobile-first responsive design
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FJL Admin Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <!-- Fonts & Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="../design-tokens.css">
+    <link rel="stylesheet" href="../styles.css">
+
+    <!-- Admin Layout Styles -->
+    <style>
+        /* AdminLayout Component Styles */
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+            background: var(--color-bg);
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .admin-sidebar-wrapper {
+            width: var(--sidebar-width);
+            background: var(--color-primary);
+            color: var(--color-secondary);
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+            z-index: var(--z-menu);
+            transition: var(--transition);
+            height: 100vh;
+        }
+
+        .sidebar-logo-container {
+            padding: var(--spacing-xl);
+            border-bottom: 2px solid rgba(224, 159, 62, 0.3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .sidebar-logo-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-accent);
+            border-radius: var(--radius-md);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .sidebar-logo-text {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .sidebar-logo-text .main {
+            color: var(--color-secondary);
+        }
+
+        .sidebar-logo-text .tagline {
+            font-size: 10px;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .sidebar-menu-item {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .sidebar-menu-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            font-weight: var(--font-weight-medium);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .sidebar-menu-link:hover,
+        .sidebar-menu-link.active {
+            color: var(--color-secondary);
+            background: rgba(224, 159, 62, 0.2);
+            border-left: 3px solid var(--color-accent);
+            padding-left: calc(var(--spacing-lg) - 3px);
+        }
+
+        .sidebar-menu-link svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu-section {
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu-section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            padding: var(--spacing-md) var(--spacing-lg);
+            letter-spacing: 1px;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: var(--spacing-lg);
+            margin-top: auto;
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            background: rgba(224, 159, 62, 0.1);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sidebar-user:hover {
+            background: rgba(224, 159, 62, 0.2);
+        }
+
+        .sidebar-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            flex-shrink: 0;
+        }
+
+        .sidebar-user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar-user-name {
+            font-size: 14px;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-user-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Main Content Area */
+        .admin-main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .admin-header-wrapper {
+            background: var(--color-secondary);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            height: var(--header-height);
+            z-index: var(--z-sticky);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            flex: 1;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-primary);
+            font-size: 24px;
+            padding: var(--spacing-md);
+            min-width: var(--touch-target-min);
+            min-height: var(--touch-target-min);
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--color-light-gray);
+        }
+
+        .header-title {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: var(--font-weight-bold);
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xl);
+        }
+
+        .header-search {
+            display: flex;
+            align-items: center;
+            background: var(--color-light-gray);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            gap: var(--spacing-md);
+        }
+
+        .header-search input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 200px;
+            font-size: 14px;
+            font-family: var(--font-body);
+        }
+
+        .header-search input::placeholder {
+            color: var(--color-gray);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .header-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-primary);
+            font-size: 20px;
+            padding: var(--spacing-md);
+            min-width: var(--touch-target-min);
+            min-height: var(--touch-target-min);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .header-icon-btn:hover {
+            color: var(--color-accent);
+            background: var(--color-light-gray);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-danger);
+            color: var(--color-secondary);
+            font-size: 11px;
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Area */
+        .admin-content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xl);
+        }
+
+        /* Breadcrumb Navigation */
+        .admin-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xl);
+            font-size: 14px;
+        }
+
+        .breadcrumb-item {
+            color: var(--color-gray);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--color-accent);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--color-primary);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .breadcrumb-separator {
+            color: var(--color-border);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 767px) {
+            .admin-layout-wrapper {
+                flex-direction: column;
+            }
+
+            .admin-sidebar-wrapper {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100vh;
+                transition: left 0.3s ease;
+                z-index: 100;
+                border-radius: 0;
+            }
+
+            .admin-sidebar-wrapper.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .admin-main-wrapper {
+                height: 100vh;
+            }
+
+            .admin-header-wrapper {
+                order: -1;
+            }
+
+            .admin-content-wrapper {
+                padding: var(--spacing-lg);
+            }
+
+            .header-search {
+                display: none;
+            }
+
+            .header-search.mobile-visible {
+                display: flex;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                width: 100%;
+                border-radius: 0;
+                border-bottom: 1px solid var(--color-border);
+            }
+
+            .admin-breadcrumb {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .admin-sidebar-wrapper {
+                width: 220px;
+            }
+
+            .admin-main-wrapper {
+                margin-left: 220px;
+            }
+
+            .header-search {
+                width: auto;
+            }
+
+            .header-search input {
+                width: 150px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .admin-sidebar-wrapper,
+            .admin-header-wrapper,
+            .mobile-menu-toggle {
+                display: none;
+            }
+
+            .admin-main-wrapper {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar-wrapper" id="adminSidebar">
+            <div class="sidebar-logo-container">
+                <div class="sidebar-logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="8" height="8" fill="currentColor"/>
+                        <rect x="13" y="3" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                        <rect x="3" y="13" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                        <rect x="13" y="13" width="8" height="8" fill="currentColor" opacity="0.3"/>
+                    </svg>
+                </div>
+                <div class="sidebar-logo-text">
+                    <span class="main">FJL</span>
+                    <span class="tagline">Admin</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <li class="sidebar-menu-item">
+                    <a href="/admin/dashboard.html" class="sidebar-menu-link active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="/admin/products.html" class="sidebar-menu-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="/admin/categories.html" class="sidebar-menu-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span>Categories</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="/admin/orders.html" class="sidebar-menu-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
+                    <a href="/admin/customers.html" class="sidebar-menu-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>Customers</span>
+                    </a>
+                </li>
+
+                <div class="sidebar-menu-section">
+                    <div class="sidebar-menu-section-title">Settings</div>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/analytics.html" class="sidebar-menu-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="2" x2="12" y2="22"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/settings.html" class="sidebar-menu-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-15.78 7.78l4.24-4.24m3.08-3.08l4.24-4.24"></path>
+                            </svg>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user" id="sidebarUser">
+                    <div class="sidebar-avatar" id="userAvatar">A</div>
+                    <div class="sidebar-user-info">
+                        <div class="sidebar-user-name" id="userName">Admin User</div>
+                        <div class="sidebar-user-role">Owner</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="admin-main-wrapper">
+            <!-- Header -->
+            <header class="admin-header-wrapper">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" title="Toggle menu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                </div>
+
+                <div class="header-right">
+                    <div class="header-search">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" placeholder="Search..." class="header-search-input">
+                    </div>
+
+                    <div class="header-icons">
+                        <button class="header-icon-btn" id="notificationBtn" title="Notifications">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <span class="notification-badge" id="notificationBadge" style="display: none;">3</span>
+                        </button>
+
+                        <button class="header-icon-btn" id="userMenuBtn" title="User menu">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="admin-content-wrapper" id="adminContent">
+                <!-- Page content goes here -->
+                <div id="pageContent"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript for interactivity -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const adminSidebar = document.getElementById('adminSidebar');
+
+        mobileMenuToggle?.addEventListener('click', () => {
+            adminSidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking on a menu item (mobile)
+        const sidebarMenuLinks = document.querySelectorAll('.sidebar-menu-link');
+        sidebarMenuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    adminSidebar.classList.remove('active');
+                }
+            });
+        });
+
+        // Update active menu item based on current page
+        const updateActiveMenu = () => {
+            const currentPage = window.location.pathname.split('/').pop();
+            sidebarMenuLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.href.includes(currentPage)) {
+                    link.classList.add('active');
+                }
+            });
+        };
+
+        updateActiveMenu();
+
+        // Load user info from localStorage
+        const loadUserInfo = () => {
+            const adminData = JSON.parse(localStorage.getItem('fjl_admin') || '{}');
+            const userNameEl = document.getElementById('userName');
+            const userAvatarEl = document.getElementById('userAvatar');
+
+            if (adminData.email) {
+                const firstName = adminData.email.split('@')[0];
+                userNameEl.textContent = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+                userAvatarEl.textContent = firstName.charAt(0).toUpperCase();
+            }
+        };
+
+        loadUserInfo();
+
+        // User menu button
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        userMenuBtn?.addEventListener('click', () => {
+            // Logout functionality
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('fjl_admin');
+                window.location.href = '/admin/index.html';
+            }
+        });
+
+        // Responsive sidebar on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                adminSidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

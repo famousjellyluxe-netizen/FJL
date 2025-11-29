@@ -1,0 +1,214 @@
+/**
+ * FJL Admin Panel - Design Tokens
+ * Extracted from client-side and admin styles
+ * This file mirrors the design system used across FJL
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ===== COLOR PALETTE ===== */
+
+  /* Primary Colors */
+  --color-primary: #000;                    /* Black - Main text/backgrounds */
+  --color-secondary: #fff;                  /* White - Backgrounds/text */
+
+  /* Admin-Specific Accent */
+  --color-accent: #E09F3E;                  /* Gold/Orange - Admin accent color */
+  --color-accent-hover: #d4891b;            /* Gold/Orange - Hover state */
+
+  /* Client-side Accent (for reference) */
+  --color-accent-client: #1d9625;           /* Green - Client-side accent */
+  --color-accent-client-hover: #238a2f;     /* Green - Client-side hover */
+
+  /* Status Colors */
+  --color-success: #2ECC40;                 /* Green - Success/positive */
+  --color-warning: #FF851B;                 /* Orange - Warning/caution */
+  --color-danger: #FF4136;                  /* Red - Danger/error */
+  --color-info: #0074D9;                    /* Blue - Information */
+
+  /* Grayscale */
+  --color-gray: #8b8b8b;                    /* Medium gray */
+  --color-gray-light: #f5f5f5;              /* Light gray */
+  --color-gray-dark: #333;                  /* Dark gray */
+  --color-border: #e5e5e5;                  /* Border color */
+  --color-bg: #fafafa;                      /* Background color */
+
+  /* ===== TYPOGRAPHY ===== */
+
+  /* Font Families */
+  --font-body: 'Inter', sans-serif;         /* Body text */
+  --font-heading: 'Poppins', sans-serif;    /* Headings */
+  --font-logo: 'Bubbler One', sans-serif;   /* Logo text */
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Font Sizes - Heading */
+  --font-size-h1: clamp(24px, 6vw, 28px);
+  --font-size-h2: clamp(18px, 5vw, 24px);
+  --font-size-h3: clamp(16px, 4vw, 20px);
+  --font-size-h4: clamp(14px, 3vw, 16px);
+  --font-size-h5: 14px;
+  --font-size-h6: 12px;
+
+  /* Font Sizes - Body */
+  --font-size-base: 14px;
+  --font-size-sm: 12px;
+  --font-size-xs: 11px;
+  --font-size-lg: 16px;
+
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+
+  /* ===== SPACING ===== */
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 64px;
+
+  /* ===== SHADOWS ===== */
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+  /* ===== BORDER RADIUS ===== */
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* ===== TRANSITIONS ===== */
+
+  --transition: all 0.3s ease;
+  --transition-fast: all 0.15s ease;
+  --transition-slow: all 0.5s ease;
+
+  /* ===== BREAKPOINTS ===== */
+  /* Use in media queries: @media (max-width: 768px) { ... } */
+
+  /* Mobile: < 768px */
+  /* Tablet: 768px - 1024px */
+  /* Desktop: > 1024px */
+
+  /* ===== LAYOUT DIMENSIONS ===== */
+
+  --sidebar-width: 260px;
+  --header-height: 60px;
+  --mobile-nav-height: 56px;
+
+  /* ===== TOUCH TARGETS ===== */
+
+  --touch-target-min: 44px;                 /* Minimum for mobile */
+  --touch-target-default: 48px;             /* Recommended for mobile */
+  --touch-target-large: 56px;               /* For primary actions */
+
+  /* ===== Z-INDEX SCALE ===== */
+
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+  --z-notification: 80;
+  --z-menu: 100;
+}
+
+/* ===== GLOBAL STYLES ===== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-primary);
+  height: 100%;
+  line-height: var(--line-height-normal);
+}
+
+/* ===== HEADING STYLES ===== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+h1 { font-size: var(--font-size-h1); }
+h2 { font-size: var(--font-size-h2); }
+h3 { font-size: var(--font-size-h3); }
+h4 { font-size: var(--font-size-h4); }
+h5 { font-size: var(--font-size-h5); }
+h6 { font-size: var(--font-size-h6); }
+
+p {
+  font-size: var(--font-size-base);
+  margin: 0;
+}
+
+small {
+  font-size: var(--font-size-sm);
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-accent { color: var(--color-accent); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+.text-info { color: var(--color-info); }
+.text-gray { color: var(--color-gray); }
+
+.bg-primary { background: var(--color-primary); }
+.bg-secondary { background: var(--color-secondary); }
+.bg-accent { background: var(--color-accent); }
+.bg-success { background: var(--color-success); }
+.bg-warning { background: var(--color-warning); }
+.bg-danger { background: var(--color-danger); }
+.bg-info { background: var(--color-info); }
+.bg-light { background: var(--color-gray-light); }
+
+/* ===== RESPONSIVE DESIGN HELPERS ===== */
+
+@media (max-width: 767px) {
+  :root {
+    /* Adjust sizes for mobile */
+    --font-size-h1: 24px;
+    --font-size-h2: 18px;
+    --font-size-h3: 16px;
+    --font-size-h4: 14px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Tablet optimizations */
+}
+
+@media (min-width: 1025px) {
+  /* Desktop optimizations */
+}

@@ -1,0 +1,455 @@
+<!--
+  ResponsiveTable Component - Mobile-first table with Strategy A
+  Key columns visible on mobile, other columns expandable
+  NO horizontal scroll at any breakpoint
+-->
+
+<style>
+    /* Responsive Table Styles - Strategy A */
+    .responsive-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-border);
+        background: var(--color-secondary);
+    }
+
+    .responsive-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .responsive-table thead {
+        background: var(--color-light-gray);
+        border-bottom: 2px solid var(--color-border);
+    }
+
+    .responsive-table th {
+        padding: var(--spacing-lg);
+        text-align: left;
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-primary);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .responsive-table tbody tr {
+        border-bottom: 1px solid var(--color-border);
+        transition: var(--transition);
+    }
+
+    .responsive-table tbody tr:hover {
+        background: rgba(224, 159, 62, 0.02);
+    }
+
+    .responsive-table td {
+        padding: var(--spacing-lg);
+        color: var(--color-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Expand/Collapse Row */
+    .table-row-expand-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-accent);
+        font-size: 20px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        min-height: 40px;
+        border-radius: var(--radius-md);
+        transition: var(--transition);
+    }
+
+    .table-row-expand-btn:hover {
+        background: var(--color-light-gray);
+        transform: scale(1.1);
+    }
+
+    .table-row-expand-btn.expanded {
+        color: var(--color-primary);
+    }
+
+    .table-row-details {
+        display: none;
+    }
+
+    .table-row-details.expanded {
+        display: table-row;
+    }
+
+    .table-row-details-cell {
+        padding: var(--spacing-lg) !important;
+        background: rgba(224, 159, 62, 0.05);
+        text-align: left;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-xl);
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .detail-label {
+        font-size: 12px;
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        font-size: 14px;
+        font-weight: var(--font-weight-medium);
+        color: var(--color-primary);
+        word-break: break-word;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: 6px var(--spacing-md);
+        border-radius: var(--radius-full);
+        font-size: 12px;
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.success {
+        background: rgba(46, 204, 64, 0.1);
+        color: var(--color-success);
+    }
+
+    .status-badge.warning {
+        background: rgba(255, 133, 27, 0.1);
+        color: var(--color-warning);
+    }
+
+    .status-badge.danger {
+        background: rgba(255, 65, 54, 0.1);
+        color: var(--color-danger);
+    }
+
+    .status-badge.info {
+        background: rgba(0, 116, 217, 0.1);
+        color: var(--color-info);
+    }
+
+    .status-badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    /* Action Buttons */
+    .table-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .table-action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-md);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        min-height: 36px;
+        font-size: 16px;
+        color: var(--color-gray);
+    }
+
+    .table-action-btn:hover {
+        color: var(--color-accent);
+        background: var(--color-light-gray);
+    }
+
+    .table-action-btn.danger:hover {
+        color: var(--color-danger);
+    }
+
+    /* Column Visibility - Mobile Strategy A */
+    @media (max-width: 767px) {
+        .responsive-table-wrapper {
+            border: none;
+        }
+
+        .responsive-table {
+            font-size: 13px;
+        }
+
+        .responsive-table thead {
+            display: none;
+        }
+
+        /* Card-like layout on mobile */
+        .responsive-table tbody {
+            display: block;
+        }
+
+        .responsive-table tbody tr {
+            display: block;
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            background: var(--color-secondary);
+            overflow: hidden;
+        }
+
+        .responsive-table tbody tr:hover {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .responsive-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+            white-space: normal;
+            text-overflow: clip;
+            overflow: visible;
+        }
+
+        .responsive-table td:last-child {
+            border-bottom: none;
+        }
+
+        .responsive-table td::before {
+            content: attr(data-label);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-gray);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            margin-right: var(--spacing-md);
+            min-width: 100px;
+        }
+
+        /* Hide specific columns on mobile */
+        .table-col-hidden-mobile {
+            display: none;
+        }
+
+        /* Expand button styling on mobile */
+        .table-row-expand-btn {
+            float: right;
+            margin: -4px -4px -4px 0;
+        }
+
+        .table-row-details {
+            display: none;
+        }
+
+        .table-row-details.expanded {
+            display: table-row;
+        }
+
+        .table-row-details-cell {
+            display: block;
+            padding: var(--spacing-lg) !important;
+            background: rgba(224, 159, 62, 0.05);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-item {
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 11px;
+        }
+
+        .detail-value {
+            font-size: 13px;
+        }
+
+        .table-actions {
+            width: 100%;
+            margin-top: var(--spacing-md);
+        }
+
+        .table-action-btn {
+            flex: 1;
+            min-height: 40px;
+            padding: var(--spacing-md);
+        }
+    }
+
+    /* Tablet Styles */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .responsive-table th {
+            padding: var(--spacing-md);
+            font-size: 12px;
+        }
+
+        .responsive-table td {
+            padding: var(--spacing-md);
+        }
+
+        .responsive-table th:nth-child(n+4),
+        .responsive-table tbody td:nth-child(n+4) {
+            display: none;
+        }
+    }
+
+    /* Desktop Styles */
+    @media (min-width: 1025px) {
+        .responsive-table thead {
+            display: table-header-group;
+        }
+
+        .table-col-hidden-mobile {
+            display: table-cell;
+        }
+    }
+
+    /* Loading State */
+    .table-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-3xl) var(--spacing-xl);
+        color: var(--color-gray);
+    }
+
+    .table-loading::after {
+        content: '';
+        width: 24px;
+        height: 24px;
+        border: 3px solid var(--color-light-gray);
+        border-top-color: var(--color-accent);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        margin-left: var(--spacing-md);
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .table-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: var(--spacing-3xl) var(--spacing-xl);
+        color: var(--color-gray);
+        gap: var(--spacing-lg);
+    }
+
+    .table-empty-icon {
+        font-size: 48px;
+        opacity: 0.5;
+    }
+</style>
+
+<!--
+  Usage Example:
+
+  <div class="responsive-table-wrapper">
+    <table class="responsive-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Email</th>
+          <th class="table-col-hidden-mobile">Phone</th>
+          <th class="table-col-hidden-mobile">Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <button class="table-row-expand-btn" onclick="toggleRowDetails(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </td>
+          <td data-label="Name">John Doe</td>
+          <td data-label="Email">john@example.com</td>
+          <td class="table-col-hidden-mobile" data-label="Phone">(555) 123-4567</td>
+          <td class="table-col-hidden-mobile" data-label="Joined">Jan 15, 2024</td>
+          <td data-label="Actions">
+            <div class="table-actions">
+              <button class="table-action-btn">Edit</button>
+              <button class="table-action-btn danger">Delete</button>
+            </div>
+          </td>
+        </tr>
+        <!-- Hidden row details, shown when expanded -->
+        <tr class="table-row-details">
+          <td colspan="6">
+            <div class="table-row-details-cell">
+              <div class="details-grid">
+                <div class="detail-item">
+                  <div class="detail-label">Phone</div>
+                  <div class="detail-value">(555) 123-4567</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Joined</div>
+                  <div class="detail-value">January 15, 2024</div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function toggleRowDetails(button) {
+      button.classList.toggle('expanded');
+      const row = button.closest('tr');
+      const detailsRow = row.nextElementSibling;
+      if (detailsRow && detailsRow.classList.contains('table-row-details')) {
+        detailsRow.classList.toggle('expanded');
+      }
+    }
+  </script>
+
+  Status Badge Usage:
+  <span class="status-badge success">
+    <span class="status-badge-dot"></span>
+    Active
+  </span>
+-->
