@@ -235,9 +235,11 @@
                 return;
             }
 
-            // Load categories first, then product
-            await loadCategories();
-            await loadProduct();
+            // Load categories and product in parallel for faster page load
+            await Promise.all([
+                loadCategories(),
+                loadProduct()
+            ]);
         }
 
         async function loadCategories() {
