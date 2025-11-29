@@ -22,19 +22,23 @@ class APIClient {
 
     /**
      * Get auth token from localStorage
+     * Checks both 'adminToken' and 'fjl_admin_token' for compatibility
      */
     getAuthToken() {
-        return localStorage.getItem('adminToken');
+        // Check new format first, then fallback to old format
+        return localStorage.getItem('adminToken') || localStorage.getItem('fjl_admin_token');
     }
 
     /**
      * Set auth token in localStorage
+     * Uses the standard 'adminToken' key
      */
     setAuthToken(token) {
         if (token) {
             localStorage.setItem('adminToken', token);
         } else {
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('fjl_admin_token');
         }
     }
 
@@ -61,8 +65,14 @@ class APIClient {
         try {
             if (response.status === 401) {
                 // Unauthorized - clear token and redirect to login
-                this.setAuthToken(null);
-                window.location.href = '/admin/index.html';
+                // Use a flag to prevent multiple redirects
+                if (!window._redirectingToLogin) {
+                    window._redirectingToLogin = true;
+                    this.setAuthToken(null);
+                    setTimeout(() => {
+                        window.location.href = '/admin/index.html';
+                    }, 100);
+                }
                 return;
             }
 

@@ -224,7 +224,9 @@ class AdminDataService {
     }
 
     isAdminAuthenticated() {
-        return sessionStorage.getItem('fjl_admin_authenticated') !== null;
+        // Check both sessionStorage (old) and localStorage (new API token)
+        return sessionStorage.getItem('fjl_admin_authenticated') !== null ||
+               localStorage.getItem('fjl_admin_token') !== null;
     }
 
     getAdminInfo() {
