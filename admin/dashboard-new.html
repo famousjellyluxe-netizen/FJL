@@ -1,0 +1,696 @@
+<!--
+  FJL Admin Panel - Dashboard Page
+  Mobile-first responsive dashboard with KPI cards and activity feed
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FJL Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <!-- Fonts & Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="design-tokens.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Dashboard Specific Styles */
+
+        /* Page wrapper - accommodates sidebar on desktop */
+        .dashboard-wrapper {
+            display: flex;
+            height: 100vh;
+            background: var(--color-bg);
+        }
+
+        /* Sidebar container */
+        .dashboard-sidebar {
+            width: var(--sidebar-width);
+            background: var(--color-primary);
+            color: var(--color-secondary);
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            z-index: var(--z-menu);
+        }
+
+        /* Main content area */
+        .dashboard-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: var(--color-secondary);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: var(--header-height);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dashboard-header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            flex: 1;
+        }
+
+        .dashboard-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-primary);
+            font-size: 24px;
+            padding: var(--spacing-md);
+            min-width: var(--touch-target-min);
+            min-height: var(--touch-target-min);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .dashboard-menu-btn:hover {
+            background: var(--color-light-gray);
+        }
+
+        .dashboard-title {
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: var(--font-weight-bold);
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+        }
+
+        /* Content area */
+        .dashboard-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xl);
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .kpi-card {
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-lg);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .kpi-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-accent);
+        }
+
+        .kpi-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .kpi-icon.primary {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--color-primary);
+        }
+
+        .kpi-icon.success {
+            background: rgba(46, 204, 64, 0.1);
+            color: var(--color-success);
+        }
+
+        .kpi-icon.warning {
+            background: rgba(255, 133, 27, 0.1);
+            color: var(--color-warning);
+        }
+
+        .kpi-icon.info {
+            background: rgba(0, 116, 217, 0.1);
+            color: var(--color-info);
+        }
+
+        .kpi-content {
+            flex: 1;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .kpi-value {
+            font-size: clamp(24px, 6vw, 32px);
+            font-weight: var(--font-weight-bold);
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+            line-height: 1;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            font-weight: var(--font-weight-medium);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kpi-change.positive {
+            color: var(--color-success);
+        }
+
+        .kpi-change.negative {
+            color: var(--color-danger);
+        }
+
+        .kpi-change.neutral {
+            color: var(--color-gray);
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .section-title {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: var(--font-weight-bold);
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+        }
+
+        .section-action {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            background: var(--color-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .activity-item {
+            display: flex;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg) 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .activity-icon.order {
+            background: rgba(0, 116, 217, 0.1);
+            color: var(--color-info);
+        }
+
+        .activity-icon.product {
+            background: rgba(46, 204, 64, 0.1);
+            color: var(--color-success);
+        }
+
+        .activity-icon.customer {
+            background: rgba(224, 159, 62, 0.1);
+            color: var(--color-accent);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 14px;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+            margin-bottom: 2px;
+        }
+
+        .activity-description {
+            font-size: 13px;
+            color: var(--color-gray);
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 11px;
+            color: var(--color-gray);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-3xl) var(--spacing-xl);
+            color: var(--color-gray);
+            gap: var(--spacing-lg);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Loading State */
+        .loading-skeleton {
+            background: linear-gradient(90deg, var(--color-light-gray) 25%, var(--color-bg) 50%, var(--color-light-gray) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: var(--radius-md);
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .kpi-card.loading {
+            cursor: auto;
+        }
+
+        .kpi-card.loading .kpi-icon,
+        .kpi-card.loading .kpi-content {
+            background: var(--color-light-gray);
+            color: transparent;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 767px) {
+            .dashboard-wrapper {
+                flex-direction: column;
+            }
+
+            .dashboard-sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100vh;
+                transition: left 0.3s ease;
+                z-index: 100;
+            }
+
+            .dashboard-sidebar.active {
+                left: 0;
+            }
+
+            .dashboard-main {
+                margin-left: 0;
+                height: 100vh;
+            }
+
+            .dashboard-menu-btn {
+                display: flex;
+            }
+
+            .dashboard-header {
+                order: -1;
+            }
+
+            .dashboard-content {
+                padding: var(--spacing-lg);
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .kpi-card {
+                padding: var(--spacing-lg);
+            }
+
+            .activity-feed {
+                padding: var(--spacing-lg);
+            }
+
+            .activity-item {
+                padding: var(--spacing-md) 0;
+                gap: var(--spacing-md);
+            }
+
+            .activity-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .kpi-value {
+                font-size: 24px;
+            }
+        }
+
+        /* Tablet Responsive */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Desktop Responsive */
+        @media (min-width: 1025px) {
+            .kpi-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .dashboard-sidebar,
+            .dashboard-header,
+            .dashboard-menu-btn,
+            .section-action {
+                display: none;
+            }
+
+            .dashboard-main {
+                margin-left: 0;
+            }
+
+            .dashboard-content {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
+            <!-- Sidebar content will be loaded from AdminLayout -->
+        </aside>
+
+        <!-- Main Content -->
+        <div class="dashboard-main">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="dashboard-header-left">
+                    <button class="dashboard-menu-btn" id="dashboardMenuBtn" title="Toggle menu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="dashboard-title">Dashboard</h1>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="dashboard-content">
+                <!-- KPI Cards -->
+                <div class="kpi-grid" id="kpiGrid">
+                    <!-- KPI cards load here -->
+                </div>
+
+                <!-- Recent Activity Section -->
+                <section>
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Activity</h2>
+                        <div class="section-action">
+                            <a href="/admin/orders.html" class="btn btn-sm btn-secondary">View All</a>
+                        </div>
+                    </div>
+
+                    <div class="activity-feed" id="activityFeed">
+                        <!-- Activity items load here -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
+
+    <script>
+        // Require authentication
+        window.apiUtils?.requireAuth?.();
+
+        // Initialize Dashboard
+        class DashboardManager {
+            constructor() {
+                this.kpiGrid = document.getElementById('kpiGrid');
+                this.activityFeed = document.getElementById('activityFeed');
+                this.menuBtn = document.getElementById('dashboardMenuBtn');
+                this.sidebar = document.getElementById('dashboardSidebar');
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadDashboardData();
+            }
+
+            setupEventListeners() {
+                // Mobile menu toggle
+                this.menuBtn?.addEventListener('click', () => {
+                    this.sidebar.classList.toggle('active');
+                });
+
+                // Close sidebar when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth < 768) {
+                        if (!this.sidebar.contains(e.target) && !this.menuBtn.contains(e.target)) {
+                            this.sidebar.classList.remove('active');
+                        }
+                    }
+                });
+
+                // Handle responsive
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 768) {
+                        this.sidebar.classList.remove('active');
+                    }
+                });
+            }
+
+            async loadDashboardData() {
+                try {
+                    // Show loading state
+                    this.showKpiLoading();
+                    this.showActivityLoading();
+
+                    // Fetch data from API
+                    const [summary, activity] = await Promise.all([
+                        window.apiServices?.dashboardService?.getSummary?.(),
+                        window.apiServices?.dashboardService?.getActivity?.(10)
+                    ]);
+
+                    // Render KPI cards
+                    if (summary) {
+                        this.renderKpiCards(summary);
+                    }
+
+                    // Render activity feed
+                    if (activity) {
+                        this.renderActivity(activity);
+                    }
+                } catch (error) {
+                    console.error('Failed to load dashboard:', error);
+                    this.showError('Failed to load dashboard data');
+                }
+            }
+
+            showKpiLoading() {
+                this.kpiGrid.innerHTML = Array(4)
+                    .fill(null)
+                    .map(() => `<div class="kpi-card loading">
+                        <div class="kpi-icon loading"></div>
+                        <div class="kpi-content loading" style="flex: 1; height: 60px;"></div>
+                    </div>`)
+                    .join('');
+            }
+
+            showActivityLoading() {
+                this.activityFeed.innerHTML = Array(3)
+                    .fill(null)
+                    .map(() => `<div class="activity-item loading" style="height: 40px; background: var(--color-light-gray); border-radius: var(--radius-md);"></div>`)
+                    .join('');
+            }
+
+            renderKpiCards(data) {
+                const kpis = [
+                    {
+                        label: 'Total Revenue',
+                        value: data.totalRevenue || 0,
+                        change: data.revenueChange || 0,
+                        icon: '💰',
+                        type: 'success',
+                        format: 'currency'
+                    },
+                    {
+                        label: 'Total Orders',
+                        value: data.totalOrders || 0,
+                        change: data.ordersChange || 0,
+                        icon: '📦',
+                        type: 'info',
+                        format: 'number'
+                    },
+                    {
+                        label: 'Total Customers',
+                        value: data.totalCustomers || 0,
+                        change: data.customersChange || 0,
+                        icon: '👥',
+                        type: 'warning',
+                        format: 'number'
+                    },
+                    {
+                        label: 'Active Products',
+                        value: data.activeProducts || 0,
+                        change: data.productsChange || 0,
+                        icon: '📊',
+                        type: 'primary',
+                        format: 'number'
+                    }
+                ];
+
+                this.kpiGrid.innerHTML = kpis
+                    .map(kpi => this.createKpiCard(kpi))
+                    .join('');
+            }
+
+            createKpiCard(kpi) {
+                const { numberUtils } = window.adminUtils;
+                const formattedValue = kpi.format === 'currency'
+                    ? numberUtils.formatCurrency(kpi.value)
+                    : numberUtils.formatCompact(kpi.value);
+
+                const changeDirection = kpi.change > 0 ? '↑' : kpi.change < 0 ? '↓' : '→';
+                const changeClass = kpi.change > 0 ? 'positive' : kpi.change < 0 ? 'negative' : 'neutral';
+
+                return `
+                    <div class="kpi-card">
+                        <div class="kpi-icon ${kpi.type}">${kpi.icon}</div>
+                        <div class="kpi-content">
+                            <div class="kpi-label">${kpi.label}</div>
+                            <div class="kpi-value">${formattedValue}</div>
+                            <div class="kpi-change ${changeClass}">
+                                ${changeDirection} ${Math.abs(kpi.change)}% from last month
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderActivity(activities) {
+                if (!activities || activities.length === 0) {
+                    this.activityFeed.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div class="empty-state-text">No recent activity</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const { dateUtils } = window.adminUtils;
+                this.activityFeed.innerHTML = activities
+                    .map(activity => this.createActivityItem(activity))
+                    .join('');
+            }
+
+            createActivityItem(activity) {
+                const { dateUtils } = window.adminUtils;
+                const icons = {
+                    order: '📦',
+                    product: '✨',
+                    customer: '👤',
+                    system: '⚙️'
+                };
+
+                const icon = icons[activity.type] || '📝';
+
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon ${activity.type}">
+                            ${icon}
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">${activity.title}</div>
+                            <div class="activity-description">${activity.description}</div>
+                            <div class="activity-time">
+                                ${dateUtils.formatRelativeTime(activity.timestamp)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                console.error(message);
+                this.kpiGrid.innerHTML = `<div class="empty-state"><div class="empty-state-text">${message}</div></div>`;
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new DashboardManager();
+        });
+    </script>
+</body>
+</html>
