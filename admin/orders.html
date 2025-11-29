@@ -358,6 +358,16 @@
             opacity: 0.5;
         }
 
+        /* Desktop Only Columns */
+        .desktop-only {
+            display: table-cell;
+        }
+
+        /* Status Dropdown Container (Mobile) */
+        .mobile-status-dropdown {
+            display: none;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 767px) {
             .orders-wrapper {
@@ -430,6 +440,11 @@
 
             .orders-table tbody tr:hover {
                 border-color: var(--color-accent);
+            }
+
+            /* Hide desktop-only columns on mobile */
+            .orders-table .desktop-only {
+                display: none !important;
             }
 
             .orders-table td {
@@ -536,7 +551,8 @@
                                 <th>Order ID</th>
                                 <th>Customer</th>
                                 <th>Amount</th>
-                                <th>Status</th>
+                                <th class="desktop-only">Payment Status</th>
+                                <th class="desktop-only">Order Status</th>
                                 <th>Date</th>
                                 <th>Actions</th>
                             </tr>
@@ -722,12 +738,18 @@
                                 #${order.id}
                             </a>
                         </td>
-                        <td data-label="Customer">${order.customer_name || 'Unknown'}</td>
-                        <td data-label="Amount">${numberUtils.formatCurrency(order.total)}</td>
-                        <td data-label="Status">
-                            <span class="status-badge ${statusColors[order.status]}">
+                        <td data-label="Customer">${order.buyer_name || order.customer_name || 'Unknown'}</td>
+                        <td data-label="Amount">${numberUtils.formatCurrency(order.total_amount || order.total)}</td>
+                        <td class="desktop-only" data-label="Payment Status">
+                            <span class="status-badge ${statusColors[order.payment_status || order.status || 'pending']}">
                                 <span class="status-badge-dot"></span>
-                                ${order.status}
+                                ${order.payment_status || order.status || 'pending'}
+                            </span>
+                        </td>
+                        <td class="desktop-only" data-label="Order Status">
+                            <span class="status-badge ${statusColors[order.order_status || order.status || 'pending']}">
+                                <span class="status-badge-dot"></span>
+                                ${order.order_status || order.status || 'pending'}
                             </span>
                         </td>
                         <td data-label="Date">${dateUtils.formatDate(order.created_at)}</td>
@@ -781,7 +803,7 @@
                             </div>
                             <div>
                                 <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Order Total</div>
-                                <div style="font-size: 16px; font-weight: var(--font-weight-semibold); color: var(--color-accent);">${numberUtils.formatCurrency(this.currentOrder.total)}</div>
+                                <div style="font-size: 16px; font-weight: var(--font-weight-semibold); color: var(--color-accent);">${numberUtils.formatCurrency(this.currentOrder.total_amount || this.currentOrder.total)}</div>
                             </div>
                             <div>
                                 <div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Order Date</div>
