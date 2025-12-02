@@ -43,6 +43,17 @@ export default defineConfig({
           });
         });
 
+        // Copy SEO files (sitemap.xml, robots.txt) to dist
+        const seoFiles = fs.readdirSync('.').filter(f => f.match(/\.(xml|txt)$/));
+        seoFiles.forEach(file => {
+          const content = fs.readFileSync(file, 'utf-8');
+          this.emitFile({
+            type: 'asset',
+            fileName: file,
+            source: content
+          });
+        });
+
         // Helper function to recursively copy directories
         const copyDir = (dir, prefix = '') => {
           const files = fs.readdirSync(dir);
