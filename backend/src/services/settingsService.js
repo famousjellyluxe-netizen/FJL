@@ -1,10 +1,10 @@
 import { supabase } from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.js';
 
-// Cache for settings (update every 5 minutes)
+// Cache for settings (update every 30 seconds for development)
 let settingsCache = null;
 let cacheTimestamp = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 30 * 1000; // 30 seconds
 
 /**
  * Get all business settings with caching

@@ -1087,6 +1087,34 @@
         let cart = new Cart();
         let currentEditingIndex = null;
 
+        // Load tax rate from API
+        let taxRate = 0.075; // Default fallback
+
+        async function loadTaxRateFromAPI() {
+            try {
+                console.log('🔄 Loading tax rate from API...');
+                const response = await fetch('/api/settings');
+
+                if (!response.ok) {
+                    console.warn('Failed to fetch settings, using default tax rate');
+                    return;
+                }
+
+                const settings = await response.json();
+                const data = settings.data || settings;
+
+                if (data && data.tax_rate !== undefined) {
+                    taxRate = parseFloat(data.tax_rate);
+                    console.log(`✅ Loaded tax rate from API: ${taxRate} (${(taxRate * 100).toFixed(2)}%)`);
+                } else {
+                    console.warn('tax_rate not found in settings response');
+                }
+            } catch (error) {
+                console.error('Error loading tax rate from API:', error);
+                console.log('Using default tax rate: 0.075');
+            }
+        }
+
         function updateCartBadge() {
             const badge = document.getElementById('cartBadge');
             const count = cart.getItemCount();
@@ -1446,7 +1474,7 @@
             }
 
             const subtotal = cart.getTotal();
-            const tax = subtotal * 0.075;
+            const tax = subtotal * taxRate;
             const total = subtotal + tax;
 
             let itemsHTML = '';
@@ -1517,7 +1545,7 @@
                         </div>
 
                         <div class="price-row">
-                            <span>Tax (7.5%)</span>
+                            <span id="taxLabelSummary">Tax (${(taxRate * 100).toFixed(2)}%)</span>
                             <span>$${tax.toLocaleString('en-CA')} CAD</span>
                         </div>
 
@@ -1535,9 +1563,22 @@
             `;
         }
 
+        // Helper function to update tax percentage label
+        function updateTaxLabel() {
+            const taxPercentage = (taxRate * 100).toFixed(2);
+            const label = document.getElementById('taxLabelSummary');
+            if (label) {
+                label.textContent = `Tax (${taxPercentage}%)`;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             updateCartBadge();
-            renderSummary();
+            // Load tax rate from API first, then render cart summary
+            loadTaxRateFromAPI().then(() => {
+                updateTaxLabel();
+                renderSummary();
+            });
 
             // Mobile Menu Event Listeners
             document.getElementById('mobileMenuBtn').addEventListener('click', function() {

@@ -776,7 +776,7 @@
                                     <span id="warningSubtotal">$0.00</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-top: 6px;">
-                                    <span>Tax (7.5%):</span>
+                                    <span id="taxLabelWarning">Tax (7.5%):</span>
                                     <span id="warningTax">$0.00</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 2px solid #000; font-weight: 700; color: #000;">
@@ -823,7 +823,7 @@
                         <span>Free</span>
                     </div>
                     <div class="summary-item">
-                        <span>Tax (7.5%)</span>
+                        <span id="taxLabelSummary">Tax (7.5%)</span>
                         <span id="summaryTax">$0.00</span>
                     </div>
                     <div class="summary-item total">
@@ -953,6 +953,69 @@
 
         const cart = new Cart();
 
+        // Global tax rate - loaded dynamically from API
+        let taxRate = 0.075; // Default fallback
+
+        // Load tax rate from API
+        async function loadTaxRateFromAPI() {
+            console.log('🔄 Loading tax rate from API...');
+            try {
+                const response = await fetch('/api/settings');
+                console.log('📡 API Response Status:', response.status, response.ok);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('📦 API Data received:', data);
+                    const settings = data.data || data;
+                    console.log('⚙️ Settings object:', settings);
+
+                    if (settings.tax_rate !== undefined) {
+                        taxRate = parseFloat(settings.tax_rate); // API already returns decimal (0.05 = 5%)
+                        console.log('✅ Loaded tax rate from API:', taxRate, '(' + (taxRate * 100) + '%)');
+                    } else {
+                        console.warn('⚠️ tax_rate not found in settings');
+                    }
+                } else {
+                    console.warn('⚠️ Could not load tax rate from API (status ' + response.status + '), using default (7.5%)');
+                }
+            } catch (error) {
+                console.error('❌ Error loading tax rate from API:', error.message);
+                console.log('Using default tax rate: 7.5%');
+            }
+        }
+
+        // Helper function to update tax percentage label
+        function updateTaxLabel() {
+            const taxPercentage = (taxRate * 100).toFixed(2);
+            const label = document.getElementById('taxLabelSummary');
+            if (label) {
+                label.textContent = `Tax (${taxPercentage}%)`;
+            }
+        }
+
+        // Load tax rate immediately and wait for it before rendering
+        console.log('📍 Initializing checkout page...');
+        loadTaxRateFromAPI().then(() => {
+            console.log('✅ Tax rate loaded, rendering checkout page...');
+            // Update the tax label with the actual percentage
+            updateTaxLabel();
+            // Now render the page with the correct tax rate
+            updateCartBadge();
+            renderOrderSummary();
+            displayFJLAccount();
+            updateConfirmationMessage();
+
+            // If cart is empty, redirect to cart
+            if (cart.items.length === 0) {
+                if (notifications) {
+                    notifications.error('Your cart is empty');
+                }
+                setTimeout(() => {
+                    window.location.href = 'cart.html';
+                }, 2000);
+            }
+        });
+
         function updateCartBadge() {
             const badge = document.getElementById('cartBadge');
             const count = cart.getItemCount();
@@ -966,8 +1029,9 @@
 
         function renderOrderSummary() {
             const subtotal = cart.getTotal();
-            const tax = subtotal * 0.075;
+            const tax = subtotal * taxRate;
             const total = subtotal + tax;
+            console.log('📊 Tax Calculation Debug:', { subtotal, taxRate, tax, total });
 
             let itemsHtml = '';
             cart.items.forEach(item => {
@@ -992,7 +1056,7 @@
         function displayFJLAccount() {
             const account = getBusinessAccount();
             const subtotal = cart.getTotal();
-            const tax = subtotal * 0.075;
+            const tax = subtotal * taxRate;
             const total = subtotal + tax;
 
             const accountHtml = `
@@ -1029,7 +1093,7 @@
         function updateConfirmationMessage() {
             const buyerName = document.querySelector('input[name="buyerName"]').value || '-';
             const subtotal = cart.getTotal();
-            const tax = subtotal * 0.075;
+            const tax = subtotal * taxRate;
             const total = subtotal + tax;
 
             document.getElementById('confirmName').textContent = buyerName;
@@ -1045,7 +1109,7 @@
 
             // Get form data
             const subtotal = cart.getTotal();
-            const tax = subtotal * 0.075;
+            const tax = subtotal * taxRate;
             const total = subtotal + tax;
 
             const formData = {
@@ -1112,12 +1176,6 @@
                 }
             }
         });
-
-        // Initialize
-        updateCartBadge();
-        renderOrderSummary();
-        displayFJLAccount();
-        updateConfirmationMessage();
 
         // If cart is empty, redirect to cart
         if (cart.items.length === 0) {

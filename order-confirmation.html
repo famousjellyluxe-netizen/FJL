@@ -1076,7 +1076,7 @@
                         <span id="summarySubtotal">$0.00</span>
                     </div>
                     <div class="price-row">
-                        <span>Tax (7.5%):</span>
+                        <span id="taxLabelSummary">Tax (7.5%):</span>
                         <span id="summaryTax">$0.00</span>
                     </div>
                     <div class="price-row">
@@ -1293,6 +1293,34 @@
             }
         }
 
+        // Load tax rate from API
+        let taxRate = 0.075; // Default fallback
+
+        async function loadTaxRateFromAPI() {
+            try {
+                console.log('🔄 Loading tax rate from API...');
+                const response = await fetch('/api/settings');
+
+                if (!response.ok) {
+                    console.warn('Failed to fetch settings, using default tax rate');
+                    return;
+                }
+
+                const settings = await response.json();
+                const data = settings.data || settings;
+
+                if (data && data.tax_rate !== undefined) {
+                    taxRate = parseFloat(data.tax_rate);
+                    console.log(`✅ Loaded tax rate from API: ${taxRate} (${(taxRate * 100).toFixed(2)}%)`);
+                } else {
+                    console.warn('tax_rate not found in settings response');
+                }
+            } catch (error) {
+                console.error('Error loading tax rate from API:', error);
+                console.log('Using default tax rate: 0.075');
+            }
+        }
+
         // Load order details
         function loadOrderDetails() {
             const params = new URLSearchParams(window.location.search);
@@ -1344,8 +1372,8 @@
                 itemsContainer.innerHTML += itemHTML;
             });
 
-            // Calculate totals
-            const tax = subtotal * 0.075;
+            // Calculate totals using the loaded tax rate
+            const tax = subtotal * taxRate;
             const total = subtotal + tax;
 
             // Populate price summary
@@ -1399,10 +1427,24 @@
             }
         });
 
+        // Helper function to update tax percentage label
+        function updateTaxLabel() {
+            const taxPercentage = (taxRate * 100).toFixed(2);
+            const label = document.getElementById('taxLabelSummary');
+            if (label) {
+                label.textContent = `Tax (${taxPercentage}%):`;
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateCartBadge();
-            // Note: Order loading is now handled by order-confirmation-integration.js
+            // Load tax rate from API first, then load order details (for fallback)
+            loadTaxRateFromAPI().then(() => {
+                updateTaxLabel();
+                loadOrderDetails();
+            });
+            // Note: Primary order loading is handled by order-confirmation-integration.js
             // which runs after this script loads
         });
 

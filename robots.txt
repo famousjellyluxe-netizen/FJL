@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /backend/
+Disallow: /node_modules/
+Disallow: /checkout.html
+Disallow: /cart.html
+Disallow: /order-confirmation.html
+Disallow: /unsubscribe.html
+
+# Allow crawling of product and shop pages
+Allow: /product.html
+Allow: /shop.html
+
+# Specify sitemap location
+Sitemap: https://fjlclothing.shop/sitemap.xml

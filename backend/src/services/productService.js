@@ -406,6 +406,59 @@ export async function createProduct(productData) {
       throw new AppError('Product must have at least one color', 400);
     }
 
+    // Process images: convert base64 to file buffers and upload to Supabase
+    let imageUrl = null;
+    let imageUrls = [];
+
+    if (productData.images && Array.isArray(productData.images) && productData.images.length > 0) {
+      console.log(`📸 Processing ${productData.images.length} images for product upload`);
+
+      for (let i = 0; i < productData.images.length; i++) {
+        try {
+          const imageData = productData.images[i];
+
+          // Check if it's already a URL (skip upload)
+          if (typeof imageData === 'string' && imageData.startsWith('http')) {
+            console.log(`⏭️  Image ${i + 1} is already a URL, skipping upload`);
+            imageUrls.push(imageData);
+            continue;
+          }
+
+          // Convert base64 to buffer
+          let buffer;
+          if (typeof imageData === 'string' && imageData.includes('base64')) {
+            // Data URL format: "data:image/jpeg;base64,..."
+            const base64Data = imageData.split(',')[1];
+            buffer = Buffer.from(base64Data, 'base64');
+          } else if (typeof imageData === 'string') {
+            // Pure base64 string
+            buffer = Buffer.from(imageData, 'base64');
+          } else if (Buffer.isBuffer(imageData)) {
+            // Already a buffer
+            buffer = imageData;
+          } else {
+            console.warn(`⚠️  Unsupported image format at index ${i}, skipping`);
+            continue;
+          }
+
+          // Upload image
+          const result = await uploadProductImage(buffer, `product-image-${i}`, 'image/jpeg');
+          const uploadedUrl = result.url || result.primary;
+          imageUrls.push(uploadedUrl);
+          console.log(`✅ Uploaded image ${i + 1}: ${uploadedUrl}`);
+        } catch (imageError) {
+          console.error(`❌ Failed to upload image ${i + 1}:`, imageError);
+          // Continue processing other images - don't block product creation
+        }
+      }
+
+      // Set primary image (first uploaded image)
+      if (imageUrls.length > 0) {
+        imageUrl = imageUrls[0];
+        console.log(`🎯 Set primary image: ${imageUrl}`);
+      }
+    }
+
     // Create product
     const { data: productArray, error: createError } = await supabaseService
       .from('products')
@@ -416,8 +469,8 @@ export async function createProduct(productData) {
         category_id: productData.category_id,
         price: productData.price,
         original_price: productData.original_price,
-        image_url: productData.image_url,
-        images: productData.images || [],
+        image_url: imageUrl, // Only set if image was uploaded successfully
+        images: imageUrls.length > 0 ? imageUrls : [], // Use uploaded URLs only
         total_stock: 0, // Will be updated after variants are created
         is_active: productData.is_active !== false,
         // DEPRECATED: sleeve_type is deprecated. Use category_id instead. Keeping for backward compatibility.
@@ -549,14 +602,78 @@ export async function updateProduct(id, updateData) {
       available_colors = currentProduct.available_colors || []
     } = updateData;
 
+    // Process images if provided: convert base64 to file buffers and upload to Supabase
+    let imageUrl = updateData.image_url || null;
+    let imageUrls = updateData.images || null;
+
+    if (updateData.images && Array.isArray(updateData.images) && updateData.images.length > 0) {
+      // Check if images need to be uploaded (are base64 or buffers)
+      const needsUpload = updateData.images.some(img => {
+        return (typeof img === 'string' && img.includes('base64')) ||
+               (typeof img === 'string' && !img.startsWith('http')) ||
+               Buffer.isBuffer(img);
+      });
+
+      if (needsUpload) {
+        console.log(`📸 Processing ${updateData.images.length} images for product update`);
+        const uploadedImages = [];
+
+        for (let i = 0; i < updateData.images.length; i++) {
+          try {
+            const imageData = updateData.images[i];
+
+            // Check if it's already a URL (skip upload)
+            if (typeof imageData === 'string' && imageData.startsWith('http')) {
+              console.log(`⏭️  Image ${i + 1} is already a URL, skipping upload`);
+              uploadedImages.push(imageData);
+              continue;
+            }
+
+            // Convert base64 to buffer
+            let buffer;
+            if (typeof imageData === 'string' && imageData.includes('base64')) {
+              // Data URL format: "data:image/jpeg;base64,..."
+              const base64Data = imageData.split(',')[1];
+              buffer = Buffer.from(base64Data, 'base64');
+            } else if (typeof imageData === 'string') {
+              // Pure base64 string
+              buffer = Buffer.from(imageData, 'base64');
+            } else if (Buffer.isBuffer(imageData)) {
+              // Already a buffer
+              buffer = imageData;
+            } else {
+              console.warn(`⚠️  Unsupported image format at index ${i}, skipping`);
+              continue;
+            }
+
+            // Upload image
+            const result = await uploadProductImage(buffer, `product-image-${i}`, 'image/jpeg');
+            const uploadedUrl = result.url || result.primary;
+            uploadedImages.push(uploadedUrl);
+            console.log(`✅ Uploaded image ${i + 1}: ${uploadedUrl}`);
+          } catch (imageError) {
+            console.error(`❌ Failed to upload image ${i + 1}:`, imageError);
+            // Continue processing other images - don't block product update
+          }
+        }
+
+        // Set primary image and uploaded images
+        if (uploadedImages.length > 0) {
+          imageUrl = uploadedImages[0];
+          imageUrls = uploadedImages;
+          console.log(`🎯 Set primary image: ${imageUrl}`);
+        }
+      }
+    }
+
     // Update basic product fields
     const updateObject = {
       ...(updateData.name && { name: updateData.name }),
       ...(updateData.description !== undefined && { description: updateData.description }),
       ...(updateData.price && { price: updateData.price }),
       ...(updateData.original_price !== undefined && { original_price: updateData.original_price }),
-      ...(updateData.image_url && { image_url: updateData.image_url }),
-      ...(updateData.images && { images: updateData.images }),
+      ...(imageUrl !== null && { image_url: imageUrl }), // Only set if image was uploaded or explicitly cleared
+      ...(imageUrls !== null && imageUrls.length > 0 && { images: imageUrls }), // Only set if images were uploaded
       ...(updateData.is_active !== undefined && { is_active: updateData.is_active }),
       ...(updateData.is_featured !== undefined && { is_featured: updateData.is_featured }),
       ...(updateData.category_id !== undefined && { category_id: updateData.category_id }),
