@@ -3,8 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details - Famous Jolly Luxe (FJL)</title>
+    <title>Product Details - FJL Clothing</title>
+    <meta name="description" content="Discover premium streetwear products at FJL. Shop exclusive collections with detailed product information, pricing, and availability.">
+    <meta name="theme-color" content="#000000">
+    <link rel="canonical" href="https://fjlclothing.shop/product.html">
+    <meta property="og:title" content="FJL Product Details">
+    <meta property="og:description" content="Premium streetwear from FJL - Famous Jolly Luxe">
+    <meta property="og:image" content="https://fjlclothing.shop/images/og-default.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://fjlclothing.shop/product.html">
+    <meta property="og:type" content="product">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FJL Product Details">
+    <meta name="twitter:description" content="Premium streetwear from FJL">
+    <meta name="twitter:image" content="https://fjlclothing.shop/images/og-default.jpg">
     <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -1508,6 +1525,73 @@
             color: var(--color-accent);
         }
     </style>
+    <!-- JSON-LD Structured Data (Organization) -->
+    <script type="application/ld+json" data-seo-type="organization">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "FJL - Famous Jolly Luxe",
+      "description": "Premium streetwear fashion brand",
+      "url": "https://fjlclothing.shop",
+      "logo": "https://fjlclothing.shop/fjl-logo-favicon.svg",
+      "sameAs": [
+        "https://www.instagram.com/snug_worldd",
+        "https://wa.me/2347078939461"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "email": "support@fjlclothing.shop"
+      }
+    }
+    </script>
+    <!-- JSON-LD Product Schema (dynamically updated via JS) -->
+    <script type="application/ld+json" data-seo-type="product" id="productSchema">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Loading...",
+      "description": "Loading product details...",
+      "image": "https://fjlclothing.shop/images/placeholder.png",
+      "brand": {
+        "@type": "Brand",
+        "name": "FJL - Famous Jolly Luxe"
+      },
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "CAD",
+        "price": "0",
+        "availability": "https://schema.org/OutOfStock"
+      }
+    }
+    </script>
+    <!-- JSON-LD BreadcrumbList Schema -->
+    <script type="application/ld+json" data-seo-type="breadcrumb">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://fjlclothing.shop/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shop",
+          "item": "https://fjlclothing.shop/shop.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Product",
+          "item": "https://fjlclothing.shop/product.html"
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
     <!-- Header & Navigation -->
@@ -3026,5 +3110,86 @@
         </script>
         <!-- Real-time Stock Updates via SSE -->
         <script src="js/product-stock-updates.js"></script>
+
+        <!-- SEO Utilities -->
+        <script src="js/seo-utils.js"></script>
+        <script>
+            /**
+             * Update page SEO metadata when product data is loaded
+             * Hooks into the product loading mechanism
+             */
+            function updateProductSEOMetadata(product) {
+                if (!product || !window.seoManager) return;
+
+                const siteUrl = 'https://fjlclothing.shop';
+                const productUrl = `${siteUrl}/product.html?id=${product.id}`;
+                const productImage = product.image_url || product.image || `${siteUrl}/images/placeholder.png`;
+
+                // Update meta tags
+                window.seoManager.setPageMetadata({
+                    title: `${product.name} - FJL Clothing | Premium Streetwear`,
+                    description: product.description || `Buy ${product.name} from FJL - Famous Jolly Luxe. Premium streetwear collection.`,
+                    url: productUrl,
+                    image: productImage,
+                    ogType: 'product'
+                });
+
+                // Update Product JSON-LD schema
+                const productSchema = window.seoManager.generateProductSchema({
+                    ...product,
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    sku: product.sku || product.id,
+                    price: product.price,
+                    image_url: productImage,
+                    total_stock: product.total_stock || product.stock || 0
+                });
+
+                if (productSchema) {
+                    window.seoManager.addJSONLD(productSchema, 'product');
+                }
+
+                // Update BreadcrumbList with category if available
+                const breadcrumbs = [
+                    { name: 'Home', url: siteUrl + '/' },
+                    { name: 'Shop', url: siteUrl + '/shop.html' }
+                ];
+
+                if (product.categories?.name) {
+                    breadcrumbs.push({
+                        name: product.categories.name,
+                        url: siteUrl + `/shop.html?category=${product.categories.id}`
+                    });
+                }
+
+                breadcrumbs.push({
+                    name: product.name,
+                    url: productUrl
+                });
+
+                const breadcrumbSchema = window.seoManager.generateBreadcrumbSchema(breadcrumbs);
+                if (breadcrumbSchema) {
+                    window.seoManager.addJSONLD(breadcrumbSchema, 'breadcrumb');
+                }
+            }
+
+            // Hook into product loading
+            document.addEventListener('DOMContentLoaded', () => {
+                const checkInterval = setInterval(() => {
+                    if (window.productDataService && window.productDataService.currentProduct) {
+                        const product = window.productDataService.currentProduct;
+                        updateProductSEOMetadata(product);
+                        clearInterval(checkInterval);
+                    }
+                }, 100);
+
+                setTimeout(() => clearInterval(checkInterval), 5000);
+
+                if (window.seoManager) {
+                    window.seoManager.addPerformanceHints();
+                }
+            });
+        </script>
 </body>
 </html>

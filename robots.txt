@@ -1,16 +1,44 @@
+# FJL Clothing - robots.txt
+# Environment: Production
+# For development/staging, deploy with Disallow: / to prevent indexing
+
 User-agent: *
 Allow: /
+
+# Disallow admin and internal areas
 Disallow: /admin/
 Disallow: /backend/
 Disallow: /node_modules/
+Disallow: /dist/
+Disallow: /.git/
+Disallow: /.env
+
+# Disallow checkout and sensitive user pages
 Disallow: /checkout.html
 Disallow: /cart.html
 Disallow: /order-confirmation.html
 Disallow: /unsubscribe.html
 
-# Allow crawling of product and shop pages
+# Allow crawling of product and shop pages for indexing
 Allow: /product.html
 Allow: /shop.html
+Allow: /index.html
+Allow: /about.html
+Allow: /contact.html
 
-# Specify sitemap location
+# Crawl delay (optional - be nice to servers)
+Crawl-delay: 1
+
+# Request rate (optional)
+Request-rate: 10/1m
+
+# Specify sitemap location for better discovery
 Sitemap: https://fjlclothing.shop/sitemap.xml
+
+# Google-specific directives
+User-agent: Googlebot
+Allow: /
+
+# Bing-specific directives
+User-agent: Bingbot
+Allow: /

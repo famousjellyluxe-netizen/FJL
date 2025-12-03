@@ -90,7 +90,8 @@
       "Bash(git push:*)",
       "mcp__playwright__browser_run_code",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkNDY3NTU1OC1mYWYzLTQ1YWUtYTgxMC0zZTRhYmVlMThjZDAiLCJlbWFpbCI6ImFkbWluQGZqbC5jb20iLCJyb2xlIjoib3duZXIiLCJ0eXBlIjoiYWRtaW4iLCJpYXQiOjE3NjI2MTU5MjgsImV4cCI6MTc2MzIyMDcyOCwiYXVkIjoiZmpsLWFkbWluIiwiaXNzIjoiZmpsLWJhY2tlbmQifQ.G5Gx38GRGlsbf0mW4grXDmvo6xiSGTrsj-af04Yml60\" node test-image-upload.js)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []
