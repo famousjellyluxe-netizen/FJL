@@ -213,6 +213,7 @@ export async function getLightweightProducts(filters = {}) {
       price: product.price,
       image: product.image_url,
       category: product.categories?.name || 'Uncategorized',
+      category_slug: product.categories?.slug || '',
       variants: Array.isArray(product.product_variants) ? product.product_variants : []
     }));
 

@@ -121,7 +121,7 @@
               sku: product.sku || '',
               description: product.description || '',
               category: product.category,
-              category_slug: '',
+              category_slug: product.category_slug || '',
               variants: product.variants || []
             };
           }
