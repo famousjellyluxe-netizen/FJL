@@ -48,6 +48,28 @@
             align-items: center;
             gap: var(--spacing-md);
             margin-bottom: var(--spacing-xl);
+            justify-content: space-between;
+        }
+
+        .sidebar-close-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-secondary);
+            font-size: 24px;
+            padding: var(--spacing-md);
+            min-width: var(--touch-target-min);
+            min-height: var(--touch-target-min);
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .sidebar-close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-accent);
         }
 
         .sidebar-logo-icon {
@@ -379,6 +401,10 @@
                 display: flex;
             }
 
+            .sidebar-close-btn {
+                display: flex;
+            }
+
             .admin-main-wrapper {
                 height: 100vh;
             }
@@ -448,18 +474,26 @@
         <!-- Sidebar Navigation -->
         <aside class="admin-sidebar-wrapper" id="adminSidebar">
             <div class="sidebar-logo-container">
-                <div class="sidebar-logo-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="3" width="8" height="8" fill="currentColor"/>
-                        <rect x="13" y="3" width="8" height="8" fill="currentColor" opacity="0.6"/>
-                        <rect x="3" y="13" width="8" height="8" fill="currentColor" opacity="0.6"/>
-                        <rect x="13" y="13" width="8" height="8" fill="currentColor" opacity="0.3"/>
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                    <div class="sidebar-logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="8" height="8" fill="currentColor"/>
+                            <rect x="13" y="3" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="3" y="13" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="13" y="13" width="8" height="8" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <span class="main">FJL</span>
+                        <span class="tagline">Admin</span>
+                    </div>
+                </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" title="Close menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                </div>
-                <div class="sidebar-logo-text">
-                    <span class="main">FJL</span>
-                    <span class="tagline">Admin</span>
-                </div>
+                </button>
             </div>
 
             <nav class="sidebar-menu" id="sidebarMenu">
@@ -601,10 +635,16 @@
     <script>
         // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
         const adminSidebar = document.getElementById('adminSidebar');
 
         mobileMenuToggle?.addEventListener('click', () => {
             adminSidebar.classList.toggle('active');
+        });
+
+        // Close sidebar with close button
+        sidebarCloseBtn?.addEventListener('click', () => {
+            adminSidebar.classList.remove('active');
         });
 
         // Close sidebar when clicking on a menu item (mobile)
