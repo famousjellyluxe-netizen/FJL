@@ -11,7 +11,7 @@ services:
     branch: main
 
     # Build Configuration
-    buildCommand: cd backend && npm install
+    buildCommand: npm install && npm run build && cd backend && npm install
     startCommand: cd backend && npm start
 
     # Environment Variables (set in Render dashboard)
@@ -39,7 +39,7 @@ services:
       - key: STORE_EMAIL
         value: hello@fjlclothing.shop
       - key: ALLOWED_ORIGINS
-        value: https://fjl-frontend.onrender.com,https://fjlclothing.shop,https://www.fjlclothing.shop  # Render URLs + custom domain
+        value: https://fjlclothing.shop,https://www.fjlclothing.shop  # Custom domain only (frontend served from same backend)
       - key: RATE_LIMIT_WINDOW_MS
         value: 15000
       - key: RATE_LIMIT_MAX_REQUESTS
@@ -51,14 +51,3 @@ services:
     # Logging
     docker:
       preDeployCommand: cd backend && npm run migrate || true
-
-  # Frontend Static Site
-  - type: static_site
-    name: fjl-frontend
-    staticPublishPath: dist
-    buildCommand: npm install && npm run build
-
-    # Environment Variables for Frontend
-    envVars:
-      - key: VITE_API_URL
-        value: https://fjl-backend.onrender.com/api  # Update with your backend URL

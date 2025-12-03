@@ -117,6 +117,14 @@ app.use(express.urlencoded({ limit: '10mb', extended: true })); // Parse URL-enc
 app.use(morgan(nodeEnv === 'production' ? 'combined' : 'dev'));
 
 // ============================================================================
+// STATIC FILE SERVING (Frontend)
+// ============================================================================
+
+// Serve static files from dist folder (frontend build)
+const distPath = path.resolve(backendRoot, '../dist');
+app.use(express.static(distPath));
+
+// ============================================================================
 // HEALTH CHECK ENDPOINTS
 // ============================================================================
 
@@ -149,6 +157,26 @@ app.get('/api/health/newsletter', (req, res) => {
   }
 
   res.json(status);
+});
+
+// ============================================================================
+// SPA FALLBACK ROUTING
+// ============================================================================
+
+// Fallback route for Single Page App - serve index.html for non-API requests
+// This allows client-side routing to work properly
+app.get('*', (req, res, next) => {
+  // Skip for API routes - let them fall through to 404 handler
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  // Serve index.html for all other requests (SPA routing)
+  res.sendFile(path.join(distPath, 'index.html'), (err) => {
+    if (err) {
+      // If index.html doesn't exist, let the next handler deal with it
+      next();
+    }
+  });
 });
 
 // ============================================================================
