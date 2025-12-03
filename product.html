@@ -22,6 +22,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <meta name="geo.region" content="CA-ON">
+    <meta name="geo.placename" content="Toronto">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -3111,12 +3113,14 @@
         <!-- Real-time Stock Updates via SSE -->
         <script src="js/product-stock-updates.js"></script>
 
-        <!-- SEO Utilities -->
+        <!-- SEO Utilities & Location Configuration -->
+        <script src="js/seo-location-config.js"></script>
         <script src="js/seo-utils.js"></script>
         <script>
             /**
              * Update page SEO metadata when product data is loaded
              * Hooks into the product loading mechanism
+             * Now includes location-based optimizations (areaServed, dynamic currency)
              */
             function updateProductSEOMetadata(product) {
                 if (!product || !window.seoManager) return;
@@ -3134,17 +3138,32 @@
                     ogType: 'product'
                 });
 
-                // Update Product JSON-LD schema
-                const productSchema = window.seoManager.generateProductSchema({
-                    ...product,
-                    id: product.id,
-                    name: product.name,
-                    description: product.description,
-                    sku: product.sku || product.id,
-                    price: product.price,
-                    image_url: productImage,
-                    total_stock: product.total_stock || product.stock || 0
-                });
+                // Update Product JSON-LD schema with location-based enhancements
+                // Uses generateProductSchemaWithLocation if available, falls back to base schema
+                let productSchema;
+                if (window.seoManager.generateProductSchemaWithLocation) {
+                    productSchema = window.seoManager.generateProductSchemaWithLocation({
+                        ...product,
+                        id: product.id,
+                        name: product.name,
+                        description: product.description,
+                        sku: product.sku || product.id,
+                        price: product.price,
+                        image_url: productImage,
+                        total_stock: product.total_stock || product.stock || 0
+                    });
+                } else {
+                    productSchema = window.seoManager.generateProductSchema({
+                        ...product,
+                        id: product.id,
+                        name: product.name,
+                        description: product.description,
+                        sku: product.sku || product.id,
+                        price: product.price,
+                        image_url: productImage,
+                        total_stock: product.total_stock || product.stock || 0
+                    });
+                }
 
                 if (productSchema) {
                     window.seoManager.addJSONLD(productSchema, 'product');

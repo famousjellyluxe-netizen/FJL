@@ -22,6 +22,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <meta name="geo.region" content="CA-ON">
+    <meta name="geo.placename" content="Toronto">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -1234,6 +1236,9 @@
                 </div>
             </div>
 
+            <!-- Shipping Information (SEO + UX) -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #333; margin-bottom: 20px; font-size: 13px; color: #aaa;" id="shippingInfoContainer"></div>
+
             <!-- Footer Bottom -->
             <div class="footer-bottom">
                 <p class="footer-copyright">© 2025 FJL (Famous Jolly Luxe). All rights reserved.</p>
@@ -1698,7 +1703,8 @@
         document.addEventListener('DOMContentLoaded', loadFeaturedProducts);
     </script>
 
-    <!-- SEO Utilities -->
+    <!-- SEO Utilities & Location Configuration -->
+    <script src="js/seo-location-config.js"></script>
     <script src="js/seo-utils.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -1710,6 +1716,17 @@
                 }
                 // Add performance hints
                 window.seoManager.addPerformanceHints();
+
+                // Initialize location-based SEO (geographic signals)
+                if (window.seoManager.initializeLocationSEO) {
+                    window.seoManager.initializeLocationSEO();
+                }
+
+                // Add shipping information to footer
+                const shippingContainer = document.getElementById('shippingInfoContainer');
+                if (shippingContainer) {
+                    window.seoManager.addShippingText(shippingContainer);
+                }
             }
         });
     </script>

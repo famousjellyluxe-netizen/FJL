@@ -303,6 +303,128 @@ class SEOManager {
     results.isValid = Object.values(results).every(v => v === true);
     return results;
   }
+
+  /**
+   * Add geographic meta tags (geo.region, geo.placename)
+   * Signals geographic focus to search engines
+   */
+  addGeoMetaTags() {
+    if (typeof window === 'undefined' || !window.SEOLocationConfig) {
+      return; // Fail gracefully if config not available
+    }
+
+    const geoMeta = window.SEOLocationConfig.getGeoMeta();
+
+    if (geoMeta.region) {
+      this._setMetaTag('geo.region', geoMeta.region);
+    }
+
+    if (geoMeta.placename) {
+      this._setMetaTag('geo.placename', geoMeta.placename);
+    }
+  }
+
+  /**
+   * Generate Organization schema with geographic location
+   * Extends base Organization schema with address information
+   */
+  generateOrganizationSchemaWithLocation() {
+    const baseSchema = this.generateOrganizationSchema();
+
+    // Add location if config available
+    if (typeof window !== 'undefined' && window.SEOLocationConfig) {
+      const location = window.SEOLocationConfig.getOrganizationLocation();
+      if (location) {
+        baseSchema.address = {
+          '@type': 'PostalAddress',
+          'addressLocality': location.addressLocality,
+          'addressRegion': location.addressRegion,
+          'addressCountry': location.addressCountry
+        };
+      }
+    }
+
+    return baseSchema;
+  }
+
+  /**
+   * Generate Product schema with geographic areaServed
+   * Extends Product schema with regions and dynamic currency
+   * @param {Object} product - Product object from API
+   * @param {string} region - Optional region code (CA, US, etc.)
+   */
+  generateProductSchemaWithLocation(product, region = null) {
+    if (!product) return null;
+
+    const baseSchema = this.generateProductSchema(product);
+
+    // Determine currency based on region
+    let currency = 'CAD'; // Default
+    if (typeof window !== 'undefined' && window.SEOLocationConfig) {
+      currency = window.SEOLocationConfig.getCurrency(region);
+      const servedRegions = window.SEOLocationConfig.getServedRegions();
+
+      // Add areaServed to offers
+      if (baseSchema.offers && servedRegions && servedRegions.length > 0) {
+        baseSchema.offers.areaServed = servedRegions;
+      }
+
+      // Update currency in offers (override hardcoded CAD)
+      if (baseSchema.offers) {
+        baseSchema.offers.priceCurrency = currency;
+      }
+    }
+
+    return baseSchema;
+  }
+
+  /**
+   * Add shipping information to page footer or target element
+   * @param {HTMLElement} targetElement - Element to insert shipping text (optional)
+   * @returns {string} - Shipping text for manual insertion
+   */
+  addShippingText(targetElement = null) {
+    if (typeof window === 'undefined' || !window.SEOLocationConfig) {
+      return ''; // Fail gracefully
+    }
+
+    const shippingText = window.SEOLocationConfig.getShippingText();
+
+    if (!shippingText) {
+      return '';
+    }
+
+    // If target element provided, insert text
+    if (targetElement) {
+      const shippingElement = document.createElement('div');
+      shippingElement.className = 'seo-shipping-text';
+      shippingElement.setAttribute('data-seo-type', 'shipping-info');
+      shippingElement.textContent = shippingText;
+      targetElement.appendChild(shippingElement);
+    }
+
+    return shippingText;
+  }
+
+  /**
+   * Initialize all location-based SEO enhancements
+   * Call this once per page load to apply all geographic optimizations
+   */
+  initializeLocationSEO() {
+    try {
+      // Add geographic meta tags
+      this.addGeoMetaTags();
+
+      // Update Organization schema with location
+      const orgSchema = this.generateOrganizationSchemaWithLocation();
+      this.addJSONLD(orgSchema, 'organization');
+
+      console.log('✅ Location-based SEO initialized (geo meta tags, Organization schema updated)');
+    } catch (error) {
+      console.warn('⚠️  Error initializing location SEO:', error.message);
+      // Fail gracefully - don't break page if location SEO setup fails
+    }
+  }
 }
 
 // Export for use in both browser and Node.js environments
