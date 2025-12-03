@@ -1,0 +1,274 @@
+<!--
+  FJL Admin - Customer Detail Page
+  Displays comprehensive customer information
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Details - FJL Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/fjl-logo-favicon.svg">
+
+    <script src="https://unpkg.com/lucide@1.263.1"></script>
+    <link rel="stylesheet" href="design-tokens.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .detail-section { margin-bottom: var(--spacing-xl); }
+        .detail-section h3 { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); font-size: 18px; font-weight: var(--font-weight-semibold); color: var(--color-primary); }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); }
+        .detail-item { }
+        .detail-label { display: block; font-size: 11px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px; font-weight: var(--font-weight-semibold); letter-spacing: 0.5px; }
+        .detail-value { display: block; font-size: 16px; color: var(--color-primary); font-weight: var(--font-weight-semibold); word-break: break-word; }
+
+        /* Header button styling */
+        .header-icon-btn { background: none; border: none; cursor: pointer; padding: 8px; min-width: 40px; min-height: 40px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); color: var(--color-primary); transition: all 0.2s ease; }
+        .header-icon-btn:hover { background: var(--color-light-gray); color: var(--color-accent); transform: scale(1.05); }
+        .header-icon-btn svg { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; stroke-width: 2; }
+
+        @media (max-width: 768px) {
+            .detail-section { margin-bottom: var(--spacing-lg); }
+            .detail-section h3 { font-size: 16px; }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo-container">
+                <div class="sidebar-logo-wrapper">
+                    <div class="sidebar-logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="8" height="8" fill="currentColor"/>
+                            <rect x="13" y="3" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="3" y="13" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="13" y="13" width="8" height="8" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <span class="main">FJL</span>
+                        <span class="tagline">Admin</span>
+                    </div>
+                </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" title="Close menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
+                <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
+                <li class="sidebar-menu-item"><a href="categories.html" class="sidebar-menu-link"><i data-lucide="tag" class="icon-sm icon-gap"></i>Categories</a></li>
+                <li class="sidebar-menu-item"><a href="product-announcements.html" class="sidebar-menu-link"><i data-lucide="megaphone" class="icon-sm icon-gap"></i>Announcements</a></li>
+                <li class="sidebar-menu-item"><a href="orders.html" class="sidebar-menu-link"><i data-lucide="shopping-cart" class="icon-sm icon-gap"></i>Orders</a></li>
+                <li class="sidebar-menu-item"><a href="customers.html" class="sidebar-menu-link active"><i data-lucide="users" class="icon-sm icon-gap"></i>Customers</a></li>
+                <li class="sidebar-menu-item"><a href="analytics.html" class="sidebar-menu-link"><i data-lucide="trending-up" class="icon-sm icon-gap"></i>Analytics</a></li>
+                <li class="sidebar-menu-item"><a href="settings.html" class="sidebar-menu-link"><i data-lucide="settings" class="icon-sm icon-gap"></i>Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-block" id="logoutBtn">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <h2 class="header-title">Customer Details</h2>
+                <div class="header-right">
+                    <button class="header-icon-btn" id="closeCustomerDetailBtn" title="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="admin-content">
+                <!-- Customer Header Info -->
+                <div id="customerHeader" style="margin-bottom: var(--spacing-2xl);">
+                    <!-- Customer name and basic info will be loaded here -->
+                </div>
+
+                <!-- Personal Information -->
+                <div class="detail-section">
+                    <h3><i data-lucide="user" class="icon-sm"></i> Personal Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Full Name</span>
+                            <span class="detail-value" id="customerName">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value" id="customerEmail">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value" id="customerPhone">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="detail-section">
+                    <h3><i data-lucide="map-pin" class="icon-sm"></i> Contact Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <span class="detail-label">Address</span>
+                            <span class="detail-value" id="customerAddress">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="detail-section">
+                    <h3><i data-lucide="info" class="icon-sm"></i> Account Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Total Orders</span>
+                            <span class="detail-value" id="customerOrders">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Spent</span>
+                            <span class="detail-value" id="customerTotalSpent" style="color: var(--color-accent);">$0.00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Member Since</span>
+                            <span class="detail-value" id="customerJoined">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value" style="color: var(--color-success);">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="order-actions" style="margin-top: var(--spacing-2xl);">
+                    <button class="btn btn-secondary" id="backToCustomersBtn">Back to Customers</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/icon.js"></script>
+
+    <script>
+        window.apiUtils?.requireAuth?.();
+
+        let currentCustomerId = null;
+
+        // Get customer ID from URL params
+        function getCustomerIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Load and display customer details
+        async function loadCustomerDetails() {
+            try {
+                currentCustomerId = getCustomerIdFromURL();
+                if (!currentCustomerId) {
+                    alert('No customer ID provided');
+                    window.location.href = 'customers.html';
+                    return;
+                }
+
+                const response = await window.apiServices?.customerService?.getCustomer?.(currentCustomerId);
+                const customer = response.data || response;
+
+                if (!customer) {
+                    throw new Error('Customer not found');
+                }
+
+                const { numberUtils, dateUtils } = window.adminUtils;
+                const customerName = `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email;
+
+                // Update page title
+                document.querySelector('.header-title').textContent = `${customerName}`;
+
+                // Personal Information
+                document.getElementById('customerName').textContent = customerName;
+                document.getElementById('customerEmail').textContent = customer.email || '—';
+                document.getElementById('customerPhone').textContent = customer.phone || '—';
+
+                // Contact Information
+                document.getElementById('customerAddress').textContent = customer.address || '—';
+
+                // Account Information
+                document.getElementById('customerOrders').textContent = customer.order_count || 0;
+                document.getElementById('customerTotalSpent').textContent = numberUtils.formatCurrency(customer.total_spent || 0);
+                document.getElementById('customerJoined').textContent = dateUtils.formatDate(customer.created_at) || '—';
+
+                console.log('Customer details loaded:', customer);
+            } catch (error) {
+                console.error('Error loading customer details:', error);
+                alert('Error loading customer details: ' + error.message);
+            }
+        }
+
+        function goBackToCustomers() {
+            window.location.href = 'customers.html';
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('adminToken');
+            localStorage.removeItem('adminToken');
+            window.location.href = '/admin/index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+            sidebarCloseBtn?.addEventListener('click', () => {
+                const sidebar = document.querySelector('.admin-sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('open', 'active');
+                }
+            });
+
+            // Set up close button click handler
+            const closeCustomerDetailBtn = document.getElementById('closeCustomerDetailBtn');
+            closeCustomerDetailBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                goBackToCustomers();
+            });
+
+            // Set up back button click handler
+            const backToCustomersBtn = document.getElementById('backToCustomersBtn');
+            backToCustomersBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                goBackToCustomers();
+            });
+
+            // Set up logout button click handler
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                logoutAdmin();
+            });
+
+            // Load customer details
+            loadCustomerDetails();
+
+            // Render Lucide icons
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

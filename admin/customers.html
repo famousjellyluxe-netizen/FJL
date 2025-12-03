@@ -126,19 +126,6 @@
         </div>
     </div>
 
-    <!-- Customer Detail Modal -->
-    <div class="modal-backdrop" id="customerDetailModal">
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h2 class="modal-title" id="customerDetailTitle">Customer Details</h2>
-                <button class="modal-close" id="modalCloseBtn" aria-label="Close">×</button>
-            </div>
-            <div class="modal-body" id="customerDetailContent"></div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="modalFooterCloseBtn">Close</button>
-            </div>
-        </div>
-    </div>
 
     <script src="js/api-service.js"></script>
     <script src="js/utils.js"></script>
@@ -248,38 +235,9 @@
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const customerId = btn.dataset.customerId;
-                        this.viewDetails(customerId);
+                        window.location.href = `/admin/customers-detail.html?id=${customerId}`;
                     });
                 });
-            }
-
-            async viewDetails(customerId) {
-                try {
-                    const response = await window.apiServices?.customerService?.getCustomer?.(customerId);
-                    // Handle both direct object and wrapped response format
-                    const customer = response.data || response;
-                    const { numberUtils, dateUtils } = window.adminUtils;
-                    const customerName = `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email;
-
-                    document.getElementById('customerDetailTitle').textContent = customerName;
-                    document.getElementById('customerDetailContent').innerHTML = `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
-                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Email</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold);">${customer.email}</div></div>
-                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Total Orders</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold);">${customer.order_count || 0}</div></div>
-                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Total Spent</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold); color: var(--color-accent);">${numberUtils.formatCurrency(customer.total_spent || 0)}</div></div>
-                            <div><div style="font-size: 12px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Joined</div><div style="font-size: 16px; font-weight: var(--font-weight-semibold);">${dateUtils.formatDate(customer.created_at)}</div></div>
-                        </div>
-                        <h4 style="margin: var(--spacing-lg) 0 var(--spacing-md);">Contact Information</h4>
-                        <div style="padding: var(--spacing-md); background: var(--color-light-gray); border-radius: var(--radius-md);">
-                            <div><strong>Phone:</strong> ${customer.phone || 'Not provided'}</div>
-                            <div><strong>Address:</strong> ${customer.address || 'Not provided'}</div>
-                        </div>
-                    `;
-                    document.getElementById('customerDetailModal').classList.add('active');
-                    document.body.classList.add('modal-open');
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
             }
 
             clearFilters() {
@@ -287,11 +245,6 @@
                 document.getElementById('searchInput').value = '';
                 this.loadCustomers();
             }
-        }
-
-        function closeCustomerDetail() {
-            document.getElementById('customerDetailModal').classList.remove('active');
-            document.body.classList.remove('modal-open');
         }
 
         let customersManager;
@@ -303,19 +256,6 @@
             clearFiltersBtn?.addEventListener('click', (e) => {
                 e.stopPropagation();
                 customersManager.clearFilters();
-            });
-
-            // Set up modal close buttons click handlers
-            const modalCloseBtn = document.getElementById('modalCloseBtn');
-            modalCloseBtn?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeCustomerDetail();
-            });
-
-            const modalFooterCloseBtn = document.getElementById('modalFooterCloseBtn');
-            modalFooterCloseBtn?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeCustomerDetail();
             });
         });
     </script>
