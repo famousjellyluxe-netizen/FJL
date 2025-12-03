@@ -28,7 +28,17 @@
             --color-gray-dark: #333;
         }
 
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
             background: #FFFFFF;
             color: var(--color-primary);
         }
@@ -1996,6 +2006,9 @@
             // Display loading skeletons immediately
             renderSkeletons();
 
+            console.log('🔄 Initializing products...');
+            console.log('initializeShopProducts available?', typeof window.initializeShopProducts === 'function');
+
             if (typeof window.initializeShopProducts === 'function') {
                 window.initializeShopProducts().then(loadedProducts => {
                     products = loadedProducts || [];
@@ -2005,33 +2018,99 @@
                     const productsWithVariants = products.filter(p => p.variants && p.variants.length > 0);
                     console.log(`📦 ${productsWithVariants.length} products have variant data`);
 
+                    if (products.length === 0) {
+                        console.warn('⚠️  No products returned from API');
+                        // Show empty state
+                        const grid = document.getElementById('productsGrid');
+                        grid.innerHTML = `
+                            <div class="empty-state">
+                                <h2>No Products Available</h2>
+                                <p>Check back soon as we add new items to our collection!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
                     handleFilterChange();
                     applyFiltersAndSort();
                 }).catch(error => {
-                    console.error('Failed to load products from API, using localStorage fallback:', error);
-                    // Already have fallback logic in place
-                    applyFiltersAndSort();
+                    console.error('❌ Failed to load products from API:', error);
+
+                    // Try localStorage as fallback
+                    const storedProducts = localStorage.getItem('fjl_products');
+                    if (storedProducts) {
+                        try {
+                            products = JSON.parse(storedProducts);
+                            console.log(`📦 Using ${products.length} cached products from localStorage`);
+                            handleFilterChange();
+                            applyFiltersAndSort();
+                            return;
+                        } catch (e) {
+                            console.error('Failed to parse cached products:', e);
+                        }
+                    }
+
+                    // No API and no cache - show error
+                    const grid = document.getElementById('productsGrid');
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <h2>Unable to Load Products</h2>
+                            <p>We're having trouble connecting to our product catalog. Please refresh the page.</p>
+                        </div>
+                    `;
                 });
             } else {
-                // Fallback: use localStorage products
-                console.warn('initializeShopProducts not available yet, using localStorage');
+                // initializeShopProducts not available - try direct API call
+                console.warn('⚠️  initializeShopProducts not available, trying direct API fetch');
 
-                // Check if localStorage has stale data (no variants)
-                const storedProducts = localStorage.getItem('fjl_products');
-                if (storedProducts) {
-                    try {
-                        const parsed = JSON.parse(storedProducts);
-                        const hasVariants = parsed.some(p => p.variants && p.variants.length > 0);
-                        if (!hasVariants) {
-                            console.warn('⚠️  Stored products don\'t have variant data - clearing cache to force refresh');
-                            localStorage.removeItem('fjl_products');
+                const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:5001/api'
+                    : 'https://fjl-backend.onrender.com/api';
+
+                fetch(`${apiBase}/products/list/lightweight`)
+                    .then(response => {
+                        console.log('📡 Direct API response status:', response.status);
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('✅ Direct API fetch successful:', data);
+                        products = (data.data && Array.isArray(data.data)) ? data.data : [];
+                        console.log('📦 Loaded', products.length, 'products directly from API');
+
+                        if (products.length === 0) {
+                            console.warn('⚠️  No products returned from direct API');
                         }
-                    } catch (e) {
-                        console.error('Error checking stored products:', e);
-                    }
-                }
 
-                applyFiltersAndSort();
+                        handleFilterChange();
+                        applyFiltersAndSort();
+                    })
+                    .catch(error => {
+                        console.error('❌ Direct API fetch failed:', error);
+
+                        // Try localStorage
+                        const storedProducts = localStorage.getItem('fjl_products');
+                        if (storedProducts) {
+                            try {
+                                products = JSON.parse(storedProducts);
+                                console.log(`📦 Using ${products.length} cached products`);
+                                handleFilterChange();
+                                applyFiltersAndSort();
+                                return;
+                            } catch (e) {
+                                console.error('Failed to parse cached products:', e);
+                            }
+                        }
+
+                        // No API and no cache - show error
+                        const grid = document.getElementById('productsGrid');
+                        grid.innerHTML = `
+                            <div class="empty-state">
+                                <h2>Unable to Load Products</h2>
+                                <p>We're having trouble connecting to our product catalog. Please refresh the page.</p>
+                            </div>
+                        `;
+                    });
             }
         }
 

@@ -48,7 +48,17 @@
             --color-gray-dark: #333;
         }
 
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
             background: #FFFFFF;
             color: var(--color-primary);
         }
@@ -1577,7 +1587,7 @@
         // Load Featured Products
         /**
          * Load featured products with fallback support
-         * Uses apiManager for retry logic and caching (like shop page)
+         * Uses direct fetch API for maximum compatibility
          * Falls back to localStorage cache if API fails
          */
         async function loadFeaturedProducts() {
@@ -1587,18 +1597,32 @@
             try {
                 console.log('📦 Loading featured products...');
 
-                // Use apiManager for robust loading (retry logic, caching, etc)
+                // Determine API base URL
+                const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:5001/api'
+                    : 'https://fjl-backend.onrender.com/api';
+
+                console.log('🌐 API Base:', apiBase);
+
+                // Fetch featured products directly
                 let result;
                 try {
-                    // Try the featured endpoint first
-                    result = await window.apiManager.call('/products/featured', { method: 'GET' });
+                    console.log('🔄 Fetching /api/products/featured...');
+                    const response = await fetch(`${apiBase}/products/featured`);
+                    console.log('📡 Featured response status:', response.status);
+
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    result = await response.json();
+                    console.log('✅ Featured endpoint success:', result);
                 } catch (error) {
-                    console.warn('⚠️  Featured endpoint failed, attempting fallback...');
-                    // Fallback to regular products endpoint with featured filter
-                    result = await window.apiManager.call('/products', {
-                        method: 'GET',
-                        query: { limit: '6', sort_by: 'created_at', sort_order: 'desc' }
-                    });
+                    console.warn('⚠️  Featured endpoint failed:', error.message, '- attempting fallback...');
+                    // Fallback to regular products endpoint
+                    const response = await fetch(`${apiBase}/products?limit=6&sort_by=created_at&sort_order=desc`);
+                    console.log('📡 Products fallback response status:', response.status);
+
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    result = await response.json();
+                    console.log('✅ Products endpoint success:', result);
                 }
 
                 console.log('Featured products result:', result);
