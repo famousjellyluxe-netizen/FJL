@@ -1350,6 +1350,9 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     :root {
         --spacing-lg: 12px;
         --spacing-xl: 16px;
+        --icon-size-sm: 14px;
+        --icon-size-md: 16px;
+        --icon-size-lg: 18px;
     }
 
     .admin-header {
@@ -1359,6 +1362,17 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
 
     .header-right {
         gap: var(--spacing-sm);
+    }
+
+    /* Reduce action button icon sizes on mobile */
+    .icon-md {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .icon-lg {
+        width: 18px !important;
+        height: 18px !important;
     }
 
     /* Hide Delete button text on mobile, show only icon */
