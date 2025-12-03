@@ -337,6 +337,12 @@
             color: var(--color-gray);
         }
 
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+
         .action-btn:hover {
             color: var(--color-accent);
             background: var(--color-light-gray);
@@ -494,6 +500,20 @@
 
             .orders-content {
                 padding: 0;
+            }
+        }
+
+        /* Small phones - reduce action button SVG size */
+        @media (max-width: 480px) {
+            .action-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .action-btn {
+                min-width: 32px;
+                min-height: 32px;
+                padding: 6px;
             }
         }
     </style>
