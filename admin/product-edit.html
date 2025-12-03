@@ -38,6 +38,93 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
+
+        /* Mobile responsive header */
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            background: var(--color-secondary);
+            border-bottom: 1px solid var(--color-border);
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .header-title {
+            font-size: clamp(16px, 5vw, 24px);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin: 0;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .header-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 8px 12px;
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--color-primary);
+            transition: var(--transition);
+        }
+
+        .header-icon-btn:hover {
+            background: var(--color-light-gray);
+            color: var(--color-accent);
+        }
+
+        /* Mobile: Hide delete text, show only icon */
+        @media (max-width: 479px) {
+            .admin-header {
+                padding: var(--spacing-md) var(--spacing-lg);
+                gap: 4px;
+            }
+
+            .header-title {
+                font-size: 16px;
+            }
+
+            .btn.btn-danger.btn-sm .btn-text {
+                display: none;
+            }
+
+            .btn.btn-danger.btn-sm {
+                padding: var(--spacing-sm) var(--spacing-md);
+                min-height: 40px;
+                min-width: 40px;
+            }
+
+            .header-icon-btn {
+                padding: 8px 10px;
+                font-size: 20px;
+                min-width: 38px;
+                min-height: 38px;
+            }
+        }
+
+        /* Tablet: Show delete text */
+        @media (min-width: 480px) {
+            .btn.btn-danger.btn-sm .btn-text {
+                display: inline;
+                margin-left: 4px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -91,9 +178,9 @@
             <header class="admin-header">
                 <h2 class="header-title">Edit Product</h2>
                 <div class="header-right">
-                    <button class="btn btn-danger btn-sm" onclick="deleteProduct()"><i data-lucide="trash-2" class="icon-sm"></i> Delete</button>
-                    <button class="header-icon-btn" onclick="goBackToProducts()" title="Close">×</button>
-                    <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="deleteBtn"><i data-lucide="trash-2" class="icon-sm"></i><span class="btn-text">Delete</span></button>
+                    <button type="button" class="header-icon-btn" id="closeBtn" title="Close">×</button>
+                    <button type="button" class="header-icon-btn" id="menuBtn" title="Menu">≡</button>
                 </div>
             </header>
 
@@ -101,7 +188,7 @@
             <div class="admin-content">
                 <div class="card">
                     <div class="card-body">
-                        <form id="productForm" onsubmit="saveProduct(event)">
+                        <form id="productForm">
                             <!-- Basic Info Section -->
                             <div style="margin-bottom: var(--spacing-2xl);">
                                 <h3 style="margin-bottom: var(--spacing-lg); color: var(--color-primary);">Basic Information</h3>
@@ -215,7 +302,7 @@
 
                             <!-- Actions -->
                             <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-2xl); border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg);">
-                                <button type="button" class="btn btn-secondary flex-1" onclick="goBackToProducts()">Cancel</button>
+                                <button type="button" id="cancelBtn" class="btn btn-secondary flex-1">Cancel</button>
                                 <button type="submit" class="btn btn-primary flex-1"><i data-lucide="check" class="icon-sm"></i> Save Changes</button>
                             </div>
                         </form>
@@ -236,6 +323,37 @@
             window.location.href = '/admin/index.html';
         } else {
             initializeEditProduct();
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Delete button
+            const deleteBtn = document.getElementById('deleteBtn');
+            deleteBtn?.addEventListener('click', deleteProduct);
+
+            // Close button
+            const closeBtn = document.getElementById('closeBtn');
+            closeBtn?.addEventListener('click', goBackToProducts);
+
+            // Cancel button
+            const cancelBtn = document.getElementById('cancelBtn');
+            cancelBtn?.addEventListener('click', goBackToProducts);
+
+            // Menu button for mobile sidebar
+            const menuBtn = document.getElementById('menuBtn');
+            menuBtn?.addEventListener('click', toggleSidebar);
+
+            // Form submit
+            const form = document.getElementById('productForm');
+            form?.addEventListener('submit', saveProduct);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.admin-sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('open');
+                sidebar.classList.toggle('active');
+            }
         }
 
         async function initializeEditProduct() {
