@@ -85,6 +85,33 @@
         .remember-forgot a:hover {
             text-decoration: underline;
         }
+
+        .password-field-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: var(--spacing-md);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-gray);
+            padding: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--color-accent);
+        }
+
+        .password-field-wrapper input {
+            padding-right: 40px;
+        }
     </style>
 </head>
 <body>
@@ -101,12 +128,17 @@
             <form class="login-form" id="loginForm">
                 <div class="form-group">
                     <label class="form-label" for="email">Email Address</label>
-                    <input type="email" id="email" class="form-control" placeholder="admin@fjl.com" value="admin@fjl.com" required>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" id="password" class="form-control" placeholder="Enter your password" value="admin123" required>
+                    <div class="password-field-wrapper">
+                        <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle-btn" id="passwordToggle" title="Show/hide password">
+                            <i data-lucide="eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="remember-forgot">
@@ -130,11 +162,25 @@
     <script>
         const loginForm = document.getElementById('loginForm');
         const alertContainer = document.getElementById('alertContainer');
+        const passwordField = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
 
         // Check if already logged in
         if (adminDataService.isAdminAuthenticated()) {
             window.location.href = 'dashboard.html';
         }
+
+        // Password visibility toggle
+        passwordToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isPassword = passwordField.type === 'password';
+            passwordField.type = isPassword ? 'text' : 'password';
+
+            // Update icon
+            const icon = passwordToggle.querySelector('i');
+            icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        });
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();

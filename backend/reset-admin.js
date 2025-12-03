@@ -16,24 +16,24 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function resetAdmin() {
   try {
-    const email = 'admin@fjl.com';
+    const email = 'hello@fjlclothing.shop';
     const password = 'fjlclothing123';
-    
+
     // First, try to delete existing admin
     const { error: deleteError } = await supabase
       .from('admins')
       .delete()
       .eq('email', email.toLowerCase());
-    
+
     if (deleteError) {
       console.log('No existing admin to delete or deletion failed:', deleteError.message);
     } else {
       console.log('Deleted existing admin');
     }
-    
+
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
-    
+
     // Create new admin
     const { data, error } = await supabase
       .from('admins')

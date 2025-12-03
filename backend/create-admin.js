@@ -19,7 +19,7 @@ async function createAdmin() {
     const { data: existingAdmin } = await supabase
       .from('admins')
       .select('id')
-      .eq('email', 'admin@fjl.com')
+      .eq('email', 'hello@fjlclothing.shop')
       .single();
 
     if (existingAdmin) {
@@ -32,7 +32,7 @@ async function createAdmin() {
       .from('admins')
       .insert([
         {
-          email: 'admin@fjl.com',
+          email: 'hello@fjlclothing.shop',
           password_hash: passwordHash,
           name: 'Admin User',
           role: 'admin',
