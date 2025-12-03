@@ -104,14 +104,13 @@
             <main class="customers-content">
                 <div class="filter-bar">
                     <input type="text" id="searchInput" class="filter-input" placeholder="Search by name or email..." style="flex: 1;">
-                    <button onclick="customersManager.clearFilters()" style="background: none; border: 1px solid var(--color-border); color: var(--color-gray); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); cursor: pointer; font-size: 12px; font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.5px; min-height: 40px;">Clear</button>
+                    <button id="clearFiltersBtn" style="background: none; border: 1px solid var(--color-border); color: var(--color-gray); padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); cursor: pointer; font-size: 12px; font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.5px; min-height: 40px;">Clear</button>
                 </div>
 
                 <div class="customers-table-wrapper">
                     <table class="customers-table" id="customersTable">
                         <thead>
                             <tr>
-                                <th></th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Orders</th>
@@ -132,11 +131,11 @@
         <div class="modal-content modal-lg">
             <div class="modal-header">
                 <h2 class="modal-title" id="customerDetailTitle">Customer Details</h2>
-                <button class="modal-close" onclick="closeCustomerDetail()" aria-label="Close">×</button>
+                <button class="modal-close" id="modalCloseBtn" aria-label="Close">×</button>
             </div>
             <div class="modal-body" id="customerDetailContent"></div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeCustomerDetail()">Close</button>
+                <button class="btn btn-secondary" id="modalFooterCloseBtn">Close</button>
             </div>
         </div>
     </div>
@@ -218,7 +217,7 @@
                 const tbody = document.getElementById('customersTableBody');
 
                 if (!this.customers || this.customers.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div style="font-size: 48px; opacity: 0.5;">👥</div><div>No customers found</div></div></td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div style="font-size: 48px; opacity: 0.5;">👥</div><div>No customers found</div></div></td></tr>`;
                     return;
                 }
 
@@ -226,11 +225,6 @@
                 tbody.innerHTML = this.customers
                     .map(customer => `
                         <tr>
-                            <td>
-                                <button class="customer-expand-btn" onclick="customersManager.toggleDetails(event)">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                                </button>
-                            </td>
                             <td data-label="Name" style="font-weight: var(--font-weight-semibold);">${customer.name}</td>
                             <td data-label="Email">${customer.email}</td>
                             <td data-label="Orders">${customer.order_count || 0}</td>
@@ -238,43 +232,25 @@
                             <td data-label="Status"><span style="padding: 6px var(--spacing-md); border-radius: var(--radius-full); font-size: 11px; font-weight: var(--font-weight-semibold); background: rgba(46, 204, 64, 0.1); color: var(--color-success);">Active</span></td>
                             <td data-label="Actions">
                                 <div style="display: flex; gap: var(--spacing-sm);">
-                                    <button class="action-btn" onclick="customersManager.viewDetails('${customer.id}')">👁️</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="customer-details-row">
-                            <td colspan="7">
-                                <div class="customer-details-cell">
-                                    <div class="customer-details-grid">
-                                        <div>
-                                            <div style="font-size: 11px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Phone</div>
-                                            <div>${customer.phone || 'N/A'}</div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 11px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Address</div>
-                                            <div>${customer.address || 'N/A'}</div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 11px; color: var(--color-gray); text-transform: uppercase; margin-bottom: 4px;">Joined</div>
-                                            <div>${window.adminUtils?.dateUtils?.formatDate(customer.created_at) || 'N/A'}</div>
-                                        </div>
-                                    </div>
+                                    <button class="action-btn viewCustomerBtn" data-customer-id="${customer.id}" title="View Details">👁️</button>
                                 </div>
                             </td>
                         </tr>
                     `)
                     .join('');
+
+                // Attach event listeners to view buttons
+                this.attachEventListeners();
             }
 
-            toggleDetails(e) {
-                e.stopPropagation();
-                const btn = e.currentTarget;
-                btn.classList.toggle('expanded');
-                const row = btn.closest('tr');
-                const detailsRow = row.nextElementSibling;
-                if (detailsRow?.classList.contains('customer-details-row')) {
-                    detailsRow.classList.toggle('expanded');
-                }
+            attachEventListeners() {
+                document.querySelectorAll('.viewCustomerBtn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const customerId = btn.dataset.customerId;
+                        this.viewDetails(customerId);
+                    });
+                });
             }
 
             async viewDetails(customerId) {
@@ -321,6 +297,26 @@
         let customersManager;
         document.addEventListener('DOMContentLoaded', () => {
             customersManager = new CustomersManager();
+
+            // Set up clear filters button click handler
+            const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+            clearFiltersBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                customersManager.clearFilters();
+            });
+
+            // Set up modal close buttons click handlers
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            modalCloseBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeCustomerDetail();
+            });
+
+            const modalFooterCloseBtn = document.getElementById('modalFooterCloseBtn');
+            modalFooterCloseBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeCustomerDetail();
+            });
         });
     </script>
 </body>
