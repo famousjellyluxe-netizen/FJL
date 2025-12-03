@@ -11,7 +11,7 @@ services:
     branch: main
 
     # Build Configuration
-    buildCommand: npm install && npm run build && cd backend && npm install
+    buildCommand: npm ci && npm run build && cd backend && npm ci
     startCommand: cd backend && npm start
 
     # Environment Variables (set in Render dashboard)
