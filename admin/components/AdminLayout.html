@@ -488,11 +488,10 @@
                         <span class="tagline">Admin</span>
                     </div>
                 </div>
-                <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" title="Close menu">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
+                <button class="hamburger-icon" id="hamburgerToggle" type="button" title="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
             </div>
 
@@ -546,8 +545,9 @@
                     </a>
                 </li>
 
+                <div class="sidebar-menu-settings-separator"></div>
+
                 <div class="sidebar-menu-section">
-                    <div class="sidebar-menu-section-title">Settings</div>
                     <li class="sidebar-menu-item">
                         <a href="/admin/analytics.html" class="sidebar-menu-link">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -635,17 +635,16 @@
     <script>
         // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        const hamburgerToggle = document.getElementById('hamburgerToggle');
         const adminSidebar = document.getElementById('adminSidebar');
 
-        mobileMenuToggle?.addEventListener('click', () => {
+        const toggleSidebar = () => {
             adminSidebar.classList.toggle('active');
-        });
+            hamburgerToggle.classList.toggle('active');
+        };
 
-        // Close sidebar with close button
-        sidebarCloseBtn?.addEventListener('click', () => {
-            adminSidebar.classList.remove('active');
-        });
+        mobileMenuToggle?.addEventListener('click', toggleSidebar);
+        hamburgerToggle?.addEventListener('click', toggleSidebar);
 
         // Close sidebar when clicking on a menu item (mobile)
         const sidebarMenuLinks = document.querySelectorAll('.sidebar-menu-link');
@@ -653,6 +652,7 @@
             link.addEventListener('click', () => {
                 if (window.innerWidth < 768) {
                     adminSidebar.classList.remove('active');
+                    hamburgerToggle.classList.remove('active');
                 }
             });
         });
@@ -700,6 +700,7 @@
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 768) {
                 adminSidebar.classList.remove('active');
+                hamburgerToggle.classList.remove('active');
             }
         });
     </script>

@@ -75,7 +75,7 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     width: 260px;
     background: var(--color-primary);
     color: var(--color-secondary);
-    padding: var(--spacing-xl);
+    padding: var(--spacing-xl) 20px;
     overflow-y: auto;
     box-shadow: var(--shadow-md);
     position: fixed;
@@ -154,6 +154,13 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     font-size: 24px;
     font-weight: 700;
     line-height: 1;
+    color: #00FF00;
+    text-shadow:
+        0 0 10px rgba(0, 255, 0, 0.8),
+        0 0 20px rgba(0, 255, 0, 0.6),
+        0 0 30px rgba(0, 255, 0, 0.4),
+        2px 2px 0px rgba(255, 0, 150, 0.5);
+    filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.5));
 }
 
 .sidebar-logo-text .tagline {
@@ -164,6 +171,7 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
 
 .sidebar-close-btn {
     display: none;
+    flex-direction: row;
     background: none;
     border: none;
     cursor: pointer;
@@ -184,6 +192,46 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     color: var(--color-accent);
 }
 
+/* Hamburger Icon Styling */
+.hamburger-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 24px;
+    height: 20px;
+    cursor: pointer;
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.hamburger-icon span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-secondary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+/* Hamburger morphing animation - X state */
+.hamburger-icon.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-icon.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-icon.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(8px, -8px);
+}
+
 .sidebar-menu {
     list-style: none;
     margin-bottom: var(--spacing-2xl);
@@ -191,6 +239,7 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
 
 .sidebar-menu-item {
     margin-bottom: var(--spacing-md);
+    margin-bottom: 12px;
 }
 
 .sidebar-menu-link {
@@ -199,7 +248,7 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     gap: var(--spacing-md);
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 14px 18px;
     border-radius: var(--radius-md);
     transition: var(--transition);
     font-weight: 500;
@@ -222,6 +271,13 @@ h4 { font-size: clamp(14px, 3vw, 16px); }
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: var(--spacing-lg);
     margin-top: auto;
+}
+
+/* Settings section separator */
+.sidebar-menu-settings-separator {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 28px;
+    margin-bottom: var(--spacing-lg);
 }
 
 .sidebar-user {
