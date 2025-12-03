@@ -441,19 +441,27 @@
         <!-- Sidebar -->
         <aside class="dashboard-sidebar" id="dashboardSidebar">
             <!-- Sidebar Logo -->
-            <div class="sidebar-logo-container">
-                <div class="sidebar-logo-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="3" width="8" height="8" fill="currentColor"/>
-                        <rect x="13" y="3" width="8" height="8" fill="currentColor" opacity="0.6"/>
-                        <rect x="3" y="13" width="8" height="8" fill="currentColor" opacity="0.6"/>
-                        <rect x="13" y="13" width="8" height="8" fill="currentColor" opacity="0.3"/>
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-wrapper">
+                    <div class="sidebar-logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="8" height="8" fill="currentColor"/>
+                            <rect x="13" y="3" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="3" y="13" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="13" y="13" width="8" height="8" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <span class="main">FJL</span>
+                        <span class="tagline">Admin</span>
+                    </div>
+                </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" title="Close menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                </div>
-                <div class="sidebar-logo-text">
-                    <span class="main">FJL</span>
-                    <span class="tagline">Admin</span>
-                </div>
+                </button>
             </div>
 
             <!-- Navigation Menu -->
@@ -589,6 +597,12 @@
                 // Mobile menu toggle
                 this.menuBtn?.addEventListener('click', () => {
                     this.sidebar.classList.toggle('active');
+                });
+
+                // Close sidebar with close button
+                const closeBtn = document.getElementById('sidebarCloseBtn');
+                closeBtn?.addEventListener('click', () => {
+                    this.sidebar.classList.remove('active');
                 });
 
                 // Close sidebar when clicking outside

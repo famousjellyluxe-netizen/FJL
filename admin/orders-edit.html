@@ -171,7 +171,28 @@
     <div class="admin-layout">
         <!-- Sidebar -->
         <aside class="admin-sidebar">
-            <div class="sidebar-logo"><span>FJL</span></div>
+            <div class="sidebar-logo-container">
+                <div class="sidebar-logo-wrapper">
+                    <div class="sidebar-logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="8" height="8" fill="currentColor"/>
+                            <rect x="13" y="3" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="3" y="13" width="8" height="8" fill="currentColor" opacity="0.6"/>
+                            <rect x="13" y="13" width="8" height="8" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <span class="main">FJL</span>
+                        <span class="tagline">Admin</span>
+                    </div>
+                </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" title="Close menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item"><a href="dashboard.html" class="sidebar-menu-link"><i data-lucide="bar-chart-3" class="icon-sm icon-gap"></i>Dashboard</a></li>
                 <li class="sidebar-menu-item"><a href="products.html" class="sidebar-menu-link"><i data-lucide="package" class="icon-sm icon-gap"></i>Products</a></li>
@@ -554,6 +575,18 @@
         function goBackToOrders() {
             window.location.href = 'orders.html';
         }
+    </script>
+    <script>
+        // Close sidebar with close button
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+            sidebarCloseBtn?.addEventListener('click', () => {
+                const sidebar = document.querySelector('.admin-sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('open', 'active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
