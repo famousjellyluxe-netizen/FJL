@@ -1454,6 +1454,20 @@
         let productsManager;
         document.addEventListener('DOMContentLoaded', () => {
             productsManager = new ProductsManager();
+
+            // Close sidebar with close button
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+            sidebarCloseBtn?.addEventListener('click', () => {
+                const sidebar = document.querySelector('.products-sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('open', 'active');
+                }
+            });
+
+            // Re-render Lucide icons after DOM is ready
+            if (window.lucide) {
+                lucide.createIcons();
+            }
         });
     </script>
 </body>

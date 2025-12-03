@@ -63,8 +63,8 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            flex-wrap: nowrap;
             justify-content: flex-end;
         }
 
@@ -72,8 +72,8 @@
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 24px;
-            padding: 8px 12px;
+            font-size: 22px;
+            padding: 8px;
             min-width: 40px;
             min-height: 40px;
             display: flex;
@@ -81,48 +81,54 @@
             justify-content: center;
             border-radius: var(--radius-md);
             color: var(--color-primary);
-            transition: var(--transition);
+            transition: all 0.2s ease;
         }
 
         .header-icon-btn:hover {
             background: var(--color-light-gray);
             color: var(--color-accent);
+            transform: scale(1.05);
         }
 
-        /* Mobile: Hide delete text, show only icon */
+        #deleteBtn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--color-primary);
+            transition: all 0.2s ease;
+            font-size: 22px;
+        }
+
+        #deleteBtn:hover {
+            background: var(--color-light-gray);
+            color: var(--color-danger);
+            transform: scale(1.05);
+        }
+
+        /* Mobile responsive */
         @media (max-width: 479px) {
             .admin-header {
                 padding: var(--spacing-md) var(--spacing-lg);
-                gap: 4px;
+                gap: var(--spacing-md);
             }
 
             .header-title {
                 font-size: 16px;
             }
 
-            .btn.btn-danger.btn-sm .btn-text {
-                display: none;
-            }
-
-            .btn.btn-danger.btn-sm {
-                padding: var(--spacing-sm) var(--spacing-md);
-                min-height: 40px;
-                min-width: 40px;
-            }
-
-            .header-icon-btn {
-                padding: 8px 10px;
+            .header-icon-btn,
+            #deleteBtn {
+                padding: 6px;
+                min-width: 36px;
+                min-height: 36px;
                 font-size: 20px;
-                min-width: 38px;
-                min-height: 38px;
-            }
-        }
-
-        /* Tablet: Show delete text */
-        @media (min-width: 480px) {
-            .btn.btn-danger.btn-sm .btn-text {
-                display: inline;
-                margin-left: 4px;
             }
         }
     </style>
@@ -178,9 +184,8 @@
             <header class="admin-header">
                 <h2 class="header-title">Edit Product</h2>
                 <div class="header-right">
-                    <button type="button" class="btn btn-danger btn-sm" id="deleteBtn"><i data-lucide="trash-2" class="icon-sm"></i><span class="btn-text">Delete</span></button>
-                    <button type="button" class="header-icon-btn" id="closeBtn" title="Close">×</button>
-                    <button type="button" class="header-icon-btn" id="menuBtn" title="Menu">≡</button>
+                    <button type="button" id="deleteBtn" title="Delete product"><i data-lucide="trash-2"></i></button>
+                    <button type="button" class="header-icon-btn" id="closeBtnEditProduct" title="Close edit page"><i data-lucide="x"></i></button>
                 </div>
             </header>
 
@@ -332,16 +337,12 @@
             deleteBtn?.addEventListener('click', deleteProduct);
 
             // Close button
-            const closeBtn = document.getElementById('closeBtn');
-            closeBtn?.addEventListener('click', goBackToProducts);
+            const closeBtnEditProduct = document.getElementById('closeBtnEditProduct');
+            closeBtnEditProduct?.addEventListener('click', goBackToProducts);
 
             // Cancel button
             const cancelBtn = document.getElementById('cancelBtn');
             cancelBtn?.addEventListener('click', goBackToProducts);
-
-            // Menu button for mobile sidebar
-            const menuBtn = document.getElementById('menuBtn');
-            menuBtn?.addEventListener('click', toggleSidebar);
 
             // Form submit
             const form = document.getElementById('productForm');
@@ -696,6 +697,11 @@
         }
     </script>
     <script>
+        // Initialize Lucide icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
         // Close sidebar with close button
         document.addEventListener('DOMContentLoaded', () => {
             const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
@@ -705,6 +711,11 @@
                     sidebar.classList.remove('open', 'active');
                 }
             });
+
+            // Re-render Lucide icons after DOM is ready
+            if (window.lucide) {
+                lucide.createIcons();
+            }
         });
     </script>
 </body>

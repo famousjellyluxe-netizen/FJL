@@ -55,7 +55,7 @@ class ResponsiveManager {
       const headerRight = this.header?.querySelector('.header-right');
       if (headerRight) {
         // Check if there's an existing hamburger button (≡ or menu icon)
-        const existingMenus = headerRight.querySelectorAll('button');
+        const existingMenus = headerRight.querySelectorAll('button:not(#deleteBtn):not(#closeBtnEditProduct)');
         if (existingMenus.length > 0) {
           // Use the last button as menu toggle
           menuButton = existingMenus[existingMenus.length - 1];
@@ -64,8 +64,9 @@ class ResponsiveManager {
       }
     }
 
-    // Create button if still not found
-    if (!menuButton && this.header) {
+    // Create button if still not found (but not on product-edit page)
+    const isProductEditPage = window.location.pathname.includes('product-edit');
+    if (!menuButton && this.header && !isProductEditPage) {
       menuButton = document.createElement('button');
       menuButton.className = 'mobile-menu-btn header-icon-btn';
       menuButton.innerHTML = '<i data-lucide="menu"></i>';
