@@ -1543,7 +1543,15 @@ function checkAdminAuth() {
     return true;
 }
 
+// Logout function - shared across all admin pages (CSP fix)
+function logoutAdmin() {
+    localStorage.removeItem('fjl_admin_token');
+    localStorage.removeItem('fjl_admin');
+    sessionStorage.removeItem('fjl_admin_authenticated');
+    window.location.href = 'index.html';
+}
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AdminDataService, adminDataService, formatCurrency, formatDate, formatTime, generateOrderId, checkAdminAuth };
+    module.exports = { AdminDataService, adminDataService, formatCurrency, formatDate, formatTime, generateOrderId, checkAdminAuth, logoutAdmin };
 }

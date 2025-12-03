@@ -81,7 +81,7 @@
                     <div class="sidebar-avatar">A</div>
                     <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
                 </div>
-                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+                <button class="btn btn-secondary btn-sm btn-block" id="logoutBtn">Logout</button>
             </div>
         </aside>
 
@@ -91,8 +91,7 @@
             <header class="admin-header">
                 <h2 class="header-title">Add New Product</h2>
                 <div class="header-right">
-                    <button class="header-icon-btn" onclick="goBackToProducts()" title="Close">×</button>
-                    <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
+                    <button class="header-icon-btn" id="closeBtnAddProduct" title="Close">×</button>
                 </div>
             </header>
 
@@ -157,11 +156,11 @@
                                 <div class="form-group-row">
                                     <div class="form-group">
                                         <label class="form-label">Available Sizes</label>
-                                        <input type="text" id="productSizes" class="form-control" placeholder="XS, S, M, L, XL, XXL" onchange="generateVariantGrid()">
+                                        <input type="text" id="productSizes" class="form-control" placeholder="XS, S, M, L, XL, XXL">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Available Colors</label>
-                                        <input type="text" id="productColors" class="form-control" placeholder="Black, White, Navy" onchange="generateVariantGrid()">
+                                        <input type="text" id="productColors" class="form-control" placeholder="Black, White, Navy">
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +189,7 @@
                                 <h3 style="margin-bottom: var(--spacing-lg); color: var(--color-primary);">Product Images</h3>
 
                                 <div id="imageUploadContainer"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="addImageUploadField()"><i data-lucide="plus" class="icon-sm"></i> Add Image</button>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addImageBtn"><i data-lucide="plus" class="icon-sm"></i> Add Image</button>
                             </div>
 
                             <!-- Settings Section -->
@@ -214,7 +213,7 @@
 
                             <!-- Actions -->
                             <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-2xl); border-top: 1px solid var(--color-border); padding-top: var(--spacing-lg);">
-                                <button type="button" class="btn btn-secondary flex-1" onclick="goBackToProducts()">Cancel</button>
+                                <button type="button" class="btn btn-secondary flex-1" id="cancelBtn">Cancel</button>
                                 <button type="submit" class="btn btn-primary flex-1"><i data-lucide="check" class="icon-sm"></i> Save Product</button>
                             </div>
                         </form>
@@ -244,6 +243,37 @@
             }
             loadCategories();
             addImageUploadField();
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Close button
+            const closeBtnAddProduct = document.getElementById('closeBtnAddProduct');
+            closeBtnAddProduct?.addEventListener('click', goBackToProducts);
+
+            // Cancel button
+            const cancelBtn = document.getElementById('cancelBtn');
+            cancelBtn?.addEventListener('click', goBackToProducts);
+
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn?.addEventListener('click', logoutAdmin);
+
+            // Add Image button
+            const addImageBtn = document.getElementById('addImageBtn');
+            addImageBtn?.addEventListener('click', addImageUploadField);
+
+            // Form submit
+            const form = document.getElementById('productForm');
+            form?.addEventListener('submit', saveProduct);
+
+            // Product sizes and colors change listeners
+            const productSizes = document.getElementById('productSizes');
+            const productColors = document.getElementById('productColors');
+            productSizes?.addEventListener('change', generateVariantGrid);
+            productSizes?.addEventListener('input', generateVariantGrid);
+            productColors?.addEventListener('change', generateVariantGrid);
+            productColors?.addEventListener('input', generateVariantGrid);
         }
 
         async function loadCategories() {
@@ -269,13 +299,22 @@
                 <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
                     <div style="flex: 1;">
                         <label class="form-label">Image</label>
-                        <input type="file" class="form-control image-upload" accept="image/*" onchange="previewImage(this, ${id})">
+                        <input type="file" class="form-control image-upload" accept="image/*" data-id="${id}">
                         <div id="preview-${id}" style="margin-top: var(--spacing-md);"></div>
                     </div>
-                    <button type="button" class="btn btn-danger btn-sm image-upload-remove-btn" onclick="removeImageField(${id})" style="margin-top: var(--spacing-xl);">Remove</button>
+                    <button type="button" class="btn btn-danger btn-sm image-upload-remove-btn" data-id="${id}" style="margin-top: var(--spacing-xl);">Remove</button>
                 </div>
             `;
             container.appendChild(field);
+
+            // Add event listener for file input (image preview)
+            const fileInput = field.querySelector('.image-upload');
+            fileInput?.addEventListener('change', (e) => previewImage(e.target, id));
+
+            // Add event listener for remove button
+            const removeBtn = field.querySelector('.image-upload-remove-btn');
+            removeBtn?.addEventListener('click', () => removeImageField(id));
+
             if (existingImage) {
                 const input = field.querySelector('.image-upload');
                 input.value = existingImage;
@@ -314,12 +353,20 @@
                 html += `<tr><td><strong>${size}</strong></td>`;
                 colors.forEach(color => {
                     const key = `${color}-${size}`;
-                    html += `<td><input type="number" class="variant-grid-input" data-key="${key}" min="0" onchange="updateVariantTotal()"></td>`;
+                    html += `<td><input type="number" class="variant-grid-input" data-key="${key}" min="0"></td>`;
                 });
                 html += '</tr>';
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+
+            // Add event listeners to all variant grid inputs
+            const inputs = document.querySelectorAll('.variant-grid-input');
+            inputs.forEach(input => {
+                input.addEventListener('change', updateVariantTotal);
+                input.addEventListener('input', updateVariantTotal);
+            });
+
             updateVariantTotal();
         }
 

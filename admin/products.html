@@ -1322,9 +1322,11 @@
                 // Set product ID for Edit button
                 const editBtn = document.getElementById('modalEditBtn');
                 if (editBtn) {
-                    editBtn.onclick = () => {
+                    editBtn.removeEventListener('click', editBtn._editHandler);
+                    editBtn._editHandler = () => {
                         window.location.href = `/admin/product-edit.html?id=${product.id}`;
                     };
+                    editBtn.addEventListener('click', editBtn._editHandler);
                 }
 
                 // Populate modal content
@@ -1399,20 +1401,23 @@
                     return;
                 }
 
-                let html = `<button class="pagination-btn" ${this.currentPage === 1 ? 'disabled' : 'onclick="productsManager.previousPage()"'}>← Previous</button>`;
+                let html = `<button class="pagination-btn" ${this.currentPage === 1 ? 'disabled' : ''} data-action="prev">← Previous</button>`;
 
                 for (let i = 1; i <= pages; i++) {
                     if (i === 1 || i === pages || (i >= this.currentPage - 1 && i <= this.currentPage + 1)) {
-                        html += `<button class="pagination-btn ${i === this.currentPage ? 'active' : ''}" onclick="productsManager.goToPage(${i})">${i}</button>`;
+                        html += `<button class="pagination-btn ${i === this.currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
                     } else if (i === 2 || i === pages - 1) {
                         html += '<span class="pagination-info">...</span>';
                     }
                 }
 
-                html += `<button class="pagination-btn" ${this.currentPage === pages ? 'disabled' : 'onclick="productsManager.nextPage()"'}>Next →</button>`;
+                html += `<button class="pagination-btn" ${this.currentPage === pages ? 'disabled' : ''} data-action="next">Next →</button>`;
                 html += `<span class="pagination-info">${this.currentPage} of ${pages}</span>`;
 
                 container.innerHTML = html;
+
+                // Add event listeners to pagination buttons
+                this.attachPaginationListeners();
             }
 
             previousPage() {
@@ -1433,6 +1438,28 @@
             goToPage(page) {
                 this.currentPage = page;
                 this.loadProducts();
+            }
+
+            attachPaginationListeners() {
+                const container = document.getElementById('paginationContainer');
+                if (!container) return;
+
+                // Previous button
+                const prevBtn = container.querySelector('[data-action="prev"]');
+                prevBtn?.addEventListener('click', () => this.previousPage());
+
+                // Page number buttons
+                const pageButtons = container.querySelectorAll('[data-page]');
+                pageButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const page = parseInt(btn.getAttribute('data-page'));
+                        this.goToPage(page);
+                    });
+                });
+
+                // Next button
+                const nextBtn = container.querySelector('[data-action="next"]');
+                nextBtn?.addEventListener('click', () => this.nextPage());
             }
 
             showTableError(message) {
