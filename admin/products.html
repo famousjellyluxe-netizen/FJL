@@ -280,14 +280,78 @@
             flex-shrink: 0;
         }
 
-        /* Expand Button */
-        .table-expand-btn {
+        /* Product View Modal */
+        .product-view-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: var(--spacing-lg);
+        }
+
+        .product-view-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--color-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            width: 100%;
+            max-width: 700px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--color-border);
+            flex-shrink: 0;
+            min-height: 56px;
+        }
+
+        .modal-close-btn {
             background: none;
             border: none;
             cursor: pointer;
-            color: var(--color-accent);
-            font-size: 20px;
-            padding: 4px;
+            color: var(--color-gray);
+            padding: var(--spacing-sm);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -295,45 +359,68 @@
             min-height: 40px;
             border-radius: var(--radius-md);
             transition: var(--transition);
+            order: -1;
         }
 
-        .table-expand-btn:hover {
+        .modal-close-btn:hover {
             background: var(--color-light-gray);
-            transform: scale(1.1);
-        }
-
-        .table-expand-btn.expanded {
             color: var(--color-primary);
         }
 
-        /* Expanded row */
-        .product-details-row {
-            display: none;
+        .modal-title {
+            font-size: 18px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin: 0;
+            flex: 1;
+            text-align: center;
         }
 
-        .product-details-row.expanded {
-            display: table-row;
+        .modal-edit-btn {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            font-weight: var(--font-weight-semibold);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            min-height: 40px;
+            transition: var(--transition);
         }
 
-        .product-details-cell {
-            padding: var(--spacing-lg) !important;
-            background: rgba(224, 159, 62, 0.05);
-            text-align: left;
+        .modal-edit-btn:hover {
+            background: #d4891b;
         }
 
-        .product-details-grid {
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xl);
+        }
+
+        .modal-details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: var(--spacing-xl);
         }
 
-        .product-detail-item {
+        .modal-detail-row {
             display: flex;
             flex-direction: column;
             gap: var(--spacing-sm);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
         }
 
-        .detail-label {
+        .modal-detail-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .modal-detail-row label {
             font-size: 11px;
             font-weight: var(--font-weight-semibold);
             color: var(--color-gray);
@@ -341,11 +428,27 @@
             letter-spacing: 0.5px;
         }
 
-        .detail-value {
+        .modal-detail-row > div:not(.modal-product-image) {
             font-size: 14px;
             font-weight: var(--font-weight-medium);
             color: var(--color-primary);
             word-break: break-word;
+        }
+
+        .modal-product-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-light-gray);
+            border-radius: var(--radius-md);
+            min-height: 200px;
+        }
+
+        .modal-product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-md);
         }
 
         /* Status Badge */
@@ -665,6 +768,70 @@
             }
         }
 
+        /* Modal Responsive - Mobile */
+        @media (max-width: 767px) {
+            .product-view-modal {
+                padding: var(--spacing-md);
+            }
+
+            .modal-content {
+                max-width: 100%;
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                flex-wrap: wrap;
+                padding: var(--spacing-md) var(--spacing-lg);
+            }
+
+            .modal-title {
+                order: 0;
+                width: 100%;
+                margin: 0 0 var(--spacing-md) 0;
+                font-size: 16px;
+            }
+
+            .modal-close-btn {
+                min-width: 36px;
+                min-height: 36px;
+            }
+
+            .modal-edit-btn {
+                flex: 1;
+                min-height: 36px;
+                font-size: 11px;
+                padding: var(--spacing-sm) var(--spacing-md);
+            }
+
+            .modal-body {
+                padding: var(--spacing-lg);
+            }
+
+            .modal-details-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-lg);
+            }
+
+            .modal-detail-row {
+                padding-bottom: var(--spacing-md);
+            }
+
+            .modal-product-image {
+                min-height: 150px;
+            }
+        }
+
+        /* Modal Responsive - Tablet */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .modal-content {
+                max-width: 600px;
+            }
+
+            .modal-details-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         /* Print Styles */
         @media print {
             .products-sidebar,
@@ -672,7 +839,8 @@
             .products-menu-btn,
             .filters-bar,
             .pagination,
-            .product-actions {
+            .product-actions,
+            .product-view-modal {
                 display: none;
             }
 
@@ -859,6 +1027,25 @@
         </div>
     </div>
 
+    <!-- Product View Modal -->
+    <div class="product-view-modal" id="productViewModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="modal-close-btn" onclick="productsManager.closeProductModal()" title="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <h2 class="modal-title">Product Details</h2>
+                <button type="button" class="modal-edit-btn" id="modalEditBtn">Edit</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Product details load here -->
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="js/api-service.js"></script>
@@ -893,6 +1080,13 @@
             }
 
             setupEventListeners() {
+                // Modal overlay click to close
+                const modal = document.getElementById('productViewModal');
+                const modalOverlay = modal?.querySelector('.modal-overlay');
+                modalOverlay?.addEventListener('click', () => {
+                    this.closeProductModal();
+                });
+
                 // Mobile menu
                 const menuBtn = document.getElementById('productsMenuBtn');
                 const sidebar = document.getElementById('productsSidebar');
@@ -1034,14 +1228,6 @@
                 tbody.innerHTML = this.products
                     .map((product, idx) => this.createProductRow(product, idx))
                     .join('');
-
-                // Add expand listeners
-                document.querySelectorAll('.table-expand-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.toggleProductDetails(btn);
-                    });
-                });
             }
 
             createProductRow(product, idx) {
@@ -1053,13 +1239,6 @@
 
                 return `
                     <tr>
-                        <td>
-                            <button class="table-expand-btn" title="Expand">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                        </td>
                         <td data-label="SKU" style="font-family: monospace; font-size: 13px;">${product.sku || 'N/A'}</td>
                         <td data-label="Name" style="font-weight: var(--font-weight-semibold);">${this.truncate(product.name, 30)}</td>
                         <td data-label="Price">${numberUtils.formatCurrency(product.price)}</td>
@@ -1072,49 +1251,12 @@
                         </td>
                         <td data-label="Actions">
                             <div class="product-actions">
-                                <button class="action-btn" onclick="productsManager.editProduct('${product.id}')" title="Edit">✏️</button>
+                                <button class="action-btn" onclick="productsManager.viewProduct('${product.id}')" title="View & Edit">✏️</button>
                                 <button class="action-btn delete" onclick="productsManager.deleteProduct('${product.id}')" title="Delete">🗑️</button>
                             </div>
                         </td>
                     </tr>
-                    <tr class="product-details-row" data-product-id="${product.id}">
-                        <td colspan="7">
-                            <div class="product-details-cell">
-                                <div class="product-details-grid">
-                                    <div class="product-detail-item">
-                                        <div class="detail-label">Image</div>
-                                        <div class="detail-value">
-                                            <div class="product-image" style="width: 60px; height: 60px;">
-                                                ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">` : '🖼️'}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="product-detail-item">
-                                        <div class="detail-label">Category</div>
-                                        <div class="detail-value">${this.getCategoryName(product.category_id)}</div>
-                                    </div>
-                                    <div class="product-detail-item">
-                                        <div class="detail-label">Stock Status</div>
-                                        <div class="detail-value">${statusLabel}</div>
-                                    </div>
-                                    <div class="product-detail-item">
-                                        <div class="detail-label">Description</div>
-                                        <div class="detail-value">${product.description || 'No description'}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
                 `;
-            }
-
-            toggleProductDetails(btn) {
-                btn.classList.toggle('expanded');
-                const row = btn.closest('tr');
-                const detailsRow = row.nextElementSibling;
-                if (detailsRow?.classList.contains('product-details-row')) {
-                    detailsRow.classList.toggle('expanded');
-                }
             }
 
             getCategoryName(categoryId) {
@@ -1128,9 +1270,87 @@
                 return str.length > length ? str.substring(0, length) + '...' : str;
             }
 
-            editProduct(productId) {
-                // Navigate to edit page with product ID
-                window.location.href = `/admin/product-edit.html?id=${productId}`;
+            viewProduct(productId) {
+                // Open modal with product details
+                const product = this.products.find(p => p.id === productId);
+                if (product) {
+                    this.populateProductModal(product);
+                    this.openProductModal();
+                }
+            }
+
+            openProductModal() {
+                const modal = document.getElementById('productViewModal');
+                if (modal) {
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            closeProductModal() {
+                const modal = document.getElementById('productViewModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            populateProductModal(product) {
+                const { numberUtils } = window.adminUtils;
+                const stock = product.total_stock || product.stock || product.quantity || product.inventory || 0;
+                const stockStatus = stock > 10 ? 'in-stock' : stock > 0 ? 'low-stock' : 'out-of-stock';
+                const statusLabel = stockStatus === 'in-stock' ? 'In Stock' : stockStatus === 'low-stock' ? 'Low Stock' : 'Out of Stock';
+
+                // Set product ID for Edit button
+                const editBtn = document.getElementById('modalEditBtn');
+                if (editBtn) {
+                    editBtn.onclick = () => {
+                        window.location.href = `/admin/product-edit.html?id=${product.id}`;
+                    };
+                }
+
+                // Populate modal content
+                const modalBody = document.getElementById('modalBody');
+                if (modalBody) {
+                    modalBody.innerHTML = `
+                        <div class="modal-details-grid">
+                            <div class="modal-detail-row">
+                                <label>Image</label>
+                                <div class="modal-product-image">
+                                    ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="max-width: 200px; max-height: 200px; object-fit: cover;">` : '<div style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; background: #f0f0f0;">No image</div>'}
+                                </div>
+                            </div>
+                            <div class="modal-detail-row">
+                                <label>SKU</label>
+                                <div>${product.sku || 'N/A'}</div>
+                            </div>
+                            <div class="modal-detail-row">
+                                <label>Category</label>
+                                <div>${this.getCategoryName(product.category_id)}</div>
+                            </div>
+                            <div class="modal-detail-row">
+                                <label>Price</label>
+                                <div>${numberUtils.formatCurrency(product.price)}</div>
+                            </div>
+                            <div class="modal-detail-row">
+                                <label>Stock</label>
+                                <div>${stock} units</div>
+                            </div>
+                            <div class="modal-detail-row">
+                                <label>Stock Status</label>
+                                <div>${statusLabel}</div>
+                            </div>
+                            <div class="modal-detail-row">
+                                <label>Status</label>
+                                <div>${product.is_active ? 'Active' : 'Inactive'}</div>
+                            </div>
+                            <div class="modal-detail-row">
+                                <label>Description</label>
+                                <div>${product.description || 'No description'}</div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
 
             deleteProduct(productId) {
