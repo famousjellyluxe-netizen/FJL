@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 // Get the directory of the current file
@@ -122,6 +123,12 @@ app.use(morgan(nodeEnv === 'production' ? 'combined' : 'dev'));
 
 // Serve static files from dist folder (frontend build)
 const distPath = path.resolve(backendRoot, '../dist');
+console.log(`📁 Frontend dist path: ${distPath}`);
+console.log(`✓ Frontend files exist: ${fs.existsSync(distPath) ? 'YES' : 'NO'}`);
+if (fs.existsSync(distPath)) {
+  const files = fs.readdirSync(distPath).slice(0, 10);
+  console.log(`📂 Sample files in dist/: ${files.join(', ')}`);
+}
 app.use(express.static(distPath));
 
 // ============================================================================
