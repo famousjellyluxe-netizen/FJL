@@ -78,7 +78,20 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 // SECURITY MIDDLEWARE
 // ============================================================================
 
-app.use(helmet()); // Set security HTTP headers
+// Configure Helmet with relaxed CSP to allow CDN scripts and inline scripts
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://unpkg.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https:", "wss:"],
+      frameSrc: ["'self'"],
+    },
+  },
+}));
 
 // CORS configuration
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000')
