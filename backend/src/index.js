@@ -160,26 +160,6 @@ app.get('/api/health/newsletter', (req, res) => {
 });
 
 // ============================================================================
-// SPA FALLBACK ROUTING
-// ============================================================================
-
-// Fallback route for Single Page App - serve index.html for non-API requests
-// This allows client-side routing to work properly
-app.get('*', (req, res, next) => {
-  // Skip for API routes - let them fall through to 404 handler
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  // Serve index.html for all other requests (SPA routing)
-  res.sendFile(path.join(distPath, 'index.html'), (err) => {
-    if (err) {
-      // If index.html doesn't exist, let the next handler deal with it
-      next();
-    }
-  });
-});
-
-// ============================================================================
 // API ROUTES
 // ============================================================================
 
@@ -190,6 +170,23 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/contact', contactRouter);
+
+// ============================================================================
+// SPA FALLBACK ROUTING
+// ============================================================================
+
+// Fallback route for Single Page App - serve index.html for non-API requests
+// This allows client-side routing to work properly
+// MUST come AFTER static file serving and API routes
+app.get('*', (req, res, next) => {
+  // Serve index.html for all non-API requests (SPA routing)
+  res.sendFile(path.join(distPath, 'index.html'), (err) => {
+    if (err) {
+      // If index.html doesn't exist, let the error handler deal with it
+      next();
+    }
+  });
+});
 
 // ============================================================================
 // ERROR HANDLING
