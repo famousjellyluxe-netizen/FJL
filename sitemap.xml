@@ -1,97 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Homepage -->
   <url>
     <loc>https://fjlclothing.shop/</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- Main Pages -->
   <url>
     <loc>https://fjlclothing.shop/shop.html</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
     <loc>https://fjlclothing.shop/about.html</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
     <loc>https://fjlclothing.shop/contact.html</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>
-
-  <url>
-    <loc>https://fjlclothing.shop/product.html</loc>
-    <lastmod>2025-12-02</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Policy Pages -->
   <url>
     <loc>https://fjlclothing.shop/privacy-policy.html</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.3</priority>
   </url>
-
   <url>
     <loc>https://fjlclothing.shop/refund-policy.html</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.3</priority>
   </url>
-
   <url>
     <loc>https://fjlclothing.shop/shipping-policy.html</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.3</priority>
   </url>
-
   <url>
     <loc>https://fjlclothing.shop/terms-of-service.html</loc>
-    <lastmod>2025-12-02</lastmod>
+    <lastmod>2025-12-03</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.3</priority>
   </url>
-
-  <!-- Category Pages (filterable via shop.html) -->
   <url>
-    <loc>https://fjlclothing.shop/shop.html?category=tees</loc>
-    <lastmod>2025-12-02</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://fjlclothing.shop/product.html?id=6f419d60-e2ad-445a-992e-5f9e4820c4a6</loc>
+    <lastmod>2025-12-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
   <url>
-    <loc>https://fjlclothing.shop/shop.html?category=sleeveless</loc>
-    <lastmod>2025-12-02</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://fjlclothing.shop/product.html?id=675ad781-f13b-4e51-af2e-c20c4ad9dec5</loc>
+    <lastmod>2025-12-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
   <url>
-    <loc>https://fjlclothing.shop/shop.html?category=pants</loc>
-    <lastmod>2025-12-02</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://fjlclothing.shop/product.html?id=bea7c0e5-34fd-43a7-857f-66a7b9dceba0</loc>
+    <lastmod>2025-12-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
   <url>
-    <loc>https://fjlclothing.shop/shop.html?category=headwears</loc>
-    <lastmod>2025-12-02</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://fjlclothing.shop/product.html?id=d05e6fc7-ecf5-4dda-9911-658663d1a83f</loc>
+    <lastmod>2025-12-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>
