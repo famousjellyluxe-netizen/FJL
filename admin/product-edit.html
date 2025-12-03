@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="styles.css">
 
     <!-- Fonts & Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@1.263.1"></script>
     <script src="../notifications.js"></script>
 
     <style>
@@ -184,8 +184,8 @@
             <header class="admin-header">
                 <h2 class="header-title">Edit Product</h2>
                 <div class="header-right">
-                    <button type="button" id="deleteBtn" title="Delete product"><i data-lucide="trash-2"></i></button>
-                    <button type="button" class="header-icon-btn" id="closeBtnEditProduct" title="Close edit page"><i data-lucide="x"></i></button>
+                    <button type="button" id="deleteBtn" title="Delete product" aria-label="Delete product"><i data-lucide="trash-2"></i></button>
+                    <button type="button" class="header-icon-btn" id="closeBtnEditProduct" title="Close edit page" aria-label="Close edit page"><i data-lucide="x"></i></button>
                 </div>
             </header>
 
@@ -319,6 +319,7 @@
 
     <script src="js/api-service.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/icon.js"></script>
     <script src="admin.js"></script>
     <script src="js/responsive.js"></script>
     <script>

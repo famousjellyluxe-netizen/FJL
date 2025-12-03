@@ -128,6 +128,30 @@
   --z-tooltip: 70;
   --z-notification: 80;
   --z-menu: 100;
+
+  /* ===== ICON SYSTEM ===== */
+
+  /* Icon Sizing - Responsive */
+  --icon-size-sm: clamp(16px, 3vw, 20px);   /* Small icons: forms, status */
+  --icon-size-md: clamp(20px, 4vw, 24px);   /* Medium icons: nav, actions */
+  --icon-size-lg: clamp(24px, 5vw, 28px);   /* Large icons: metrics, emphasis */
+
+  /* Icon Color States */
+  --icon-color-default: var(--color-primary);          /* Default: black text */
+  --icon-color-hover: var(--color-accent);             /* Hover: accent color */
+  --icon-color-disabled: var(--color-gray);            /* Disabled: muted gray */
+  --icon-color-success: var(--color-success);          /* Success: green */
+  --icon-color-warning: var(--color-warning);          /* Warning: orange */
+  --icon-color-error: var(--color-danger);             /* Error: red */
+  --icon-color-info: var(--color-info);                /* Info: blue */
+
+  /* Icon Stroke Width */
+  --icon-stroke-width: 2px;                 /* Consistent 2px stroke */
+
+  /* Icon Spacing */
+  --icon-gap-sm: clamp(4px, 1vw, 6px);      /* Small gap: compact layouts */
+  --icon-gap-md: clamp(6px, 1.5vw, 8px);    /* Medium gap: normal spacing */
+  --icon-gap-lg: clamp(8px, 2vw, 12px);     /* Large gap: spacious layouts */
 }
 
 /* ===== GLOBAL STYLES ===== */
