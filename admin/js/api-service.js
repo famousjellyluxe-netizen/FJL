@@ -335,6 +335,13 @@ const orderService = {
     getStats: () => {
         return apiClient.get('/orders/stats');
     },
+
+    /**
+     * Delete order
+     */
+    deleteOrder: (id) => {
+        return apiClient.delete(`/orders/${id}`);
+    },
 };
 
 /**

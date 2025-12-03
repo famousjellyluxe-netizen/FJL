@@ -208,7 +208,7 @@
                     <div class="sidebar-avatar">A</div>
                     <div><div class="label-text">Logged in as</div><div style="font-weight: 600;" id="adminName">Admin</div></div>
                 </div>
-                <button class="btn btn-secondary btn-sm btn-block" onclick="logoutAdmin()">Logout</button>
+                <button class="btn btn-secondary btn-sm btn-block" id="logoutBtn">Logout</button>
             </div>
         </aside>
 
@@ -216,10 +216,8 @@
         <main class="admin-main">
             <!-- Header -->
             <header class="admin-header">
-                <h2 class="header-title">Edit Order Status</h2>
                 <div class="header-right">
-                    <button class="header-icon-btn" onclick="goBackToOrders()" title="Close">×</button>
-                    <button class="header-icon-btn" onclick="toggleSidebar()" title="Menu">≡</button>
+                    <button class="header-icon-btn" id="closeEditOrderBtn" title="Close">×</button>
                 </div>
             </header>
 
@@ -231,7 +229,7 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <form id="statusForm" onsubmit="saveStatuses(event)">
+                        <form id="statusForm">
                             <div class="status-grid">
                                 <!-- Payment Status Section -->
                                 <div class="status-section">
@@ -268,7 +266,7 @@
 
                             <!-- Form Actions -->
                             <div class="order-actions">
-                                <button type="button" class="btn btn-secondary" onclick="goBackToOrders()">Cancel</button>
+                                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
                                 <button type="submit" class="btn btn-primary" id="saveBtn"><i data-lucide="check" class="icon-sm"></i> Save Changes</button>
                             </div>
                         </form>
@@ -587,6 +585,35 @@
                     sidebar.classList.remove('open', 'active');
                 }
             });
+
+            // Set up logout button click handler
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                logoutAdmin();
+            });
+
+            // Set up close button click handler
+            const closeEditOrderBtn = document.getElementById('closeEditOrderBtn');
+            closeEditOrderBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                goBackToOrders();
+            });
+
+            // Set up cancel button click handler
+            const cancelBtn = document.getElementById('cancelBtn');
+            cancelBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                goBackToOrders();
+            });
+
+            // Set up form submit handler
+            const statusForm = document.getElementById('statusForm');
+            statusForm?.addEventListener('submit', (e) => {
+                saveStatuses(e);
+            });
+
+            initializeEditOrder();
         });
     </script>
 </body>
