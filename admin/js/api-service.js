@@ -7,7 +7,7 @@
 // Get API base URL from environment or config
 const API_BASE_URL = window.location.origin.includes('localhost')
     ? 'http://localhost:5001/api'
-    : '/api';
+    : 'https://fjl-backend.onrender.com/api';
 
 /**
  * API Client - Core fetch wrapper with error handling
