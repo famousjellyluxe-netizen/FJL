@@ -516,6 +516,28 @@
                 padding: 6px;
             }
         }
+
+        /* Constrain SVG sizes in modal and detail sections */
+        .modal-content svg,
+        .order-details-cell svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .modal-content [data-lucide],
+        .order-details-cell [data-lucide] {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
+
+        @media (max-width: 480px) {
+            .modal-content [data-lucide],
+            .order-details-cell [data-lucide] {
+                width: 16px;
+                height: 16px;
+            }
+        }
     </style>
 </head>
 <body>
