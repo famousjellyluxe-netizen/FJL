@@ -69,8 +69,16 @@
     } catch (error) {
       console.error('Error fetching order from API:', error);
 
+      // Distinguish between different error types for better debugging
       if (error.type === 'NETWORK_ERROR') {
         console.log('📡 Offline - using cached order');
+      } else if (error.status === 401) {
+        console.warn('🔐 Authentication error (401) - Order page requires valid session. Using cached order from localStorage.');
+        console.log('Note: This is expected if not logged in. Order details loaded from cache.');
+      } else if (error.status === 404) {
+        console.warn('❌ Order not found (404) - Using cached order');
+      } else if (error.status >= 500) {
+        console.error('🔥 Server error (' + error.status + ') - Using cached order');
       }
 
       return getOrderFallback(orderIdOrNumber);
@@ -358,6 +366,11 @@
     }
 
     console.log('✅ Order confirmation displayed');
+
+    // Reinitialize Lucide icons for dynamically rendered order items
+    if (typeof initLucideIcons === 'function') {
+      initLucideIcons();
+    }
   };
 
   /**
@@ -415,12 +428,25 @@
     }
 
     console.log(`✅ Order confirmation loaded: ${order.order_number}`);
+
+    // Initialize auto-redirect after order is successfully loaded
+    if (typeof initializeAutoRedirect === 'function') {
+      initializeAutoRedirect();
+    }
   };
 
   // Auto-initialize when this script loads
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.initializeOrderConfirmation);
+    document.addEventListener('DOMContentLoaded', () => {
+      window.initializeOrderConfirmation().catch((error) => {
+        // Suppress unhandled promise rejections - errors are already handled in getOrder()
+        console.debug('Order confirmation error handled gracefully:', error);
+      });
+    });
   } else {
-    window.initializeOrderConfirmation();
+    window.initializeOrderConfirmation().catch((error) => {
+      // Suppress unhandled promise rejections - errors are already handled in getOrder()
+      console.debug('Order confirmation error handled gracefully:', error);
+    });
   }
 })();

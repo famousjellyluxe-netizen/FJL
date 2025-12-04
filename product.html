@@ -1667,8 +1667,8 @@
                 <!-- Product Gallery (Left) -->
                 <div class="product-gallery">
                     <!-- Main Image -->
-                    <div class="main-image" onclick="openImageModal()">
-                        <img id="mainImage" src="images/placeholder.png" alt="Product image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 600 600%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22600%22 height=%22600%22/%3E%3C/svg%3E'">
+                    <div class="main-image" data-action="open-image-modal">
+                        <img id="mainImage" src="images/placeholder.png" alt="Product image">
                         <div class="zoom-icon">
                             <i data-lucide="zoom-in" class="w-6 h-6"></i>
                         </div>
@@ -1734,9 +1734,9 @@
                     <div class="quantity-section">
                         <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; margin-right: 8px;">QTY</span>
                         <div class="quantity-input">
-                            <button class="quantity-btn" onclick="decreaseQty()">−</button>
+                            <button type="button" class="quantity-btn" data-action="decrease-qty" aria-label="Decrease quantity">−</button>
                             <input type="text" class="quantity-display" id="quantityDisplay" value="1" readonly>
-                            <button class="quantity-btn" onclick="increaseQty()">+</button>
+                            <button type="button" class="quantity-btn" data-action="increase-qty" aria-label="Increase quantity">+</button>
                         </div>
                     </div>
 
@@ -1744,7 +1744,7 @@
                     <div id="quantityWarning" class="quantity-warning-alert"></div>
 
                     <!-- Add to Cart Button -->
-                    <button class="add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
+                    <button type="button" class="add-to-cart-btn" data-action="add-to-cart">Add to Cart</button>
 
                     <!-- Product Features -->
                     <div class="product-features">
@@ -1770,7 +1770,7 @@
 
                     <!-- Product Description -->
                     <div class="product-description">
-                        <div class="description-title" onclick="toggleDescription(this)">
+                        <div class="description-title" data-action="toggle-description" role="button" tabindex="0">
                             Product Description
                             <span id="toggleIcon">▼</span>
                         </div>
@@ -2075,15 +2075,18 @@
                 if (productImages.length === 0) {
                     const placeholderThumb = document.createElement('div');
                     placeholderThumb.className = 'thumbnail active';
-                    placeholderThumb.onclick = function() { changeImage(this); };
-                    placeholderThumb.innerHTML = '<img src="images/placeholder.png" alt="No Image" onerror="this.src=\'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22200%22 height=%22200%22/%3E%3C/svg%3E\'">';
+                    placeholderThumb.setAttribute('data-action', 'change-image');
+                    const img = document.createElement('img');
+                    img.src = 'images/placeholder.png';
+                    img.alt = 'No Image';
+                    placeholderThumb.appendChild(img);
                     thumbnailsContainer.appendChild(placeholderThumb);
                 } else {
                     // Create thumbnails for each product image
                     productImages.forEach((imgUrl, index) => {
                         const thumb = document.createElement('div');
                         thumb.className = 'thumbnail' + (index === 0 ? ' active' : '');
-                        thumb.onclick = function() { changeImage(this); };
+                        thumb.setAttribute('data-action', 'change-image');
 
                         const img = document.createElement('img');
                         img.src = imgUrl;
@@ -2494,6 +2497,61 @@
                 }
             }
         });
+
+        // CSP Compliant Event Delegation - Product Page Actions
+        document.addEventListener('click', function(event) {
+            const target = event.target.closest('[data-action]');
+            if (!target) return;
+
+            const action = target.dataset.action;
+
+            // Prevent propagation for stop-propagation action
+            if (action === 'stop-propagation') {
+                event.stopPropagation();
+                return;
+            }
+
+            switch(action) {
+                case 'open-image-modal':
+                    openImageModal();
+                    break;
+                case 'close-image-modal':
+                    closeImageModal();
+                    break;
+                case 'previous-image':
+                    previousImage();
+                    break;
+                case 'next-image':
+                    nextImage();
+                    break;
+                case 'close-size-chart':
+                    closeSizeChart();
+                    break;
+                case 'toggle-description':
+                    toggleDescription(target);
+                    break;
+                case 'change-image':
+                    changeImage(target);
+                    break;
+                case 'decrease-qty':
+                    decreaseQty();
+                    break;
+                case 'increase-qty':
+                    increaseQty();
+                    break;
+                case 'add-to-cart':
+                    addToCart();
+                    break;
+            }
+        });
+
+        // Image error handling for dynamically rendered thumbnails
+        document.addEventListener('error', function(event) {
+            if (event.target.tagName === 'IMG' && !event.target.dataset.errorHandled) {
+                event.target.dataset.errorHandled = 'true';
+                event.target.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22200%22 height=%22200%22/%3E%3C/svg%3E';
+            }
+        }, true); // Use capture phase for better error handling
 
         // Quantity selector functions with stock validation
         function increaseQty() {
@@ -3035,15 +3093,15 @@
     </script>
 
     <!-- Image Modal -->
-    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
-        <div class="image-modal-content" onclick="event.stopPropagation()">
+    <div id="imageModal" class="image-modal" data-action="close-image-modal">
+        <div class="image-modal-content" data-action="stop-propagation">
             <img id="modalImage" src="" alt="Product Image Zoom">
-            <button class="image-modal-close" onclick="closeImageModal()">×</button>
+            <button type="button" class="image-modal-close" data-action="close-image-modal" aria-label="Close modal">×</button>
 
             <!-- Navigation Controls - Positioned on sides -->
             <div class="image-modal-nav" id="imageNavigation" style="display: none;">
-                <button onclick="previousImage()" title="Previous image">←</button>
-                <button onclick="nextImage()" title="Next image">→</button>
+                <button type="button" data-action="previous-image" title="Previous image">←</button>
+                <button type="button" data-action="next-image" title="Next image">→</button>
             </div>
 
             <!-- Image Counter -->
@@ -3072,9 +3130,9 @@
 
         <!-- Size Chart Modal -->
         <div id="sizeChartModal" class="size-chart-modal">
-            <div class="size-chart-overlay" onclick="closeSizeChart()"></div>
+            <div class="size-chart-overlay" data-action="close-size-chart"></div>
             <div class="size-chart-container">
-                <button class="size-chart-close" onclick="closeSizeChart()">&times;</button>
+                <button type="button" class="size-chart-close" data-action="close-size-chart" aria-label="Close">&times;</button>
                 <h2 class="size-chart-title">Size Chart</h2>
                 <div class="size-chart-table-wrapper">
                     <table class="size-chart-table">

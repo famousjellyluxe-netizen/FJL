@@ -1687,7 +1687,10 @@
                     </div>
                 `;
                 renderPaginationButtons(0);
-                lucide.createIcons();
+                // Initialize lucide icons after DOM update
+                if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                    lucide.createIcons();
+                }
                 return;
             }
 
@@ -1790,7 +1793,9 @@
             renderPaginationButtons(totalPages);
 
             // Reinitialize Lucide icons for the newly added elements
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
         }
 
         function renderPaginationButtons(totalPages) {
@@ -1808,11 +1813,11 @@
             if (totalPages > 1) {
                 paginationContainer.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px;">
-                        <button class="pagination-btn" onclick="previousPage()" ${currentPage === 1 ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === 1 ? '0.5' : '1'};">
+                        <button type="button" class="pagination-btn" data-action="previous-page" ${currentPage === 1 ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === 1 ? '0.5' : '1'};">
                             ◀ Prev
                         </button>
                         <span style="font-weight: 600; color: #666;">Page ${currentPage} of ${totalPages}</span>
-                        <button class="pagination-btn" onclick="nextPage()" ${currentPage === totalPages ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === totalPages ? '0.5' : '1'};">
+                        <button type="button" class="pagination-btn" data-action="next-page" ${currentPage === totalPages ? 'disabled' : ''} style="padding: 12px 24px; background: white; border: 1px solid #e5e5e5; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}; border-radius: 4px; font-weight: 600; opacity: ${currentPage === totalPages ? '0.5' : '1'};">
                             Next ▶
                         </button>
                     </div>
@@ -1938,8 +1943,8 @@
             updateCartBadge();
         });
 
-        // Initialize Lucide icons
-        lucide.createIcons();
+        // Initialize Lucide icons after DOM is ready
+        // Will be called within DOMContentLoaded and after renderProducts()
 
         // ===== CATEGORY FILTER INITIALIZATION =====
         // Load and populate categories from API
@@ -2146,7 +2151,7 @@
             const modalHTML = `
                 <div id="productModalOverlay" class="product-modal-overlay">
                     <div class="product-modal">
-                        <button class="modal-close-btn" onclick="closeProductModal()">&times;</button>
+                        <button type="button" class="modal-close-btn" data-action="close-modal" aria-label="Close">&times;</button>
 
                         <img id="modalProductImage" class="modal-product-image" src="" alt="Product">
                         <h2 id="modalProductName" class="modal-product-name"></h2>
@@ -2166,15 +2171,15 @@
                         <div>
                             <label class="modal-quantity-label">Quantity</label>
                             <div class="modal-quantity-controls">
-                                <button class="quantity-btn" onclick="decreaseQuantity()">−</button>
+                                <button type="button" class="quantity-btn" data-action="decrease-quantity">−</button>
                                 <span id="modalQuantity" class="quantity-display">1</span>
-                                <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                                <button type="button" class="quantity-btn" data-action="increase-quantity">+</button>
                             </div>
                             <p id="modalStockDisplay" style="color: #27ae60; font-size: 12px; margin-top: 8px; display: none;"><strong id="modalAvailableStock">0</strong> left in stock</p>
                             <p id="modalLowStockWarning" style="color: #e74c3c; font-size: 12px; margin-top: 8px; display: none;">⚠️ Only <strong id="modalLowStockCount">0</strong> left in stock</p>
                         </div>
 
-                        <button id="modalAddButton" class="modal-add-to-cart" onclick="confirmAddToCart()">Add to Cart</button>
+                        <button type="button" id="modalAddButton" class="modal-add-to-cart" data-action="confirm-add-to-cart">Add to Cart</button>
                     </div>
                 </div>
             `;
@@ -2681,6 +2686,35 @@
           console.error('❌ Failed to initialize shop real-time updates:', error);
         }
       })();
+
+      // CSP Compliant Event Delegation - Shop Page Actions
+      document.addEventListener('click', function(event) {
+          const target = event.target.closest('[data-action]');
+          if (!target) return;
+
+          const action = target.dataset.action;
+
+          switch(action) {
+              case 'previous-page':
+                  previousPage();
+                  break;
+              case 'next-page':
+                  nextPage();
+                  break;
+              case 'close-modal':
+                  closeProductModal();
+                  break;
+              case 'decrease-quantity':
+                  decreaseQuantity();
+                  break;
+              case 'increase-quantity':
+                  increaseQuantity();
+                  break;
+              case 'confirm-add-to-cart':
+                  confirmAddToCart();
+                  break;
+          }
+      });
     </script>
 </body>
 </html>

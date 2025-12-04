@@ -1439,6 +1439,7 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateCartBadge();
+            initLucideIcons();
             // Load tax rate from API first, then load order details (for fallback)
             loadTaxRateFromAPI().then(() => {
                 updateTaxLabel();
@@ -1446,10 +1447,27 @@
             });
             // Note: Primary order loading is handled by order-confirmation-integration.js
             // which runs after this script loads
+            // Auto-redirect is initialized after order confirmation successfully loads
         });
 
-        // Initialize Lucide icons
-        lucide.createIcons();
+        // Initialize Lucide icons after library loads
+        function initLucideIcons() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+
+        // Auto-redirect to shop after order confirmation displays
+        function initializeAutoRedirect() {
+            const redirectDelay = 30000; // 30 seconds - gives time to view payment info
+
+            console.log('🔄 Order confirmation will auto-redirect to shop in 30 seconds');
+
+            setTimeout(() => {
+                console.log('🔄 Auto-redirecting to shop...');
+                window.location.href = 'shop.html';
+            }, redirectDelay);
+        }
     </script>
     <script src="cart-manager.js"></script>
     <script src="cart-drawer.js"></script>

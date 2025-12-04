@@ -1404,8 +1404,12 @@
     </script>
 
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
+        // Initialize Lucide icons after library loads
+        function initLucideIcons() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
 
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -1451,7 +1455,10 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', updateCartBadge);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartBadge();
+            initLucideIcons();
+        });
         window.addEventListener('cart-updated', updateCartBadge);
 
         // Newsletter Modal
@@ -1701,7 +1708,7 @@
                     <div class="product-card">
                         <a href="product.html?id=${product.id}" style="text-decoration: none; color: inherit;">
                             <div class="product-image">
-                                <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='images/placeholder.png'">
+                                <img src="${imageUrl}" alt="${product.name}" loading="lazy" class="product-img">
                             </div>
                         </a>
                         <div class="product-info">
@@ -1715,7 +1722,7 @@
             });
 
             productsGrid.innerHTML = html;
-            lucide.createIcons();
+            initLucideIcons();
         }
 
         function handleAddToCart(id, name, price, image, isOutOfStock) {
@@ -1753,6 +1760,13 @@
                 }
             }
         });
+
+        // Image error handling - CSP compliant
+        document.addEventListener('error', function(event) {
+            if (event.target.tagName === 'IMG' && event.target.classList.contains('product-img')) {
+                event.target.src = 'images/placeholder.png';
+            }
+        }, true);
     </script>
 </body>
 </html>
